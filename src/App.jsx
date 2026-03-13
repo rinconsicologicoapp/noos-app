@@ -19,6 +19,9 @@ const [insightTitle, setInsightTitle] = useState("");
 const [insightMood, setInsightMood] = useState(null);
 const [insightShared, setInsightShared] = useState(false);
 const [tareasTab, setTareasTab] = useState("autoregistros");
+const [darkMode, setDarkMode] = useState(() => {
+  try { return localStorage.getItem('darkMode') === 'true'; } catch { return false; }
+});
   const [navOpen, setNavOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
   const [notifPanel, setNotifPanel] = useState(false);
@@ -68,12 +71,19 @@ const styles = `
     animation: fadeIn 0.25s ease;
   }
 `;
-  const C = {
-    plum:"#5C4D6E", sage:"#7DAA92", sageDark:"#4E7A63", amber:"#E8A87C",
-    amberDark:"#C97D4E", cream:"#FAF7F2", warm:"#F0E6D3", text:"#2C2C3A",
-    light:"#7A7A8A", gold:"#D4A843", red:"#E87070", blue:"#70A0E8",
-    green:"#70C89A", dark:"#1a1a2e"
-  };
+  const C = darkMode ? {
+  plum:"#9B8DB8", sage:"#7DAA92", sageDark:"#5A8A72",
+  amber:"#E8A87C", amberDark:"#C4845A", cream:"#1A1A2E",
+  warm:"#2A2A3E", text:"#E8E8F0", light:"#8888AA",
+  red:"#FF6B6B", green:"#4ECDC4", blue:"#74B9FF",
+  dark:"#0D0D1A", gold:"#F0C040", bg:"#2A2A3E"
+} : {
+  plum:"#5C4D6E", sage:"#7DAA92", sageDark:"#4A8A72",
+  amber:"#E8A87C", amberDark:"#C4845A", cream:"#FAF7F2",
+  warm:"#FFF3E8", text:"#2D2D3E", light:"#9A9AB0",
+  red:"#E57373", green:"#66BB6A", blue:"#64B5F6",
+  dark:"#1a1a2e", gold:"#F0C040", bg:"#F0EBE3"
+};
 
   const avatars = ["🦋","🦁","🐺","🦊","🐘","🦅","🐬","🦉","🐆","🦓","🐢","🦜"];
 
@@ -668,6 +678,11 @@ const styles = `
                 {mitem(avatar, "Cambiar avatar", () => setModal("avatar"))}
                 {mitem("✏️", "Editar perfil", () => setModal("edit-perfil"))}
                 {mitem("🔔", "Notificaciones", () => setNotifPanel(true))}
+                {mitem(darkMode ? "☀️" : "🌙", darkMode ? "Modo claro" : "Modo oscuro", () => {
+  const nuevo = !darkMode;
+  setDarkMode(nuevo);
+  localStorage.setItem('darkMode', nuevo);
+})}
                 {mitem("🔒", "Privacidad y seguridad", () => showNotif("Privacidad", "Tu información está segura y encriptada", "🔒"))}
                 {mitem("❓", "Ayuda y soporte", () => showNotif("Soporte", "Un agente te responderá pronto", "❓"))}
                 {mitem("🚪", "Cerrar sesión", () => showScreen("login"), true)}
