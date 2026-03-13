@@ -10,6 +10,7 @@ export default function NOOS() {
   const [citaStatus, setCitaStatus] = useState("pending");
   const [adminCitaStatus, setAdminCitaStatus] = useState("pending");
   const [toast, setToast] = useState(null);
+  const [pinValue, setPinValue] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
   const [notifPanel, setNotifPanel] = useState(false);
   const [notifs, setNotifs] = useState([
@@ -151,35 +152,56 @@ const styles = `
 
           {/* LOGIN */}
 {!notifPanel && screen === "login" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, background:`linear-gradient(160deg,${C.cream},${C.cream} 60%,#E8D5F0)` }}>
-    
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, background:`linear-gradient(160deg, #FAF7F2, #EDE0F5, #D4EDE1)`, backgroundSize:"400% 400%", animation:"gradientMove 6s ease infinite" }}>
+
     {/* LOGO */}
     <div style={{ fontSize:80, marginBottom:8, animation:"fadeIn 0.8s ease" }}>🛋️</div>
     <div style={{ fontSize:32, fontWeight:900, color:C.plum, letterSpacing:1, marginBottom:4 }}>Mi Psicólogo</div>
-    <div style={{ fontSize:13, color:C.light, fontWeight:500, marginBottom:40, textAlign:"center" }}>Tu espacio seguro de bienestar</div>
+    <div style={{ fontSize:13, color:C.light, fontWeight:500, marginBottom:40, textAlign:"center" }}>Un espacio seguro</div>
 
     {/* FORMULARIO */}
     <div style={{ width:"100%", background:"white", borderRadius:24, padding:28, boxShadow:"0 8px 32px rgba(92,77,110,0.12)" }}>
-      
+
       {/* NOMBRE */}
       <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Nombre de usuario</div>
-      <input 
-        type="text" 
-        placeholder="Tu nombre" 
-        style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:14, marginBottom:16, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:C.cream }}
+      <input
+        type="text"
+        placeholder="Tu nombre"
+        style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:14, marginBottom:20, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:C.cream }}
       />
 
-      {/* PIN */}
-      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>PIN de acceso</div>
-      <input 
-        type="password" 
-        placeholder="● ● ● ●" 
+      {/* PIN VISUAL */}
+      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:12 }}>PIN de acceso</div>
+      <div style={{ display:"flex", justifyContent:"center", gap:16, marginBottom:16 }}>
+        {[0,1,2,3].map(i => (
+          <div key={i} style={{ width:18, height:18, borderRadius:"50%", background: pinValue && pinValue.length > i ? C.plum : "transparent", border:`2.5px solid ${pinValue && pinValue.length > i ? C.plum : C.light}`, transition:"all 0.2s ease" }}/>
+        ))}
+      </div>
+      <input
+        type="password"
+        placeholder="PIN"
         maxLength={4}
-        style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:18, marginBottom:24, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:C.cream, letterSpacing:8, textAlign:"center" }}
+        value={pinValue || ""}
+        onChange={e => setPinValue(e.target.value)}
+        style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:14, marginBottom:24, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:C.cream, textAlign:"center", letterSpacing:1 }}
       />
 
-      {/* BOTÓN */}
-      {btn(() => showScreen("home"), "Entrar", { width:"100%", padding:16, background:C.plum, color:"white", borderRadius:15, fontSize:15, fontWeight:800 })}
+      {/* BOTÓN CON RIPPLE */}
+      <button
+        onClick={e => {
+          if (navigator.vibrate) navigator.vibrate(10);
+          const btn = e.currentTarget;
+          const circle = document.createElement("span");
+          const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+          circle.style.cssText = `width:${diameter}px;height:${diameter}px;position:absolute;border-radius:50%;background:rgba(255,255,255,0.3);transform:scale(0);animation:ripple 0.5s linear;left:${e.clientX - btn.getBoundingClientRect().left - diameter/2}px;top:${e.clientY - btn.getBoundingClientRect().top - diameter/2}px;pointer-events:none;`;
+          btn.appendChild(circle);
+          setTimeout(() => circle.remove(), 500);
+          showScreen("home");
+        }}
+        style={{ width:"100%", padding:16, background:C.plum, color:"white", borderRadius:15, fontSize:15, fontWeight:800, border:"none", cursor:"pointer", fontFamily:"inherit", position:"relative", overflow:"hidden" }}
+      >
+        Entrar
+      </button>
     </div>
 
     {/* FOOTER */}
