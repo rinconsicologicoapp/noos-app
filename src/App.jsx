@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 export default function NOOS() {
   const [screen, setScreen] = useState("login");
-  const [noteTab, setNoteTab] = useState("notas");
+  const [noteTab, setNoteTab] = useState("insights");
   const [avatar, setAvatar] = useState("🦋");
   const [modal, setModal] = useState(null);
   const [mood, setMood] = useState(2);
@@ -11,6 +11,14 @@ export default function NOOS() {
   const [adminCitaStatus, setAdminCitaStatus] = useState("pending");
   const [toast, setToast] = useState(null);
   const [pinValue, setPinValue] = useState("");
+  const [insights, setInsights] = useState(() => {
+  try { return JSON.parse(localStorage.getItem('insights')) || []; } catch { return []; }
+});
+const [insightText, setInsightText] = useState("");
+const [insightTitle, setInsightTitle] = useState("");
+const [insightMood, setInsightMood] = useState(null);
+const [insightShared, setInsightShared] = useState(false);
+const [tareasTab, setTareasTab] = useState("autoregistros");
   const [navOpen, setNavOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
   const [notifPanel, setNotifPanel] = useState(false);
@@ -102,7 +110,7 @@ const styles = `
       <div style={{ fontSize:12, fontWeight:800, color:"#aaa", marginBottom:16, textTransform:"uppercase", letterSpacing:1 }}>Navegación</div>
 
       {/* OPCIONES */}
-      {[["🏠","Inicio","home"],["📝","Notas","notas"],["📚","Recursos","materiales"],["📅","Citas","calendario"],["🏆","Logros","logros"],["👤","Perfil","perfil"]].map(([ic,lb,id]) => (
+      {[["🏠","Inicio","home"],["📝","Notas","notas"],["📅","Citas","calendario"],["🏆","Logros","logros"],["👤","Perfil","perfil"]].map(([ic,lb,id]) => (
         <div key={id} onClick={() => { showScreen(id); setNavOpen(false); }}
           style={{ display:"flex", alignItems:"center", gap:16, padding:"14px 16px", borderRadius:16, marginBottom:8, background:active===id?`${C.plum}15`:"transparent", cursor:"pointer", transition:"all 0.2s ease" }}>
           <div style={{ fontSize:24, width:40, height:40, borderRadius:12, background:active===id?C.plum:"#F5F5F5", display:"flex", alignItems:"center", justifyContent:"center" }}>{ic}</div>
@@ -242,7 +250,7 @@ const styles = `
               <div style={{ background:`linear-gradient(145deg,${C.plum},#3D3055)`, padding:"20px 24px 76px", position:"relative" }}>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>¡Buenos días,</div>
                 <div style={{ fontSize:23, color:"white", fontWeight:900 }}>Sofía 👋</div>
-                <div style={{ fontSize:11, color:"rgba(255,255,255,0.45)", marginTop:3 }}>Martes, 10 de marzo · Semana 11</div>
+                <div style={{ fontSize:11, color:"rgba(255,255,255,0.45)", marginTop:3 }}>{new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })} · Semana {Math.ceil(new Date().getDate()/7)}</div>
                 <div style={{ position:"absolute", top:18, right:22, display:"flex", gap:10, alignItems:"center" }}>
                   <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer" }}>
                     <div style={{ fontSize:24 }}>🔔</div>
@@ -301,120 +309,224 @@ const styles = `
           )}
 
           {/* NOTAS */}
-          {!notifPanel && screen === "notas" && (
-            <div style={{ height:"100%", display:"flex", flexDirection:"column" }}>
-              <div style={{ background:"white", padding:"14px 22px 0", borderBottom:"1px solid rgba(0,0,0,0.05)" }}>
-                <div style={{ fontSize:21, fontWeight:900, color:C.text }}>Notas & Tareas</div>
-                <div style={{ fontSize:11, color:C.light, fontWeight:600, marginBottom:10 }}>Tu espacio personal de registro</div>
-                <div style={{ display:"flex", borderBottom:"2px solid rgba(0,0,0,0.06)" }}>
-                  {[["📝 Mis Notas","notas"],["🎯 Tareas","tareas"]].map(([lb,id]) => (
-                    <button key={id} onClick={() => setNoteTab(id)} style={{ flex:1, padding:"11px 0", fontSize:12, fontWeight:800, color:noteTab===id?C.plum:C.light, border:"none", background:"transparent", borderBottom:`3px solid ${noteTab===id?C.plum:"transparent"}`, marginBottom:-2, cursor:"pointer", fontFamily:"inherit" }}>
-                      {lb}{id==="tareas" && pendientes > 0 && <span style={{ background:C.amber, color:"white", fontSize:10, fontWeight:800, padding:"2px 7px", borderRadius:20, marginLeft:6 }}>{pendientes}</span>}
-                    </button>
-                  ))}
+{!notifPanel && screen === "notas" && (
+  <div style={{ height:"100%", display:"flex", flexDirection:"column" }}>
+    
+    {/* HEADER */}
+    <div style={{ background:"white", padding:"14px 22px 0", borderBottom:"1px solid rgba(0,0,0,0.05)" }}>
+      <div style={{ fontSize:21, fontWeight:900, color:C.text }}>Notas & Tareas</div>
+      <div style={{ fontSize:11, color:C.light, fontWeight:600, marginBottom:10 }}>Tu espacio personal de registro</div>
+      <div style={{ display:"flex", borderBottom:"2px solid rgba(0,0,0,0.06)" }}>
+        {[["💡 Para no olvidar","insights"],["🎯 Tareas","tareas"]].map(([lb,id]) => (
+          <button key={id} onClick={() => setNoteTab(id)} style={{ flex:1, padding:"11px 0", fontSize:11, fontWeight:800, color:noteTab===id?C.plum:C.light, border:"none", background:"transparent", borderBottom:`3px solid ${noteTab===id?C.plum:"transparent"}`, marginBottom:-2, cursor:"pointer", fontFamily:"inherit" }}>
+            {lb}{id==="tareas" && pendientes > 0 && <span style={{ background:C.amber, color:"white", fontSize:10, fontWeight:800, padding:"2px 7px", borderRadius:20, marginLeft:6 }}>{pendientes}</span>}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:140 }}>
+      
+      {/* PESTAÑA INSIGHTS */}
+      {noteTab === "insights" && (
+        <>
+          {/* FORMULARIO NUEVA NOTA */}
+          <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:16, boxShadow:"0 2px 10px rgba(0,0,0,0.06)" }}>
+            <div style={{ fontSize:14, fontWeight:900, color:C.plum, marginBottom:12 }}>💡 Nueva nota</div>
+            
+            {/* SELECTOR ÁNIMO */}
+            <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:8 }}>¿Cómo te sientes?</div>
+            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:14 }}>
+              {[["😞","Mal"],["😕","Regular"],["😐","Neutro"],["🙂","Bien"],["😄","Genial"]].map(([e,l],i) => (
+                <div key={i} onClick={() => setInsightMood(i)} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, cursor:"pointer", padding:"7px 9px", borderRadius:11, background:insightMood===i?`${C.plum}15`:"transparent", border:`2px solid ${insightMood===i?C.plum:"transparent"}`, transition:"all 0.2s" }}>
+                  <span style={{ fontSize:22 }}>{e}</span>
+                  <span style={{ fontSize:9, color:C.light, fontWeight:700 }}>{l}</span>
                 </div>
+              ))}
+            </div>
+
+            {/* TÍTULO */}
+            <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Título</div>
+            <input
+              type="text"
+              placeholder="Para no olvidar..."
+              value={insightTitle}
+              onChange={e => setInsightTitle(e.target.value)}
+              style={{ width:"100%", padding:"12px 14px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:12, fontSize:13, marginBottom:12, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:"#FDFBF7" }}
+            />
+
+            {/* TEXTO */}
+            <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Nota</div>
+            <textarea
+              placeholder="Escribe aquí lo que no quieres olvidar para tu próxima sesión..."
+              value={insightText}
+              onChange={e => setInsightText(e.target.value)}
+              style={{ width:"100%", minHeight:90, padding:"12px 14px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", background:"#FDFBF7", lineHeight:1.5 }}
+            />
+
+            {/* CASILLA COMPARTIR */}
+            <div onClick={() => setInsightShared(!insightShared)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:12, background:insightShared?`${C.sage}20`:"#F5F5F5", cursor:"pointer", marginBottom:14, transition:"all 0.2s" }}>
+              <div style={{ width:20, height:20, borderRadius:6, border:`2px solid ${insightShared?C.sageDark:C.light}`, background:insightShared?C.sageDark:"transparent", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, color:"white", transition:"all 0.2s" }}>
+                {insightShared ? "✓" : ""}
               </div>
-              <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:140 }}>
-                {noteTab === "notas" && (
-                  <>
-                    <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:14, boxShadow:"0 2px 10px rgba(0,0,0,0.06)" }}>
-                      <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:12 }}>¿Cómo te sientes hoy?</div>
-                      <div style={{ display:"flex", justifyContent:"space-between" }}>
-                        {[["😞","Mal"],["😕","Regular"],["😐","Neutro"],["🙂","Bien"],["😄","Genial"]].map(([e,l],i) => (
-                          <div key={i} onClick={() => { setMood(i); if(i >= 3) showNotif("¡Buen ánimo!", `Registraste que te sientes ${l}`, "😊"); }} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, cursor:"pointer", padding:"7px 9px", borderRadius:11, background:mood===i?C.warm:"transparent" }}>
-                            <span style={{ fontSize:24 }}>{e}</span>
-                            <span style={{ fontSize:9, color:C.light, fontWeight:700 }}>{l}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    {[["Hoy · 8:42 AM","Mañana tranquila ☀️","Me desperté sin ansiedad. Hice los ejercicios de respiración.",C.sage,["😌 Calma","🧘 Respiración"]],["Ayer · 7:15 PM","Momento difícil en el trabajo","Conflicto con mi jefe. Usé el registro ABC.",C.red,["😰 Ansiedad","💼 Trabajo"]],["8 Mar · 9:00 PM","Reflexión antes de dormir","Logré no catastrofizar cuando me atrasé al gimnasio.",C.blue,["🌙 Noche","✅ Logro"]]].map(([date,title,text,color,tags]) => (
-                      <div key={title} style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${color}` }}>
-                        <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>{date}</div>
-                        <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:4 }}>{title}</div>
-                        <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>{text}</div>
-                        <div style={{ display:"flex", gap:5, marginTop:8, flexWrap:"wrap" }}>
-                          {tags.map(t => <span key={t} style={{ background:C.warm, color:C.amberDark, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>{t}</span>)}
-                        </div>
-                      </div>
-                    ))}
-                  </>
-                )}
-                {noteTab === "tareas" && (
-                  <>
-                    {[["Registro de pensamientos automáticos","Anota 3 momentos donde notes pensamientos negativos.","⏰ Vence hoy",true,0],["Diario de gratitud 3×3","Escribe 3 cosas por las que estás agradecida, 3 días seguidos.","📅 Vence en 4 días",false,1]].map(([titulo,desc,deadline,urgent,i]) => (
-                      <div key={i} style={{ background:"white", borderRadius:18, padding:"14px 16px", marginBottom:12, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${tareas[i]?C.green:C.amber}`, opacity:tareas[i]?.75:1 }}>
-                        <div style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:9 }}>
-                          <div onClick={() => toggleTarea(i)} style={{ width:22, height:22, borderRadius:"50%", border:`2.5px solid ${tareas[i]?C.green:C.amber}`, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:11, color:"white", background:tareas[i]?C.green:"transparent", marginTop:1 }}>{tareas[i]?"✓":""}</div>
-                          <div>
-                            <div style={{ fontSize:13, fontWeight:800, color:C.text, textDecoration:tareas[i]?"line-through":"none" }}>{titulo}</div>
-                            <div style={{ fontSize:11, color:C.light, marginTop:2, lineHeight:1.5 }}>{desc}</div>
-                            <div style={{ display:"inline-flex", background:"#FFF8E6", color:C.amberDark, fontSize:10, fontWeight:800, padding:"2px 8px", borderRadius:20, marginTop:5 }}>⭐ +80 XP al completar</div>
-                            <div style={{ fontSize:10, color:urgent?C.red:C.light, marginTop:2 }}>{deadline}</div>
-                          </div>
-                        </div>
-                        <div style={{ display:"flex", gap:7, flexWrap:"wrap" }}>
-                          {btn(() => setModal("task-"+i), "✏️ Responder", { padding:"6px 12px", borderRadius:9, background:C.warm, color:C.amberDark, fontSize:11, fontWeight:800 })}
-                          {btn(null, "📎 Subir", { padding:"6px 12px", borderRadius:9, background:"#EEF3FF", color:C.blue, fontSize:11, fontWeight:800 })}
-                          {btn(() => toggleTarea(i), tareas[i]?"↩ Desmarcar":"✔ Listo", { padding:"6px 12px", borderRadius:9, background:"#E6FAF0", color:C.sageDark, fontSize:11, fontWeight:800 })}
-                        </div>
-                      </div>
-                    ))}
-                    <div style={{ background:"white", borderRadius:18, padding:"14px 16px", boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${C.green}`, opacity:.75 }}>
-                      <div style={{ display:"flex", alignItems:"flex-start", gap:10 }}>
-                        <div style={{ width:22, height:22, borderRadius:"50%", background:C.green, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, color:"white", flexShrink:0 }}>✓</div>
-                        <div>
-                          <div style={{ fontSize:13, fontWeight:800, color:C.light, textDecoration:"line-through" }}>Registro ABC de situación de estrés</div>
-                          <div style={{ fontSize:10, color:C.light, marginTop:4 }}>✅ Completada el 8 Mar</div>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
+              <div>
+                <div style={{ fontSize:12, fontWeight:800, color:insightShared?C.sageDark:C.text }}>Compartir con mi psicólogo</div>
+                <div style={{ fontSize:10, color:C.light }}>Tu psicólogo podrá ver esta nota</div>
               </div>
-              {[0,1].map(i => mdl("task-"+i, (
-                <div key={i}>
-                  <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:3 }}>{["Registro de pensamientos","Diario de gratitud 3×3"][i]}</div>
-                  <div style={{ background:"#FFF8E6", borderRadius:11, padding:"9px 12px", fontSize:11, fontWeight:700, color:C.amberDark, marginBottom:12 }}>⭐ Ganarás +{[80,60][i]} XP</div>
-                  <textarea placeholder="Escribe tu reflexión aquí..." style={{ width:"100%", minHeight:90, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:13, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
-                  <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => { setModal(null); showNotif("Reflexión enviada", "Tu psicólogo podrá ver tu respuesta", "📝"); }, "Enviar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
-                  </div>
-                </div>
-              )))}
-              {bnav("notas")}
+            </div>
+
+            {/* BOTÓN GUARDAR */}
+            {btn(() => {
+              if (!insightText.trim()) return;
+              const nueva = {
+                id: Date.now(),
+                title: insightTitle || "Para no olvidar",
+                text: insightText,
+                mood: insightMood,
+                shared: insightShared,
+                date: new Date().toLocaleDateString('es-CO', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
+              };
+              const nuevas = [nueva, ...insights];
+              setInsights(nuevas);
+              localStorage.setItem('insights', JSON.stringify(nuevas));
+              setInsightText("");
+              setInsightTitle("");
+              setInsightMood(null);
+              setInsightShared(false);
+              showNotif("Nota guardada", "Tu insight quedó registrado 💡", "✅");
+            }, "💾 Guardar nota", { width:"100%", padding:14, background:C.plum, color:"white", borderRadius:13, fontSize:14, fontWeight:800 })}
+          </div>
+
+          {/* LISTA DE INSIGHTS */}
+          {insights.length === 0 && (
+            <div style={{ textAlign:"center", padding:40, color:C.light }}>
+              <div style={{ fontSize:40, marginBottom:12 }}>💡</div>
+              <div style={{ fontSize:14, fontWeight:700 }}>Aún no tienes notas</div>
+              <div style={{ fontSize:12, marginTop:4 }}>Escribe lo que no quieres olvidar para tu próxima sesión</div>
             </div>
           )}
-
-          {/* RECURSOS */}
-          {!notifPanel && screen === "materiales" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
-              <div style={{ background:"white", padding:"14px 22px", borderBottom:"1px solid rgba(0,0,0,0.05)" }}>
-                <div style={{ fontSize:21, fontWeight:900, color:C.text }}>Recursos 📚</div>
-                <div style={{ fontSize:11, color:C.light, fontWeight:600 }}>Materiales enviados por Dr. García</div>
-              </div>
-              <div style={{ padding:14 }}>
-                <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:20, padding:20, marginBottom:16 }}>
-                  <div style={{ fontSize:16, color:"white", lineHeight:1.5, fontStyle:"italic" }}>"El coraje no es la ausencia de miedo, sino la decisión de que algo más es más importante."</div>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:8, fontWeight:700 }}>— Dr. García · Esta semana</div>
+          {insights.map(n => (
+            <div key={n.id} style={{ background:"#FDFBF7", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${n.shared?C.sageDark:C.plum}` }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
+                <div style={{ fontSize:11, color:C.light, fontWeight:700 }}>{n.date}</div>
+                <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+                  {n.mood !== null && <span style={{ fontSize:16 }}>{["😞","😕","😐","🙂","😄"][n.mood]}</span>}
+                  {n.shared && <span style={{ background:`${C.sageDark}20`, color:C.sageDark, fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20 }}>👁 Psicólogo</span>}
                 </div>
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>📄 Materiales</div>
-                {[["📄","Técnicas de respiración diafragmática","PDF · Enviado hoy","🆕","#FFE8E8",true],["🎥","Meditación guiada 10 min","Video · Hace 3 días","Ver ›","#E8F0FF",false],["📄","Hoja de registro ABC","PDF · Hace 1 semana","Abrir ›","#FFE8E8",false],["🎧","Relajación muscular progresiva","Audio · Hace 2 semanas","Escuchar ›","#E8FFF0",false],["🔗","Artículo: Reestructuración cognitiva","Enlace · Hace 3 semanas","Leer ›","#FFF5E8",false]].map(([ic,title,sub,badge,bg,isNew]) => (
-                  <div key={title} onClick={() => showNotif("Material abierto", title, ic)} style={{ background:"white", borderRadius:18, padding:"14px 16px", marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", display:"flex", alignItems:"center", gap:12, cursor:"pointer" }}>
-                    <div style={{ width:44, height:44, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, background:bg, flexShrink:0 }}>{ic}</div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{title}</div>
-                      <div style={{ fontSize:11, color:C.light, marginTop:1 }}>{sub}</div>
-                    </div>
-                    <div style={{ background:isNew?"#E8FFF0":C.warm, color:isNew?C.sageDark:C.amberDark, fontSize:10, fontWeight:800, padding:"3px 8px", borderRadius:10 }}>{badge}</div>
-                  </div>
-                ))}
               </div>
-              {bnav("materiales")}
+              <div style={{ fontSize:14, fontWeight:800, color:C.plum, marginBottom:6 }}>{n.title}</div>
+              <div style={{ fontSize:12, color:C.text, lineHeight:1.6 }}>{n.text}</div>
+              <div onClick={() => {
+                const nuevas = insights.filter(i => i.id !== n.id);
+                setInsights(nuevas);
+                localStorage.setItem('insights', JSON.stringify(nuevas));
+              }} style={{ marginTop:10, fontSize:11, color:C.light, cursor:"pointer", textAlign:"right" }}>🗑 Eliminar</div>
             </div>
-          )}
+          ))}
+        </>
+      )}
+{/* PESTAÑA TAREAS */}
+{noteTab === "tareas" && (
+  <>
+    {/* SUBTABS */}
+    <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+      {[["📋","Mis autoregistros","autoregistros"],["📚","Mis recursos","recursos"],["🎯","Tareas","tareas"]].map(([ic,lb,id]) => (
+        <div key={id} onClick={() => setTareasTab(id)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"12px 8px", borderRadius:16, background:tareasTab===id?C.plum:"white", cursor:"pointer", boxShadow:"0 2px 10px rgba(0,0,0,0.06)", transition:"all 0.2s" }}>
+          <span style={{ fontSize:22 }}>{ic}</span>
+          <span style={{ fontSize:10, fontWeight:800, color:tareasTab===id?"white":C.light, textAlign:"center" }}>{lb}</span>
+        </div>
+      ))}
+    </div>
 
+    {/* MIS AUTOREGISTROS */}
+    {tareasTab === "autoregistros" && (
+      <div>
+        <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${C.sage}` }}>
+          <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>Hoy · 8:42 AM</div>
+          <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:4 }}>Mañana tranquila ☀️</div>
+          <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>Me desperté sin ansiedad. Hice los ejercicios de respiración.</div>
+          <div style={{ display:"flex", gap:5, marginTop:8 }}>
+            <span style={{ background:C.warm, color:C.amberDark, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>😌 Calma</span>
+            <span style={{ background:C.warm, color:C.amberDark, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>🧘 Respiración</span>
+          </div>
+        </div>
+        <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${C.red}` }}>
+          <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>Ayer · 7:15 PM</div>
+          <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:4 }}>Momento difícil en el trabajo</div>
+          <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>Conflicto con mi jefe. Usé el registro ABC.</div>
+          <div style={{ display:"flex", gap:5, marginTop:8 }}>
+            <span style={{ background:C.warm, color:C.amberDark, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>😰 Ansiedad</span>
+            <span style={{ background:C.warm, color:C.amberDark, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>💼 Trabajo</span>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* MIS RECURSOS */}
+    {tareasTab === "recursos" && (
+      <div>
+        <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+            <div style={{ width:44, height:44, borderRadius:12, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>📄</div>
+            <div>
+              <div style={{ fontSize:13, fontWeight:800, color:C.text }}>Técnica de respiración 4-7-8</div>
+              <div style={{ fontSize:11, color:C.light, marginTop:2 }}>PDF · Asignado por Dr. García</div>
+            </div>
+          </div>
+        </div>
+        <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+            <div style={{ width:44, height:44, borderRadius:12, background:`${C.sage}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>🎵</div>
+            <div>
+              <div style={{ fontSize:13, fontWeight:800, color:C.text }}>Meditación guiada 10 min</div>
+              <div style={{ fontSize:11, color:C.light, marginTop:2 }}>Audio · Asignado por Dr. García</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* TAREAS */}
+    {tareasTab === "tareas" && (
+      <>
+        {[["Registro de pensamientos automáticos","Anota 3 momentos donde notes pensamientos negativos.","⏰ Vence hoy",true,0],["Diario de gratitud 3×3","Escribe 3 cosas por las que estás agradecida, 3 días seguidos.","📅 Vence en 4 días",false,1]].map(([titulo,desc,deadline,urgent,i]) => (
+          <div key={i} style={{ background:"white", borderRadius:18, padding:"14px 16px", marginBottom:12, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${tareas[i]?C.green:C.amber}`, opacity:tareas[i]?.75:1 }}>
+            <div style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:9 }}>
+              <div onClick={() => toggleTarea(i)} style={{ width:22, height:22, borderRadius:"50%", border:`2.5px solid ${tareas[i]?C.green:C.amber}`, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:11, color:"white", background:tareas[i]?C.green:"transparent", marginTop:1 }}>{tareas[i]?"✓":""}</div>
+              <div>
+                <div style={{ fontSize:13, fontWeight:800, color:C.text, textDecoration:tareas[i]?"line-through":"none" }}>{titulo}</div>
+                <div style={{ fontSize:11, color:C.light, marginTop:2, lineHeight:1.5 }}>{desc}</div>
+                <div style={{ display:"inline-flex", background:"#FFF8E6", color:C.amberDark, fontSize:10, fontWeight:800, padding:"2px 8px", borderRadius:20, marginTop:5 }}>⭐ +80 XP al completar</div>
+                <div style={{ fontSize:10, color:urgent?C.red:C.light, marginTop:2 }}>{deadline}</div>
+              </div>
+            </div>
+            <div style={{ display:"flex", gap:7, flexWrap:"wrap" }}>
+              {btn(() => setModal("task-"+i), "✏️ Responder", { padding:"6px 12px", borderRadius:9, background:C.warm, color:C.amberDark, fontSize:11, fontWeight:800 })}
+              {btn(null, "📎 Subir", { padding:"6px 12px", borderRadius:9, background:"#EEF3FF", color:C.blue, fontSize:11, fontWeight:800 })}
+              {btn(() => toggleTarea(i), tareas[i]?"↩ Desmarcar":"✔ Listo", { padding:"6px 12px", borderRadius:9, background:"#E6FAF0", color:C.sageDark, fontSize:11, fontWeight:800 })}
+            </div>
+          </div>
+        ))}
+      </>
+    )}
+  </>
+)}
+    </div>
+
+    {[0,1].map(i => mdl("task-"+i, (
+      <div key={i}>
+        <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:3 }}>{["Registro de pensamientos","Diario de gratitud 3×3"][i]}</div>
+        <div style={{ background:"#FFF8E6", borderRadius:11, padding:"9px 12px", fontSize:11, fontWeight:700, color:C.amberDark, marginBottom:12 }}>⭐ Ganarás +{[80,60][i]} XP</div>
+        <textarea placeholder="Escribe tu reflexión aquí..." style={{ width:"100%", minHeight:90, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:13, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+        <div style={{ display:"flex", gap:8 }}>
+          {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+          {btn(() => { setModal(null); showNotif("Reflexión enviada", "Tu psicólogo podrá ver tu respuesta", "📝"); }, "Enviar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+        </div>
+      </div>
+    )))}
+    {bnav("notas")}
+  </div>
+)}
           {/* CALENDARIO */}
           {!notifPanel && screen === "calendario" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
@@ -518,6 +630,7 @@ const styles = `
                   ))}
                 </div>
               </div>
+              {bnav("logros")}
             </div>
           )}
 
