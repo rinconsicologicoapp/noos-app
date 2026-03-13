@@ -93,7 +93,7 @@ export default function NOOS() {
   ) : null;
 
   return (
-    <div style={{ fontFamily:"system-ui,sans-serif", background:"#E8EDF0", height:"100vh", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center" }}>
+    <div style={{ fontFamily:"system-ui,sans-serif", background:"#E8EDF0", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", padding:20 }}>
       <div style={{ fontSize:26, fontWeight:900, color:C.plum, marginBottom:4 }}>🛋️ Mi psicólogo</div>
       <div style={{ fontSize:12, color:"#7A7A8A", marginBottom:14 }}>Prototipo v3 · Interactivo</div>
 
@@ -127,7 +127,7 @@ export default function NOOS() {
         </div>
 
         {/* CONTENIDO */}
-        <div style={{ height:"calc(780px - 44px)", overflowY:"hidden", overflowX:"hidden", position:"relative", overflowY:"auto", overflowX:"hidden", position:"relative" }}>
+        <div style={{ height:"calc(780px - 44px)", overflowY:"auto", overflowX:"hidden", position:"relative" }}>
 
           {/* PANEL NOTIFICACIONES */}
           {notifPanel && (
@@ -691,7 +691,7 @@ export default function NOOS() {
                   <div style={{ width:80, height:80, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, border:"3px solid rgba(255,255,255,0.3)", margin:"0 auto" }}>👨‍⚕️</div>
                   <div onClick={() => setModal("edit-psico")} style={{ position:"absolute", bottom:0, right:0, width:24, height:24, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, cursor:"pointer", border:"2px solid white" }}>✏️</div>
                 </div>
-                <div style={{ fontSize:20, fontWeight:900, color:"white", marginBottom:3 }}>Dr. Danilo Rincón</div>
+                <div style={{ fontSize:20, fontWeight:900, color:"white", marginBottom:3 }}>Dr. Carlos García</div>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:700 }}>Psicólogo Clínico</div>
                 <div style={{ display:"inline-block", background:"rgba(255,255,255,0.15)", color:"white", fontSize:11, fontWeight:700, padding:"4px 12px", borderRadius:20, marginTop:8 }}>🧠 TCC · Mindfulness</div>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginTop:10, fontStyle:"italic", lineHeight:1.5 }}>"Cada pequeño paso que das cuenta. Estoy aquí para acompañarte."</div>
