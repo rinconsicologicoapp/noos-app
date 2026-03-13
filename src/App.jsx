@@ -93,7 +93,7 @@ export default function NOOS() {
   ) : null;
 
   return (
-    <div style={{ fontFamily:"system-ui,sans-serif", background:"#E8EDF0", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", padding:20 }}>
+    <div style={{ fontFamily:"system-ui,sans-serif", background:"#E8EDF0", height:"100vh", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center" }}>
       <div style={{ fontSize:26, fontWeight:900, color:C.plum, marginBottom:4 }}>🛋️ Mi psicólogo</div>
       <div style={{ fontSize:12, color:"#7A7A8A", marginBottom:14 }}>Prototipo v3 · Interactivo</div>
 
@@ -127,7 +127,7 @@ export default function NOOS() {
         </div>
 
         {/* CONTENIDO */}
-        <div style={{ height:"calc(780px - 44px)", overflowY:"auto", overflowX:"hidden", position:"relative" }}>
+        <div style={{ height:"calc(780px - 44px)", overflowY:"hidden", overflowX:"hidden", position:"relative", overflowY:"auto", overflowX:"hidden", position:"relative" }}>
 
           {/* PANEL NOTIFICACIONES */}
           {notifPanel && (
