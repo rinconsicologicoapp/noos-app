@@ -1,0 +1,22 @@
+{
+  "name": "Mi Psicólogo",
+  "short_name": "Mi Psicólogo",
+  "description": "Tu espacio de acompañamiento psicológico",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF7F2",
+  "theme_color": "#5C4D6E",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
