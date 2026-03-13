@@ -46,11 +46,40 @@ useEffect(() => {
     showToast(`${icon} ${title}`);
   };
 
-  const showScreen = (id) => { 
+  const playSound = (type = "click") => {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g);
+    g.connect(ctx.destination);
+    if (type === "click") {
+      o.frequency.setValueAtTime(600, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.1);
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    } else if (type === "success") {
+      o.frequency.setValueAtTime(400, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.15);
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    } else if (type === "nav") {
+      o.frequency.setValueAtTime(500, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.08);
+      g.gain.setValueAtTime(0.08, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    }
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + 0.2);
+  } catch(e) {}
+};
+
+const showScreen = (id) => {
   if (navigator.vibrate) navigator.vibrate(10);
-  setNotifPanel(false); 
-  setModal(null); 
-  setScreen(id); 
+  playSound("nav");
+  setNotifPanel(false);
+  setModal(null);
+  setScreen(id);
 };
 
   const markRead = (id) => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
@@ -71,13 +100,7 @@ const styles = `
     animation: fadeIn 0.25s ease;
   }
 `;
-  const C = darkMode ? {
-  plum:"#9B8DB8", sage:"#7DAA92", sageDark:"#5A8A72",
-  amber:"#E8A87C", amberDark:"#C4845A", cream:"#1A1A2E",
-  warm:"#2A2A3E", text:"#E8E8F0", light:"#8888AA",
-  red:"#FF6B6B", green:"#4ECDC4", blue:"#74B9FF",
-  dark:"#0D0D1A", gold:"#F0C040", bg:"#2A2A3E"
-} : {
+  const C = {
   plum:"#5C4D6E", sage:"#7DAA92", sageDark:"#4A8A72",
   amber:"#E8A87C", amberDark:"#C4845A", cream:"#FAF7F2",
   warm:"#FFF3E8", text:"#2D2D3E", light:"#9A9AB0",
@@ -88,8 +111,8 @@ const styles = `
   const avatars = ["🦋","🦁","🐺","🦊","🐘","🦅","🐬","🦉","🐆","🦓","🐢","🦜"];
 
   const btn = (onClick, children, s = {}) => (
-    <button onClick={onClick} style={{ border:"none", cursor:"pointer", fontFamily:"inherit", ...s }}>{children}</button>
-  );
+  <button onClick={() => { playSound("click"); if(navigator.vibrate) navigator.vibrate(8); onClick && onClick(); }} style={{ border:"none", cursor:"pointer", fontFamily:"inherit", ...s }}>{children}</button>
+);
 
   const mitem = (icon, label, onClick, danger) => (
     <div onClick={onClick} style={{ background:"white", borderRadius:13, padding:"13px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:7, cursor:"pointer" }}>
@@ -677,12 +700,7 @@ const styles = `
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>Mi cuenta</div>
                 {mitem(avatar, "Cambiar avatar", () => setModal("avatar"))}
                 {mitem("✏️", "Editar perfil", () => setModal("edit-perfil"))}
-                {mitem("🔔", "Notificaciones", () => setNotifPanel(true))}
-                {mitem(darkMode ? "☀️" : "🌙", darkMode ? "Modo claro" : "Modo oscuro", () => {
-  const nuevo = !darkMode;
-  setDarkMode(nuevo);
-  localStorage.setItem('darkMode', nuevo);
-})}
+                {mitem("🔔", "Notificaciones", () => setNotifPanel(true))}                
                 {mitem("🔒", "Privacidad y seguridad", () => showNotif("Privacidad", "Tu información está segura y encriptada", "🔒"))}
                 {mitem("❓", "Ayuda y soporte", () => showNotif("Soporte", "Un agente te responderá pronto", "❓"))}
                 {mitem("🚪", "Cerrar sesión", () => showScreen("login"), true)}
