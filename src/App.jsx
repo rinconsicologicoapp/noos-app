@@ -156,7 +156,7 @@ const styles = `
 
     {/* LOGO */}
     <div style={{ fontSize:80, marginBottom:8, animation:"fadeIn 0.8s ease" }}>🛋️</div>
-    <div style={{ fontSize:32, fontWeight:900, color:C.plum, letterSpacing:1, marginBottom:4 }}>Mi Psicólogo</div>
+    <div style={{ fontSize:32, fontWeight:900, color:C.plum, letterSpacing:0, marginBottom:4 }}>Mi Psicólogo</div>
     <div style={{ fontSize:13, color:C.light, fontWeight:500, marginBottom:40, textAlign:"center" }}>Un espacio seguro</div>
 
     {/* FORMULARIO */}
@@ -180,6 +180,7 @@ const styles = `
       <input
         type="password"
         placeholder="PIN"
+        inputMode="numeric"
         maxLength={4}
         value={pinValue || ""}
         onChange={e => setPinValue(e.target.value)}
