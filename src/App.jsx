@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function NOOS() {
   const [screen, setScreen] = useState("login");
@@ -10,6 +10,7 @@ export default function NOOS() {
   const [citaStatus, setCitaStatus] = useState("pending");
   const [adminCitaStatus, setAdminCitaStatus] = useState("pending");
   const [toast, setToast] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
   const [notifPanel, setNotifPanel] = useState(false);
   const [notifs, setNotifs] = useState([
     { id:1, icon:"📅", title:"Cita mañana", msg:"Recuerda tu sesión con Dr. García mañana a las 10:00 AM", time:"Hace 1h", read:false },
@@ -21,13 +22,23 @@ export default function NOOS() {
   const unread = notifs.filter(n => !n.read).length;
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
-
+useEffect(() => {
+  const timer = setInterval(() => {
+    setCurrentTime(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
+  }, 1000);
+  return () => clearInterval(timer);
+}, []);
   const showNotif = (title, msg, icon = "🔔") => {
     setNotifs(prev => [{ id: Date.now(), icon, title, msg, time: "Ahora", read: false }, ...prev]);
     showToast(`${icon} ${title}`);
   };
 
-  const showScreen = (id) => { setNotifPanel(false); setModal(null); setScreen(id); };
+  const showScreen = (id) => { 
+  if (navigator.vibrate) navigator.vibrate(10);
+  setNotifPanel(false); 
+  setModal(null); 
+  setScreen(id); 
+};
 
   const markRead = (id) => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   const markAllRead = () => setNotifs(prev => prev.map(n => ({ ...n, read: true })));
@@ -38,7 +49,15 @@ export default function NOOS() {
   };
 
   const pendientes = tareas.filter(t => !t).length;
-
+const styles = `
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .screen-enter {
+    animation: fadeIn 0.25s ease;
+  }
+`;
   const C = {
     plum:"#5C4D6E", sage:"#7DAA92", sageDark:"#4E7A63", amber:"#E8A87C",
     amberDark:"#C97D4E", cream:"#FAF7F2", warm:"#F0E6D3", text:"#2C2C3A",
@@ -93,38 +112,10 @@ export default function NOOS() {
   ) : null;
 
   return (
-    <div style={{ fontFamily:"system-ui,sans-serif", background:"#E8EDF0", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", padding:20 }}>
-      <div style={{ fontSize:26, fontWeight:900, color:C.plum, marginBottom:4 }}>🛋️ Mi psicólogo</div>
-      <div style={{ fontSize:12, color:"#7A7A8A", marginBottom:14 }}>Prototipo v3 · Interactivo</div>
-
-      {/* NAV EXTERNO */}
-      <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:20, alignItems:"center" }}>
-        <div style={{ display:"flex", gap:6, alignItems:"center", flexWrap:"wrap", justifyContent:"center" }}>
-          <span style={{ fontSize:10, fontWeight:800, color:"#7A7A8A", textTransform:"uppercase" }}>👤 Paciente:</span>
-          <div style={{ display:"flex", gap:4, background:"white", padding:5, borderRadius:14, boxShadow:"0 2px 10px rgba(0,0,0,0.08)", flexWrap:"wrap", justifyContent:"center" }}>
-            {[["🔐 Login","login"],["🏠 Inicio","home"],["📝 Notas","notas"],["📚 Recursos","materiales"],["📅 Calendario","calendario"],["🏆 Logros","logros"],["👤 Perfil","perfil"]].map(([lb,id]) => (
-              <button key={id} onClick={() => showScreen(id)} style={{ padding:"7px 12px", borderRadius:9, border:"none", background:screen===id?C.plum:"transparent", color:screen===id?"white":"#7A7A8A", fontWeight:700, fontSize:11, cursor:"pointer", fontFamily:"inherit" }}>{lb}</button>
-            ))}
-          </div>
-        </div>
-        <div style={{ display:"flex", gap:6, alignItems:"center", flexWrap:"wrap", justifyContent:"center" }}>
-          <span style={{ fontSize:10, fontWeight:800, color:"#7A7A8A", textTransform:"uppercase" }}>🛡️ Psicólogo:</span>
-          <div style={{ display:"flex", gap:4, background:"white", padding:5, borderRadius:14, boxShadow:"0 2px 10px rgba(0,0,0,0.08)" }}>
-            {[["📊 Dashboard","admin-home"],["🔍 Ver Paciente","admin-paciente"],["🧠 Mi Perfil","admin-perfil"]].map(([lb,id]) => (
-              <button key={id} onClick={() => showScreen(id)} style={{ padding:"7px 12px", borderRadius:9, border:"none", background:screen===id?C.dark:"transparent", color:screen===id?"white":"#7A7A8A", fontWeight:700, fontSize:11, cursor:"pointer", fontFamily:"inherit" }}>{lb}</button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* TELÉFONO */}
-      <div style={{ width:375, height:780, background:C.cream, borderRadius:44, boxShadow:"0 30px 80px rgba(0,0,0,0.2),0 0 0 10px #1a1a2e,0 0 0 12px #2a2a4e", overflow:"hidden", position:"relative", flexShrink:0 }}>
-
-        {/* STATUS BAR */}
-        <div style={{ height:44, background:C.cream, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 20px", fontSize:12, fontWeight:800, color:C.text }}>
-          <span>9:41</span>
-          <div style={{ display:"flex", gap:5, fontSize:13 }}><span>●●●</span><span>WiFi</span><span>🔋</span></div>
-        </div>
+    <div style={{ fontFamily:"system-ui,sans-serif", background:"#E8EDF0", height:"100vh", width:"100vw", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}><style>{styles}</style>
+      
+      {/* CONTENEDOR PRINCIPAL */}
+      <div style={{ width:"100%", maxWidth:430, height:"100%", background:C.cream, overflow:"hidden", position:"relative", margin:"0 auto" }}>
 
         {/* CONTENIDO */}
         <div style={{ height:"calc(780px - 44px)", overflowY:"auto", overflowX:"hidden", position:"relative" }}>
@@ -159,23 +150,46 @@ export default function NOOS() {
           )}
 
           {/* LOGIN */}
-          {!notifPanel && screen === "login" && (
-            <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, background:`linear-gradient(160deg,${C.cream},${C.warm})` }}>
-              <div style={{ fontSize:36, color:C.plum, letterSpacing:0, margin:"10px 0 8px 0", fontWeight:900, position:"relative", top:-40 }}>Mi psicólogo</div>
-              <div style={{ fontSize:60, marginBottom:16 }}>🛋️</div>
-              <div style={{ fontSize:12, color:C.light, fontWeight:600, marginBottom:32, textAlign:"center", lineHeight:1.6 }}><br/></div>
-              <div style={{ width:"100%" }}>
-                {[["Usuario","tu@correo.com","text"],["Contraseña","••••••••","password"]].map(([l,p,t]) => (
-                  <div key={l}>
-                    <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:5 }}>{l}</div>
-                    <input type={t} placeholder={p} style={{ width:"100%", padding:"13px 15px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:13, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
-                  </div>
-                ))}
-                {btn(() => showScreen("home"), "Iniciar sesión", { width:"100%", padding:15, background:C.plum, color:"white", borderRadius:15, fontSize:14, fontWeight:800 })}
-              </div>
-              <div style={{ marginTop:12, fontSize:12, color:C.light, fontWeight:600 }}>¿Olvidaste tu contraseña?</div>
-            </div>
-          )}
+{!notifPanel && screen === "login" && (
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, background:`linear-gradient(160deg,${C.cream},${C.cream} 60%,#E8D5F0)` }}>
+    
+    {/* LOGO */}
+    <div style={{ fontSize:80, marginBottom:8, animation:"fadeIn 0.8s ease" }}>🛋️</div>
+    <div style={{ fontSize:32, fontWeight:900, color:C.plum, letterSpacing:1, marginBottom:4 }}>Mi Psicólogo</div>
+    <div style={{ fontSize:13, color:C.light, fontWeight:500, marginBottom:40, textAlign:"center" }}>Tu espacio seguro de bienestar</div>
+
+    {/* FORMULARIO */}
+    <div style={{ width:"100%", background:"white", borderRadius:24, padding:28, boxShadow:"0 8px 32px rgba(92,77,110,0.12)" }}>
+      
+      {/* NOMBRE */}
+      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Nombre de usuario</div>
+      <input 
+        type="text" 
+        placeholder="Tu nombre" 
+        style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:14, marginBottom:16, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:C.cream }}
+      />
+
+      {/* PIN */}
+      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>PIN de acceso</div>
+      <input 
+        type="password" 
+        placeholder="● ● ● ●" 
+        maxLength={4}
+        style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:18, marginBottom:24, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:C.cream, letterSpacing:8, textAlign:"center" }}
+      />
+
+      {/* BOTÓN */}
+      {btn(() => showScreen("home"), "Entrar", { width:"100%", padding:16, background:C.plum, color:"white", borderRadius:15, fontSize:15, fontWeight:800 })}
+    </div>
+
+    {/* FOOTER */}
+    <div style={{ marginTop:24, fontSize:12, color:C.light, textAlign:"center", lineHeight:1.6 }}>
+      ¿Problemas para entrar?<br/>
+      <span style={{ color:C.plum, fontWeight:700 }}>Contacta a tu psicólogo</span>
+    </div>
+
+  </div>
+)}
 
           {/* HOME */}
           {!notifPanel && screen === "home" && (
