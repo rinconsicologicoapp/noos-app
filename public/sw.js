@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mi-psicologo-v1';
+const CACHE_NAME = `mi-psicologo-${new Date().toISOString().slice(0,10)}`;
 const urlsToCache = [
   '/',
   '/index.html',

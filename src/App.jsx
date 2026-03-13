@@ -11,6 +11,7 @@ export default function NOOS() {
   const [adminCitaStatus, setAdminCitaStatus] = useState("pending");
   const [toast, setToast] = useState(null);
   const [pinValue, setPinValue] = useState("");
+  const [navOpen, setNavOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
   const [notifPanel, setNotifPanel] = useState(false);
   const [notifs, setNotifs] = useState([
@@ -81,16 +82,37 @@ const styles = `
   );
 
   const bnav = (active) => (
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, height:72, background:"white", borderTop:"1px solid rgba(0,0,0,0.06)", display:"flex", alignItems:"center", justifyContent:"space-around", paddingBottom:8, zIndex:100, borderRadius:"0 0 44px 44px" }}>
-      {[["🏠","Inicio","home"],["📝","Notas","notas"],["📚","Recursos","materiales"],["📅","Citas","calendario"],["👤","Perfil","perfil"]].map(([ic,lb,id]) => (
-        <div key={id} onClick={() => showScreen(id)} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2, cursor:"pointer" }}>
-          <div style={{ fontSize:22, opacity:active===id?1:0.35 }}>{ic}</div>
-          <div style={{ width:4, height:4, borderRadius:"50%", background:C.sageDark, opacity:active===id?1:0 }}/>
-          <div style={{ fontSize:10, fontWeight:700, color:active===id?C.sageDark:"#aaa" }}>{lb}</div>
+  <>
+    {/* BOTÓN HAMBURGUESA */}
+    <div onClick={() => { if(navigator.vibrate) navigator.vibrate(10); setNavOpen(!navOpen); }} 
+      style={{ position:"absolute", bottom:20, right:20, width:52, height:52, borderRadius:"50%", background:C.plum, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, cursor:"pointer", boxShadow:"0 4px 20px rgba(92,77,110,0.4)", zIndex:200, transition:"transform 0.2s ease", transform:navOpen?"rotate(90deg)":"rotate(0deg)" }}>
+      ☰
+    </div>
+
+    {/* OVERLAY */}
+    {navOpen && <div onClick={() => setNavOpen(false)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.3)", zIndex:198, backdropFilter:"blur(2px)" }}/>}
+
+    {/* BANDEJA */}
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:199, transform:navOpen?"translateY(0)":"translateY(100%)", transition:"transform 0.3s cubic-bezier(0.34,1.56,0.64,1)", background:"white", borderRadius:"24px 24px 0 0", padding:"20px 24px 36px", boxShadow:"0 -8px 40px rgba(0,0,0,0.15)" }}>
+      
+      {/* HANDLE */}
+      <div style={{ width:40, height:4, background:"#E0E0E0", borderRadius:2, margin:"0 auto 20px" }}/>
+      
+      {/* TITULO */}
+      <div style={{ fontSize:12, fontWeight:800, color:"#aaa", marginBottom:16, textTransform:"uppercase", letterSpacing:1 }}>Navegación</div>
+
+      {/* OPCIONES */}
+      {[["🏠","Inicio","home"],["📝","Notas","notas"],["📚","Recursos","materiales"],["📅","Citas","calendario"],["🏆","Logros","logros"],["👤","Perfil","perfil"]].map(([ic,lb,id]) => (
+        <div key={id} onClick={() => { showScreen(id); setNavOpen(false); }}
+          style={{ display:"flex", alignItems:"center", gap:16, padding:"14px 16px", borderRadius:16, marginBottom:8, background:active===id?`${C.plum}15`:"transparent", cursor:"pointer", transition:"all 0.2s ease" }}>
+          <div style={{ fontSize:24, width:40, height:40, borderRadius:12, background:active===id?C.plum:"#F5F5F5", display:"flex", alignItems:"center", justifyContent:"center" }}>{ic}</div>
+          <div style={{ fontSize:15, fontWeight:active===id?800:600, color:active===id?C.plum:C.text }}>{lb}</div>
+          {active===id && <div style={{ marginLeft:"auto", width:8, height:8, borderRadius:"50%", background:C.plum }}/>}
         </div>
       ))}
     </div>
-  );
+  </>
+);
 
   const anav = (active) => (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, height:72, background:C.dark, borderTop:"1px solid rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"space-around", paddingBottom:8, zIndex:100, borderRadius:"0 0 44px 44px" }}>
@@ -216,7 +238,7 @@ const styles = `
 
           {/* HOME */}
           {!notifPanel && screen === "home" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:80 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:`linear-gradient(145deg,${C.plum},#3D3055)`, padding:"20px 24px 76px", position:"relative" }}>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>¡Buenos días,</div>
                 <div style={{ fontSize:23, color:"white", fontWeight:900 }}>Sofía 👋</div>
@@ -292,7 +314,7 @@ const styles = `
                   ))}
                 </div>
               </div>
-              <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:80 }}>
+              <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:140 }}>
                 {noteTab === "notas" && (
                   <>
                     <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:14, boxShadow:"0 2px 10px rgba(0,0,0,0.06)" }}>
@@ -367,7 +389,7 @@ const styles = `
 
           {/* RECURSOS */}
           {!notifPanel && screen === "materiales" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:80 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:"white", padding:"14px 22px", borderBottom:"1px solid rgba(0,0,0,0.05)" }}>
                 <div style={{ fontSize:21, fontWeight:900, color:C.text }}>Recursos 📚</div>
                 <div style={{ fontSize:11, color:C.light, fontWeight:600 }}>Materiales enviados por Dr. García</div>
@@ -395,7 +417,7 @@ const styles = `
 
           {/* CALENDARIO */}
           {!notifPanel && screen === "calendario" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:80 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:`linear-gradient(145deg,${C.sageDark},${C.sage})`, padding:"18px 22px 22px" }}>
                 <div style={{ fontSize:23, fontWeight:900, color:"white" }}>Marzo 2026</div>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:600 }}>Vista paciente</div>
@@ -501,7 +523,7 @@ const styles = `
 
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:80 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:"white", padding:22, textAlign:"center", borderBottom:"1px solid rgba(0,0,0,0.05)" }}>
                 <div onClick={() => setModal("avatar")} style={{ fontSize:60, marginBottom:4, cursor:"pointer" }}>{avatar}</div>
                 <div style={{ fontSize:10, color:C.light, fontWeight:700, marginBottom:5 }}>Toca para cambiar</div>
@@ -572,7 +594,7 @@ const styles = `
 
           {/* ADMIN HOME */}
           {!notifPanel && screen === "admin-home" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:80 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ fontSize:34 }}>🛡️</div>
                 <div style={{ flex:1 }}>
@@ -639,7 +661,7 @@ const styles = `
 
           {/* ADMIN PACIENTE */}
           {!notifPanel && screen === "admin-paciente" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:80 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 22px 20px", display:"flex", alignItems:"center", gap:14 }}>
                 <div onClick={() => showScreen("admin-home")} style={{ fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.8)" }}>←</div>
                 <div style={{ fontSize:32, width:50, height:50, background:"rgba(255,255,255,0.15)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center" }}>🦋</div>
@@ -722,7 +744,7 @@ const styles = `
 
           {/* ADMIN PERFIL */}
           {!notifPanel && screen === "admin-perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:80 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:`linear-gradient(145deg,${C.dark},#3D3055)`, padding:"24px 22px 28px", textAlign:"center" }}>
                 <div style={{ position:"relative", display:"inline-block", marginBottom:12 }}>
                   <div style={{ width:80, height:80, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, border:"3px solid rgba(255,255,255,0.3)", margin:"0 auto" }}>👨‍⚕️</div>
