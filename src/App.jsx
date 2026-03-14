@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
-import { getDoc, doc, setDoc } from "firebase/firestore";
+import { getDoc, doc, setDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 
 export default function NOOS() {
   const [screen, setScreen] = useState("login");
+  const [pacientes, setPacientes] = useState([]);
+const [usuarioActual, setUsuarioActual] = useState(null);
   const [regNombre, setRegNombre] = useState("");
 const [regEmail, setRegEmail] = useState("");
 const [regPin, setRegPin] = useState("");
@@ -45,7 +47,37 @@ const [darkMode, setDarkMode] = useState(() => {
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
   const handleLogin = async () => {
-    const handleRegister = async () => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, emailValue, pinValue + "**");
+    const uid = userCredential.user.uid;
+    const docRef = doc(db, "usuarios", uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const rol = docSnap.data().rol;
+      if (rol === "paciente") {
+        showScreen("home");
+      } else if (rol === "psicologo") {
+        setUsuarioActual(docSnap.data());
+        const pacientesSnap = await getDocs(collection(db, "usuarios"));
+        const listaPacientes = pacientesSnap.docs
+          .filter(d => d.data().rol === "paciente")
+          .map(d => ({ id: d.id, ...d.data() }));
+        setPacientes(listaPacientes);
+        showScreen("psi-dashboard");
+      } else if (rol === "administrador") {
+        showScreen("admin-home");
+      } else {
+        showToast("Rol no reconocido ❌");
+      }
+    } else {
+      showToast("Usuario no encontrado en base de datos ❌");
+    }
+  } catch (error) {
+    showToast("Correo o PIN incorrecto ❌");
+  }
+};
+
+const handleRegister = async () => {
   if (!regNombre || !regEmail || regPin.length < 4) {
     showToast("Completa todos los campos ❌");
     return;
@@ -62,32 +94,6 @@ const [darkMode, setDarkMode] = useState(() => {
     showScreen("login");
   } catch (error) {
     showToast("Error al registrarse ❌");
-  }
-};
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, emailValue, pinValue + "**");
-    const uid = userCredential.user.uid;
-
-    const docRef = doc(db, "usuarios", uid);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      const rol = docSnap.data().rol;
-
-      if (rol === "paciente") {
-        showScreen("home");
-      } else if (rol === "psicologo") {
-        showScreen("psi-dashboard");
-      } else if (rol === "administrador") {
-        showScreen("admin-home");
-      } else {
-        showToast("Rol no reconocido ❌");
-      }
-    } else {
-      showToast("Usuario no encontrado en base de datos ❌");
-    }
-  } catch (error) {
-    showToast("Correo o PIN incorrecto ❌");
   }
 };
 useEffect(() => {
@@ -212,15 +218,53 @@ const styles = `
 );
 
   const anav = (active) => (
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, height:72, background:C.dark, borderTop:"1px solid rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"space-around", paddingBottom:8, zIndex:100, borderRadius:"0 0 44px 44px" }}>
-      {[["📊","Dashboard","psi-dashboard"],["👥","Pacientes","admin-paciente"],["🧠","Mi Perfil","admin-perfil"]].map(([ic,lb,id]) => (
-        <div key={id} onClick={() => showScreen(id)} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2, cursor:"pointer" }}>
-          <div style={{ fontSize:20, opacity:active===id?1:0.35 }}>{ic}</div>
-          <div style={{ fontSize:9, fontWeight:700, color:active===id?C.amber:"rgba(255,255,255,0.4)" }}>{lb}</div>
-        </div>
-      ))}
+  <>
+    {/* BOTÓN HAMBURGUESA */}
+    <div onClick={() => { if(navigator.vibrate) navigator.vibrate(10); setNavOpen(true); }}
+      style={{ position:"absolute", bottom:20, right:20, width:48, height:48, borderRadius:"50%", background:C.plum, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, cursor:"pointer", boxShadow:"0 4px 16px rgba(92,77,110,0.4)", zIndex:100 }}>
+      ☰
     </div>
-  );
+
+    {/* OVERLAY */}
+    {navOpen && <div onClick={() => setNavOpen(false)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.4)", zIndex:200 }}/>}
+
+    {/* BANDEJA */}
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, background:C.dark, borderRadius:"28px 28px 0 0", padding:"20px 24px 36px", zIndex:201, transform:navOpen?"translateY(0)":"translateY(100%)", transition:"transform 0.3s ease" }}>
+
+      {/* HANDLE */}
+      <div style={{ width:40, height:4, background:"rgba(255,255,255,0.2)", borderRadius:2, margin:"0 auto 16px" }}/>
+
+      {/* OPCIONES */}
+      {active === "admin-home" || active === "admin-psicologo" || active === "admin-pacientes" || active === "admin-pagos" ? (
+  [["👑","Dashboard","admin-home"],["🧠","Psicólogos","admin-psicologo"],["👥","Pacientes","admin-pacientes"],["💰","Pagos","admin-pagos"]].map(([ic,lb,id]) => (
+    <div key={id} onClick={() => { setNavOpen(false); showScreen(id); }}
+      style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:14, marginBottom:8, background:active===id?"rgba(255,255,255,0.1)":"transparent", cursor:"pointer" }}>
+      <div style={{ fontSize:22 }}>{ic}</div>
+      <div style={{ fontSize:15, fontWeight:700, color:active===id?C.amber:"rgba(255,255,255,0.7)" }}>{lb}</div>
+      {active===id && <div style={{ marginLeft:"auto", width:8, height:8, borderRadius:"50%", background:C.amber }}/>}
+    </div>
+  ))
+) : (
+  [["🛡️","Dashboard","psi-dashboard"],["👥","Pacientes","admin-paciente"],["👤","Mi Perfil","admin-perfil"]].map(([ic,lb,id]) => (
+    <div key={id} onClick={() => { setNavOpen(false); showScreen(id); }}
+      style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:14, marginBottom:8, background:active===id?"rgba(255,255,255,0.1)":"transparent", cursor:"pointer" }}>
+      <div style={{ fontSize:22 }}>{ic}</div>
+      <div style={{ fontSize:15, fontWeight:700, color:active===id?C.amber:"rgba(255,255,255,0.7)" }}>{lb}</div>
+      {active===id && <div style={{ marginLeft:"auto", width:8, height:8, borderRadius:"50%", background:C.amber }}/>}
+    </div>
+  ))
+)}
+
+      {/* CERRAR SESIÓN */}
+      <div onClick={() => { setNavOpen(false); showScreen("login"); }}
+        style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:14, marginTop:8, cursor:"pointer" }}>
+        <div style={{ fontSize:22 }}>🚪</div>
+        <div style={{ fontSize:15, fontWeight:700, color:"rgba(255,100,100,0.8)" }}>Cerrar sesión</div>
+      </div>
+
+    </div>
+  </>
+);
 
   const mdl = (id, children) => modal === id ? (
     <div onClick={() => setModal(null)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.5)", zIndex:300, display:"flex", alignItems:"flex-end", borderRadius:44 }}>
@@ -882,7 +926,7 @@ const styles = `
                 <div style={{ fontSize:34 }}>🛡️</div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:19, fontWeight:900, color:"white" }}>Panel · Psicólogo</div>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>Dr. Danilo Rincón</div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>{usuarioActual?.nombre || "Dr. Rincón"}</div>
                 </div>
                 <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer" }}>
                   <div style={{ fontSize:24 }}>🔔</div>
@@ -917,13 +961,22 @@ const styles = `
                   )}
                 </div>
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>👥 Pacientes</div>
-                {[["🦋","Sofía Martínez","Autoregistro hace 2h · Nivel 4","Activa",false],["🦁","Carlos Ruiz","Tarea pendiente · Nivel 2","Activo",false],["🌸","Ana Torres","Sin actividad hace 3 días","⚠️ Inactiva",true]].map(([av,name,sub,status,alert]) => (
-                  <div key={name} onClick={() => name==="Sofía Martínez" && showScreen("admin-paciente")} style={{ background:"white", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", cursor:"pointer" }}>
-                    <div style={{ fontSize:26, width:42, height:42, background:C.warm, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>{av}</div>
-                    <div><div style={{ fontSize:13, fontWeight:800, color:C.text }}>{name}</div><div style={{ fontSize:10, color:C.light }}>{sub}</div></div>
-                    <div style={{ marginLeft:"auto", background:alert?"#FFE0E0":"#A8C5B5", color:alert?C.red:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>{status}</div>
+                {pacientes.length === 0 ? (
+                <div style={{ textAlign:"center", color:C.light, padding:20 }}>
+                  No hay pacientes aún
+                </div>
+              ) : (
+                pacientes.map(p => (
+                  <div key={p.id} onClick={() => showScreen("admin-paciente")} style={{ background:"white", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", cursor:"pointer" }}>
+                    <div style={{ fontSize:26, width:42, height:42, background:C.warm, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>👤</div>
+                    <div>
+                      <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{p.nombre}</div>
+                      <div style={{ fontSize:10, color:C.light }}>{p.email}</div>
+                    </div>
+                    <div style={{ marginLeft:"auto", background:"#A8C5B5", color:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>Activo</div>
                   </div>
-                ))}
+                ))
+              )}
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones rápidas</div>
                 {[["📅","Agendar cita"],["📢","Notificación grupal"],["📊","Ver reportes"],["➕","Agregar paciente"]].map(([ic,lb]) => mitem(ic, lb, () => showNotif(lb, "Función disponible en la versión final", ic)))}
               </div>
@@ -980,6 +1033,7 @@ const styles = `
       {[["➕","Agregar psicólogo"],["👥","Ver todos los pacientes"],["💰","Gestión de pagos"],["📊","Ver reportes"]].map(([ic,lb]) => mitem(ic, lb, () => showNotif(lb, "Función disponible pronto", ic)))}
 
     </div>
+    {anav("admin-home")}
   </div>
 )}
 
