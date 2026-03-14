@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./firebase";
+import { getDoc, doc, setDoc } from "firebase/firestore";
+import { db } from "./firebase";
 
 export default function NOOS() {
   const [screen, setScreen] = useState("login");
+  const [regNombre, setRegNombre] = useState("");
+const [regEmail, setRegEmail] = useState("");
+const [regPin, setRegPin] = useState("");
+const [regRol, setRegRol] = useState("paciente");
   const [noteTab, setNoteTab] = useState("insights");
   const [avatar, setAvatar] = useState("🦋");
   const [modal, setModal] = useState(null);
@@ -11,6 +19,7 @@ export default function NOOS() {
   const [adminCitaStatus, setAdminCitaStatus] = useState("pending");
   const [toast, setToast] = useState(null);
   const [pinValue, setPinValue] = useState("");
+  const [emailValue, setEmailValue] = useState("");
   const [insights, setInsights] = useState(() => {
   try { return JSON.parse(localStorage.getItem('insights')) || []; } catch { return []; }
 });
@@ -35,7 +44,54 @@ const [darkMode, setDarkMode] = useState(() => {
   const unread = notifs.filter(n => !n.read).length;
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
+  const handleLogin = async () => {
+    const handleRegister = async () => {
+  if (!regNombre || !regEmail || regPin.length < 4) {
+    showToast("Completa todos los campos ❌");
+    return;
+  }
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, regEmail, regPin + "**");
+    const uid = userCredential.user.uid;
+    await setDoc(doc(db, "usuarios", uid), {
+      nombre: regNombre,
+      email: regEmail,
+      rol: regRol,
+    });
+    showToast("¡Registro exitoso! ✅");
+    showScreen("login");
+  } catch (error) {
+    showToast("Error al registrarse ❌");
+  }
+};
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, emailValue, pinValue + "**");
+    const uid = userCredential.user.uid;
+
+    const docRef = doc(db, "usuarios", uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const rol = docSnap.data().rol;
+
+      if (rol === "paciente") {
+        showScreen("home");
+      } else if (rol === "psicologo") {
+        showScreen("psi-dashboard");
+      } else if (rol === "administrador") {
+        showScreen("admin-home");
+      } else {
+        showToast("Rol no reconocido ❌");
+      }
+    } else {
+      showToast("Usuario no encontrado en base de datos ❌");
+    }
+  } catch (error) {
+    showToast("Correo o PIN incorrecto ❌");
+  }
+};
 useEffect(() => {
+  
   const timer = setInterval(() => {
     setCurrentTime(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
   }, 1000);
@@ -157,7 +213,7 @@ const styles = `
 
   const anav = (active) => (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, height:72, background:C.dark, borderTop:"1px solid rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"space-around", paddingBottom:8, zIndex:100, borderRadius:"0 0 44px 44px" }}>
-      {[["📊","Dashboard","admin-home"],["👥","Pacientes","admin-paciente"],["🧠","Mi Perfil","admin-perfil"]].map(([ic,lb,id]) => (
+      {[["📊","Dashboard","psi-dashboard"],["👥","Pacientes","admin-paciente"],["🧠","Mi Perfil","admin-perfil"]].map(([ic,lb,id]) => (
         <div key={id} onClick={() => showScreen(id)} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2, cursor:"pointer" }}>
           <div style={{ fontSize:20, opacity:active===id?1:0.35 }}>{ic}</div>
           <div style={{ fontSize:9, fontWeight:700, color:active===id?C.amber:"rgba(255,255,255,0.4)" }}>{lb}</div>
@@ -227,11 +283,13 @@ const styles = `
 
       {/* NOMBRE */}
       <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Nombre de usuario</div>
-      <input
-        type="text"
-        placeholder="Tu nombre"
-        style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:14, marginBottom:20, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:C.cream }}
-      />
+<input
+  type="email"
+  placeholder="Tu correo"
+  value={emailValue}
+  onChange={e => setEmailValue(e.target.value)}
+  style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:14, marginBottom:20, outline:"none" }}
+/>
 
       {/* PIN VISUAL */}
       <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:12 }}>PIN de acceso</div>
@@ -260,7 +318,7 @@ const styles = `
           circle.style.cssText = `width:${diameter}px;height:${diameter}px;position:absolute;border-radius:50%;background:rgba(255,255,255,0.3);transform:scale(0);animation:ripple 0.5s linear;left:${e.clientX - btn.getBoundingClientRect().left - diameter/2}px;top:${e.clientY - btn.getBoundingClientRect().top - diameter/2}px;pointer-events:none;`;
           btn.appendChild(circle);
           setTimeout(() => circle.remove(), 500);
-          showScreen("home");
+          handleLogin();
         }}
         style={{ width:"100%", padding:16, background:C.plum, color:"white", borderRadius:15, fontSize:15, fontWeight:800, border:"none", cursor:"pointer", fontFamily:"inherit", position:"relative", overflow:"hidden" }}
       >
@@ -272,6 +330,85 @@ const styles = `
     <div style={{ marginTop:24, fontSize:12, color:C.light, textAlign:"center", lineHeight:1.6 }}>
       ¿Problemas para entrar?<br/>
       <span style={{ color:C.plum, fontWeight:700 }}>Contacta a tu psicólogo</span>
+    </div>
+
+  </div>
+)}
+{/* REGISTRO */}
+{!notifPanel && screen === "registro" && (
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, background:`linear-gradient(160deg,${C.cream} 0%,#EDE8F5 100%)` }}>
+    
+    {/* LOGO */}
+    <div style={{ fontSize:48, marginBottom:8 }}>🧠</div>
+    <div style={{ fontSize:28, fontWeight:900, color:C.plum, marginBottom:4 }}>Crear cuenta</div>
+    <div style={{ fontSize:13, color:C.light, marginBottom:32 }}>Únete a Mi Psicólogo</div>
+
+    {/* FORMULARIO */}
+    <div style={{ width:"100%", background:"white", borderRadius:24, padding:28, boxShadow:"0 8px 32px rgba(92,77,110,0.12)" }}>
+
+      {/* NOMBRE */}
+      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Nombre completo</div>
+      <input
+        type="text"
+        placeholder="Tu nombre"
+        value={regNombre}
+        onChange={e => setRegNombre(e.target.value)}
+        style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:14, marginBottom:16, outline:"none", boxSizing:"border-box" }}
+      />
+
+      {/* CORREO */}
+      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Correo electrónico</div>
+      <input
+        type="email"
+        placeholder="Tu correo"
+        value={regEmail}
+        onChange={e => setRegEmail(e.target.value)}
+        style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:14, marginBottom:16, outline:"none", boxSizing:"border-box" }}
+      />
+
+      {/* PIN */}
+      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>PIN de acceso</div>
+      <div style={{ display:"flex", justifyContent:"center", gap:16, marginBottom:8 }}>
+        {[0,1,2,3].map(i => (
+          <div key={i} style={{ width:18, height:18, borderRadius:"50%", background: regPin && regPin.length > i ? C.plum : "transparent", border:`2.5px solid ${C.plum}` }}/>
+        ))}
+      </div>
+      <input
+        type="password"
+        placeholder="PIN"
+        inputMode="numeric"
+        maxLength={4}
+        value={regPin}
+        onChange={e => setRegPin(e.target.value)}
+        style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:14, marginBottom:16, outline:"none", boxSizing:"border-box" }}
+      />
+
+      {/* ROL */}
+      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:10 }}>Soy...</div>
+      <div style={{ display:"flex", gap:10, marginBottom:24 }}>
+        {[["paciente","👤","Paciente"],["psicologo","🧠","Psicólogo"]].map(([val,ic,lb]) => (
+          <div key={val} onClick={() => setRegRol(val)} style={{ flex:1, padding:"12px 0", borderRadius:14, textAlign:"center", cursor:"pointer", border:`2px solid ${regRol===val ? C.plum : "rgba(0,0,0,0.08)"}`, background:regRol===val ? `${C.plum}15` : "white" }}>
+            <div style={{ fontSize:24 }}>{ic}</div>
+            <div style={{ fontSize:12, fontWeight:800, color:regRol===val ? C.plum : C.light }}>{lb}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* BOTÓN */}
+      <button
+        onClick={handleRegister}
+        style={{ width:"100%", padding:16, background:C.plum, color:"white", borderRadius:15, fontSize:15, fontWeight:800, border:"none", cursor:"pointer" }}
+      >
+        Crear cuenta
+      </button>
+    </div>
+
+    {/* LINK LOGIN */}
+    <div style={{ marginTop:24, fontSize:12, color:C.light, textAlign:"center" }}>
+      ¿Ya tienes cuenta?{" "}
+      <span onClick={() => showScreen("login")} style={{ color:C.plum, fontWeight:700, cursor:"pointer" }}>
+        Inicia sesión
+      </span>
     </div>
 
   </div>
@@ -739,12 +876,12 @@ const styles = `
           )}
 
           {/* ADMIN HOME */}
-          {!notifPanel && screen === "admin-home" && (
+          {!notifPanel && screen === "psi-dashboard" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ fontSize:34 }}>🛡️</div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:19, fontWeight:900, color:"white" }}>Dashboard · NOOS</div>
+                  <div style={{ fontSize:19, fontWeight:900, color:"white" }}>Panel · Psicólogo</div>
                   <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>Dr. Danilo Rincón</div>
                 </div>
                 <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer" }}>
@@ -801,15 +938,56 @@ const styles = `
                   </div>
                 </div>
               ))}
-              {anav("admin-home")}
+              {anav("psi-dashboard")}
             </div>
           )}
+          {/* ADMIN SaaS HOME */}
+{!notifPanel && screen === "admin-home" && (
+  <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
+    <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
+      <div style={{ fontSize:34 }}>👑</div>
+      <div style={{ flex:1 }}>
+        <div style={{ fontSize:19, fontWeight:900, color:"white" }}>Panel Administrador</div>
+        <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>Mipsicologo · Control total</div>
+      </div>
+    </div>
+    <div style={{ padding:14 }}>
+
+      {/* ESTADÍSTICAS */}
+      <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>📊 Estadísticas generales</div>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:9, marginBottom:18 }}>
+        {[["🧠","Psicólogos activos","3"],["👥","Pacientes totales","68"],["💰","Ingresos del mes","$1.2M"],["⚠️","Cuentas inactivas","5"]].map(([ic,lb,val]) => (
+          <div key={lb} style={{ background:"white", borderRadius:14, padding:13, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+            <div style={{ fontSize:24, marginBottom:4 }}>{ic}</div>
+            <div style={{ fontSize:20, fontWeight:900, color:C.plum }}>{val}</div>
+            <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>{lb}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* PSICÓLOGOS */}
+      <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>🧠 Psicólogos</div>
+      {[["Dr. Danilo Rincón","23 pacientes","Activo"],["Dra. Laura Gómez","18 pacientes","Activo"],["Dr. Carlos Mejía","12 pacientes","Inactivo"]].map(([nombre,sub,status]) => (
+        <div key={nombre} style={{ background:"white", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+          <div style={{ fontSize:26, width:42, height:42, background:C.warm, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>🧠</div>
+          <div><div style={{ fontSize:13, fontWeight:800, color:C.text }}>{nombre}</div><div style={{ fontSize:10, color:C.light }}>{sub}</div></div>
+          <div style={{ marginLeft:"auto", background:status==="Activo"?"#A8C5B5":"#FFE0E0", color:status==="Activo"?C.sageDark:C.red, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>{status}</div>
+        </div>
+      ))}
+
+      {/* ACCIONES */}
+      <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
+      {[["➕","Agregar psicólogo"],["👥","Ver todos los pacientes"],["💰","Gestión de pagos"],["📊","Ver reportes"]].map(([ic,lb]) => mitem(ic, lb, () => showNotif(lb, "Función disponible pronto", ic)))}
+
+    </div>
+  </div>
+)}
 
           {/* ADMIN PACIENTE */}
           {!notifPanel && screen === "admin-paciente" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 22px 20px", display:"flex", alignItems:"center", gap:14 }}>
-                <div onClick={() => showScreen("admin-home")} style={{ fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.8)" }}>←</div>
+                <div onClick={() => showScreen("psi-dashboard")} style={{ fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.8)" }}>←</div>
                 <div style={{ fontSize:32, width:50, height:50, background:"rgba(255,255,255,0.15)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center" }}>🦋</div>
                 <div>
                   <div style={{ fontSize:18, fontWeight:900, color:"white" }}>Sofía Martínez</div>
