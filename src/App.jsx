@@ -6,6 +6,12 @@ import { db } from "./firebase";
 
 export default function NOOS() {
   const [screen, setScreen] = useState("login");
+  const [formNombre, setFormNombre] = useState("");
+const [formEmail, setFormEmail] = useState("");
+const [formPin, setFormPin] = useState("");
+const [formTel, setFormTel] = useState("");
+const [formFecha, setFormFecha] = useState("");
+const [formRol, setFormRol] = useState("paciente");
   const [pacientes, setPacientes] = useState([]);
 const [usuarioActual, setUsuarioActual] = useState(null);
   const [regNombre, setRegNombre] = useState("");
@@ -1030,7 +1036,7 @@ const styles = `
 
       {/* ACCIONES */}
       <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
-      {[["➕","Agregar psicólogo"],["👥","Ver todos los pacientes"],["💰","Gestión de pagos"],["📊","Ver reportes"]].map(([ic,lb]) => mitem(ic, lb, () => showNotif(lb, "Función disponible pronto", ic)))}
+      {[["➕","Agregar usuario"],["👥","Ver todos los pacientes"],["💰","Gestión de pagos"],["📊","Ver reportes"]].map(([ic,lb]) => mitem(ic, lb, () => lb === "Agregar usuario" ? setModal("registro-admin") : showNotif(lb, "Función disponible pronto", ic)))}
 
     </div>
     {anav("admin-home")}
