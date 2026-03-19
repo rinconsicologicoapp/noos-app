@@ -22,11 +22,21 @@ export { getToken, onMessage };
 // ✅ Registrar SW y enviarle la config de forma segura
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').then(registration => {
-    navigator.serviceWorker.ready.then(sw => {
-      sw.active.postMessage({
+    // Esperar a que el SW esté activo antes de enviar el mensaje
+    const sw = registration.active || registration.installing || registration.waiting;
+    if (sw) {
+      sw.postMessage({
         type: 'FIREBASE_CONFIG',
         config: firebaseConfig
       });
-    });
+    } else {
+      registration.addEventListener('updatefound', () => {
+        registration.installing?.addEventListener('statechange', function() {
+          if (this.state === 'activated') {
+            this.postMessage({ type: 'FIREBASE_CONFIG', config: firebaseConfig });
+          }
+        });
+      });
+    }
   });
 }

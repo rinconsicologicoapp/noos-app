@@ -37,6 +37,12 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Ignorar extensiones de Chrome y peticiones POST
+  if (
+    event.request.url.startsWith('chrome-extension') ||
+    event.request.method !== 'GET'
+  ) return;
+
   event.respondWith(
     fetch(event.request)
       .then(response => {
