@@ -40,7 +40,12 @@ const [regRol, setRegRol] = useState("paciente");
   const [citaLink, setCitaLink] = useState("");
   const [citaNotas, setCitaNotas] = useState("");
   const [citaPacienteId, setCitaPacienteId] = useState("");
-  const [loadingCitas, setLoadingCitas] = useState(false);
+  const [notifTitulo, setNotifTitulo] = useState("");
+const [notifMensaje, setNotifMensaje] = useState("");
+const [notifFecha, setNotifFecha] = useState("");
+const [notifHora, setNotifHora] = useState("");
+const [notifIntervalos, setNotifIntervalos] = useState([]);
+const [loadingNotif, setLoadingNotif] = useState(false);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState(null);
   const [resenas, setResenas] = useState([]);
   const [resenaRating, setResenaRating] = useState(0);
@@ -196,6 +201,39 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
     if (nuevoStatus === "cancelada") showNotif("Cita cancelada", "Tu psicólogo fue notificado", "❌");
     setModal(null);
   } catch(e) { showToast("Error al actualizar cita ❌"); }
+};
+const programarNotificacion = async () => {
+  if (!notifTitulo || !notifMensaje || !notifFecha || !notifHora) {
+    showToast("Completa todos los campos ❌"); return;
+  }
+  setLoadingNotif(true);
+  try {
+    const pacienteDoc = await getDoc(doc(db, "usuarios", pacienteSeleccionado.id));
+    const fcmToken = pacienteDoc.data()?.fcmToken;
+    if (!fcmToken) {
+      showToast("El paciente no tiene notificaciones activadas ❌");
+      setLoadingNotif(false); return;
+    }
+    const scheduledAt = new Date(`${notifFecha}T${notifHora}:00`).toISOString();
+    await fetch('/api/schedule-notification', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pacienteId: pacienteSeleccionado.id,
+        token: fcmToken,
+        title: notifTitulo,
+        body: notifMensaje,
+        scheduledAt,
+        intervals: notifIntervalos
+      })
+    });
+    showToast(`✅ Notificación programada para ${notifFecha} a las ${notifHora}`);
+    setNotifTitulo(""); setNotifMensaje("");
+    setNotifFecha(""); setNotifHora("");
+    setNotifIntervalos([]);
+    setModal(null);
+  } catch(e) { showToast("Error al programar ❌"); }
+  setLoadingNotif(false);
 };
 const cargarResenas = async (psicologoId) => {
   setLoadingResenas(true);
@@ -1874,6 +1912,7 @@ const styles = `
                 {btn(() => setModal("assign-task"), "📋 Asignar nueva tarea", { width:"100%", padding:12, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, color:"white", borderRadius:13, fontSize:13, fontWeight:800, marginBottom:10 })}
                 {mitem("💬", "Nota clínica privada", () => setModal("feedback"))}
                 {mitem("📅", "Agendar cita", () => setModal("agendar-cita"))}
+                {mitem("🔔", "Programar notificación", () => setModal("programar-notif"))}
                 {mitem("📤", "Enviar material", () => showNotif("Material enviado", "Sofía lo recibirá en su app", "📤"))}
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>🔒 Notas clínicas</div>
                 <div style={{ background:"white", borderRadius:16, padding:14, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", borderLeft:"3px solid #8B7BA0" }}>
@@ -1909,6 +1948,60 @@ const styles = `
                   </div>
                 </div>
               ))}
+              {mdl("programar-notif", (
+  <div>
+    <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>🔔 Programar notificación</div>
+    <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>
+      Para: <strong>{pacienteSeleccionado?.nombre}</strong>
+    </div>
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
+    <input placeholder="Ej: Recuerda tu sesión de hoy" value={notifTitulo} onChange={e => setNotifTitulo(e.target.value)}
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Mensaje</div>
+    <textarea placeholder="Ej: Tu sesión es hoy a las 3pm. ¡Nos vemos pronto!" value={notifMensaje} onChange={e => setNotifMensaje(e.target.value)}
+      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+    <div style={{ display:"flex", gap:10, marginBottom:10 }}>
+      <div style={{ flex:1 }}>
+        <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
+        <input type="date" value={notifFecha} onChange={e => setNotifFecha(e.target.value)}
+          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+      </div>
+      <div style={{ flex:1 }}>
+        <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
+        <input type="time" value={notifHora} onChange={e => setNotifHora(e.target.value)}
+          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+      </div>
+    </div>
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>⏰ Recordatorios antes</div>
+    <div style={{ display:"flex", flexWrap:"wrap", gap:7, marginBottom:14 }}>
+      {[[5,"5 min"],[10,"10 min"],[30,"30 min"],[60,"1 hora"],[120,"2 horas"],[1440,"1 día"]].map(([mins, label]) => {
+        const activo = notifIntervalos.includes(mins);
+        return (
+          <div key={mins} onClick={() => setNotifIntervalos(prev =>
+            activo ? prev.filter(m => m !== mins) : [...prev, mins]
+          )}
+            style={{ padding:"7px 13px", borderRadius:20, fontSize:11, fontWeight:800, cursor:"pointer",
+              background: activo ? C.plum : "rgba(0,0,0,0.05)",
+              color: activo ? "white" : C.text,
+              border: `2px solid ${activo ? C.plum : "transparent"}`,
+              transition:"all 0.15s"
+            }}>
+            {activo ? "✓ " : ""}{label}
+          </div>
+        );
+      })}
+    </div>
+    {notifIntervalos.length > 0 && (
+      <div style={{ background:`${C.plum}10`, borderRadius:11, padding:"10px 13px", marginBottom:14, fontSize:11, color:C.plum, fontWeight:700 }}>
+        📬 Se enviarán {notifIntervalos.length + 1} notificaciones en total
+      </div>
+    )}
+    <div style={{ display:"flex", gap:8 }}>
+      {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+      {btn(() => programarNotificacion(), loadingNotif ? "Programando..." : "Programar 🔔", { flex:2, padding:11, background:loadingNotif ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+    </div>
+  </div>
+))}
               {anav("admin-paciente")}
             </div>
           )}
