@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
-import { getDoc, doc, setDoc, collection, getDocs } from "firebase/firestore";
+import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 export default function NOOS() {
@@ -14,6 +14,9 @@ const [formFecha, setFormFecha] = useState("");
 const [formRol, setFormRol] = useState("paciente");
 const [formLoading, setFormLoading] = useState(false);
   const [pacientes, setPacientes] = useState([]);
+  const [todosUsuarios, setTodosUsuarios] = useState([]);
+  const [usuariosSeleccionados, setUsuariosSeleccionados] = useState([]);
+  const [loadingUsuarios, setLoadingUsuarios] = useState(false);
 const [usuarioActual, setUsuarioActual] = useState(null);
   const [regNombre, setRegNombre] = useState("");
 const [regEmail, setRegEmail] = useState("");
@@ -84,7 +87,6 @@ const [darkMode, setDarkMode] = useState(() => {
     showToast("Correo o PIN incorrecto ❌");
   }
 };
-
 const handleRegister = async () => {
   if (!regNombre || !regEmail || regPin.length < 4) {
     showToast("Completa todos los campos ❌");
@@ -104,7 +106,52 @@ const handleRegister = async () => {
     showToast("Error al registrarse ❌");
   }
 };
-const handleCrearUsuarioAdmin = async () => {
+const cargarTodosUsuarios = async () => {
+  setLoadingUsuarios(true);
+  try {
+    const snap = await getDocs(collection(db, "usuarios"));
+    const lista = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    setTodosUsuarios(lista);
+  } catch (error) {
+    showToast("Error al cargar usuarios ❌");
+  }
+  setLoadingUsuarios(false);
+};
+const handleEliminarUsuarios = async () => {
+  if (usuariosSeleccionados.length === 0) {
+    showToast("Selecciona al menos un usuario ❌");
+    return;
+  }
+  setLoadingUsuarios(true);
+  try {
+    for (const uid of usuariosSeleccionados) {
+      await deleteDoc(doc(db, "usuarios", uid));
+    }
+    showToast(`${usuariosSeleccionados.length} usuario(s) eliminado(s) ✅`);
+    setUsuariosSeleccionados([]);
+    await cargarTodosUsuarios();
+  } catch (error) {
+    showToast("Error al eliminar ❌");
+  }
+  setLoadingUsuarios(false);
+};
+const handleToggleInactivo = async (uid, estadoActual) => {
+  try {
+    await updateDoc(doc(db, "usuarios", uid), {
+      inactivo: !estadoActual
+    });
+    showToast(!estadoActual ? "Usuario desactivado 🔒" : "Usuario activado ✅");
+    await cargarTodosUsuarios();
+  } catch (error) {
+    showToast("Error al actualizar ❌");
+  }
+};
+const toggleSeleccion = (uid) => {
+  setUsuariosSeleccionados(prev =>
+    prev.includes(uid) ? prev.filter(id => id !== uid) : [...prev, uid]
+  );
+};
+  const handleCrearUsuarioAdmin = async () => {
   if (!formNombre || !formEmail || !formTel || !formFecha || formPin.length < 4) {
     showToast("Completa todos los campos ❌");
     return;
@@ -1065,7 +1112,55 @@ const styles = `
 
       {/* ACCIONES */}
       <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
-      {[["➕","Agregar usuario"],["👥","Ver todos los pacientes"],["💰","Gestión de pagos"],["📊","Ver reportes"]].map(([ic,lb]) => mitem(ic, lb, () => lb === "Agregar usuario" ? setModal("registro-admin") : showNotif(lb, "Función disponible pronto", ic)))}
+      {mitem("➕", "Agregar usuario", () => setModal("registro-admin"))}
+{mitem("👥", "Ver y gestionar usuarios", () => { cargarTodosUsuarios(); setModal("gestionar-usuarios"); })}
+{mitem("💰", "Gestión de pagos", () => showNotif("Pagos", "Función disponible pronto", "💰"))}
+{mitem("📊", "Ver reportes", () => showNotif("Reportes", "Función disponible pronto", "📊"))}
+
+{mdl("gestionar-usuarios", (
+  <div>
+    <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>👥 Gestionar usuarios</div>
+    <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Selecciona usuarios para eliminar o desactivar</div>
+
+    {usuariosSeleccionados.length > 0 && (
+      <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+        {btn(() => handleEliminarUsuarios(), `🗑️ Eliminar (${usuariosSeleccionados.length})`, { flex:1, padding:10, background:C.red, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+        {btn(() => setUsuariosSeleccionados([]), "✕ Quitar selección", { flex:1, padding:10, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+      </div>
+    )}
+
+    {loadingUsuarios ? (
+      <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>Cargando usuarios...</div>
+    ) : todosUsuarios.length === 0 ? (
+      <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>No hay usuarios registrados</div>
+    ) : (
+      todosUsuarios.map(u => (
+        <div key={u.id} style={{ background:usuariosSeleccionados.includes(u.id)?"#F0EDF5":"white", borderRadius:13, padding:"11px 13px", marginBottom:8, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:"transparent"}` }}>
+          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+            <div onClick={() => toggleSeleccion(u.id)} style={{ width:22, height:22, borderRadius:6, border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:C.light}`, background:usuariosSeleccionados.includes(u.id)?C.plum:"transparent", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, color:"white", cursor:"pointer", flexShrink:0 }}>
+              {usuariosSeleccionados.includes(u.id) ? "✓" : ""}
+            </div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{u.nombre}</div>
+              <div style={{ fontSize:10, color:C.light }}>{u.email}</div>
+              <div style={{ display:"flex", gap:6, marginTop:4 }}>
+                <span style={{ fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20, background:u.rol==="psicologo"?"#EDE8F5":"#E8F5E9", color:u.rol==="psicologo"?C.plum:C.sageDark }}>
+                  {u.rol==="psicologo"?"🧠 Psicólogo":"👤 Paciente"}
+                </span>
+                <span style={{ fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20, background:u.inactivo?"#FFE5E5":"#E8F5E9", color:u.inactivo?C.red:C.sageDark }}>
+                  {u.inactivo?"🔒 Inactivo":"✅ Activo"}
+                </span>
+              </div>
+            </div>
+            {btn(() => handleToggleInactivo(u.id, u.inactivo), u.inactivo?"Activar":"Desactivar", { padding:"6px 10px", background:u.inactivo?"#E8F5E9":"#FFE5E5", color:u.inactivo?C.sageDark:C.red, borderRadius:9, fontSize:10, fontWeight:800 })}
+          </div>
+        </div>
+      ))
+    )}
+
+    {btn(() => setModal(null), "Cerrar", { width:"100%", padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:13, fontWeight:800, marginTop:8 })}
+  </div>
+))}
 
 {mdl("registro-admin", (
   <div>
