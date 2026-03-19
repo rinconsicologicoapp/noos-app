@@ -12,6 +12,7 @@ const [formPin, setFormPin] = useState("");
 const [formTel, setFormTel] = useState("");
 const [formFecha, setFormFecha] = useState("");
 const [formRol, setFormRol] = useState("paciente");
+const [formLoading, setFormLoading] = useState(false);
   const [pacientes, setPacientes] = useState([]);
 const [usuarioActual, setUsuarioActual] = useState(null);
   const [regNombre, setRegNombre] = useState("");
@@ -101,6 +102,33 @@ const handleRegister = async () => {
   } catch (error) {
     showToast("Error al registrarse ❌");
   }
+};
+const handleCrearUsuarioAdmin = async () => {
+  if (!formNombre || !formEmail || !formTel || !formFecha || formPin.length < 4) {
+    showToast("Completa todos los campos ❌");
+    return;
+  }
+  setFormLoading(true);
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, formEmail, formPin + "**");
+    const uid = userCredential.user.uid;
+    await setDoc(doc(db, "usuarios", uid), {
+      nombre: formNombre,
+      email: formEmail,
+      telefono: formTel,
+      fechaNacimiento: formFecha,
+      rol: formRol,
+      creadoPor: "admin",
+      fechaCreacion: new Date().toISOString(),
+    });
+    showToast("¡Usuario creado exitosamente! ✅");
+    setFormNombre(""); setFormEmail(""); setFormPin("");
+    setFormTel(""); setFormFecha(""); setFormRol("paciente");
+    setModal(null);
+  } catch (error) {
+    showToast("Error al crear usuario ❌");
+  }
+  setFormLoading(false);
 };
 useEffect(() => {
   
@@ -1037,6 +1065,54 @@ const styles = `
       {/* ACCIONES */}
       <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
       {[["➕","Agregar usuario"],["👥","Ver todos los pacientes"],["💰","Gestión de pagos"],["📊","Ver reportes"]].map(([ic,lb]) => mitem(ic, lb, () => lb === "Agregar usuario" ? setModal("registro-admin") : showNotif(lb, "Función disponible pronto", ic)))}
+
+{mdl("registro-admin", (
+  <div>
+    <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>➕ Crear usuario</div>
+    <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El usuario recibirá acceso inmediato</div>
+
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre completo</div>
+    <input placeholder="Ej: Sofía Martínez" value={formNombre} onChange={e => setFormNombre(e.target.value)}
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Correo electrónico</div>
+    <input type="email" placeholder="correo@ejemplo.com" value={formEmail} onChange={e => setFormEmail(e.target.value)}
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Teléfono</div>
+    <input type="tel" placeholder="Ej: 3001234567" value={formTel} onChange={e => setFormTel(e.target.value)}
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha de nacimiento</div>
+    <input type="date" value={formFecha} onChange={e => setFormFecha(e.target.value)}
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>PIN de acceso (4 dígitos)</div>
+    <div style={{ display:"flex", justifyContent:"center", gap:14, marginBottom:8 }}>
+      {[0,1,2,3].map(i => (
+        <div key={i} style={{ width:16, height:16, borderRadius:"50%", background:formPin.length > i ? C.plum : "transparent", border:`2.5px solid ${formPin.length > i ? C.plum : C.light}`, transition:"all 0.2s" }}/>
+      ))}
+    </div>
+    <input type="password" placeholder="PIN" inputMode="numeric" maxLength={4} value={formPin} onChange={e => setFormPin(e.target.value)}
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4 }}/>
+
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Rol</div>
+    <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+      {[["paciente","👤","Paciente"],["psicologo","🧠","Psicólogo"]].map(([val,ic,lb]) => (
+        <div key={val} onClick={() => setFormRol(val)}
+          style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${formRol===val?C.plum:"rgba(0,0,0,0.08)"}`, background:formRol===val?`${C.plum}15`:"white" }}>
+          <div style={{ fontSize:22 }}>{ic}</div>
+          <div style={{ fontSize:11, fontWeight:800, color:formRol===val?C.plum:C.light }}>{lb}</div>
+        </div>
+      ))}
+    </div>
+
+    <div style={{ display:"flex", gap:8 }}>
+      {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+      {btn(() => handleCrearUsuarioAdmin(), formLoading ? "Creando..." : "Crear usuario ✓", { flex:2, padding:11, background:formLoading?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+    </div>
+  </div>
+))}
 
     </div>
     {anav("admin-home")}
