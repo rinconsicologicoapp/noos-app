@@ -1,5 +1,5 @@
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+const { initializeApp, getApps, cert } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
 
 if (!getApps().length) {
   initializeApp({
@@ -11,25 +11,19 @@ if (!getApps().length) {
   });
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
   const { pacienteId, token, title, body, scheduledAt, intervals } = req.body;
   if (!token || !title || !body || !scheduledAt) return res.status(400).json({ error: 'Faltan campos' });
-
   try {
     const db = getFirestore();
     const notificaciones = [];
-
-    // Notificación principal
     notificaciones.push({
       token, title, body, scheduledAt,
       enviada: false, pacienteId,
       creadaEn: new Date().toISOString(),
       tipo: 'principal'
     });
-
-    // Recordatorios según intervalos
     const fechaPrincipal = new Date(scheduledAt);
     for (const minutos of (intervals || [])) {
       const fechaRecordatorio = new Date(fechaPrincipal.getTime() - minutos * 60 * 1000);
@@ -46,14 +40,12 @@ export default async function handler(req, res) {
         minutosAntes: minutos
       });
     }
-
     const batch = db.batch();
     for (const notif of notificaciones) {
       const ref = db.collection('notificaciones_programadas').doc();
       batch.set(ref, notif);
     }
     await batch.commit();
-
     return res.status(200).json({ ok: true, programadas: notificaciones.length });
   } catch (e) {
     return res.status(500).json({ error: e.message });

@@ -1,5 +1,5 @@
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getMessaging } from 'firebase-admin/messaging';
+const { initializeApp, getApps, cert } = require('firebase-admin/app');
+const { getMessaging } = require('firebase-admin/messaging');
 
 if (!getApps().length) {
   initializeApp({
@@ -11,23 +11,16 @@ if (!getApps().length) {
   });
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
   const { token, title, body, data } = req.body;
   if (!token || !title || !body) return res.status(400).json({ error: 'Faltan campos' });
-
   try {
     await getMessaging().send({
       token,
       notification: { title, body },
       webpush: {
-        notification: {
-          title, body,
-          icon: '/icon-192.png',
-          badge: '/icon-192.png',
-          vibrate: [200, 100, 200],
-        }
+        notification: { title, body, icon: '/icon-192.png', badge: '/icon-192.png', vibrate: [200, 100, 200] }
       },
       data: data || {}
     });
