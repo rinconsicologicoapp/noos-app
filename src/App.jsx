@@ -13,6 +13,7 @@ const [formTel, setFormTel] = useState("");
 const [formFecha, setFormFecha] = useState("");
 const [formRol, setFormRol] = useState("paciente");
 const [formLoading, setFormLoading] = useState(false);
+const [formPsicologoId, setFormPsicologoId] = useState("");
   const [pacientes, setPacientes] = useState([]);
   const [todosUsuarios, setTodosUsuarios] = useState([]);
   const [usuariosSeleccionados, setUsuariosSeleccionados] = useState([]);
@@ -27,7 +28,23 @@ const [regRol, setRegRol] = useState("paciente");
   const [modal, setModal] = useState(null);
   const [mood, setMood] = useState(2);
   const [tareas, setTareas] = useState([false, false]);
+  const [xp, setXp] = useState(0);
+  const [xpCargado, setXpCargado] = useState(false);
   const [citaStatus, setCitaStatus] = useState("pending");
+  const [citas, setCitas] = useState([]);
+  const [citaSeleccionada, setCitaSeleccionada] = useState(null);
+  const [citaFecha, setCitaFecha] = useState("");
+  const [citaHora, setCitaHora] = useState("");
+  const [citaModalidad, setCitaModalidad] = useState("presencial");
+  const [citaLink, setCitaLink] = useState("");
+  const [citaNotas, setCitaNotas] = useState("");
+  const [citaPacienteId, setCitaPacienteId] = useState("");
+  const [loadingCitas, setLoadingCitas] = useState(false);
+  const [pacienteSeleccionado, setPacienteSeleccionado] = useState(null);
+  const [resenas, setResenas] = useState([]);
+  const [resenaRating, setResenaRating] = useState(0);
+  const [resenaTexto, setResenaTexto] = useState("");
+  const [loadingResenas, setLoadingResenas] = useState(false);
   const [adminCitaStatus, setAdminCitaStatus] = useState("pending");
   const [toast, setToast] = useState(null);
   const [pinValue, setPinValue] = useState("");
@@ -39,7 +56,14 @@ const [insightText, setInsightText] = useState("");
 const [insightTitle, setInsightTitle] = useState("");
 const [insightMood, setInsightMood] = useState(null);
 const [insightShared, setInsightShared] = useState(false);
-const [tareasTab, setTareasTab] = useState("autoregistros");
+const [tareasTab, setTareasTab] = useState("autorregistros");
+const [autorregistros, setAutorregistros] = useState(() => {
+  try { return JSON.parse(localStorage.getItem('autorregistros')) || []; } catch { return []; }
+});
+const [arFecha, setArFecha] = useState("");
+const [arHaciendo, setArHaciendo] = useState("");
+const [arSucedio, setArSucedio] = useState("");
+const [arDespues, setArDespues] = useState("");
 const [darkMode, setDarkMode] = useState(() => {
   try { return localStorage.getItem('darkMode') === 'true'; } catch { return false; }
 });
@@ -65,16 +89,19 @@ const [darkMode, setDarkMode] = useState(() => {
     if (docSnap.exists()) {
       const rol = docSnap.data().rol;
       if (rol === "paciente") {
-        setUsuarioActual(docSnap.data());
+         setUsuarioActual({ uid, ...docSnap.data() });
+        cargarCitas(uid, "paciente");
         showScreen("home");
       } else if (rol === "psicologo") {
-        setUsuarioActual(docSnap.data());
+        setUsuarioActual({ uid, ...docSnap.data() });
+        cargarCitas(uid, "psicologo");
+        cargarResenas(uid);
         const pacientesSnap = await getDocs(collection(db, "usuarios"));
         const listaPacientes = pacientesSnap.docs
           .filter(d => d.data().rol === "paciente")
           .map(d => ({ id: d.id, ...d.data() }));
         setPacientes(listaPacientes);
-        showScreen("psi-dashboard");
+        showScreen("admin-perfil");
       } else if (rol === "administrador") {
         showScreen("admin-home");
       } else {
@@ -105,6 +132,94 @@ const handleRegister = async () => {
   } catch (error) {
     showToast("Error al registrarse ❌");
   }
+};
+const cargarCitas = async (uid, rol) => {
+  setLoadingCitas(true);
+  try {
+    const snap = await getDocs(collection(db, "citas"));
+    const todas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const filtradas = rol === "paciente"
+      ? todas.filter(c => c.pacienteId === uid)
+      : todas.filter(c => c.psicologoId === uid);
+    setCitas(filtradas.sort((a,b) => new Date(a.fecha) - new Date(b.fecha)));
+  } catch(e) { showToast("Error al cargar citas ❌"); }
+  setLoadingCitas(false);
+};
+const crearCita = async () => {
+  if (!citaFecha || !citaHora || !citaPacienteId) {
+    showToast("Completa fecha, hora y paciente ❌"); return;
+  }
+  setLoadingCitas(true);
+  try {
+    const id = Date.now().toString();
+    const paciente = pacientes.find(p => p.id === citaPacienteId);
+    const nuevaCita = {
+      id,
+      psicologoId: usuarioActual.uid,
+      psicologoNombre: usuarioActual.nombre,
+      pacienteId: citaPacienteId,
+      pacienteNombre: paciente?.nombre || "",
+      fecha: citaFecha,
+      hora: citaHora,
+      modalidad: citaModalidad,
+      link: citaLink,
+      notas: citaNotas,
+      status: "pendiente",
+      creadaEn: new Date().toISOString(),
+    };
+    await setDoc(doc(db, "citas", id), nuevaCita);
+    setCitas(prev => [...prev, nuevaCita].sort((a,b) => new Date(a.fecha) - new Date(b.fecha)));
+    showToast("¡Cita creada! El paciente fue notificado ✅");
+    showNotif("Nueva cita agendada", `${paciente?.nombre} — ${citaFecha} a las ${citaHora}`, "📅");
+    setCitaFecha(""); setCitaHora(""); setCitaLink(""); setCitaNotas("");
+    setCitaModalidad("presencial"); setCitaPacienteId("");
+    setModal(null);
+  } catch(e) { showToast("Error al crear cita ❌"); }
+  setLoadingCitas(false);
+};
+const actualizarStatusCita = async (citaId, nuevoStatus) => {
+  try {
+    await updateDoc(doc(db, "citas", citaId), { status: nuevoStatus });
+    setCitas(prev => prev.map(c => c.id === citaId ? { ...c, status: nuevoStatus } : c));
+    if (nuevoStatus === "confirmada") showNotif("Cita confirmada ✅", "Tu psicólogo fue notificado", "✅");
+    if (nuevoStatus === "cancelada") showNotif("Cita cancelada", "Tu psicólogo fue notificado", "❌");
+    setModal(null);
+  } catch(e) { showToast("Error al actualizar cita ❌"); }
+};
+const cargarResenas = async (psicologoId) => {
+  setLoadingResenas(true);
+  try {
+    const snap = await getDocs(collection(db, "resenas"));
+    const lista = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(r => r.psicologoId === psicologoId)
+      .sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+    setResenas(lista);
+  } catch(e) { showToast("Error al cargar reseñas ❌"); }
+  setLoadingResenas(false);
+};
+
+const enviarResena = async () => {
+  if (resenaRating === 0) { showToast("Selecciona una calificación ⭐"); return; }
+  if (!resenaTexto.trim()) { showToast("Escribe tu reseña ❌"); return; }
+  if (!usuarioActual?.psicologoId) { showToast("No tienes psicólogo asignado ❌"); return; }
+  setLoadingResenas(true);
+  try {
+    const id = Date.now().toString();
+    await setDoc(doc(db, "resenas", id), {
+      psicologoId: usuarioActual.psicologoId,
+      rating: resenaRating,
+      texto: resenaTexto,
+      fecha: new Date().toISOString(),
+      anonimo: true,
+    });
+    showToast("¡Reseña enviada! ✅");
+    setResenaRating(0);
+    setResenaTexto("");
+    setModal(null);
+    cargarResenas(usuarioActual.psicologoId);
+  } catch(e) { showToast("Error al enviar reseña ❌"); }
+  setLoadingResenas(false);
 };
 const cargarTodosUsuarios = async () => {
   setLoadingUsuarios(true);
@@ -168,16 +283,50 @@ const toggleSeleccion = (uid) => {
       rol: formRol,
       creadoPor: "admin",
       fechaCreacion: new Date().toISOString(),
+      psicologoId: formRol === "paciente" ? formPsicologoId : "",
     });
     showToast("¡Usuario creado exitosamente! ✅");
     setFormNombre(""); setFormEmail(""); setFormPin("");
-    setFormTel(""); setFormFecha(""); setFormRol("paciente");
+    setFormTel(""); setFormFecha(""); setFormRol("paciente"); setFormPsicologoId("");
     setModal(null);
   } catch (error) {
     showToast("Error al crear usuario ❌");
   }
   setFormLoading(false);
 };
+const RANGOS = [
+  { min:0,   max:49,  nombre:"Primigenio",    icono:"🪨" },
+  { min:50,  max:99,  nombre:"Habilis",        icono:"🖐️" },
+  { min:100, max:149, nombre:"Erectus",        icono:"🔥" },
+  { min:150, max:199, nombre:"Sapiens",        icono:"👁️" },
+  { min:200, max:Infinity, nombre:"Sapiens Sapiens", icono:"💎" },
+];
+const getRango = (puntos) => RANGOS.find(r => puntos >= r.min && puntos <= r.max) || RANGOS[0];
+const sumarXP = async (puntos, motivo) => {
+  if (!usuarioActual?.uid) return;
+  const nuevoXp = xp + puntos;
+  setXp(nuevoXp);
+  try {
+    await updateDoc(doc(db, "usuarios", usuarioActual.uid), { xp: nuevoXp });
+    const rangoActual = getRango(xp);
+    const rangoNuevo = getRango(nuevoXp);
+    if (rangoNuevo.nombre !== rangoActual.nombre) {
+      showNotif(`¡Subiste a ${rangoNuevo.nombre}! ${rangoNuevo.icono}`, `Nuevo rango desbloqueado`, "🎉");
+    } else {
+      showNotif(`+${puntos} XP`, motivo, "⭐");
+    }
+  } catch(e) {}
+};
+useEffect(() => {
+  if (usuarioActual?.uid && !xpCargado) {
+    getDoc(doc(db, "usuarios", usuarioActual.uid)).then(snap => {
+      if (snap.exists()) {
+        setXp(snap.data().xp || 0);
+        setXpCargado(true);
+      }
+    });
+  }
+}, [usuarioActual]);
 useEffect(() => {
   
   const timer = setInterval(() => {
@@ -231,7 +380,7 @@ const showScreen = (id) => {
 
   const toggleTarea = (i) => {
     const next = [...tareas]; next[i] = !next[i]; setTareas(next);
-    if (!tareas[i]) showNotif("¡Tarea completada!", "Ganaste +80 XP", "⭐");
+    if (!tareas[i]) sumarXP(5, "Tarea completada ✅");
   };
 
   const pendientes = tareas.filter(t => !t).length;
@@ -269,30 +418,24 @@ const styles = `
   const bnav = (active) => (
   <>
     {/* BOTÓN HAMBURGUESA */}
-    <div onClick={() => { if(navigator.vibrate) navigator.vibrate(10); setNavOpen(!navOpen); }} 
-      style={{ position:"absolute", bottom:20, right:20, width:52, height:52, borderRadius:"50%", background:C.plum, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, cursor:"pointer", boxShadow:"0 4px 20px rgba(92,77,110,0.4)", zIndex:200, transition:"transform 0.2s ease", transform:navOpen?"rotate(90deg)":"rotate(0deg)" }}>
-      ☰
+    <div onClick={() => { if(navigator.vibrate) navigator.vibrate(10); setNavOpen(!navOpen); }}
+      style={{ position:"absolute", bottom:20, right:20, width:52, height:52, borderRadius:"50%", background:C.plum, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, cursor:"pointer", boxShadow:"0 4px 20px rgba(92,77,110,0.4)", zIndex:200, transition:"transform 0.2s ease", transform:navOpen?"rotate(45deg)":"rotate(0deg)" }}>
+      {navOpen ? "✕" : "☰"}
     </div>
 
     {/* OVERLAY */}
-    {navOpen && <div onClick={() => setNavOpen(false)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.3)", zIndex:198, backdropFilter:"blur(2px)" }}/>}
+    {navOpen && <div onClick={() => setNavOpen(false)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.4)", zIndex:198, backdropFilter:"blur(4px)" }}/>}
 
     {/* BANDEJA */}
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:199, transform:navOpen?"translateY(0)":"translateY(100%)", transition:"transform 0.3s cubic-bezier(0.34,1.56,0.64,1)", background:"white", borderRadius:"24px 24px 0 0", padding:"20px 24px 36px", boxShadow:"0 -8px 40px rgba(0,0,0,0.15)" }}>
-      
-      {/* HANDLE */}
-      <div style={{ width:40, height:4, background:"#E0E0E0", borderRadius:2, margin:"0 auto 20px" }}/>
-      
-      {/* TITULO */}
-      <div style={{ fontSize:12, fontWeight:800, color:"#aaa", marginBottom:16, textTransform:"uppercase", letterSpacing:1 }}>Navegación</div>
-
-      {/* OPCIONES */}
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:199, transform:navOpen?"translateY(0)":"translateY(100%)", transition:"transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", background:"white", borderRadius:"28px 28px 0 0", padding:"16px 20px 40px", boxShadow:"0 -8px 40px rgba(0,0,0,0.15)" }}>
+      <div style={{ width:36, height:4, background:"#E0E0E0", borderRadius:2, margin:"0 auto 20px" }}/>
+      <div style={{ fontSize:11, fontWeight:800, color:"#bbb", marginBottom:14, textTransform:"uppercase", letterSpacing:1.5 }}>Navegación</div>
       {[["🏠","Inicio","home"],["📝","Notas","notas"],["📅","Citas","calendario"],["🏆","Logros","logros"],["👤","Perfil","perfil"]].map(([ic,lb,id]) => (
         <div key={id} onClick={() => { showScreen(id); setNavOpen(false); }}
-          style={{ display:"flex", alignItems:"center", gap:16, padding:"14px 16px", borderRadius:16, marginBottom:8, background:active===id?`${C.plum}15`:"transparent", cursor:"pointer", transition:"all 0.2s ease" }}>
-          <div style={{ fontSize:24, width:40, height:40, borderRadius:12, background:active===id?C.plum:"#F5F5F5", display:"flex", alignItems:"center", justifyContent:"center" }}>{ic}</div>
+          style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 14px", borderRadius:14, marginBottom:6, background:active===id?`${C.plum}12`:"transparent", cursor:"pointer" }}>
+          <div style={{ fontSize:22, width:42, height:42, borderRadius:12, background:active===id?C.plum:"#F5F5F5", display:"flex", alignItems:"center", justifyContent:"center" }}>{ic}</div>
           <div style={{ fontSize:15, fontWeight:active===id?800:600, color:active===id?C.plum:C.text }}>{lb}</div>
-          {active===id && <div style={{ marginLeft:"auto", width:8, height:8, borderRadius:"50%", background:C.plum }}/>}
+          {active===id && <div style={{ marginLeft:"auto", width:7, height:7, borderRadius:"50%", background:C.plum }}/>}
         </div>
       ))}
     </div>
@@ -302,48 +445,46 @@ const styles = `
   const anav = (active) => (
   <>
     {/* BOTÓN HAMBURGUESA */}
-    <div onClick={() => { if(navigator.vibrate) navigator.vibrate(10); setNavOpen(true); }}
-      style={{ position:"absolute", bottom:20, right:20, width:48, height:48, borderRadius:"50%", background:C.plum, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, cursor:"pointer", boxShadow:"0 4px 16px rgba(92,77,110,0.4)", zIndex:100 }}>
-      ☰
+    <div onClick={() => { if(navigator.vibrate) navigator.vibrate(10); setNavOpen(!navOpen); }}
+      style={{ position:"absolute", bottom:20, right:20, width:52, height:52, borderRadius:"50%", background:C.plum, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, cursor:"pointer", boxShadow:"0 4px 20px rgba(92,77,110,0.4)", zIndex:200, transition:"transform 0.2s ease", transform:navOpen?"rotate(45deg)":"rotate(0deg)" }}>
+      {navOpen ? "✕" : "☰"}
     </div>
 
     {/* OVERLAY */}
-    {navOpen && <div onClick={() => setNavOpen(false)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.4)", zIndex:200 }}/>}
+    {navOpen && <div onClick={() => setNavOpen(false)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.5)", zIndex:198, backdropFilter:"blur(4px)" }}/>}
 
     {/* BANDEJA */}
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, background:C.dark, borderRadius:"28px 28px 0 0", padding:"20px 24px 36px", zIndex:201, transform:navOpen?"translateY(0)":"translateY(100%)", transition:"transform 0.3s ease" }}>
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:199, transform:navOpen?"translateY(0)":"translateY(100%)", transition:"transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", background:C.dark, borderRadius:"28px 28px 0 0", padding:"16px 20px 40px", boxShadow:"0 -8px 40px rgba(0,0,0,0.2)" }}>
+      <div style={{ width:36, height:4, background:"rgba(255,255,255,0.15)", borderRadius:2, margin:"0 auto 20px" }}/>
+      <div style={{ fontSize:11, fontWeight:800, color:"rgba(255,255,255,0.3)", marginBottom:14, textTransform:"uppercase", letterSpacing:1.5 }}>Navegación</div>
 
-      {/* HANDLE */}
-      <div style={{ width:40, height:4, background:"rgba(255,255,255,0.2)", borderRadius:2, margin:"0 auto 16px" }}/>
-
-      {/* OPCIONES */}
       {active === "admin-home" || active === "admin-psicologo" || active === "admin-pacientes" || active === "admin-pagos" ? (
-  [["👑","Dashboard","admin-home"],["🧠","Psicólogos","admin-psicologo"],["👥","Pacientes","admin-pacientes"],["💰","Pagos","admin-pagos"]].map(([ic,lb,id]) => (
-    <div key={id} onClick={() => { setNavOpen(false); showScreen(id); }}
-      style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:14, marginBottom:8, background:active===id?"rgba(255,255,255,0.1)":"transparent", cursor:"pointer" }}>
-      <div style={{ fontSize:22 }}>{ic}</div>
-      <div style={{ fontSize:15, fontWeight:700, color:active===id?C.amber:"rgba(255,255,255,0.7)" }}>{lb}</div>
-      {active===id && <div style={{ marginLeft:"auto", width:8, height:8, borderRadius:"50%", background:C.amber }}/>}
-    </div>
-  ))
-) : (
-  [["🛡️","Dashboard","psi-dashboard"],["👥","Pacientes","admin-paciente"],["👤","Mi Perfil","admin-perfil"]].map(([ic,lb,id]) => (
-    <div key={id} onClick={() => { setNavOpen(false); showScreen(id); }}
-      style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:14, marginBottom:8, background:active===id?"rgba(255,255,255,0.1)":"transparent", cursor:"pointer" }}>
-      <div style={{ fontSize:22 }}>{ic}</div>
-      <div style={{ fontSize:15, fontWeight:700, color:active===id?C.amber:"rgba(255,255,255,0.7)" }}>{lb}</div>
-      {active===id && <div style={{ marginLeft:"auto", width:8, height:8, borderRadius:"50%", background:C.amber }}/>}
-    </div>
-  ))
-)}
+        [["👑","Dashboard","admin-home"],["🧠","Psicólogos","admin-psicologo"],["👥","Pacientes","admin-pacientes"],["💰","Pagos","admin-pagos"]].map(([ic,lb,id]) => (
+          <div key={id} onClick={() => { setNavOpen(false); showScreen(id); }}
+            style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 14px", borderRadius:14, marginBottom:6, background:active===id?"rgba(255,255,255,0.1)":"transparent", cursor:"pointer" }}>
+            <div style={{ fontSize:22, width:42, height:42, borderRadius:12, background:active===id?"rgba(255,255,255,0.15)":"rgba(255,255,255,0.05)", display:"flex", alignItems:"center", justifyContent:"center" }}>{ic}</div>
+            <div style={{ fontSize:15, fontWeight:700, color:active===id?C.amber:"rgba(255,255,255,0.7)" }}>{lb}</div>
+            {active===id && <div style={{ marginLeft:"auto", width:7, height:7, borderRadius:"50%", background:C.amber }}/>}
+          </div>
+        ))
+      ) : (
+        [["👤","Mi Perfil","admin-perfil"],["👥","Pacientes","psi-dashboard"],["📅","Mis Citas","calendario-psi"]].map(([ic,lb,id]) => (
+          <div key={id} onClick={() => { setNavOpen(false); showScreen(id); }}
+            style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 14px", borderRadius:14, marginBottom:6, background:active===id?"rgba(255,255,255,0.1)":"transparent", cursor:"pointer" }}>
+            <div style={{ fontSize:22, width:42, height:42, borderRadius:12, background:active===id?"rgba(255,255,255,0.15)":"rgba(255,255,255,0.05)", display:"flex", alignItems:"center", justifyContent:"center" }}>{ic}</div>
+            <div style={{ fontSize:15, fontWeight:700, color:active===id?C.amber:"rgba(255,255,255,0.7)" }}>{lb}</div>
+            {active===id && <div style={{ marginLeft:"auto", width:7, height:7, borderRadius:"50%", background:C.amber }}/>}
+          </div>
+        ))
+      )}
 
-      {/* CERRAR SESIÓN */}
+      <div style={{ height:1, background:"rgba(255,255,255,0.08)", margin:"8px 0" }}/>
+
       <div onClick={() => { setNavOpen(false); showScreen("login"); }}
-        style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:14, marginTop:8, cursor:"pointer" }}>
-        <div style={{ fontSize:22 }}>🚪</div>
+        style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 14px", borderRadius:14, cursor:"pointer" }}>
+        <div style={{ fontSize:22, width:42, height:42, borderRadius:12, background:"rgba(255,100,100,0.1)", display:"flex", alignItems:"center", justifyContent:"center" }}>🚪</div>
         <div style={{ fontSize:15, fontWeight:700, color:"rgba(255,100,100,0.8)" }}>Cerrar sesión</div>
       </div>
-
     </div>
   </>
 );
@@ -556,17 +697,17 @@ const styles = `
                 </div>
                 <div style={{ background:"rgba(255,255,255,0.1)", borderRadius:18, padding:"12px 14px", marginTop:14 }}>
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
-                    <span style={{ fontSize:11, color:"rgba(255,255,255,0.7)", fontWeight:700 }}>✨ Nivel 4 · Exploradora</span>
-                    <span style={{ fontSize:11, color:C.amber, fontWeight:800 }}>620 / 1000 XP</span>
+                     <span style={{ fontSize:11, color:"rgba(255,255,255,0.7)", fontWeight:700 }}>{getRango(xp).icono} {getRango(xp).nombre}</span>
+                    <span style={{ fontSize:11, color:C.amber, fontWeight:800 }}>{xp} XP · {getRango(xp).icono} {getRango(xp).nombre}</span>
                   </div>
                   <div style={{ height:7, background:"rgba(255,255,255,0.15)", borderRadius:4, overflow:"hidden" }}>
-                    <div style={{ height:"100%", width:"62%", background:`linear-gradient(90deg,${C.amber},${C.gold})`, borderRadius:4 }}/>
+                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:`linear-gradient(90deg,${C.amber},${C.gold})`, borderRadius:4, transition:"width 0.5s ease" }}/>
                   </div>
                 </div>
               </div>
               <div style={{ padding:"0 14px", marginTop:-42, position:"relative", zIndex:10 }}>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:16 }}>
-                  {[[`linear-gradient(135deg,${C.sage},${C.sageDark})`,"📝","Autoregistros","14","este mes",true],["white","🎯","Tareas","3/5","completadas",false],["white","📅","Próx. cita","Mar 15","10:00 AM",false],["white","🏅","Logros","8","desbloqueados",false]].map(([bg,ic,lb,val,sub,inv]) => (
+                  {[[`linear-gradient(135deg,${C.sage},${C.sageDark})`,"📝","Autorregistros","14","este mes",true],["white","🎯","Tareas","3/5","completadas",false],["white","📅","Próx. cita","Mar 15","10:00 AM",false],["white","🏅","Logros","8","desbloqueados",false]].map(([bg,ic,lb,val,sub,inv]) => (
                     <div key={lb} style={{ background:bg, borderRadius:18, padding:"16px 14px", boxShadow:"0 4px 14px rgba(0,0,0,0.07)" }}>
                       <div style={{ fontSize:26, marginBottom:8 }}>{ic}</div>
                       <div style={{ fontSize:10, color:inv?"rgba(255,255,255,0.8)":C.light, fontWeight:700, textTransform:"uppercase" }}>{lb}</div>
@@ -574,14 +715,7 @@ const styles = `
                       <div style={{ fontSize:10, color:inv?"rgba(255,255,255,0.7)":C.light }}>{sub}</div>
                     </div>
                   ))}
-                </div>
-                <div style={{ background:"linear-gradient(135deg,#FFF8EE,#FFF0DC)", border:`1.5px solid ${C.amber}`, borderRadius:18, padding:"12px 16px", display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
-                  <div style={{ fontSize:30 }}>🔥</div>
-                  <div>
-                    <div style={{ fontSize:18, fontWeight:900, color:C.amberDark }}>5 días seguidos</div>
-                    <div style={{ fontSize:11, color:C.light, fontWeight:600 }}>¡Sigue así! Estás en racha 💪</div>
-                  </div>
-                </div>
+                </div>                
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"0 0 10px" }}>📅 Próxima cita</div>
                 <div style={{ background:"white", borderRadius:18, padding:"14px 16px", boxShadow:"0 4px 14px rgba(0,0,0,0.07)", display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
                   <div style={{ background:C.plum, borderRadius:12, padding:"9px 12px", textAlign:"center", minWidth:50 }}>
@@ -690,6 +824,7 @@ const styles = `
               setInsightMood(null);
               setInsightShared(false);
               showNotif("Nota guardada", "Tu insight quedó registrado 💡", "✅");
+                  sumarXP(2, "Nota guardada 💡");
             }, "💾 Guardar nota", { width:"100%", padding:14, background:C.plum, color:"white", borderRadius:13, fontSize:14, fontWeight:800 })}
           </div>
 
@@ -726,38 +861,76 @@ const styles = `
   <>
     {/* SUBTABS */}
     <div style={{ display:"flex", gap:8, marginBottom:16 }}>
-      {[["📋","Mis autoregistros","autoregistros"],["📚","Mis recursos","recursos"],["🎯","Tareas","tareas"]].map(([ic,lb,id]) => (
+      {[["📋","Mis autorregistros","autorregistros"],["📚","Mis recursos","recursos"],["🎯","Tareas","tareas"]].map(([ic,lb,id]) => (
         <div key={id} onClick={() => setTareasTab(id)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"12px 8px", borderRadius:16, background:tareasTab===id?C.plum:"white", cursor:"pointer", boxShadow:"0 2px 10px rgba(0,0,0,0.06)", transition:"all 0.2s" }}>
           <span style={{ fontSize:22 }}>{ic}</span>
           <span style={{ fontSize:10, fontWeight:800, color:tareasTab===id?"white":C.light, textAlign:"center" }}>{lb}</span>
         </div>
       ))}
     </div>
+    {/* MIS AUTORREGISTROS */}
+        {tareasTab === "autorregistros" && (
+          <div>
+            {btn(() => setModal("nuevo-autorregistro"), "✏️ Escribir autorregistro", { width:"100%", padding:13, background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:14, fontSize:13, fontWeight:800, marginBottom:14, display:"block" })}
 
-    {/* MIS AUTOREGISTROS */}
-    {tareasTab === "autoregistros" && (
-      <div>
-        <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${C.sage}` }}>
-          <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>Hoy · 8:42 AM</div>
-          <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:4 }}>Mañana tranquila ☀️</div>
-          <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>Me desperté sin ansiedad. Hice los ejercicios de respiración.</div>
-          <div style={{ display:"flex", gap:5, marginTop:8 }}>
-            <span style={{ background:C.warm, color:C.amberDark, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>😌 Calma</span>
-            <span style={{ background:C.warm, color:C.amberDark, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>🧘 Respiración</span>
-          </div>
-        </div>
-        <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${C.red}` }}>
-          <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>Ayer · 7:15 PM</div>
-          <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:4 }}>Momento difícil en el trabajo</div>
-          <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>Conflicto con mi jefe. Usé el registro ABC.</div>
-          <div style={{ display:"flex", gap:5, marginTop:8 }}>
-            <span style={{ background:C.warm, color:C.amberDark, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>😰 Ansiedad</span>
-            <span style={{ background:C.warm, color:C.amberDark, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>💼 Trabajo</span>
-          </div>
-        </div>
-      </div>
-    )}
+            {autorregistros.length === 0 ? (
+              <div style={{ textAlign:"center", padding:30, color:C.light }}>
+                <div style={{ fontSize:40, marginBottom:8 }}>📋</div>
+                <div style={{ fontSize:14, fontWeight:700 }}>Aún no tienes autorregistros</div>
+                <div style={{ fontSize:12, marginTop:4 }}>Toca el botón de arriba para crear uno</div>
+              </div>
+            ) : (
+              autorregistros.map((ar, i) => (
+                <div key={i} style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${C.plum}` }}>
+                  <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>📅 {ar.fecha}</div>
+                  <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:6 }}>¿Qué estaba haciendo?</div>
+                  <div style={{ fontSize:12, color:C.light, marginBottom:8, lineHeight:1.5 }}>{ar.haciendo}</div>
+                  <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:6 }}>¿Qué sucedió?</div>
+                  <div style={{ fontSize:12, color:C.light, marginBottom:8, lineHeight:1.5 }}>{ar.sucedio}</div>
+                  <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:6 }}>¿Qué hizo después?</div>
+                  <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>{ar.despues}</div>
+                </div>
+              ))
+            )}
 
+            {mdl("nuevo-autorregistro", (
+              <div>
+                <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📋 Nuevo autorregistro</div>
+                <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Registra lo que viviste</div>
+
+                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📅 Fecha</div>
+                <input placeholder="Ej: 19 de marzo, 2026" value={arFecha} onChange={e => setArFecha(e.target.value)}
+                  style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué estaba haciendo?</div>
+                <textarea placeholder="Describe lo que hacías en ese momento..." value={arHaciendo} onChange={e => setArHaciendo(e.target.value)}
+                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5 }}/>
+
+                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué sucedió?</div>
+                <textarea placeholder="¿Qué pasó? ¿Cómo te sentiste?" value={arSucedio} onChange={e => setArSucedio(e.target.value)}
+                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5 }}/>
+
+                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué hizo después?</div>
+                <textarea placeholder="¿Qué hiciste luego? ¿Cómo lo manejaste?" value={arDespues} onChange={e => setArDespues(e.target.value)}
+                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5 }}/>
+
+                <div style={{ display:"flex", gap:8 }}>
+                  {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                  {btn(() => {
+                    if (!arFecha || !arHaciendo || !arSucedio || !arDespues) { showToast("Completa todos los campos ❌"); return; }
+                    const nuevo = { fecha:arFecha, haciendo:arHaciendo, sucedio:arSucedio, despues:arDespues };
+                    const nuevos = [nuevo, ...autorregistros];
+                    setAutorregistros(nuevos);
+                    localStorage.setItem('autorregistros', JSON.stringify(nuevos));
+                    setArFecha(""); setArHaciendo(""); setArSucedio(""); setArDespues("");
+                    setModal(null);
+                    sumarXP(1, "Autorregistro completado 📋");
+                  }, "Guardar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}      
     {/* MIS RECURSOS */}
     {tareasTab === "recursos" && (
       <div>
@@ -827,67 +1000,87 @@ const styles = `
           {!notifPanel && screen === "calendario" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:`linear-gradient(145deg,${C.sageDark},${C.sage})`, padding:"18px 22px 22px" }}>
-                <div style={{ fontSize:23, fontWeight:900, color:"white" }}>Marzo 2026</div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:600 }}>Vista paciente</div>
+                <div style={{ fontSize:23, fontWeight:900, color:"white" }}>📅 Mis citas</div>
+                <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:600 }}>
+                  {new Date().toLocaleDateString('es-CO', { month:'long', year:'numeric' })}
+                </div>
               </div>
               <div style={{ padding:14 }}>
-                <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", marginBottom:5 }}>
-                  {["Lu","Ma","Mi","Ju","Vi","Sa","Do"].map(d => <div key={d} style={{ textAlign:"center", fontSize:10, fontWeight:800, color:C.light, padding:"3px 0" }}>{d}</div>)}
-                </div>
-                <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:3, marginBottom:14 }}>
-                  {[{d:"24",dim:true},{d:"25",dim:true},{d:"26",dim:true},{d:"27",dim:true},{d:"28",dim:true},{d:"1",dim:true},{d:"2",dim:true},{d:"3",ev:true},{d:"4"},{d:"5",cita:true},{d:"6"},{d:"7"},{d:"8"},{d:"9"},{d:"10",today:true},{d:"11"},{d:"12"},{d:"13"},{d:"14"},{d:"15",cita:true},{d:"16"},{d:"17"},{d:"18"},{d:"19",ev:true},{d:"20"},{d:"21"},{d:"22"},{d:"23",cita:true},{d:"24"},{d:"25"},{d:"26"},{d:"27"},{d:"28"},{d:"29"},{d:"30"},{d:"31",cita:true}].map(({d,dim,today,ev,cita},i) => (
-                    <div key={i} style={{ aspectRatio:"1", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-start", paddingTop:10, fontSize:12, fontWeight:700, borderRadius:9, position:"relative", color:today?"white":dim?"rgba(0,0,0,0.25)":C.text, background:today?C.plum:"transparent", cursor:"pointer" }}>
-                      {d}
-                      {(ev||cita) && <div style={{ position:"absolute", bottom:2, width:4, height:4, borderRadius:"50%", background:cita?C.sageDark:C.amber }}/>}
-                    </div>
-                  ))}
-                </div>
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>Tus citas — Marzo</div>
-                <div style={{ background:"white", borderRadius:14, padding:"12px 14px", marginBottom:9, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:9 }}>
-                    <div style={{ width:4, height:34, borderRadius:2, background:C.sageDark, flexShrink:0 }}/>
-                    <div><div style={{ fontSize:13, fontWeight:800, color:C.text }}>Sesión con Dr. García</div><div style={{ fontSize:11, color:C.light }}>Sáb 15 · 10:00 AM · Presencial</div></div>
-                    <div style={{ marginLeft:"auto", fontSize:17 }}>📋</div>
+                {loadingCitas ? (
+                  <div style={{ textAlign:"center", padding:30, color:C.light }}>
+                    <div style={{ fontSize:30, marginBottom:8 }}>⏳</div>
+                    <div style={{ fontSize:13, fontWeight:700 }}>Cargando citas...</div>
                   </div>
-                  {citaStatus === "pending" ? (
-                    <div style={{ display:"flex", gap:7 }}>
-                      {btn(() => setModal("confirm-accept"), "✓ Confirmar", { flex:1, padding:"7px 0", borderRadius:9, background:C.green, color:"white", fontWeight:800, fontSize:11 })}
-                      {btn(() => setModal("confirm-cancel"), "✕ Cancelar", { flex:1, padding:"7px 0", borderRadius:9, background:"#FFE5E5", color:C.red, fontWeight:800, fontSize:11 })}
-                    </div>
-                  ) : (
-                    <div style={{ textAlign:"center", fontSize:10, fontWeight:800, padding:6, borderRadius:8, background:citaStatus==="confirmed"?"#E6FAF0":"#FFE5E5", color:citaStatus==="confirmed"?C.sageDark:C.red }}>
-                      {citaStatus==="confirmed"?"✅ Confirmada por ti":"❌ Cancelada · Dr. García fue notificado"}
-                    </div>
-                  )}
-                </div>
-                <div style={{ background:"white", borderRadius:14, padding:"12px 14px", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:6 }}>
-                    <div style={{ width:4, height:34, borderRadius:2, background:C.sageDark }}/>
-                    <div><div style={{ fontSize:13, fontWeight:800, color:C.text }}>Sesión con Dr. García</div><div style={{ fontSize:11, color:C.light }}>Lun 23 · 10:00 AM · Virtual</div></div>
-                    <div style={{ marginLeft:"auto", fontSize:17 }}>💻</div>
+                ) : citas.length === 0 ? (
+                  <div style={{ textAlign:"center", padding:40, color:C.light }}>
+                    <div style={{ fontSize:48, marginBottom:10 }}>📭</div>
+                    <div style={{ fontSize:15, fontWeight:800, color:C.text }}>Sin citas agendadas</div>
+                    <div style={{ fontSize:12, marginTop:6 }}>Tu psicólogo agendará tu próxima sesión</div>
                   </div>
-                  <div style={{ textAlign:"center", fontSize:10, fontWeight:800, padding:6, borderRadius:8, background:"#E6FAF0", color:C.sageDark }}>✅ Confirmada</div>
-                </div>
+                ) : (
+                  citas.map(c => (
+                    <div key={c.id} style={{ background:"white", borderRadius:16, padding:"14px 16px", marginBottom:12, boxShadow:"0 2px 10px rgba(0,0,0,0.07)", borderLeft:`4px solid ${c.status==="cancelada"?C.red:c.status==="confirmada"?C.sageDark:C.amber}` }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+                        <div style={{ background:c.modalidad==="virtual"?`${C.plum}15`:`${C.sage}15`, borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:52 }}>
+                          <div style={{ fontSize:20 }}>{c.modalidad==="virtual"?"💻":"🏥"}</div>
+                          <div style={{ fontSize:9, fontWeight:800, color:c.modalidad==="virtual"?C.plum:C.sageDark, textTransform:"uppercase" }}>{c.modalidad}</div>
+                        </div>
+                        <div style={{ flex:1 }}>
+                          <div style={{ fontSize:14, fontWeight:900, color:C.text }}>Sesión con {c.psicologoNombre}</div>
+                          <div style={{ fontSize:12, color:C.light, marginTop:2 }}>📅 {new Date(c.fecha).toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}</div>
+                          <div style={{ fontSize:12, color:C.light }}>⏰ {c.hora}</div>
+                        </div>
+                      </div>
+                      {c.modalidad==="virtual" && c.link && (
+                        <a href={c.link} target="_blank" rel="noreferrer"
+                          style={{ display:"block", width:"100%", padding:"9px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:10, fontSize:12, fontWeight:800, textAlign:"center", textDecoration:"none", marginBottom:8 }}>
+                          🎥 Unirse a la sesión virtual
+                        </a>
+                      )}
+                      {c.notas && (
+                        <div style={{ background:C.warm, borderRadius:10, padding:"8px 12px", marginBottom:8, fontSize:12, color:C.light, fontStyle:"italic" }}>
+                          📝 {c.notas}
+                        </div>
+                      )}
+                      <div style={{ display:"flex", gap:7 }}>
+                        {c.status === "pendiente" && (<>
+                          {btn(() => { setCitaSeleccionada(c); setModal("confirmar-cita"); }, "✓ Confirmar", { flex:1, padding:"7px 0", borderRadius:9, background:C.green, color:"white", fontWeight:800, fontSize:11 })}
+                          {btn(() => { setCitaSeleccionada(c); setModal("cancelar-cita"); }, "✕ Cancelar", { flex:1, padding:"7px 0", borderRadius:9, background:"#FFE5E5", color:C.red, fontWeight:800, fontSize:11 })}
+                        </>)}
+                        {c.status === "confirmada" && (
+                          <div style={{ flex:1, textAlign:"center", fontSize:11, fontWeight:800, padding:7, borderRadius:9, background:"#E6FAF0", color:C.sageDark }}>✅ Confirmada</div>
+                        )}
+                        {c.status === "cancelada" && (
+                          <div style={{ flex:1, textAlign:"center", fontSize:11, fontWeight:800, padding:7, borderRadius:9, background:"#FFE5E5", color:C.red }}>❌ Cancelada</div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
-              {mdl("confirm-accept", (
+              {mdl("confirmar-cita", citaSeleccionada && (
                 <div>
                   <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>✅</div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Confirmar cita</div>
-                  <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>¿Confirmas tu asistencia el <strong>sáb 15 de marzo a las 10:00 AM</strong>?</div>
+                  <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>
+                    ¿Confirmas tu asistencia el <strong>{new Date(citaSeleccionada.fecha).toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}</strong> a las <strong>{citaSeleccionada.hora}</strong>?
+                  </div>
                   <div style={{ display:"flex", gap:9 }}>
                     {btn(() => setModal(null), "No aún", { flex:1, padding:12, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => { setCitaStatus("confirmed"); setModal(null); showNotif("Cita confirmada", "Nos vemos el sáb 15 de marzo 🗓️", "✅"); }, "✓ Confirmar", { flex:1, padding:12, background:C.green, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => actualizarStatusCita(citaSeleccionada.id, "confirmada"), "✓ Confirmar", { flex:1, padding:12, background:C.green, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
-              {mdl("confirm-cancel", (
+              {mdl("cancelar-cita", citaSeleccionada && (
                 <div>
                   <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>❌</div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Cancelar cita</div>
-                  <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>¿Deseas cancelar la sesión del <strong>sáb 15 de marzo</strong>?</div>
+                  <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>
+                    ¿Deseas cancelar la sesión del <strong>{new Date(citaSeleccionada.fecha).toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}</strong>?
+                  </div>
                   <div style={{ display:"flex", gap:9 }}>
                     {btn(() => setModal(null), "Volver", { flex:1, padding:12, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => { setCitaStatus("cancelled"); setModal(null); showNotif("Cita cancelada", "Dr. García fue notificado", "❌"); }, "Sí, cancelar", { flex:1, padding:12, background:C.red, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => actualizarStatusCita(citaSeleccionada.id, "cancelada"), "Sí, cancelar", { flex:1, padding:12, background:C.red, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
@@ -900,23 +1093,23 @@ const styles = `
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:20 }}>
               <div style={{ background:`linear-gradient(145deg,${C.amberDark},${C.gold})`, padding:"18px 22px 28px", textAlign:"center" }}>
                 <div style={{ fontSize:48, marginBottom:6 }}>{avatar}</div>
-                <div style={{ fontSize:19, fontWeight:900, color:"white" }}>Sofía Martínez</div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.8)", fontWeight:700 }}>Nivel 4 · Exploradora</div>
+                <div style={{ fontSize:19, fontWeight:900, color:"white" }}>{usuarioActual?.nombre || "Mi perfil"}</div>
+                <div style={{ fontSize:12, color:"rgba(255,255,255,0.8)", fontWeight:700 }}>{getRango(xp).icono} {getRango(xp).nombre} · {xp} XP</div>
               </div>
               <div style={{ padding:"0 14px 14px" }}>
                 <div style={{ background:"white", margin:"-14px 0 14px", borderRadius:18, padding:16, boxShadow:"0 4px 18px rgba(0,0,0,0.1)", position:"relative", zIndex:10 }}>
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
                     <span style={{ fontSize:12, fontWeight:800, color:C.text }}>✨ Nivel 4 — Exploradora</span>
-                    <span style={{ fontSize:12, fontWeight:800, color:C.amberDark }}>620 / 1000 XP</span>
+                    <span style={{ fontSize:12, fontWeight:800, color:C.amberDark }}>{xp} XP</span>
                   </div>
                   <div style={{ height:11, background:C.warm, borderRadius:5, overflow:"hidden" }}>
-                    <div style={{ height:"100%", width:"62%", background:`linear-gradient(90deg,${C.amber},${C.gold})`, borderRadius:5 }}/>
+                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:`linear-gradient(90deg,${C.amber},${C.gold})`, borderRadius:5, transition:"width 0.5s ease" }}/>
                   </div>
                   <div style={{ fontSize:10, color:C.light, marginTop:5 }}>380 XP para Nivel 5 · Guerrera 💪</div>
                 </div>
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>🏅 Mis logros</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-                  {[["🌱","Primer Paso","Primer autoregistro","+50 XP",false],["🔥","En Racha","5 días seguidos","+100 XP",false],["💬","Comunicativa","10 sesiones","+150 XP",false],["📚","Lectora","5 recursos leídos","+80 XP",false],["⚔️","Guerrera","Nivel 5","🔒",true],["🌟","Constancia","30 días","🔒",true]].map(([ic,name,desc,xp,locked]) => (
+                  {[["🌱","Primer Paso","Primer autorregistro","+50 XP",false],["🔥","En Racha","5 días seguidos","+100 XP",false],["💬","Comunicativa","10 sesiones","+150 XP",false],["📚","Lectora","5 recursos leídos","+80 XP",false],["⚔️","Guerrera","Nivel 5","🔒",true],["🌟","Constancia","30 días","🔒",true]].map(([ic,name,desc,xp,locked]) => (
                     <div key={name} style={{ background:"white", borderRadius:16, padding:14, boxShadow:"0 2px 8px rgba(0,0,0,0.06)", textAlign:"center", opacity:locked?.4:1, filter:locked?"grayscale(1)":"none" }}>
                       <div style={{ fontSize:30, marginBottom:7 }}>{ic}</div>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text }}>{name}</div>
@@ -936,10 +1129,10 @@ const styles = `
               <div style={{ background:"white", padding:22, textAlign:"center", borderBottom:"1px solid rgba(0,0,0,0.05)" }}>
                 <div onClick={() => setModal("avatar")} style={{ fontSize:60, marginBottom:4, cursor:"pointer" }}>{avatar}</div>
                 <div style={{ fontSize:10, color:C.light, fontWeight:700, marginBottom:5 }}>Toca para cambiar</div>
-                <div style={{ fontSize:21, fontWeight:900, color:C.text }}>Sofía Martínez</div>
+                <div style={{ fontSize:21, fontWeight:900, color:C.text }}>{usuarioActual?.nombre || "Mi perfil"}</div>
                 <div style={{ fontSize:12, color:C.light, fontWeight:600 }}>Miembro desde Enero 2026</div>
                 <div style={{ display:"flex", justifyContent:"center", gap:7, marginTop:10, flexWrap:"wrap" }}>
-                  {["✨ Nivel 4","🔥 Racha 5d","🏅 8 logros"].map(b => <span key={b} style={{ background:C.warm, borderRadius:9, padding:"5px 10px", fontSize:10, fontWeight:800, color:C.amberDark }}>{b}</span>)}
+                  {[`${getRango(xp).icono} ${getRango(xp).nombre}`,`⭐ ${xp} XP`,"🏅 Logros"].map(b => <span key={b} style={{ background:C.warm, borderRadius:9, padding:"5px 10px", fontSize:10, fontWeight:800, color:C.amberDark }}>{b}</span>)}
                 </div>
               </div>
               <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:"rgba(0,0,0,0.06)", marginBottom:14 }}>
@@ -966,6 +1159,7 @@ const styles = `
                 {mitem("🔔", "Notificaciones", () => setNotifPanel(true))}                
                 {mitem("🔒", "Privacidad y seguridad", () => showNotif("Privacidad", "Tu información está segura y encriptada", "🔒"))}
                 {mitem("❓", "Ayuda y soporte", () => showNotif("Soporte", "Un agente te responderá pronto", "❓"))}
+                {mitem("⭐", "Valorar a mi psicólogo", () => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); })}
                 {mitem("🚪", "Cerrar sesión", () => showScreen("login"), true)}
               </div>
               {mdl("avatar", (
@@ -985,7 +1179,7 @@ const styles = `
                 <div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Editar perfil</div>
                   <div style={{ fontSize:52, textAlign:"center", marginBottom:14 }}>{avatar}</div>
-                  {[["Nombre","Sofía"],["Apellido","Martínez"],["Correo","sofia@correo.com"]].map(([l,v]) => (
+                  {[["Nombre", usuarioActual?.nombre || ""],["Correo", usuarioActual?.email || ""],["Teléfono", usuarioActual?.telefono || ""]].map(([l,v]) => (
                     <div key={l}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>{l}</div>
                       <input defaultValue={v} style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
@@ -997,79 +1191,158 @@ const styles = `
                   </div>
                 </div>
               ))}
+              {mdl("nueva-resena", (
+                <div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>⭐ Valorar a mi psicólogo</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:6 }}>Tu reseña es anónima y pública en su perfil</div>
+                  {usuarioActual?.psicologoId && (
+                    <div style={{ background:`linear-gradient(135deg,${C.dark},${C.plum})`, borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+                      <div style={{ fontSize:24 }}>👨‍⚕️</div>
+                      <div style={{ fontSize:13, fontWeight:800, color:"white" }}>Dr. Rincón</div>
+                    </div>
+                  )}
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:10 }}>Calificación</div>
+                  <div style={{ display:"flex", justifyContent:"center", gap:8, marginBottom:16 }}>
+                    {[1,2,3,4,5].map(i => (
+                      <div key={i} onClick={() => setResenaRating(i)}
+                        style={{ fontSize:32, cursor:"pointer", opacity:resenaRating >= i ? 1 : 0.3, transition:"all 0.2s" }}>⭐</div>
+                    ))}
+                  </div>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:6 }}>Tu reseña</div>
+                  <textarea placeholder="Cuéntanos tu experiencia con tu psicólogo..." value={resenaTexto} onChange={e => setResenaTexto(e.target.value)}
+                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5 }}/>
+                  <div style={{ background:"#FFF8E1", borderRadius:10, padding:"10px 12px", marginBottom:16, fontSize:11, color:C.amberDark, fontWeight:700 }}>
+                    🔒 Tu identidad permanecerá anónima
+                  </div>
+                  <div style={{ display:"flex", gap:8 }}>
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña ✓", { flex:2, padding:11, background:loadingResenas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                  </div>
+                </div>
+              ))}
               {bnav("perfil")}
             </div>
-          )}
-
-          {/* ADMIN HOME */}
+          )}          
+          {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140, background:"#F8F7FA" }}>
               <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
-                <div style={{ fontSize:34 }}>🛡️</div>
+                <div onClick={() => showScreen("admin-perfil")} style={{ fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:19, fontWeight:900, color:"white" }}>Panel · Psicólogo</div>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>{usuarioActual?.nombre || "Dr. Rincón"}</div>
+                  <div style={{ fontSize:19, fontWeight:900, color:"white" }}>👥 Mis pacientes</div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>{pacientes.length} paciente{pacientes.length !== 1 ? "s" : ""} activo{pacientes.length !== 1 ? "s" : ""}</div>
                 </div>
                 <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer" }}>
                   <div style={{ fontSize:24 }}>🔔</div>
                   {unread > 0 && <div style={{ position:"absolute", top:-4, right:-4, width:16, height:16, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:900, color:"white", border:`2px solid ${C.plum}` }}>{unread}</div>}
                 </div>
               </div>
+
               <div style={{ padding:14 }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:9, marginBottom:18 }}>
-                  {[["68","Pacientes"],["5","Citas hoy"],["3","Sin actividad"]].map(([n,l]) => (
+                  {[[pacientes.length,"Pacientes"],[citas.filter(c=>c.status==="pendiente").length,"Pendientes"],[citas.filter(c=>c.status==="confirmada").length,"Confirmadas"]].map(([n,l]) => (
                     <div key={l} style={{ background:"white", borderRadius:14, padding:13, textAlign:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
                       <div style={{ fontSize:21, fontWeight:900, color:C.plum }}>{n}</div>
                       <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>📅 Citas próximas</div>
-                <div style={{ background:"white", borderRadius:14, padding:"12px 14px", marginBottom:9, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:9 }}>
-                    <div style={{ width:4, height:34, borderRadius:2, background:C.plum }}/>
-                    <div><div style={{ fontSize:13, fontWeight:800, color:C.text }}>Sofía Martínez</div><div style={{ fontSize:11, color:C.light }}>Lun 23 · 10:00 AM · Virtual</div></div>
-                    <div style={{ marginLeft:"auto", fontSize:17 }}>💻</div>
-                  </div>
-                  {adminCitaStatus === "pending" ? (
-                    <div style={{ display:"flex", gap:7 }}>
-                      {btn(() => { setAdminCitaStatus("confirmed"); showNotif("Cita confirmada", "Sofía fue notificada ✅", "✅"); }, "✓ Confirmar", { flex:1, padding:"7px 0", borderRadius:9, background:C.green, color:"white", fontWeight:800, fontSize:11 })}
-                      {btn(() => setModal("admin-cancel"), "✕ Cancelar", { flex:1, padding:"7px 0", borderRadius:9, background:"#FFE5E5", color:C.red, fontWeight:800, fontSize:11 })}
-                    </div>
-                  ) : (
-                    <div style={{ textAlign:"center", fontSize:10, fontWeight:800, padding:6, borderRadius:8, background:adminCitaStatus==="confirmed"?"#E6FAF0":"#FFE5E5", color:adminCitaStatus==="confirmed"?C.sageDark:C.red }}>
-                      {adminCitaStatus==="confirmed"?"✅ Confirmada · Sofía notificada":"❌ Cancelada · Sofía fue notificada"}
-                    </div>
-                  )}
-                </div>
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>👥 Pacientes</div>
+
+                {/* CITAS HOY */}
+                {citas.filter(c => c.fecha === new Date().toISOString().split('T')[0]).length > 0 && (
+                  <>
+                    <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:10 }}>📅 Citas de hoy</div>
+                    {citas.filter(c => c.fecha === new Date().toISOString().split('T')[0]).map(c => (
+                      <div key={c.id} style={{ background:"white", borderRadius:14, padding:"12px 14px", marginBottom:9, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", borderLeft:`4px solid ${C.sage}` }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{c.pacienteNombre}</div>
+                            <div style={{ fontSize:11, color:C.light }}>⏰ {c.hora} · {c.modalidad === "virtual" ? "💻 Virtual" : "🏥 Presencial"}</div>
+                          </div>
+                          <div style={{ background:c.status==="confirmada"?"#E6FAF0":"#FFF8E1", color:c.status==="confirmada"?C.sageDark:C.amberDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
+                            {c.status==="confirmada"?"✅ Confirmada":"⏳ Pendiente"}
+                          </div>
+                        </div>
+                        {c.modalidad==="virtual" && c.link && (
+                          <a href={c.link} target="_blank" rel="noreferrer"
+                            style={{ display:"block", marginTop:8, padding:"7px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:9, fontSize:11, fontWeight:800, textAlign:"center", textDecoration:"none" }}>
+                            🎥 Unirse ahora
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {/* LISTA PACIENTES */}
+                <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:10 }}>👤 Lista de pacientes</div>
                 {pacientes.length === 0 ? (
-                <div style={{ textAlign:"center", color:C.light, padding:20 }}>
-                  No hay pacientes aún
-                </div>
-              ) : (
-                pacientes.map(p => (
-                  <div key={p.id} onClick={() => showScreen("admin-paciente")} style={{ background:"white", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", cursor:"pointer" }}>
-                    <div style={{ fontSize:26, width:42, height:42, background:C.warm, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>👤</div>
-                    <div>
-                      <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{p.nombre}</div>
-                      <div style={{ fontSize:10, color:C.light }}>{p.email}</div>
-                    </div>
-                    <div style={{ marginLeft:"auto", background:"#A8C5B5", color:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>Activo</div>
+                  <div style={{ textAlign:"center", padding:40, color:C.light }}>
+                    <div style={{ fontSize:40, marginBottom:8 }}>👥</div>
+                    <div style={{ fontSize:14, fontWeight:700 }}>Sin pacientes aún</div>
+                    <div style={{ fontSize:12, marginTop:4 }}>El admin debe crear y asignarte pacientes</div>
                   </div>
-                ))
-              )}
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones rápidas</div>
-                {[["📅","Agendar cita"],["📢","Notificación grupal"],["📊","Ver reportes"],["➕","Agregar paciente"]].map(([ic,lb]) => mitem(ic, lb, () => showNotif(lb, "Función disponible en la versión final", ic)))}
+                ) : (
+                  pacientes.map(p => (
+                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); showScreen("admin-paciente"); }}
+                      style={{ background:"white", borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:9, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", cursor:"pointer" }}>
+                      <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum}20,${C.sage}20)`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👤</div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:14, fontWeight:800, color:C.text }}>{p.nombre}</div>
+                        <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{p.email}</div>
+                        {p.telefono && <div style={{ fontSize:10, color:C.light }}>📞 {p.telefono}</div>}
+                      </div>
+                      <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
+                        <div style={{ background:"#E8F5E9", color:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>Activo</div>
+                        <div style={{ color:C.light, fontSize:18 }}>›</div>
+                      </div>
+                    </div>
+                  ))
+                )}
+
+                {/* BOTÓN AGENDAR */}
+                {btn(() => setModal("agendar-cita"), "📅 Agendar nueva cita", { width:"100%", padding:13, background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:14, fontSize:13, fontWeight:800, marginTop:8, display:"block" })}
               </div>
-              {mdl("admin-cancel", (
+
+              {mdl("agendar-cita", (
                 <div>
-                  <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>⚠️</div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Cancelar sesión</div>
-                  <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>¿Cancelar sesión con <strong>Sofía Martínez</strong> el lun 23?</div>
-                  <div style={{ display:"flex", gap:9 }}>
-                    {btn(() => setModal(null), "No cancelar", { flex:1, padding:12, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => { setAdminCitaStatus("cancelled"); setModal(null); showNotif("Sesión cancelada", "Sofía fue notificada ❌", "❌"); }, "Sí, cancelar", { flex:1, padding:12, background:C.red, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📅 Agendar cita</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario</div>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
+                  <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"white", boxSizing:"border-box" }}>
+                    <option value="">— Seleccionar paciente —</option>
+                    {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
+                  </select>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
+                  <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
+                  <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
+                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+                    {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
+                      <div key={val} onClick={() => setCitaModalidad(val)}
+                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,0.08)"}`, background:citaModalidad===val?`${C.plum}15`:"white" }}>
+                        <div style={{ fontSize:22 }}>{ic}</div>
+                        <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {citaModalidad === "virtual" && (
+                    <>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet</div>
+                      <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    </>
+                  )}
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📝 Notas para el paciente</div>
+                  <textarea placeholder="Ej: Recuerda traer tu diario..." value={citaNotas} onChange={e => setCitaNotas(e.target.value)}
+                    style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ display:"flex", gap:8 }}>
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar ✓", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
@@ -1161,7 +1434,6 @@ const styles = `
     {btn(() => setModal(null), "Cerrar", { width:"100%", padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:13, fontWeight:800, marginTop:8 })}
   </div>
 ))}
-
 {mdl("registro-admin", (
   <div>
     <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>➕ Crear usuario</div>
@@ -1202,7 +1474,18 @@ const styles = `
         </div>
       ))}
     </div>
-
+{formRol === "paciente" && (
+      <>
+        <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8, marginTop:4 }}>Psicólogo asignado</div>
+        <select value={formPsicologoId} onChange={e => setFormPsicologoId(e.target.value)}
+          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", background:"white", boxSizing:"border-box" }}>
+          <option value="">— Seleccionar psicólogo —</option>
+          {todosUsuarios.filter(u => u.rol === "psicologo").map(p => (
+            <option key={p.id} value={p.id}>{p.nombre}</option>
+          ))}
+        </select>
+      </>
+    )}
     <div style={{ display:"flex", gap:8 }}>
       {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
       {btn(() => handleCrearUsuarioAdmin(), formLoading ? "Creando..." : "Crear usuario ✓", { flex:2, padding:11, background:formLoading?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -1220,10 +1503,10 @@ const styles = `
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 22px 20px", display:"flex", alignItems:"center", gap:14 }}>
                 <div onClick={() => showScreen("psi-dashboard")} style={{ fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.8)" }}>←</div>
-                <div style={{ fontSize:32, width:50, height:50, background:"rgba(255,255,255,0.15)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center" }}>🦋</div>
+                <div style={{ width:50, height:50, background:"rgba(255,255,255,0.15)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26 }}>👤</div>
                 <div>
-                  <div style={{ fontSize:18, fontWeight:900, color:"white" }}>Sofía Martínez</div>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)" }}>Nivel 4 · 14 autoregistros</div>
+                  <div style={{ fontSize:18, fontWeight:900, color:"white" }}>{pacienteSeleccionado?.nombre || "Paciente"}</div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)" }}>{pacienteSeleccionado?.email || ""}</div>
                 </div>
               </div>
               <div style={{ padding:14 }}>
@@ -1247,7 +1530,7 @@ const styles = `
                     ))}
                   </div>
                 </div>
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>📝 Autoregistros recientes</div>
+                <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>📝 Autorregistros recientes</div>
                 {[["Hoy · 8:42 AM · 😐","Mañana tranquila ☀️","Me desperté sin ansiedad. Hice ejercicios de respiración.",C.sage],["Ayer · 7:15 PM · 😕","Momento difícil en el trabajo","Conflicto con mi jefe. Usé el registro ABC.",C.red]].map(([date,title,text,col]) => (
                   <div key={title} style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${col}` }}>
                     <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>{date}</div>
@@ -1258,7 +1541,7 @@ const styles = `
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
                 {btn(() => setModal("assign-task"), "📋 Asignar nueva tarea", { width:"100%", padding:12, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, color:"white", borderRadius:13, fontSize:13, fontWeight:800, marginBottom:10 })}
                 {mitem("💬", "Nota clínica privada", () => setModal("feedback"))}
-                {mitem("📅", "Agendar cita", () => showNotif("Cita agendada", "Se agendó nueva cita con Sofía", "📅"))}
+                {mitem("📅", "Agendar cita", () => setModal("agendar-cita"))}
                 {mitem("📤", "Enviar material", () => showNotif("Material enviado", "Sofía lo recibirá en su app", "📤"))}
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>🔒 Notas clínicas</div>
                 <div style={{ background:"white", borderRadius:16, padding:14, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", borderLeft:"3px solid #8B7BA0" }}>
@@ -1300,45 +1583,113 @@ const styles = `
 
           {/* ADMIN PERFIL */}
           {!notifPanel && screen === "admin-perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
-              <div style={{ background:`linear-gradient(145deg,${C.dark},#3D3055)`, padding:"24px 22px 28px", textAlign:"center" }}>
-                <div style={{ position:"relative", display:"inline-block", marginBottom:12 }}>
-                  <div style={{ width:80, height:80, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, border:"3px solid rgba(255,255,255,0.3)", margin:"0 auto" }}>👨‍⚕️</div>
-                  <div onClick={() => setModal("edit-psico")} style={{ position:"absolute", bottom:0, right:0, width:24, height:24, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, cursor:"pointer", border:"2px solid white" }}>✏️</div>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140, background:"#F8F7FA" }}>
+
+              {/* HEADER */}
+              <div style={{ background:`linear-gradient(160deg,${C.dark},${C.plum})`, padding:"32px 24px 48px", textAlign:"center", position:"relative" }}>
+                <div style={{ position:"relative", display:"inline-block", marginBottom:14 }}>
+                  <div style={{ width:90, height:90, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:44, border:"3px solid rgba(255,255,255,0.25)", margin:"0 auto" }}>👨‍⚕️</div>
+                  <div onClick={() => setModal("edit-psico")} style={{ position:"absolute", bottom:2, right:2, width:26, height:26, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, cursor:"pointer", border:"2px solid white", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>✏️</div>
                 </div>
-                <div style={{ fontSize:20, fontWeight:900, color:"white", marginBottom:3 }}>Dr. Carlos García</div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:700 }}>Psicólogo Clínico</div>
-                <div style={{ display:"inline-block", background:"rgba(255,255,255,0.15)", color:"white", fontSize:11, fontWeight:700, padding:"4px 12px", borderRadius:20, marginTop:8 }}>🧠 TCC · Mindfulness</div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginTop:10, fontStyle:"italic", lineHeight:1.5 }}>"Cada pequeño paso que das cuenta. Estoy aquí para acompañarte."</div>
+                <div style={{ fontSize:22, fontWeight:900, color:"white", marginBottom:4 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
+                <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:600, marginBottom:12 }}>{usuarioActual?.email || ""}</div>
+                <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
+                  <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>🧠 Psicólogo Clínico</span>
+                  <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>TCC · Mindfulness</span>
+                </div>
               </div>
-              <div style={{ padding:14 }}>
-                {btn(() => setModal("edit-psico"), "✏️ Editar mi perfil profesional", { width:"100%", padding:13, background:C.plum, color:"white", borderRadius:13, fontSize:13, fontWeight:800, marginBottom:16, display:"block" })}
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>ℹ️ Información profesional</div>
-                <div style={{ background:"white", borderRadius:16, padding:16, marginBottom:16, boxShadow:"0 2px 10px rgba(0,0,0,0.06)" }}>
-                  {[["🎓","Formación","Psicología Clínica · Uni. Nacional"],["⏳","Experiencia","12 años de práctica clínica"],["🔬","Enfoque","TCC · Mindfulness · Aceptación"],["📧","Contacto","dr.garcia@noos.app"]].map(([ic,lb,val]) => (
-                    <div key={lb} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:"1px solid rgba(0,0,0,0.05)" }}>
-                      <div style={{ fontSize:16, width:28, textAlign:"center" }}>{ic}</div>
-                      <div><div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase" }}>{lb}</div><div style={{ fontSize:13, fontWeight:700, color:C.text }}>{val}</div></div>
+
+              {/* STATS */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:"rgba(0,0,0,0.06)", margin:"-1px 0 20px" }}>
+                {[[pacientes.length || "0","Pacientes"],[citas.length || "0","Citas"],[citas.filter(c=>c.status==="confirmada").length || "0","Confirmadas"]].map(([n,l]) => (
+                  <div key={l} style={{ background:"white", padding:"16px 8px", textAlign:"center" }}>
+                    <div style={{ fontSize:22, fontWeight:900, color:C.plum }}>{n}</div>
+                    <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ padding:"0 16px" }}>
+
+                {/* ACCIONES RÁPIDAS */}
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
+                  {[["📅","Agendar cita",() => setModal("agendar-cita")],["👥","Mis pacientes",() => showScreen("psi-dashboard")],["💬","Nota clínica",() => setModal("feedback")],["🔔","Notificaciones",() => setNotifPanel(true)]].map(([ic,lb,fn]) => (
+                    <div key={lb} onClick={fn} style={{ background:"white", borderRadius:16, padding:"16px 14px", textAlign:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.05)", cursor:"pointer", transition:"all 0.2s" }}>
+                      <div style={{ fontSize:28, marginBottom:6 }}>{ic}</div>
+                      <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{lb}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>📊 Mi actividad</div>
-                <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:9, marginBottom:16 }}>
-                  {[["68","Pacientes"],["847","Sesiones"],["4.9⭐","Rating"]].map(([n,l]) => (
-                    <div key={l} style={{ background:"white", borderRadius:14, padding:13, textAlign:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
-                      <div style={{ fontSize:17, fontWeight:900, color:C.plum }}>{n}</div>
-                      <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
+
+                {/* INFO PROFESIONAL */}
+                <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>ℹ️ Información profesional</div>
+                <div style={{ background:"white", borderRadius:16, padding:16, marginBottom:16, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                  {[["🎓","Formación","Psicología Clínica · Uni. Nacional"],["⏳","Experiencia","12 años de práctica clínica"],["🔬","Enfoque","TCC · Mindfulness · Aceptación"],["📞","Teléfono", usuarioActual?.telefono || "No registrado"]].map(([ic,lb,val]) => (
+                    <div key={lb} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 0", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
+                      <div style={{ fontSize:18, width:32, textAlign:"center", flexShrink:0 }}>{ic}</div>
+                      <div>
+                        <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", marginBottom:2 }}>{lb}</div>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{val}</div>
+                      </div>
                     </div>
                   ))}
                 </div>
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>⚙️ Configuración</div>
-                {[["🔔","Notificaciones automáticas"],["📅","Horarios de disponibilidad"],["🏆","Sistema de logros"],["📊","Exportar datos"]].map(([ic,lb]) => mitem(ic, lb, () => showNotif(lb, "Función disponible en la versión final", ic)))}
-                {mitem("🚪", "Cerrar sesión", () => showScreen("login"), true)}
+
+                {/* CONFIGURACIÓN */}
+                <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>⚙️ Configuración</div>
+                <div style={{ background:"white", borderRadius:16, overflow:"hidden", marginBottom:16, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                  {[["🔔","Notificaciones"],["📅","Disponibilidad"],["📊","Exportar datos"]].map(([ic,lb],i,arr) => (
+                    <div key={lb} onClick={() => showNotif(lb, "Función disponible pronto", ic)}
+                      style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none", cursor:"pointer" }}>
+                      <div style={{ fontSize:18, width:32, textAlign:"center" }}>{ic}</div>
+                      <div style={{ fontSize:13, fontWeight:700, color:C.text, flex:1 }}>{lb}</div>
+                      <div style={{ color:C.light, fontSize:16 }}>›</div>
+                    </div>
+                  ))}
+                </div>
+                {/* RESEÑAS */}
+                <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>⭐ Reseñas de pacientes</div>
+                {loadingResenas ? (
+                  <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>Cargando reseñas...</div>
+                ) : resenas.length === 0 ? (
+                  <div style={{ background:"white", borderRadius:16, padding:20, textAlign:"center", marginBottom:16, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                    <div style={{ fontSize:32, marginBottom:6 }}>⭐</div>
+                    <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Aún no tienes reseñas</div>
+                    <div style={{ fontSize:11, color:C.light, marginTop:4 }}>Tus pacientes podrán valorarte desde su perfil</div>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:16, padding:16, marginBottom:12, textAlign:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.1)" }}>
+                      <div style={{ fontSize:36, fontWeight:900, color:"white" }}>{(resenas.reduce((a,r) => a+r.rating, 0) / resenas.length).toFixed(1)} ⭐</div>
+                      <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
+                    </div>
+                    {resenas.map(r => (
+                      <div key={r.id} style={{ background:"white", borderRadius:14, padding:14, marginBottom:10, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                        <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                          <div style={{ fontSize:14 }}>{"⭐".repeat(r.rating)}</div>
+                          <div style={{ fontSize:10, color:C.light }}>{new Date(r.fecha).toLocaleDateString('es-CO')}</div>
+                        </div>
+                        <div style={{ fontSize:13, color:C.text, lineHeight:1.5 }}>{r.texto}</div>
+                        <div style={{ fontSize:10, color:C.light, marginTop:6, fontStyle:"italic" }}>— Paciente anónimo</div>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {/* CERRAR SESIÓN */}
+                <div onClick={() => showScreen("login")}
+                  style={{ background:"white", borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,0.05)", marginBottom:8 }}>
+                  <div style={{ fontSize:18, width:32, textAlign:"center" }}>🚪</div>
+                  <div style={{ fontSize:13, fontWeight:700, color:C.red, flex:1 }}>Cerrar sesión</div>
+                  <div style={{ color:C.red, fontSize:16 }}>›</div>
+                </div>
+
               </div>
+
               {mdl("edit-psico", (
                 <div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Editar perfil</div>
-                  {[["Nombre","Dr. Carlos García"],["Especialidad","Psicología Clínica · TCC"],["Experiencia","12 años"]].map(([l,v]) => (
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:16, textAlign:"center" }}>✏️ Editar perfil</div>
+                  {[["Nombre", usuarioActual?.nombre || ""],["Especialidad","Psicología Clínica · TCC"],["Experiencia","12 años"],["Teléfono", usuarioActual?.telefono || ""],["Correo", usuarioActual?.email || ""]].map(([l,v]) => (
                     <div key={l}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>{l}</div>
                       <input defaultValue={v} style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
@@ -1350,6 +1701,50 @@ const styles = `
                   </div>
                 </div>
               ))}
+
+              {mdl("agendar-cita", (
+                <div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📅 Agendar cita</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario</div>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
+                  <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"white", boxSizing:"border-box" }}>
+                    <option value="">— Seleccionar paciente —</option>
+                    {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
+                  </select>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
+                  <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
+                  <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
+                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+                    {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
+                      <div key={val} onClick={() => setCitaModalidad(val)}
+                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,0.08)"}`, background:citaModalidad===val?`${C.plum}15`:"white" }}>
+                        <div style={{ fontSize:22 }}>{ic}</div>
+                        <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {citaModalidad === "virtual" && (
+                    <>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet</div>
+                      <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    </>
+                  )}
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📝 Notas para el paciente</div>
+                  <textarea placeholder="Ej: Recuerda traer tu diario..." value={citaNotas} onChange={e => setCitaNotas(e.target.value)}
+                    style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ display:"flex", gap:8 }}>
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar ✓", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                  </div>
+                </div>
+              ))}
+
               {anav("admin-perfil")}
             </div>
           )}
