@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { messaging, getToken, onMessage } from "./firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
 import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc } from "firebase/firestore";
@@ -64,6 +65,16 @@ const [arFecha, setArFecha] = useState("");
 const [arHaciendo, setArHaciendo] = useState("");
 const [arSucedio, setArSucedio] = useState("");
 const [arDespues, setArDespues] = useState("");
+const [editNombre, setEditNombre] = useState("");
+const [pinAnterior, setPinAnterior] = useState("");
+const [pinNuevo, setPinNuevo] = useState("");
+const [pinNuevo2, setPinNuevo2] = useState("");
+const [editTel, setEditTel] = useState("");
+const [psicologoData, setPsicologoData] = useState(null);
+const [editFoto, setEditFoto] = useState("");
+const [editEspecialidad, setEditEspecialidad] = useState("");
+const [editExperiencia, setEditExperiencia] = useState("");
+const [editEnfoque, setEditEnfoque] = useState("");
 const [darkMode, setDarkMode] = useState(() => {
   try { return localStorage.getItem('darkMode') === 'true'; } catch { return false; }
 });
@@ -318,6 +329,14 @@ const sumarXP = async (puntos, motivo) => {
   } catch(e) {}
 };
 useEffect(() => {
+  if (screen === "perfil-psicologo" && usuarioActual?.psicologoId && !psicologoData) {
+    getDoc(doc(db, "usuarios", usuarioActual.psicologoId)).then(snap => {
+      if (snap.exists()) setPsicologoData({ id: snap.id, ...snap.data() });
+    });
+    cargarResenas(usuarioActual.psicologoId);
+  }
+}, [screen]);
+useEffect(() => {
   if (usuarioActual?.uid && !xpCargado) {
     getDoc(doc(db, "usuarios", usuarioActual.uid)).then(snap => {
       if (snap.exists()) {
@@ -325,6 +344,28 @@ useEffect(() => {
         setXpCargado(true);
       }
     });
+  }
+}, [usuarioActual]);
+useEffect(() => {
+  if (usuarioActual?.uid) {
+    Notification.requestPermission().then(async permission => {
+      if (permission === "granted") {
+        try {
+          const token = await getToken(messaging, {
+            vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
+          });
+          if (token) {
+            await updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: token });
+          }
+        } catch(e) { console.log("Error FCM:", e); }
+      }
+    });
+
+    const unsub = onMessage(messaging, payload => {
+      const { title, body } = payload.notification || {};
+      showNotif(title || "Nueva notificación", body || "", "🔔");
+    });
+    return () => unsub();
   }
 }, [usuarioActual]);
 useEffect(() => {
@@ -683,57 +724,112 @@ const styles = `
 
           {/* HOME */}
           {!notifPanel && screen === "home" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
-              <div style={{ background:`linear-gradient(145deg,${C.plum},#3D3055)`, padding:"20px 24px 76px", position:"relative" }}>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>¡Buenos días,</div>
-                <div style={{ fontSize:23, color:"white", fontWeight:900 }}>{usuarioActual?.nombre || "Bienvenido"} 👋</div>
-                <div style={{ fontSize:11, color:"rgba(255,255,255,0.45)", marginTop:3 }}>{new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })} · Semana {Math.ceil(new Date().getDate()/7)}</div>
-                <div style={{ position:"absolute", top:18, right:22, display:"flex", gap:10, alignItems:"center" }}>
-                  <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer" }}>
-                    <div style={{ fontSize:24 }}>🔔</div>
-                    {unread > 0 && <div style={{ position:"absolute", top:-4, right:-4, width:16, height:16, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:900, color:"white", border:"2px solid #3D3055" }}>{unread}</div>}
-                  </div>
-                  <div onClick={() => showScreen("perfil")} style={{ width:50, height:50, background:`linear-gradient(135deg,${C.amber},${C.gold})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, border:"3px solid rgba(255,255,255,0.3)", cursor:"pointer" }}>{avatar}</div>
-                </div>
-                <div style={{ background:"rgba(255,255,255,0.1)", borderRadius:18, padding:"12px 14px", marginTop:14 }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
-                     <span style={{ fontSize:11, color:"rgba(255,255,255,0.7)", fontWeight:700 }}>{getRango(xp).icono} {getRango(xp).nombre}</span>
-                    <span style={{ fontSize:11, color:C.amber, fontWeight:800 }}>{xp} XP · {getRango(xp).icono} {getRango(xp).nombre}</span>
-                  </div>
-                  <div style={{ height:7, background:"rgba(255,255,255,0.15)", borderRadius:4, overflow:"hidden" }}>
-                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:`linear-gradient(90deg,${C.amber},${C.gold})`, borderRadius:4, transition:"width 0.5s ease" }}/>
-                  </div>
-                </div>
-              </div>
-              <div style={{ padding:"0 14px", marginTop:-42, position:"relative", zIndex:10 }}>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:16 }}>
-                  {[[`linear-gradient(135deg,${C.sage},${C.sageDark})`,"📝","Autorregistros","14","este mes",true],["white","🎯","Tareas","3/5","completadas",false],["white","📅","Próx. cita","Mar 15","10:00 AM",false],["white","🏅","Logros","8","desbloqueados",false]].map(([bg,ic,lb,val,sub,inv]) => (
-                    <div key={lb} style={{ background:bg, borderRadius:18, padding:"16px 14px", boxShadow:"0 4px 14px rgba(0,0,0,0.07)" }}>
-                      <div style={{ fontSize:26, marginBottom:8 }}>{ic}</div>
-                      <div style={{ fontSize:10, color:inv?"rgba(255,255,255,0.8)":C.light, fontWeight:700, textTransform:"uppercase" }}>{lb}</div>
-                      <div style={{ fontSize:20, fontWeight:900, color:inv?"white":C.text, marginTop:2 }}>{val}</div>
-                      <div style={{ fontSize:10, color:inv?"rgba(255,255,255,0.7)":C.light }}>{sub}</div>
-                    </div>
-                  ))}
-                </div>                
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"0 0 10px" }}>📅 Próxima cita</div>
-                <div style={{ background:"white", borderRadius:18, padding:"14px 16px", boxShadow:"0 4px 14px rgba(0,0,0,0.07)", display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
-                  <div style={{ background:C.plum, borderRadius:12, padding:"9px 12px", textAlign:"center", minWidth:50 }}>
-                    <div style={{ fontSize:20, fontWeight:900, color:"white", lineHeight:1 }}>15</div>
-                    <div style={{ fontSize:9, color:"rgba(255,255,255,0.7)", fontWeight:700 }}>MAR</div>
-                  </div>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:100, background:"#F8F7FA" }}>
+
+              {/* HEADER */}
+              <div style={{ background:`linear-gradient(145deg,${C.plum},#3D3055)`, padding:"28px 24px 52px", position:"relative" }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
                   <div>
-                    <div style={{ fontSize:13, fontWeight:800, color:C.text }}>Sesión con Dr. García</div>
-                    <div style={{ fontSize:11, color:C.light, marginTop:2 }}>⏰ 10:00 AM · 1 hora</div>
-                    <span style={{ background:C.warm, color:C.amberDark, fontSize:10, fontWeight:800, padding:"2px 8px", borderRadius:20 }}>📍 Presencial</span>
+                    <div style={{ fontSize:13, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>
+                      {new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}
+                    </div>
+                    <div style={{ fontSize:26, color:"white", fontWeight:900, marginTop:4 }}>
+                      Hola, {usuarioActual?.nombre?.split(" ")[0] || "Bienvenido"} 👋
+                    </div>
+                  </div>
+                  <div style={{ display:"flex", gap:10, alignItems:"center" }}>
+                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer" }}>
+                      <div style={{ fontSize:22 }}>🔔</div>
+                      {unread > 0 && <div style={{ position:"absolute", top:-4, right:-4, width:16, height:16, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:900, color:"white" }}>{unread}</div>}
+                    </div>
+                    <div onClick={() => showScreen("perfil")} style={{ width:44, height:44, background:`linear-gradient(135deg,${C.amber},${C.gold})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, border:"2px solid rgba(255,255,255,0.3)", cursor:"pointer" }}>{avatar}</div>
                   </div>
                 </div>
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"0 0 10px" }}>✨ Frase de la semana</div>
-                <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:20, padding:20, marginBottom:16 }}>
-                  <div style={{ fontSize:16, color:"white", lineHeight:1.5, fontStyle:"italic" }}>"El coraje no es la ausencia de miedo, sino la decisión de que algo más es más importante."</div>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:8, fontWeight:700 }}>— Dr. García · Esta semana</div>
+
+                {/* BARRA XP */}
+                <div style={{ background:"rgba(255,255,255,0.1)", borderRadius:14, padding:"10px 14px", marginTop:16 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                    <span style={{ fontSize:11, color:"rgba(255,255,255,0.8)", fontWeight:700 }}>{getRango(xp).icono} {getRango(xp).nombre}</span>
+                    <span style={{ fontSize:11, color:C.amber, fontWeight:800 }}>{xp} XP</span>
+                  </div>
+                  <div style={{ height:6, background:"rgba(255,255,255,0.15)", borderRadius:3, overflow:"hidden" }}>
+                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:`linear-gradient(90deg,${C.amber},${C.gold})`, borderRadius:3, transition:"width 0.5s ease" }}/>
+                  </div>
                 </div>
               </div>
+
+              {/* PRÓXIMA CITA */}
+              <div style={{ padding:"0 16px", marginTop:-28, position:"relative", zIndex:10 }}>
+                {citas.length === 0 ? (
+                  <div style={{ background:"white", borderRadius:20, padding:20, boxShadow:"0 4px 20px rgba(0,0,0,0.08)", textAlign:"center", marginBottom:16 }}>
+                    <div style={{ fontSize:32, marginBottom:8 }}>📅</div>
+                    <div style={{ fontSize:14, fontWeight:800, color:C.text }}>Sin citas agendadas</div>
+                    <div style={{ fontSize:12, color:C.light, marginTop:4 }}>Tu psicólogo agendará tu próxima sesión</div>
+                  </div>
+                ) : (
+                  (() => {
+                    const proxima = citas.filter(c => c.status !== "cancelada").sort((a,b) => new Date(a.fecha) - new Date(b.fecha))[0];
+                    if (!proxima) return null;
+                    return (
+                      <div style={{ background:"white", borderRadius:20, padding:18, boxShadow:"0 4px 20px rgba(0,0,0,0.08)", marginBottom:16 }}>
+                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+                          <div style={{ fontSize:12, fontWeight:800, color:C.plum, textTransform:"uppercase", letterSpacing:0.5 }}>📅 Próxima cita</div>
+                          <div style={{ background:proxima.status==="confirmada"?"#E6FAF0":"#FFF8E1", color:proxima.status==="confirmada"?C.sageDark:C.amberDark, fontSize:10, fontWeight:800, padding:"3px 9px", borderRadius:20 }}>
+                            {proxima.status==="confirmada"?"✅ Confirmada":"⏳ Pendiente"}
+                          </div>
+                        </div>
+                        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+                          <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:12, padding:"10px 12px", textAlign:"center", minWidth:52 }}>
+                            <div style={{ fontSize:18, fontWeight:900, color:"white", lineHeight:1 }}>
+                              {new Date(proxima.fecha).getDate()}
+                            </div>
+                            <div style={{ fontSize:9, color:"rgba(255,255,255,0.7)", fontWeight:700, textTransform:"uppercase" }}>
+                              {new Date(proxima.fecha).toLocaleDateString('es-CO', { month:'short' })}
+                            </div>
+                          </div>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:15, fontWeight:900, color:C.text }}>Sesión con {proxima.psicologoNombre}</div>
+                            <div style={{ fontSize:12, color:C.light, marginTop:3 }}>⏰ {proxima.hora} · {proxima.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
+                          </div>
+                        </div>
+                        {proxima.modalidad==="virtual" && proxima.link && (
+                          <a href={proxima.link} target="_blank" rel="noreferrer"
+                            style={{ display:"block", padding:"10px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:12, fontSize:12, fontWeight:800, textAlign:"center", textDecoration:"none", marginBottom:10 }}>
+                            🎥 Unirse a la sesión
+                          </a>
+                        )}
+                        {proxima.status === "pendiente" && (
+                          <div style={{ display:"flex", gap:8 }}>
+                            {btn(() => { setCitaSeleccionada(proxima); setModal("confirmar-cita"); }, "✓ Confirmar asistencia", { flex:1, padding:"9px 0", borderRadius:10, background:C.green, color:"white", fontWeight:800, fontSize:12 })}
+                          </div>
+                        )}
+                        {btn(() => showScreen("calendario"), "Ver todas mis citas →", { width:"100%", padding:"9px 0", borderRadius:10, background:C.warm, color:C.plum, fontWeight:800, fontSize:12, marginTop:proxima.status==="pendiente"?8:0 })}
+                      </div>
+                    );
+                  })()
+                )}
+
+                {/* FRASE SEMANA */}
+                <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:20, padding:20, marginBottom:16 }}>
+                  <div style={{ fontSize:13, color:"rgba(255,255,255,0.6)", fontWeight:700, marginBottom:8 }}>✨ Frase de la semana</div>
+                  <div style={{ fontSize:15, color:"white", lineHeight:1.6, fontStyle:"italic" }}>"El coraje no es la ausencia de miedo, sino la decisión de que algo más es más importante."</div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.5)", marginTop:8, fontWeight:700 }}>— Tu psicólogo</div>
+                </div>
+              </div>
+
+              {mdl("confirmar-cita", citaSeleccionada && (
+                <div>
+                  <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>✅</div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Confirmar cita</div>
+                  <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>
+                    ¿Confirmas tu asistencia el <strong>{new Date(citaSeleccionada.fecha).toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}</strong> a las <strong>{citaSeleccionada.hora}</strong>?
+                  </div>
+                  <div style={{ display:"flex", gap:9 }}>
+                    {btn(() => setModal(null), "No aún", { flex:1, padding:12, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => actualizarStatusCita(citaSeleccionada.id, "confirmada"), "✓ Confirmar", { flex:1, padding:12, background:C.green, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                  </div>
+                </div>
+              ))}
               {bnav("home")}
             </div>
           )}
@@ -1090,31 +1186,60 @@ const styles = `
 
           {/* LOGROS */}
           {!notifPanel && screen === "logros" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:20 }}>
-              <div style={{ background:`linear-gradient(145deg,${C.amberDark},${C.gold})`, padding:"18px 22px 28px", textAlign:"center" }}>
-                <div style={{ fontSize:48, marginBottom:6 }}>{avatar}</div>
-                <div style={{ fontSize:19, fontWeight:900, color:"white" }}>{usuarioActual?.nombre || "Mi perfil"}</div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.8)", fontWeight:700 }}>{getRango(xp).icono} {getRango(xp).nombre} · {xp} XP</div>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:100, background:"#F8F7FA" }}>
+              <div style={{ background:`linear-gradient(145deg,${C.amberDark},${C.gold})`, padding:"32px 24px 52px", textAlign:"center" }}>
+                <div style={{ fontSize:64, marginBottom:10 }}>{getRango(xp).icono}</div>
+                <div style={{ fontSize:28, fontWeight:900, color:"white", marginBottom:4 }}>{getRango(xp).nombre}</div>
+                <div style={{ fontSize:14, color:"rgba(255,255,255,0.8)", fontWeight:600 }}>{usuarioActual?.nombre?.split(" ")[0] || "Tú"} · {xp} puntos acumulados</div>
               </div>
-              <div style={{ padding:"0 14px 14px" }}>
-                <div style={{ background:"white", margin:"-14px 0 14px", borderRadius:18, padding:16, boxShadow:"0 4px 18px rgba(0,0,0,0.1)", position:"relative", zIndex:10 }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
-                    <span style={{ fontSize:12, fontWeight:800, color:C.text }}>✨ Nivel 4 — Exploradora</span>
-                    <span style={{ fontSize:12, fontWeight:800, color:C.amberDark }}>{xp} XP</span>
+
+              <div style={{ padding:"0 16px", marginTop:-24, position:"relative", zIndex:10 }}>
+                {/* TARJETA XP */}
+                <div style={{ background:"white", borderRadius:20, padding:20, boxShadow:"0 4px 20px rgba(0,0,0,0.08)", marginBottom:16 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+                    <div style={{ fontSize:14, fontWeight:800, color:C.text }}>Tu progreso</div>
+                    <div style={{ fontSize:13, fontWeight:800, color:C.amberDark }}>{xp} XP</div>
                   </div>
-                  <div style={{ height:11, background:C.warm, borderRadius:5, overflow:"hidden" }}>
+                  <div style={{ height:10, background:"#F5F0E8", borderRadius:5, overflow:"hidden", marginBottom:8 }}>
                     <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:`linear-gradient(90deg,${C.amber},${C.gold})`, borderRadius:5, transition:"width 0.5s ease" }}/>
                   </div>
-                  <div style={{ fontSize:10, color:C.light, marginTop:5 }}>380 XP para Nivel 5 · Guerrera 💪</div>
+                  <div style={{ fontSize:11, color:C.light }}>
+                    {xp < 50 ? `${50 - xp} puntos para Habilis 🖐️` :
+                     xp < 100 ? `${100 - xp} puntos para Erectus 🔥` :
+                     xp < 150 ? `${150 - xp} puntos para Sapiens 👁️` :
+                     xp < 200 ? `${200 - xp} puntos para Sapiens Sapiens 💎` :
+                     "¡Has alcanzado el rango máximo! 💎"}
+                  </div>
                 </div>
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>🏅 Mis logros</div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-                  {[["🌱","Primer Paso","Primer autorregistro","+50 XP",false],["🔥","En Racha","5 días seguidos","+100 XP",false],["💬","Comunicativa","10 sesiones","+150 XP",false],["📚","Lectora","5 recursos leídos","+80 XP",false],["⚔️","Guerrera","Nivel 5","🔒",true],["🌟","Constancia","30 días","🔒",true]].map(([ic,name,desc,xp,locked]) => (
-                    <div key={name} style={{ background:"white", borderRadius:16, padding:14, boxShadow:"0 2px 8px rgba(0,0,0,0.06)", textAlign:"center", opacity:locked?.4:1, filter:locked?"grayscale(1)":"none" }}>
-                      <div style={{ fontSize:30, marginBottom:7 }}>{ic}</div>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text }}>{name}</div>
-                      <div style={{ fontSize:10, color:C.light, marginTop:2 }}>{desc}</div>
-                      <div style={{ display:"inline-block", background:C.warm, color:C.amberDark, fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20, marginTop:5 }}>{xp}</div>
+
+                {/* RANGOS */}
+                <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:12 }}>Todos los rangos</div>
+                {[{min:0,max:49,nombre:"Primigenio",icono:"🪨",desc:"El inicio del camino"},
+                  {min:50,max:99,nombre:"Habilis",icono:"🖐️",desc:"Usando las herramientas"},
+                  {min:100,max:149,nombre:"Erectus",icono:"🔥",desc:"El fuego interior"},
+                  {min:150,max:199,nombre:"Sapiens",icono:"👁️",desc:"La visión interna"},
+                  {min:200,max:Infinity,nombre:"Sapiens Sapiens",icono:"💎",desc:"Claridad total"}
+                ].map(r => (
+                  <div key={r.nombre} style={{ background:"white", borderRadius:16, padding:"14px 16px", marginBottom:9, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", display:"flex", alignItems:"center", gap:14, opacity:xp >= r.min ? 1 : 0.4 }}>
+                    <div style={{ fontSize:32, width:52, height:52, background:xp>=r.min?`${C.amber}20`:"#F5F5F5", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center" }}>{r.icono}</div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:14, fontWeight:800, color:C.text }}>{r.nombre}</div>
+                      <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{r.desc} · {r.min}–{r.max === Infinity ? "∞" : r.max} pts</div>
+                    </div>
+                    {xp >= r.min && xp <= r.max && <div style={{ background:`${C.amber}20`, color:C.amberDark, fontSize:10, fontWeight:800, padding:"4px 10px", borderRadius:20 }}>Actual</div>}
+                    {xp > r.max && <div style={{ color:C.sageDark, fontSize:18 }}>✅</div>}
+                    {xp < r.min && <div style={{ color:C.light, fontSize:18 }}>🔒</div>}
+                  </div>
+                ))}
+
+                {/* CÓMO GANAR PUNTOS */}
+                <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:12, marginTop:4 }}>¿Cómo ganar puntos?</div>
+                <div style={{ background:"white", borderRadius:16, overflow:"hidden", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                  {[["📋","Completar tarea","5 pts"],["💡","Guardar nota","2 pts"],["📝","Autorregistro","1 pt"],["📚","Abrir recurso","1 pt"]].map(([ic,lb,pts],i,arr) => (
+                    <div key={lb} style={{ display:"flex", alignItems:"center", gap:12, padding:"13px 16px", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none" }}>
+                      <div style={{ fontSize:20 }}>{ic}</div>
+                      <div style={{ flex:1, fontSize:13, fontWeight:600, color:C.text }}>{lb}</div>
+                      <div style={{ fontSize:13, fontWeight:800, color:C.amberDark }}>{pts}</div>
                     </div>
                   ))}
                 </div>
@@ -1125,43 +1250,86 @@ const styles = `
 
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
-              <div style={{ background:"white", padding:22, textAlign:"center", borderBottom:"1px solid rgba(0,0,0,0.05)" }}>
-                <div onClick={() => setModal("avatar")} style={{ fontSize:60, marginBottom:4, cursor:"pointer" }}>{avatar}</div>
-                <div style={{ fontSize:10, color:C.light, fontWeight:700, marginBottom:5 }}>Toca para cambiar</div>
-                <div style={{ fontSize:21, fontWeight:900, color:C.text }}>{usuarioActual?.nombre || "Mi perfil"}</div>
-                <div style={{ fontSize:12, color:C.light, fontWeight:600 }}>Miembro desde Enero 2026</div>
-                <div style={{ display:"flex", justifyContent:"center", gap:7, marginTop:10, flexWrap:"wrap" }}>
-                  {[`${getRango(xp).icono} ${getRango(xp).nombre}`,`⭐ ${xp} XP`,"🏅 Logros"].map(b => <span key={b} style={{ background:C.warm, borderRadius:9, padding:"5px 10px", fontSize:10, fontWeight:800, color:C.amberDark }}>{b}</span>)}
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:100, background:"#F8F7FA" }}>
+
+              {/* HEADER */}
+              <div style={{ background:`linear-gradient(145deg,${C.plum},#3D3055)`, padding:"32px 24px 52px", textAlign:"center" }}>
+                <div onClick={() => setModal("avatar")} style={{ position:"relative", display:"inline-block", marginBottom:12, cursor:"pointer" }}>
+                  <div style={{ fontSize:64 }}>{avatar}</div>
+                  <div style={{ position:"absolute", bottom:0, right:-4, width:24, height:24, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, border:"2px solid white" }}>✏️</div>
+                </div>
+                <div style={{ fontSize:22, fontWeight:900, color:"white", marginBottom:4 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
+                <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginBottom:12 }}>{usuarioActual?.email || ""}</div>
+                <div style={{ display:"inline-flex", background:"rgba(255,255,255,0.12)", borderRadius:20, padding:"5px 14px", gap:6, alignItems:"center" }}>
+                  <span style={{ fontSize:13 }}>{getRango(xp).icono}</span>
+                  <span style={{ fontSize:11, fontWeight:700, color:"white" }}>{getRango(xp).nombre} · {xp} XP</span>
                 </div>
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:"rgba(0,0,0,0.06)", marginBottom:14 }}>
-                {[["14","Registros"],["12","Sesiones"],["620","XP Total"]].map(([n,l]) => (
-                  <div key={l} style={{ background:"white", padding:"14px 6px", textAlign:"center" }}>
-                    <div style={{ fontSize:19, fontWeight:900, color:C.plum }}>{n}</div>
-                    <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
+
+              <div style={{ padding:"0 16px", marginTop:-24, position:"relative", zIndex:10 }}>
+
+                {/* MI PSICÓLOGO */}
+                <div onClick={() => { setPsicologoData(null); showScreen("perfil-psicologo"); }}
+                  style={{ background:`linear-gradient(135deg,${C.dark},${C.plum})`, borderRadius:20, padding:18, display:"flex", alignItems:"center", gap:14, marginBottom:16, cursor:"pointer", boxShadow:"0 4px 20px rgba(0,0,0,0.15)" }}>
+                  <div style={{ width:56, height:56, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28, flexShrink:0, border:"2px solid rgba(255,255,255,0.2)" }}>👨‍⚕️</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)", fontWeight:700, textTransform:"uppercase", marginBottom:3 }}>Mi psicólogo</div>
+                    <div style={{ fontSize:16, fontWeight:900, color:"white" }}>{usuarioActual?.psicologoNombre || "Dr. Rincón"}</div>
+                    <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>Toca para ver su perfil completo</div>
                   </div>
-                ))}
-              </div>
-              <div style={{ padding:"0 14px" }}>
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>🧠 Mi psicólogo</div>
-                <div style={{ background:`linear-gradient(135deg,${C.dark},${C.plum})`, borderRadius:18, padding:16, display:"flex", gap:14, alignItems:"center", marginBottom:16 }}>
-                  <div style={{ width:52, height:52, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, flexShrink:0, border:"2px solid rgba(255,255,255,0.3)" }}>👨‍⚕️</div>
-                  <div>
-                    <div style={{ fontSize:16, fontWeight:900, color:"white" }}>Dr. Danilo Rincón</div>
-                    <div style={{ fontSize:11, color:"rgba(255,255,255,0.7)", marginTop:2 }}>Psicología Clínica · TCC</div>
-                    <div style={{ fontSize:11, color:"rgba(255,255,255,0.55)", marginTop:5, fontStyle:"italic" }}>"Estoy aquí para acompañarte."</div>
-                  </div>
+                  <div style={{ color:"rgba(255,255,255,0.4)", fontSize:20 }}>›</div>
                 </div>
-                <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>Mi cuenta</div>
-                {mitem(avatar, "Cambiar avatar", () => setModal("avatar"))}
-                {mitem("✏️", "Editar perfil", () => setModal("edit-perfil"))}
-                {mitem("🔔", "Notificaciones", () => setNotifPanel(true))}                
-                {mitem("🔒", "Privacidad y seguridad", () => showNotif("Privacidad", "Tu información está segura y encriptada", "🔒"))}
-                {mitem("❓", "Ayuda y soporte", () => showNotif("Soporte", "Un agente te responderá pronto", "❓"))}
-                {mitem("⭐", "Valorar a mi psicólogo", () => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); })}
-                {mitem("🚪", "Cerrar sesión", () => showScreen("login"), true)}
+
+                {/* MI CUENTA */}
+                <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>Mi cuenta</div>
+                <div style={{ background:"white", borderRadius:16, overflow:"hidden", marginBottom:12, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                  {[
+                    [avatar, "Cambiar avatar", () => setModal("avatar")],
+                    ["✏️", "Editar perfil", () => { setEditNombre(usuarioActual?.nombre || ""); setEditTel(usuarioActual?.telefono || ""); setModal("edit-perfil"); }],
+                    ["🔔", "Notificaciones", () => setNotifPanel(true)],
+                  ].map(([ic,lb,fn],i,arr) => (
+                    <div key={lb} onClick={fn}
+                      style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none", cursor:"pointer" }}>
+                      <div style={{ fontSize:18, width:36, height:36, background:C.warm, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{ic}</div>
+                      <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.text }}>{lb}</div>
+                      <div style={{ color:C.light, fontSize:16 }}>›</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CONFIGURACIÓN */}
+                <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>Configuración</div>
+                <div style={{ background:"white", borderRadius:16, overflow:"hidden", marginBottom:12, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                  {[
+                    ["🛡️", "Privacidad y seguridad", () => setModal("privacidad")],
+                  ].map(([ic,lb,fn],i,arr) => (
+                    <div key={lb} onClick={fn}
+                      style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none", cursor:"pointer" }}>
+                      <div style={{ fontSize:18, width:36, height:36, background:C.warm, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{ic}</div>
+                      <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.text }}>{lb}</div>
+                      <div style={{ color:C.light, fontSize:16 }}>›</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* VALORAR */}
+                <div onClick={() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }}
+                  style={{ background:"white", borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:12, cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                  <div style={{ fontSize:18, width:36, height:36, background:"#FFF8E1", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>⭐</div>
+                  <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.text }}>Valorar a mi psicólogo</div>
+                  <div style={{ color:C.light, fontSize:16 }}>›</div>
+                </div>
+
+                {/* CERRAR SESIÓN */}
+                <div onClick={() => showScreen("login")}
+                  style={{ background:"white", borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:8, cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                  <div style={{ fontSize:18, width:36, height:36, background:"#FFE5E5", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>🚪</div>
+                  <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.red }}>Cerrar sesión</div>
+                  <div style={{ color:C.red, fontSize:16 }}>›</div>
+                </div>
+
               </div>
+
               {mdl("avatar", (
                 <div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Elige tu avatar 🐾</div>
@@ -1177,17 +1345,94 @@ const styles = `
               ))}
               {mdl("edit-perfil", (
                 <div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Editar perfil</div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>✏️ Editar perfil</div>
                   <div style={{ fontSize:52, textAlign:"center", marginBottom:14 }}>{avatar}</div>
-                  {[["Nombre", usuarioActual?.nombre || ""],["Correo", usuarioActual?.email || ""],["Teléfono", usuarioActual?.telefono || ""]].map(([l,v]) => (
-                    <div key={l}>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>{l}</div>
-                      <input defaultValue={v} style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
-                    </div>
-                  ))}
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre</div>
+                  <input value={editNombre} onChange={e => setEditNombre(e.target.value)}
+                    placeholder="Tu nombre completo"
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Teléfono</div>
+                  <input value={editTel} onChange={e => setEditTel(e.target.value)}
+                    placeholder="Tu teléfono"
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Correo</div>
+                  <input value={usuarioActual?.email || ""} disabled
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.04)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#F5F5F5", color:C.light }}/>
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => { setModal(null); showNotif("Perfil guardado", "Tus datos fueron actualizados", "✏️"); }, "Guardar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(async () => {
+                      if (!editNombre.trim()) { showToast("El nombre no puede estar vacío ❌"); return; }
+                      try {
+                        await updateDoc(doc(db, "usuarios", usuarioActual.uid), { nombre: editNombre, telefono: editTel });
+                        setUsuarioActual(prev => ({ ...prev, nombre: editNombre, telefono: editTel }));
+                        setModal(null);
+                        showNotif("Perfil actualizado", "Tus datos fueron guardados ✅", "✏️");
+                      } catch(e) { showToast("Error al guardar ❌"); }
+                    }, "Guardar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                  </div>
+                </div>
+              ))}
+              {mdl("privacidad", (
+                <div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>🛡️ Privacidad y seguridad</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Gestiona tu seguridad</div>
+
+                  <div style={{ background:"#F0EDF5", borderRadius:14, padding:14, marginBottom:16 }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:C.plum, marginBottom:4 }}>🔒 Tu información está protegida</div>
+                    <div style={{ fontSize:11, color:C.light, lineHeight:1.5 }}>Tus datos están cifrados y solo tú y tu psicólogo pueden acceder a ellos.</div>
+                  </div>
+
+                  {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:13, background:"white", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
+                  {btn(() => setModal(null), "Cerrar", { width:"100%", padding:12, background:C.warm, color:C.text, borderRadius:12, fontSize:13, fontWeight:800 })}
+                </div>
+              ))}
+
+              {mdl("cambiar-pin", (
+                <div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>🔑 Cambiar PIN</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Confirma tu PIN actual antes de cambiarlo</div>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:6 }}>PIN actual</div>
+                  <div style={{ display:"flex", justifyContent:"center", gap:12, marginBottom:6 }}>
+                    {[0,1,2,3].map(i => (
+                      <div key={i} style={{ width:14, height:14, borderRadius:"50%", background:pinAnterior.length > i ? C.plum : "transparent", border:`2.5px solid ${pinAnterior.length > i ? C.plum : C.light}`, transition:"all 0.2s" }}/>
+                    ))}
+                  </div>
+                  <input type="password" placeholder="PIN actual" inputMode="numeric" maxLength={4} value={pinAnterior} onChange={e => setPinAnterior(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6 }}/>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:6 }}>Nuevo PIN</div>
+                  <div style={{ display:"flex", justifyContent:"center", gap:12, marginBottom:6 }}>
+                    {[0,1,2,3].map(i => (
+                      <div key={i} style={{ width:14, height:14, borderRadius:"50%", background:pinNuevo.length > i ? C.sage : "transparent", border:`2.5px solid ${pinNuevo.length > i ? C.sage : C.light}`, transition:"all 0.2s" }}/>
+                    ))}
+                  </div>
+                  <input type="password" placeholder="Nuevo PIN" inputMode="numeric" maxLength={4} value={pinNuevo} onChange={e => setPinNuevo(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6 }}/>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:6 }}>Confirmar nuevo PIN</div>
+                  <div style={{ display:"flex", justifyContent:"center", gap:12, marginBottom:6 }}>
+                    {[0,1,2,3].map(i => (
+                      <div key={i} style={{ width:14, height:14, borderRadius:"50%", background:pinNuevo2.length > i ? C.amber : "transparent", border:`2.5px solid ${pinNuevo2.length > i ? C.amber : C.light}`, transition:"all 0.2s" }}/>
+                    ))}
+                  </div>
+                  <input type="password" placeholder="Confirmar PIN" inputMode="numeric" maxLength={4} value={pinNuevo2} onChange={e => setPinNuevo2(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6 }}/>
+
+                  <div style={{ display:"flex", gap:8 }}>
+                    {btn(() => { setModal("privacidad"); setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); }, "← Volver", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(async () => {
+                      if (pinAnterior.length < 4) { showToast("Ingresa tu PIN actual ❌"); return; }
+                      if (pinNuevo.length < 4) { showToast("El nuevo PIN debe tener 4 dígitos ❌"); return; }
+                      if (pinNuevo !== pinNuevo2) { showToast("Los PINs no coinciden ❌"); return; }
+                      try {
+                        await signInWithEmailAndPassword(auth, usuarioActual.email, pinAnterior + "**");
+                        await updateDoc(doc(db, "usuarios", usuarioActual.uid), { pin: pinNuevo });
+                        setModal(null);
+                        setPinAnterior(""); setPinNuevo(""); setPinNuevo2("");
+                        showNotif("PIN actualizado", "Tu PIN fue cambiado exitosamente 🔒", "🔒");
+                      } catch(e) { showToast("PIN actual incorrecto ❌"); }
+                    }, "Guardar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
@@ -1198,7 +1443,7 @@ const styles = `
                   {usuarioActual?.psicologoId && (
                     <div style={{ background:`linear-gradient(135deg,${C.dark},${C.plum})`, borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
                       <div style={{ fontSize:24 }}>👨‍⚕️</div>
-                      <div style={{ fontSize:13, fontWeight:800, color:"white" }}>Dr. Rincón</div>
+                      <div style={{ fontSize:13, fontWeight:800, color:"white" }}>{usuarioActual?.psicologoNombre || "Tu psicólogo"}</div>
                     </div>
                   )}
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:10 }}>Calificación</div>
@@ -1208,12 +1453,9 @@ const styles = `
                         style={{ fontSize:32, cursor:"pointer", opacity:resenaRating >= i ? 1 : 0.3, transition:"all 0.2s" }}>⭐</div>
                     ))}
                   </div>
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:6 }}>Tu reseña</div>
-                  <textarea placeholder="Cuéntanos tu experiencia con tu psicólogo..." value={resenaTexto} onChange={e => setResenaTexto(e.target.value)}
+                  <textarea placeholder="Cuéntanos tu experiencia..." value={resenaTexto} onChange={e => setResenaTexto(e.target.value)}
                     style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5 }}/>
-                  <div style={{ background:"#FFF8E1", borderRadius:10, padding:"10px 12px", marginBottom:16, fontSize:11, color:C.amberDark, fontWeight:700 }}>
-                    🔒 Tu identidad permanecerá anónima
-                  </div>
+                  <div style={{ background:"#FFF8E1", borderRadius:10, padding:"10px 12px", marginBottom:16, fontSize:11, color:C.amberDark, fontWeight:700 }}>🔒 Tu identidad permanecerá anónima</div>
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña ✓", { flex:2, padding:11, background:loadingResenas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -1222,7 +1464,97 @@ const styles = `
               ))}
               {bnav("perfil")}
             </div>
-          )}          
+          )}
+          {/* PERFIL PSICÓLOGO — vista paciente */}
+          {!notifPanel && screen === "perfil-psicologo" && (
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:100, background:"#F8F7FA" }}>
+              <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"24px 22px 52px", textAlign:"center", position:"relative" }}>
+                <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:20, left:20, fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
+                {psicologoData?.foto ? (
+                  <img src={psicologoData.foto} alt="foto" style={{ width:80, height:80, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,0.2)", margin:"0 auto 14px", display:"block" }}/>
+                ) : (
+                  <div style={{ width:80, height:80, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, margin:"0 auto 14px", border:"3px solid rgba(255,255,255,0.2)" }}>👨‍⚕️</div>
+                )}
+                <div style={{ fontSize:22, fontWeight:900, color:"white", marginBottom:4 }}>{psicologoData?.nombre || usuarioActual?.psicologoNombre || "Mi psicólogo"}</div>
+                <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginBottom:12 }}>Psicólogo Clínico</div>
+                <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
+                  {psicologoData?.especialidad && <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"4px 12px", borderRadius:20 }}>🧠 {psicologoData.especialidad}</span>}
+                </div>
+                <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginTop:6 }}>Psicólogo Clínico</div>
+              </div>
+
+              <div style={{ padding:"0 16px", marginTop:-24, position:"relative", zIndex:10 }}>
+                {/* INFO */}
+                <div style={{ background:"white", borderRadius:20, padding:18, marginBottom:14, boxShadow:"0 4px 20px rgba(0,0,0,0.07)" }}>
+                  {[["📞","Teléfono", psicologoData?.telefono || "No registrado"],["📧","Correo", psicologoData?.email || ""],["🎓","Especialidad", psicologoData?.especialidad || "No registrado"],["🔬","Enfoque", psicologoData?.enfoque || "No registrado"]].map(([ic,lb,val],i,arr) => (
+                    <div key={lb} style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 0", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none" }}>
+                      <div style={{ fontSize:18, width:32, textAlign:"center", flexShrink:0 }}>{ic}</div>
+                      <div>
+                        <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", marginBottom:2 }}>{lb}</div>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{val}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* RESEÑAS */}
+                <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:12 }}>⭐ Reseñas</div>
+                {loadingResenas ? (
+                  <div style={{ textAlign:"center", padding:20, color:C.light }}>Cargando...</div>
+                ) : resenas.length === 0 ? (
+                  <div style={{ background:"white", borderRadius:16, padding:20, textAlign:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                    <div style={{ fontSize:11, color:C.light }}>Aún no hay reseñas</div>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:16, padding:16, marginBottom:12, textAlign:"center" }}>
+                      <div style={{ fontSize:32, fontWeight:900, color:"white" }}>{(resenas.reduce((a,r) => a+r.rating, 0) / resenas.length).toFixed(1)} ⭐</div>
+                      <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
+                    </div>
+                    {resenas.map(r => (
+                      <div key={r.id} style={{ background:"white", borderRadius:14, padding:14, marginBottom:9, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                        <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                          <div style={{ fontSize:14 }}>{"⭐".repeat(r.rating)}</div>
+                          <div style={{ fontSize:10, color:C.light }}>{new Date(r.fecha).toLocaleDateString('es-CO')}</div>
+                        </div>
+                        <div style={{ fontSize:13, color:C.text, lineHeight:1.5 }}>{r.texto}</div>
+                        <div style={{ fontSize:10, color:C.light, marginTop:6, fontStyle:"italic" }}>— Paciente anónimo</div>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {btn(() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }, "⭐ Escribir reseña", { width:"100%", padding:13, background:C.plum, color:"white", borderRadius:14, fontSize:13, fontWeight:800, marginTop:8, display:"block" })}
+              </div>
+              {mdl("nueva-resena", (
+                <div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>⭐ Valorar a mi psicólogo</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:6 }}>Tu reseña es anónima y pública en su perfil</div>
+                  {usuarioActual?.psicologoId && (
+                    <div style={{ background:`linear-gradient(135deg,${C.dark},${C.plum})`, borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+                      <div style={{ fontSize:24 }}>👨‍⚕️</div>
+                      <div style={{ fontSize:13, fontWeight:800, color:"white" }}>{usuarioActual?.psicologoNombre || "Tu psicólogo"}</div>
+                    </div>
+                  )}
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:10 }}>Calificación</div>
+                  <div style={{ display:"flex", justifyContent:"center", gap:8, marginBottom:16 }}>
+                    {[1,2,3,4,5].map(i => (
+                      <div key={i} onClick={() => setResenaRating(i)}
+                        style={{ fontSize:32, cursor:"pointer", opacity:resenaRating >= i ? 1 : 0.3, transition:"all 0.2s" }}>⭐</div>
+                    ))}
+                  </div>
+                  <textarea placeholder="Cuéntanos tu experiencia..." value={resenaTexto} onChange={e => setResenaTexto(e.target.value)}
+                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5 }}/>
+                  <div style={{ background:"#FFF8E1", borderRadius:10, padding:"10px 12px", marginBottom:16, fontSize:11, color:C.amberDark, fontWeight:700 }}>🔒 Tu identidad permanecerá anónima</div>
+                  <div style={{ display:"flex", gap:8 }}>
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña ✓", { flex:2, padding:11, background:loadingResenas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                  </div>
+                </div>
+              ))}
+              {bnav("perfil")}
+            </div>
+          )}    
           {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:140, background:"#F8F7FA" }}>
@@ -1588,8 +1920,12 @@ const styles = `
               {/* HEADER */}
               <div style={{ background:`linear-gradient(160deg,${C.dark},${C.plum})`, padding:"32px 24px 48px", textAlign:"center", position:"relative" }}>
                 <div style={{ position:"relative", display:"inline-block", marginBottom:14 }}>
-                  <div style={{ width:90, height:90, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:44, border:"3px solid rgba(255,255,255,0.25)", margin:"0 auto" }}>👨‍⚕️</div>
-                  <div onClick={() => setModal("edit-psico")} style={{ position:"absolute", bottom:2, right:2, width:26, height:26, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, cursor:"pointer", border:"2px solid white", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>✏️</div>
+                  {usuarioActual?.foto ? (
+                    <img src={usuarioActual.foto} alt="foto" style={{ width:90, height:90, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,0.25)", margin:"0 auto", display:"block" }}/>
+                  ) : (
+                    <div style={{ width:90, height:90, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:44, border:"3px solid rgba(255,255,255,0.25)", margin:"0 auto" }}>👨‍⚕️</div>
+                  )}
+                  <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setModal("edit-psico"); }} style={{ position:"absolute", bottom:2, right:2, width:26, height:26, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, cursor:"pointer", border:"2px solid white", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>✏️</div>
                 </div>
                 <div style={{ fontSize:22, fontWeight:900, color:"white", marginBottom:4 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:600, marginBottom:12 }}>{usuarioActual?.email || ""}</div>
@@ -1624,7 +1960,7 @@ const styles = `
                 {/* INFO PROFESIONAL */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>ℹ️ Información profesional</div>
                 <div style={{ background:"white", borderRadius:16, padding:16, marginBottom:16, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
-                  {[["🎓","Formación","Psicología Clínica · Uni. Nacional"],["⏳","Experiencia","12 años de práctica clínica"],["🔬","Enfoque","TCC · Mindfulness · Aceptación"],["📞","Teléfono", usuarioActual?.telefono || "No registrado"]].map(([ic,lb,val]) => (
+                  {[["🎓","Especialidad", usuarioActual?.especialidad || "No registrado"],["🔬","Enfoque", usuarioActual?.enfoque || "No registrado"],["📞","Teléfono", usuarioActual?.telefono || "No registrado"]].map(([ic,lb,val]) => (
                     <div key={lb} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 0", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
                       <div style={{ fontSize:18, width:32, textAlign:"center", flexShrink:0 }}>{ic}</div>
                       <div>
@@ -1689,15 +2025,55 @@ const styles = `
               {mdl("edit-psico", (
                 <div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:16, textAlign:"center" }}>✏️ Editar perfil</div>
-                  {[["Nombre", usuarioActual?.nombre || ""],["Especialidad","Psicología Clínica · TCC"],["Experiencia","12 años"],["Teléfono", usuarioActual?.telefono || ""],["Correo", usuarioActual?.email || ""]].map(([l,v]) => (
-                    <div key={l}>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>{l}</div>
-                      <input defaultValue={v} style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
-                    </div>
-                  ))}
+
+                  {/* PREVIEW FOTO */}
+                  <div style={{ textAlign:"center", marginBottom:14 }}>
+                    {editFoto ? (
+                      <img src={editFoto} alt="preview" style={{ width:80, height:80, borderRadius:"50%", objectFit:"cover", border:`3px solid ${C.plum}` }}/>
+                    ) : (
+                      <div style={{ width:80, height:80, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, margin:"0 auto", border:`3px solid ${C.plum}` }}>👨‍⚕️</div>
+                    )}
+                  </div>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🖼️ URL de foto de perfil</div>
+                  <input placeholder="https://ejemplo.com/mi-foto.jpg" value={editFoto} onChange={e => setEditFoto(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:12, marginBottom:4, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ fontSize:10, color:C.light, marginBottom:12 }}>💡 Copia la URL de tu foto desde Google, LinkedIn u otra red</div>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre completo</div>
+                  <input value={editNombre} onChange={e => setEditNombre(e.target.value)} placeholder="Tu nombre"
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Especialidad</div>
+                  <input value={editEspecialidad} onChange={e => setEditEspecialidad(e.target.value)} placeholder="Ej: Psicología Clínica · TCC"
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+                  
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Enfoque terapéutico</div>
+                  <input value={editEnfoque} onChange={e => setEditEnfoque(e.target.value)} placeholder="Ej: TCC · Mindfulness · Aceptación"
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Teléfono</div>
+                  <input value={editTel} onChange={e => setEditTel(e.target.value)} placeholder="Tu teléfono"
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => { setModal(null); showNotif("Perfil actualizado", "Los cambios fueron guardados", "✏️"); }, "Guardar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(async () => {
+                      try {
+                        await updateDoc(doc(db, "usuarios", usuarioActual.uid), {
+                          nombre: editNombre,
+                          telefono: editTel,
+                          foto: editFoto,
+                          especialidad: editEspecialidad,
+                          experiencia: editExperiencia,
+                          enfoque: editEnfoque,
+                        });
+                        setUsuarioActual(prev => ({ ...prev, nombre:editNombre, telefono:editTel, foto:editFoto, especialidad:editEspecialidad, experiencia:editExperiencia, enfoque:editEnfoque }));
+                        setModal(null);
+                        showNotif("Perfil actualizado", "Los cambios fueron guardados ✅", "✏️");
+                      } catch(e) { showToast("Error al guardar ❌"); }
+                    }, "Guardar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
