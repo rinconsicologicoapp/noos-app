@@ -62,6 +62,7 @@ const [darkMode, setDarkMode] = useState(() => {
     if (docSnap.exists()) {
       const rol = docSnap.data().rol;
       if (rol === "paciente") {
+        setUsuarioActual(docSnap.data());
         showScreen("home");
       } else if (rol === "psicologo") {
         setUsuarioActual(docSnap.data());
@@ -497,7 +498,7 @@ const styles = `
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
               <div style={{ background:`linear-gradient(145deg,${C.plum},#3D3055)`, padding:"20px 24px 76px", position:"relative" }}>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>¡Buenos días,</div>
-                <div style={{ fontSize:23, color:"white", fontWeight:900 }}>Sofía 👋</div>
+                <div style={{ fontSize:23, color:"white", fontWeight:900 }}>{usuarioActual?.nombre || "Bienvenido"} 👋</div>
                 <div style={{ fontSize:11, color:"rgba(255,255,255,0.45)", marginTop:3 }}>{new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })} · Semana {Math.ceil(new Date().getDate()/7)}</div>
                 <div style={{ position:"absolute", top:18, right:22, display:"flex", gap:10, alignItems:"center" }}>
                   <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer" }}>
