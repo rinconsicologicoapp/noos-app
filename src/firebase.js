@@ -18,3 +18,15 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const messaging = getMessaging(app);
 export { getToken, onMessage };
+
+// ✅ Registrar SW y enviarle la config de forma segura
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(registration => {
+    navigator.serviceWorker.ready.then(sw => {
+      sw.active.postMessage({
+        type: 'FIREBASE_CONFIG',
+        config: firebaseConfig
+      });
+    });
+  });
+}
