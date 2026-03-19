@@ -20,7 +20,7 @@ self.addEventListener('message', event => {
   }
 });
 
-const CACHE_NAME = `mi-psicologo-${new Date().toISOString().slice(0,10)}`;
+const CACHE_NAME = `mi-psicologo-v2`;
 const urlsToCache = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', event => {
@@ -37,7 +37,6 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Ignorar extensiones de Chrome y peticiones POST
   if (
     event.request.url.startsWith('chrome-extension') ||
     event.request.method !== 'GET'
