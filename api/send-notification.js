@@ -19,13 +19,11 @@ module.exports = async function handler(req, res) {
     await getMessaging().send({
       token,
       notification: { title, body },
-      webpush: {
-        notification: { title, body, icon: '/icon-192.png', badge: '/icon-192.png', vibrate: [200, 100, 200] }
-      },
+      webpush: { notification: { title, body, icon: '/icon-192.png', badge: '/icon-192.png', vibrate: [200, 100, 200] } },
       data: data || {}
     });
     return res.status(200).json({ ok: true });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
-}
+};

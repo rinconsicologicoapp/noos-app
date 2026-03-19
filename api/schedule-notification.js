@@ -18,36 +18,25 @@ module.exports = async function handler(req, res) {
   try {
     const db = getFirestore();
     const notificaciones = [];
-    notificaciones.push({
-      token, title, body, scheduledAt,
-      enviada: false, pacienteId,
-      creadaEn: new Date().toISOString(),
-      tipo: 'principal'
-    });
+    notificaciones.push({ token, title, body, scheduledAt, enviada: false, pacienteId, creadaEn: new Date().toISOString(), tipo: 'principal' });
     const fechaPrincipal = new Date(scheduledAt);
     for (const minutos of (intervals || [])) {
       const fechaRecordatorio = new Date(fechaPrincipal.getTime() - minutos * 60 * 1000);
       notificaciones.push({
         token,
         title: `⏰ Recordatorio: ${title}`,
-        body: minutos >= 60
-          ? `En ${minutos / 60} hora${minutos / 60 > 1 ? 's' : ''}: ${body}`
-          : `En ${minutos} minutos: ${body}`,
+        body: minutos >= 60 ? `En ${minutos / 60} hora${minutos / 60 > 1 ? 's' : ''}: ${body}` : `En ${minutos} minutos: ${body}`,
         scheduledAt: fechaRecordatorio.toISOString(),
-        enviada: false, pacienteId,
-        creadaEn: new Date().toISOString(),
-        tipo: 'recordatorio',
-        minutosAntes: minutos
+        enviada: false, pacienteId, creadaEn: new Date().toISOString(), tipo: 'recordatorio', minutosAntes: minutos
       });
     }
     const batch = db.batch();
     for (const notif of notificaciones) {
-      const ref = db.collection('notificaciones_programadas').doc();
-      batch.set(ref, notif);
+      batch.set(db.collection('notificaciones_programadas').doc(), notif);
     }
     await batch.commit();
     return res.status(200).json({ ok: true, programadas: notificaciones.length });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
-}
+};

@@ -31,18 +31,16 @@ module.exports = async function handler(req, res) {
         await getMessaging().send({
           token,
           notification: { title, body },
-          webpush: {
-            notification: { title, body, icon: '/icon-192.png', badge: '/icon-192.png', vibrate: [200, 100, 200] }
-          }
+          webpush: { notification: { title, body, icon: '/icon-192.png', badge: '/icon-192.png', vibrate: [200, 100, 200] } }
         });
         await docSnap.ref.update({ enviada: true, enviadaEn: new Date().toISOString() });
         enviadas++;
       } catch (e) {
-        console.error('Error enviando notif:', e.message);
+        console.error('Error:', e.message);
       }
     }
     return res.status(200).json({ ok: true, enviadas });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
-}
+};
