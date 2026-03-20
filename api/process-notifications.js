@@ -85,7 +85,7 @@ module.exports = async function handler(req, res) {
       // Verificar si toca enviar ahora (mismo día, misma hora, mismo minuto ±2)
       const mismodia = diasSemana.includes(diaSemanaLocal);
       const mismaHora = horaUTC === horaRecUTC;
-      const mismoMinuto = Math.abs(minutoUTC - minRec) <= 2;
+      const mismoMinuto = Math.abs(minutoUTC - minRec) <= 4;
 
       if (!mismodia || !mismaHora || !mismoMinuto) continue;
 
