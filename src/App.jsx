@@ -219,8 +219,8 @@ const activarNotificaciones = async () => {
       showToast("❌ Permiso denegado — actívalas desde la configuración del navegador");
     }
   } catch(e) {
-    console.log("Error FCM:", e);
-    showToast("❌ Error al activar notificaciones");
+    console.log("Error FCM completo:", e.code, e.message, e);
+    showToast("❌ " + e.message);
   }
 };
 const programarNotificacion = async () => {
