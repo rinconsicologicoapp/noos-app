@@ -282,6 +282,7 @@ const cargarRecordatorios = async (psicologoId) => {
 };
 
 const crearRecordatorio = async () => {
+  console.log("pacienteSeleccionado:", pacienteSeleccionado);
   if (!recTitulo || !recMensaje || !recHora || recDias.length === 0 || !pacienteSeleccionado) {
     showToast("Completa todos los campos ❌"); return;
   }
