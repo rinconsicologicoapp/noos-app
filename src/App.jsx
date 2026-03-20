@@ -40,6 +40,7 @@ const [regRol, setRegRol] = useState("paciente");
   const [citaLink, setCitaLink] = useState("");
   const [citaNotas, setCitaNotas] = useState("");
   const [citaPacienteId, setCitaPacienteId] = useState("");
+  const [loadingCitas, setLoadingCitas] = useState(false);
   const [notifTitulo, setNotifTitulo] = useState("");
 const [notifMensaje, setNotifMensaje] = useState("");
 const [notifFecha, setNotifFecha] = useState("");
@@ -201,6 +202,26 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
     if (nuevoStatus === "cancelada") showNotif("Cita cancelada", "Tu psicólogo fue notificado", "❌");
     setModal(null);
   } catch(e) { showToast("Error al actualizar cita ❌"); }
+};
+const activarNotificaciones = async () => {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      const token = await getToken(messaging, {
+        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
+      });
+      if (token) {
+        await updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: token });
+        setUsuarioActual(prev => ({ ...prev, fcmToken: token }));
+        showToast("✅ Notificaciones activadas");
+      }
+    } else {
+      showToast("❌ Permiso denegado — actívalas desde la configuración del navegador");
+    }
+  } catch(e) {
+    console.log("Error FCM:", e);
+    showToast("❌ Error al activar notificaciones");
+  }
 };
 const programarNotificacion = async () => {
   if (!notifTitulo || !notifMensaje || !notifFecha || !notifHora) {
@@ -1411,19 +1432,57 @@ const styles = `
                 </div>
               ))}
               {mdl("privacidad", (
-                <div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>🛡️ Privacidad y seguridad</div>
-                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Gestiona tu seguridad</div>
+  <div>
+    <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>🛡️ Privacidad y seguridad</div>
+    <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Gestiona tu seguridad</div>
 
-                  <div style={{ background:"#F0EDF5", borderRadius:14, padding:14, marginBottom:16 }}>
-                    <div style={{ fontSize:13, fontWeight:800, color:C.plum, marginBottom:4 }}>🔒 Tu información está protegida</div>
-                    <div style={{ fontSize:11, color:C.light, lineHeight:1.5 }}>Tus datos están cifrados y solo tú y tu psicólogo pueden acceder a ellos.</div>
-                  </div>
+    <div style={{ background:"#F0EDF5", borderRadius:14, padding:14, marginBottom:16 }}>
+      <div style={{ fontSize:13, fontWeight:800, color:C.plum, marginBottom:4 }}>🔒 Tu información está protegida</div>
+      <div style={{ fontSize:11, color:C.light, lineHeight:1.5 }}>Tus datos están cifrados y solo tú y tu psicólogo pueden acceder a ellos.</div>
+    </div>
 
-                  {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:13, background:"white", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
-                  {btn(() => setModal(null), "Cerrar", { width:"100%", padding:12, background:C.warm, color:C.text, borderRadius:12, fontSize:13, fontWeight:800 })}
-                </div>
-              ))}
+    {/* NOTIFICACIONES */}
+    <div style={{ background:"white", borderRadius:14, padding:14, marginBottom:10, border:`2px solid rgba(0,0,0,0.06)` }}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+        <div>
+          <div style={{ fontSize:13, fontWeight:800, color:C.text }}>🔔 Notificaciones push</div>
+          <div style={{ fontSize:11, color:C.light, marginTop:2 }}>
+            {usuarioActual?.fcmToken ? "✅ Activadas" : "❌ Desactivadas"}
+          </div>
+        </div>
+        <div onClick={async () => {
+          if (usuarioActual?.fcmToken) {
+            await updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: "" });
+            setUsuarioActual(prev => ({ ...prev, fcmToken: "" }));
+            showToast("🔕 Notificaciones desactivadas");
+          } else {
+            await activarNotificaciones();
+          }
+        }}
+          style={{
+            width:48, height:26, borderRadius:13,
+            background: usuarioActual?.fcmToken ? C.plum : C.light,
+            position:"relative", cursor:"pointer", transition:"background 0.3s"
+          }}>
+          <div style={{
+            width:20, height:20, borderRadius:"50%", background:"white",
+            position:"absolute", top:3,
+            left: usuarioActual?.fcmToken ? 25 : 3,
+            transition:"left 0.3s", boxShadow:"0 2px 4px rgba(0,0,0,0.2)"
+          }}/>
+        </div>
+      </div>
+      <div style={{ fontSize:10, color:C.light, lineHeight:1.5 }}>
+        {usuarioActual?.fcmToken
+          ? "Recibes notificaciones de citas y mensajes de tu psicólogo."
+          : "Activa para recibir recordatorios de citas y mensajes de tu psicólogo."}
+      </div>
+    </div>
+
+    {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:13, background:"white", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
+    {btn(() => setModal(null), "Cerrar", { width:"100%", padding:12, background:C.warm, color:C.text, borderRadius:12, fontSize:13, fontWeight:800 })}
+  </div>
+))}
 
               {mdl("cambiar-pin", (
                 <div>
