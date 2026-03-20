@@ -207,10 +207,10 @@ const activarNotificaciones = async () => {
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      
       const token = await getToken(messaging, {
         vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-        serviceWorkerRegistration: registration
+      
       });
       if (token) {
         await updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: token });
