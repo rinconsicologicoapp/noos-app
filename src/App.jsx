@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { messaging, getToken, onMessage } from "./firebase";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 export default function NOOS() {
   const [screen, setScreen] = useState("login");
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [formNombre, setFormNombre] = useState("");
 const [formEmail, setFormEmail] = useState("");
 const [formPin, setFormPin] = useState("");
@@ -390,6 +391,34 @@ const sumarXP = async (puntos, motivo) => {
   } catch(e) {}
 };
 useEffect(() => {
+  const unsub = auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      const docSnap = await getDoc(doc(db, "usuarios", user.uid));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setUsuarioActual({ uid: user.uid, ...data });
+        if (data.rol === "paciente") {
+          cargarCitas(user.uid, "paciente");
+          showScreen("home");
+        } else if (data.rol === "psicologo") {
+          cargarCitas(user.uid, "psicologo");
+          cargarResenas(user.uid);
+          const pacientesSnap = await getDocs(collection(db, "usuarios"));
+          const listaPacientes = pacientesSnap.docs
+            .filter(d => d.data().rol === "paciente")
+            .map(d => ({ id: d.id, ...d.data() }));
+          setPacientes(listaPacientes);
+          showScreen("admin-perfil");
+        } else if (data.rol === "administrador") {
+          showScreen("admin-home");
+        }
+      }
+    }
+    setCheckingAuth(false); // ← va aquí, siempre se ejecuta
+  });
+  return () => unsub();
+}, []);
+useEffect(() => {
   if (screen === "perfil-psicologo" && usuarioActual?.psicologoId && !psicologoData) {
     getDoc(doc(db, "usuarios", usuarioActual.psicologoId)).then(snap => {
       if (snap.exists()) setPsicologoData({ id: snap.id, ...snap.data() });
@@ -582,7 +611,12 @@ const styles = `
 
       <div style={{ height:1, background:"rgba(255,255,255,0.08)", margin:"8px 0" }}/>
 
-      <div onClick={() => { setNavOpen(false); showScreen("login"); }}
+      <div onClick={async () => { 
+  setNavOpen(false); 
+  await signOut(auth);
+  setUsuarioActual(null);
+  showScreen("login"); 
+}}
         style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 14px", borderRadius:14, cursor:"pointer" }}>
         <div style={{ fontSize:22, width:42, height:42, borderRadius:12, background:"rgba(255,100,100,0.1)", display:"flex", alignItems:"center", justifyContent:"center" }}>🚪</div>
         <div style={{ fontSize:15, fontWeight:700, color:"rgba(255,100,100,0.8)" }}>Cerrar sesión</div>
@@ -599,6 +633,14 @@ const styles = `
       </div>
     </div>
   ) : null;
+  if (checkingAuth) return (
+  <div style={{ height:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#F0EBE3", fontFamily:"system-ui" }}>
+    <div style={{ textAlign:"center" }}>
+      <div style={{ fontSize:48, marginBottom:16 }}>🧠</div>
+      <div style={{ fontSize:14, color:"#9A9AB0", fontWeight:700 }}>Cargando...</div>
+    </div>
+  </div>
+);
 
   return (
     <div style={{ fontFamily:"system-ui,sans-serif", background:"#E8EDF0", height:"100vh", width:"100vw", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}><style>{styles}</style>
