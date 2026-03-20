@@ -18,25 +18,3 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const messaging = getMessaging(app);
 export { getToken, onMessage };
-
-// ✅ Registrar SW y enviarle la config de forma segura
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').then(registration => {
-    // Esperar a que el SW esté activo antes de enviar el mensaje
-    const sw = registration.active || registration.installing || registration.waiting;
-    if (sw) {
-      sw.postMessage({
-        type: 'FIREBASE_CONFIG',
-        config: firebaseConfig
-      });
-    } else {
-      registration.addEventListener('updatefound', () => {
-        registration.installing?.addEventListener('statechange', function() {
-          if (this.state === 'activated') {
-            this.postMessage({ type: 'FIREBASE_CONFIG', config: firebaseConfig });
-          }
-        });
-      });
-    }
-  });
-}
