@@ -106,6 +106,8 @@ const [darkMode, setDarkMode] = useState(() => {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const rol = docSnap.data().rol;
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      await updateDoc(doc(db, "usuarios", uid), { timezone });
       if (rol === "paciente") {
          setUsuarioActual({ uid, ...docSnap.data() });
         cargarCitas(uid, "paciente");
@@ -144,6 +146,7 @@ const handleRegister = async () => {
       nombre: regNombre,
       email: regEmail,
       rol: regRol,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
     showToast("¡Registro exitoso! ✅");
     showScreen("login");
@@ -357,6 +360,7 @@ const toggleSeleccion = (uid) => {
       creadoPor: "admin",
       fechaCreacion: new Date().toISOString(),
       psicologoId: formRol === "paciente" ? formPsicologoId : "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
     showToast("¡Usuario creado exitosamente! ✅");
     setFormNombre(""); setFormEmail(""); setFormPin("");
@@ -397,6 +401,8 @@ useEffect(() => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setUsuarioActual({ uid: user.uid, ...data });
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        await updateDoc(doc(db, "usuarios", user.uid), { timezone });
         if (data.rol === "paciente") {
           cargarCitas(user.uid, "paciente");
           showScreen("home");
