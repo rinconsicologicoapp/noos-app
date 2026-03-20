@@ -308,7 +308,7 @@ const crearRecordatorio = async () => {
     showToast("✅ Recordatorio creado");
     setRecTitulo(""); setRecMensaje(""); setRecHora(""); setRecDias([]);
     setModal(null);
-  } catch(e) { showToast("Error al crear recordatorio ❌"); }
+  } catch(e) { showToast("❌ " + e.message); console.log("Error completo:", e); }
   setLoadingRec(false);
 };
 
