@@ -2157,7 +2157,33 @@ const styles = `
                 {mitem("💬", "Nota clínica privada", () => setModal("feedback"))}
                 {mitem("📅", "Agendar cita", () => setModal("agendar-cita"))}
                 {mitem("🔔", "Programar notificación", () => setModal("programar-notif"))}
+                {mitem("🔔", "Recordatorios recurrentes", () => setModal("crear-recordatorio"))}
                 {mitem("📤", "Enviar material", () => showNotif("Material enviado", "Sofía lo recibirá en su app", "📤"))}
+                {recordatorios.filter(r => r.pacienteId === pacienteSeleccionado?.id).length > 0 && (
+  <div style={{ marginTop:4, marginBottom:4 }}>
+    <div style={{ fontSize:12, fontWeight:800, color:C.light, margin:"12px 0 8px" }}>RECORDATORIOS ACTIVOS</div>
+    {recordatorios
+      .filter(r => r.pacienteId === pacienteSeleccionado?.id)
+      .map(r => (
+        <div key={r.id} style={{ background:"white", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
+            <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.titulo}</div>
+            <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+              <div onClick={() => toggleRecordatorio(r.id, r.activo)}
+                style={{ width:36, height:20, borderRadius:10, background:r.activo ? C.plum : C.light, position:"relative", cursor:"pointer" }}>
+                <div style={{ width:14, height:14, borderRadius:"50%", background:"white", position:"absolute", top:3, left:r.activo ? 19 : 3, transition:"left 0.3s" }}/>
+              </div>
+              <div onClick={() => eliminarRecordatorio(r.id)} style={{ fontSize:16, cursor:"pointer" }}>🗑️</div>
+            </div>
+          </div>
+          <div style={{ fontSize:11, color:C.light }}>
+            🕐 {r.hora} · {["D","L","M","X","J","V","S"].filter((_,i) => r.diasSemana.includes(i)).join(", ")}
+          </div>
+          <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{r.mensaje}</div>
+        </div>
+      ))}
+  </div>
+)}
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>🔒 Notas clínicas</div>
                 <div style={{ background:"white", borderRadius:16, padding:14, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", borderLeft:"3px solid #8B7BA0" }}>
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
@@ -2243,6 +2269,45 @@ const styles = `
     <div style={{ display:"flex", gap:8 }}>
       {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
       {btn(() => programarNotificacion(), loadingNotif ? "Programando..." : "Programar 🔔", { flex:2, padding:11, background:loadingNotif ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+    </div>
+  </div>
+))}
+{mdl("crear-recordatorio", (
+  <div>
+    <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>🔔 Nuevo recordatorio</div>
+    <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Se enviará automáticamente al paciente</div>
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
+    <input value={recTitulo} onChange={e => setRecTitulo(e.target.value)} placeholder="Ej: 💪 ¡Hoy toca gym!"
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Mensaje</div>
+    <textarea value={recMensaje} onChange={e => setRecMensaje(e.target.value)} placeholder="Ej: Recuerda que hoy tienes entrenamiento 🏋️"
+      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box" }}/>
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora de envío</div>
+    <input type="time" value={recHora} onChange={e => setRecHora(e.target.value)}
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Días de la semana</div>
+    <div style={{ display:"flex", gap:6, marginBottom:16, flexWrap:"wrap" }}>
+      {[["D",0],["L",1],["M",2],["X",3],["J",4],["V",5],["S",6]].map(([label, dia]) => (
+        <div key={dia} onClick={() => setRecDias(prev =>
+          prev.includes(dia) ? prev.filter(d => d !== dia) : [...prev, dia]
+        )} style={{
+          width:38, height:38, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center",
+          fontSize:13, fontWeight:800, cursor:"pointer",
+          background: recDias.includes(dia) ? C.plum : "white",
+          color: recDias.includes(dia) ? "white" : C.text,
+          border: `2px solid ${recDias.includes(dia) ? C.plum : "rgba(0,0,0,0.08)"}`
+        }}>{label}</div>
+      ))}
+    </div>
+    <div style={{ background:C.warm, borderRadius:11, padding:10, marginBottom:16 }}>
+      <div style={{ fontSize:11, color:C.light, lineHeight:1.5 }}>
+        📍 La notificación llegará a las <strong>{recHora || "--:--"}</strong> hora del paciente
+        {recDias.length > 0 && ` los días seleccionados`}
+      </div>
+    </div>
+    <div style={{ display:"flex", gap:8 }}>
+      {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+      {btn(() => crearRecordatorio(), loadingRec ? "Guardando..." : "Guardar 🔔", { flex:2, padding:11, background:loadingRec ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
     </div>
   </div>
 ))}
