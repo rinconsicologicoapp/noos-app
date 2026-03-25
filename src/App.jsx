@@ -85,6 +85,26 @@ const [editEnfoque, setEditEnfoque] = useState("");
 const [darkMode, setDarkMode] = useState(() => {
   try { return localStorage.getItem('darkMode') === 'true'; } catch { return false; }
 });
+const [installPrompt, setInstallPrompt] = useState(null);
+const [showInstall, setShowInstall] = useState(false);
+
+useEffect(() => {
+  const handler = (e) => {
+    e.preventDefault();
+    setInstallPrompt(e);
+    setShowInstall(true);
+  };
+  window.addEventListener("beforeinstallprompt", handler);
+  return () => window.removeEventListener("beforeinstallprompt", handler);
+}, []);
+
+const handleInstall = async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  const { outcome } = await installPrompt.userChoice;
+  if (outcome === "accepted") setShowInstall(false);
+  setInstallPrompt(null);
+};
   const [navOpen, setNavOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
   const [notifPanel, setNotifPanel] = useState(false);
@@ -814,9 +834,14 @@ const styles = `
       ¿Problemas para entrar?<br/>
       <span style={{ color:C.plum, fontWeight:700 }}>Contacta a tu psicólogo</span>
     </div>
+    {showInstall && (
+  <button onClick={handleInstall} style={{ marginTop:16, width:"100%", padding:"13px 0", background:"rgba(255,255,255,0.35)", color:"#5C4D2E", borderRadius:20, fontSize:13, fontWeight:800, border:"1.5px solid rgba(255,255,255,0.7)", cursor:"pointer", fontFamily:"inherit", letterSpacing:".3px", backdropFilter:"blur(8px)" }}>
+    ⬇️ Descargar App
+  </button>
+)}
 
   </div>
-)}
+  )}
 {/* REGISTRO */}
 {!notifPanel && screen === "registro" && (
   <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, background:`linear-gradient(160deg,${C.cream} 0%,#EDE8F5 100%)` }}>
