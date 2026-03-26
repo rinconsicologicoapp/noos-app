@@ -354,7 +354,7 @@ const cargarRecursosPaciente = async (pacienteId) => {
       .filter(r => r.pacienteId === pacienteId)
       .sort((a,b) => new Date(b.creadoEn) - new Date(a.creadoEn));
     setRecursos(lista);
-  } catch(e) { showToast("Error al cargar recursos ❌"); }
+  } catch(e) { console.log("Error recursos:", e); }
 };
 const subirArchivoCloudinary = async (archivo) => {
   setSubiendoArchivo(true);
