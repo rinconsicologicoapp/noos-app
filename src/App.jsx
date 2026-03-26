@@ -126,6 +126,13 @@ const [tareaDescripcion, setTareaDescripcion] = useState("");
 const [tareaXP, setTareaXP] = useState(80);
 const [tareaVence, setTareaVence] = useState("");
 const [tareaSinFecha, setTareaSinFecha] = useState(false);
+const [recursos, setRecursos] = useState([]);
+const [recursoNombre, setRecursoNombre] = useState("");
+const [recursoUrl, setRecursoUrl] = useState("");
+const [recursoTipo, setRecursoTipo] = useState("PDF");
+const [loadingRecurso, setLoadingRecurso] = useState(false);
+const [subiendoArchivo, setSubiendoArchivo] = useState(false);
+const [progresoSubida, setProgresoSubida] = useState(0);
 const [loadingTarea, setLoadingTarea] = useState(false);
 const [recordatorioEditando, setRecordatorioEditando] = useState(null);
 
@@ -145,7 +152,8 @@ const [recordatorioEditando, setRecordatorioEditando] = useState(null);
       if (rol === "paciente") {
          setUsuarioActual({ uid, ...docSnap.data() });
         cargarCitas(uid, "paciente");
-        showScreen("home");
+          cargarRecursosPaciente(uid);
+          showScreen("home");
       } else if (rol === "psicologo") {
         setUsuarioActual({ uid, ...docSnap.data() });
         cargarCitas(uid, "psicologo");
@@ -337,6 +345,88 @@ const crearRecordatorio = async () => {
     setModal(null);
   } catch(e) { showToast("❌ " + e.message); console.log("Error completo:", e); }
   setLoadingRec(false);
+};
+const cargarRecursosPaciente = async (pacienteId) => {
+  try {
+    const snap = await getDocs(collection(db, "recursos"));
+    const lista = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(r => r.pacienteId === pacienteId)
+      .sort((a,b) => new Date(b.creadoEn) - new Date(a.creadoEn));
+    setRecursos(lista);
+  } catch(e) { showToast("Error al cargar recursos ❌"); }
+};
+const subirArchivoCloudinary = async (archivo) => {
+  setSubiendoArchivo(true);
+  setProgresoSubida(0);
+  try {
+    const formData = new FormData();
+    formData.append("file", archivo);
+    formData.append("upload_preset", "mipsicologo");
+    formData.append("cloud_name", "dh0wutypb");
+    const tipo = archivo.type.includes("pdf") ? "raw" :
+                 archivo.type.includes("audio") ? "video" :
+                 archivo.type.includes("video") ? "video" : "image";
+    const res = await fetch(`https://api.cloudinary.com/v1_1/dh0wutypb/${tipo}/upload`, {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    if (data.secure_url) {
+      setRecursoUrl(data.secure_url);
+      const ext = archivo.name.split(".").pop().toUpperCase();
+      setRecursoTipo(
+        ext === "PDF" ? "PDF" :
+        ["MP3","WAV","M4A"].includes(ext) ? "Audio" :
+        ["MP4","MOV","AVI"].includes(ext) ? "Video" :
+        ["JPG","JPEG","PNG","WEBP"].includes(ext) ? "Imagen" : "Otro"
+      );
+      if (!recursoNombre) setRecursoNombre(archivo.name.replace(/\.[^/.]+$/, ""));
+      showToast("✅ Archivo subido correctamente");
+    } else {
+      showToast("Error al subir archivo ❌");
+    }
+  } catch(e) {
+    showToast("Error de conexión ❌");
+  }
+  setSubiendoArchivo(false);
+};
+const enviarRecurso = async () => {
+  if (!recursoNombre.trim()) { showToast("Escribe el nombre del material ❌"); return; }
+  if (!recursoUrl.trim()) { showToast("Primero sube un archivo ❌"); return; }
+  if (!pacienteSeleccionado) return;
+  setLoadingRecurso(true);
+  try {
+    const id = Date.now().toString();
+    const nuevoRecurso = {
+      id,
+      psicologoId: usuarioActual.uid,
+      psicologoNombre: usuarioActual.nombre,
+      pacienteId: pacienteSeleccionado.id,
+      pacienteNombre: pacienteSeleccionado.nombre,
+      nombre: recursoNombre,
+      url: recursoUrl,
+      tipo: recursoTipo,
+      recibido: false,
+      creadoEn: new Date().toISOString(),
+    };
+    await setDoc(doc(db, "recursos", id), nuevoRecurso);
+    setRecursos(prev => [nuevoRecurso, ...prev]);
+    setRecursoNombre("");
+    setRecursoUrl("");
+    setRecursoTipo("PDF");
+    setModal(null);
+    showToast("✅ Material enviado a " + pacienteSeleccionado.nombre);
+  } catch(e) { showToast("Error al enviar material ❌"); }
+  setLoadingRecurso(false);
+};
+
+const marcarRecursoRecibido = async (recursoId) => {
+  try {
+    await updateDoc(doc(db, "recursos", recursoId), { recibido: true });
+    setRecursos(prev => prev.map(r => r.id === recursoId ? { ...r, recibido: true } : r));
+    showToast("✅ Marcado como recibido");
+  } catch(e) { showToast("Error ❌"); }
 };
 const cargarTareasPaciente = async (pacienteId) => {
   try {
@@ -1279,27 +1369,38 @@ const styles = `
         )}      
     {/* MIS RECURSOS */}
     {tareasTab === "recursos" && (
-      <div>
-        <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <div style={{ width:44, height:44, borderRadius:12, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>📄</div>
-            <div>
-              <div style={{ fontSize:13, fontWeight:800, color:C.text }}>Técnica de respiración 4-7-8</div>
-              <div style={{ fontSize:11, color:C.light, marginTop:2 }}>PDF · Asignado por Dr. García</div>
-            </div>
+  <div>
+    {recursos.length === 0 ? (
+      <div style={{ textAlign:"center", padding:30, color:C.light, fontSize:13 }}>
+        <div style={{ fontSize:36, marginBottom:10 }}>📭</div>
+        Tu psicólogo aún no ha enviado materiales
+      </div>
+    ) : recursos.map(r => (
+      <div key={r.id} style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
+          <div style={{ width:44, height:44, borderRadius:12, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>
+            {r.tipo==="PDF"?"📄":r.tipo==="Audio"?"🎵":r.tipo==="Video"?"🎬":r.tipo==="Imagen"?"🖼️":"📎"}
+          </div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.nombre}</div>
+            <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{r.tipo} · Enviado por {r.psicologoNombre}</div>
           </div>
         </div>
-        <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <div style={{ width:44, height:44, borderRadius:12, background:`${C.sage}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>🎵</div>
-            <div>
-              <div style={{ fontSize:13, fontWeight:800, color:C.text }}>Meditación guiada 10 min</div>
-              <div style={{ fontSize:11, color:C.light, marginTop:2 }}>Audio · Asignado por Dr. García</div>
-            </div>
-          </div>
+        <div style={{ display:"flex", gap:8 }}>
+          <a href={r.url} target="_blank" rel="noreferrer"
+            style={{ flex:2, padding:"8px 0", borderRadius:10, background:`${C.plum}15`, color:C.plum, fontSize:11, fontWeight:800, textAlign:"center", textDecoration:"none" }}>
+            👁️ Abrir
+          </a>
+          {!r.recibido ? (
+            btn(() => marcarRecursoRecibido(r.id), "✅ Recibido", { flex:1, padding:"8px 0", borderRadius:10, background:"#E8F5E9", color:C.green, fontSize:11, fontWeight:800 })
+          ) : (
+            <div style={{ flex:1, padding:"8px 0", borderRadius:10, background:"#E8F5E9", color:C.green, fontSize:11, fontWeight:800, textAlign:"center" }}>✅ Recibido</div>
+          )}
         </div>
       </div>
-    )}
+    ))}
+  </div>
+)}
 
     {/* TAREAS */}
     {tareasTab === "tareas" && (
@@ -1904,7 +2005,7 @@ const styles = `
                   </div>
                 ) : (
                   pacientes.map(p => (
-                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); cargarTareasPaciente(p.id); showScreen("admin-paciente"); }}
+                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); cargarTareasPaciente(p.id); cargarRecursosPaciente(p.id); showScreen("admin-paciente"); }}
                       style={{ background:"white", borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:9, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", cursor:"pointer" }}>
                       <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum}20,${C.sage}20)`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👤</div>
                       <div style={{ flex:1 }}>
@@ -2234,7 +2335,7 @@ const styles = `
                 {mitem("📅", "Agendar cita", () => setModal("agendar-cita"))}
                 {mitem("🔔", "Programar notificación", () => setModal("programar-notif"))}
                 {mitem("🔔", "Recordatorios recurrentes", () => setModal("crear-recordatorio"))}
-                {mitem("📤", "Enviar material", () => showNotif("Material enviado", "Sofía lo recibirá en su app", "📤"))}
+                {mitem("📤", "Enviar material", () => setModal("enviar-material"))}
                 {recordatorios.filter(r => r.pacienteId === pacienteSeleccionado?.id).length > 0 && (
   <div style={{ marginTop:4, marginBottom:4 }}>
     <div style={{ fontSize:12, fontWeight:800, color:C.light, margin:"12px 0 8px" }}>RECORDATORIOS ACTIVOS</div>
@@ -2260,6 +2361,27 @@ const styles = `
       ))}
   </div>
 )}
+<div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>📤 Materiales enviados</div>
+{recursos.length === 0 ? (
+  <div style={{ background:"white", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay materiales enviados aún</div>
+) : recursos.map(r => (
+  <div key={r.id} style={{ background:"white", borderRadius:16, padding:14, marginBottom:10, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", borderLeft:`4px solid ${r.recibido ? C.green : C.sage}` }}>
+    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+        <div style={{ width:38, height:38, borderRadius:10, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
+          {r.tipo==="PDF"?"📄":r.tipo==="Audio"?"🎵":r.tipo==="Video"?"🎬":r.tipo==="Imagen"?"🖼️":"📎"}
+        </div>
+        <div>
+          <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.nombre}</div>
+          <div style={{ fontSize:10, color:C.light }}>{r.tipo}</div>
+        </div>
+      </div>
+      <div style={{ fontSize:10, fontWeight:800, padding:"3px 8px", borderRadius:20, background:r.recibido ? "#E8F5E9" : "#FFF3E0", color:r.recibido ? C.green : C.amber }}>
+        {r.recibido ? "✅ Recibido" : "⏳ Pendiente"}
+      </div>
+    </div>
+  </div>
+))}
 <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>📋 Tareas asignadas</div>
 {tareasPsicologo.length === 0 ? (
   <div style={{ background:"white", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay tareas asignadas aún</div>
@@ -2326,6 +2448,57 @@ const styles = `
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(() => crearTarea(), loadingTarea ? "Guardando..." : "Asignar ✓", { flex:2, padding:11, background:loadingTarea ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                  </div>
+                </div>
+              ))}
+              {mdl("enviar-material", (
+                <div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📤 Enviar material</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Para: <strong>{pacienteSeleccionado?.nombre}</strong></div>
+
+                  {/* ZONA DE SUBIDA */}
+                  <label style={{ display:"block", cursor:"pointer" }}>
+                    <input type="file" accept=".pdf,.mp3,.mp4,.jpg,.jpeg,.png,.wav,.mov" style={{ display:"none" }}
+                      onChange={e => { if(e.target.files[0]) subirArchivoCloudinary(e.target.files[0]); }}/>
+                    <div style={{ border:`2px dashed ${recursoUrl ? C.sage : "rgba(0,0,0,0.15)"}`, borderRadius:14, padding:"20px 14px", textAlign:"center", background:recursoUrl ? "#F0FBF4" : "#FAFAFA", marginBottom:12, transition:"all 0.2s" }}>
+                      {subiendoArchivo ? (
+                        <div>
+                          <div style={{ fontSize:24, marginBottom:8 }}>⏳</div>
+                          <div style={{ fontSize:12, color:C.light }}>Subiendo archivo...</div>
+                        </div>
+                      ) : recursoUrl ? (
+                        <div>
+                          <div style={{ fontSize:24, marginBottom:6 }}>✅</div>
+                          <div style={{ fontSize:12, fontWeight:800, color:C.sageDark }}>Archivo subido correctamente</div>
+                          <div style={{ fontSize:10, color:C.light, marginTop:3 }}>Toca para cambiar el archivo</div>
+                        </div>
+                      ) : (
+                        <div>
+                          <div style={{ fontSize:32, marginBottom:8 }}>📎</div>
+                          <div style={{ fontSize:13, fontWeight:800, color:C.text }}>Toca para seleccionar archivo</div>
+                          <div style={{ fontSize:11, color:C.light, marginTop:4 }}>PDF, Audio, Video, Imagen</div>
+                        </div>
+                      )}
+                    </div>
+                  </label>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre del material</div>
+                  <input placeholder="Ej: Técnica de respiración 4-7-8" value={recursoNombre} onChange={e => setRecursoNombre(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Tipo detectado</div>
+                  <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+                    {["PDF","Audio","Video","Imagen","Otro"].map(tipo => (
+                      <div key={tipo} onClick={() => setRecursoTipo(tipo)}
+                        style={{ flex:1, padding:"8px 0", borderRadius:10, textAlign:"center", cursor:"pointer", fontSize:11, fontWeight:800, border:`2px solid ${recursoTipo===tipo ? C.plum : "rgba(0,0,0,0.08)"}`, background:recursoTipo===tipo ? `${C.plum}15` : "white", color:recursoTipo===tipo ? C.plum : C.light }}>
+                        {tipo}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ display:"flex", gap:8 }}>
+                    {btn(() => { setModal(null); setRecursoUrl(""); setRecursoNombre(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => enviarRecurso(), loadingRecurso ? "Enviando..." : "Enviar ✓", { flex:2, padding:11, background:(!recursoUrl || loadingRecurso || subiendoArchivo) ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
