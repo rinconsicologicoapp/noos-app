@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { messaging, getToken, onMessage } from "./firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "./firebase";
-import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc } from "firebase/firestore";
+import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc, query, where } from "firebase/firestore";
 import { db } from "./firebase";
 
 export default function NOOS() {
@@ -198,11 +198,10 @@ const handleRegister = async () => {
 const cargarCitas = async (uid, rol) => {
   setLoadingCitas(true);
   try {
-    const snap = await getDocs(collection(db, "citas"));
-    const todas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    const filtradas = rol === "paciente"
-      ? todas.filter(c => c.pacienteId === uid)
-      : todas.filter(c => c.psicologoId === uid);
+    const campo = rol === "paciente" ? "pacienteId" : "psicologoId";
+    const q = query(collection(db, "citas"), where(campo, "==", uid));
+    const snap = await getDocs(q);
+    const filtradas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     setCitas(filtradas.sort((a,b) => new Date(a.fecha) - new Date(b.fecha)));
   } catch(e) { showToast("Error al cargar citas ❌"); }
   setLoadingCitas(false);
@@ -306,10 +305,9 @@ const programarNotificacion = async () => {
 };
 const cargarRecordatorios = async (psicologoId) => {
   try {
-    const snap = await getDocs(collection(db, "recordatorios"));
-    const lista = snap.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .filter(r => r.psicologoId === psicologoId);
+    const q = query(collection(db, "recordatorios"), where("psicologoId", "==", psicologoId));
+    const snap = await getDocs(q);
+    const lista = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     setRecordatorios(lista);
   } catch(e) { showToast("Error al cargar recordatorios ❌"); }
 };
@@ -346,10 +344,10 @@ const crearRecordatorio = async () => {
 };
 const cargarNotas = async (pacienteId) => {
   try {
-    const snap = await getDocs(collection(db, "notas"));
+    const q = query(collection(db, "notas"), where("pacienteId", "==", pacienteId));
+    const snap = await getDocs(q);
     const lista = snap.docs
       .map(d => ({ id: d.id, ...d.data() }))
-      .filter(n => n.pacienteId === pacienteId)
       .sort((a,b) => new Date(b.creadaEn) - new Date(a.creadaEn));
     setInsights(lista);
   } catch(e) { console.log("Error notas:", e); }
@@ -357,20 +355,20 @@ const cargarNotas = async (pacienteId) => {
 
 const cargarAutorregistros = async (pacienteId) => {
   try {
-    const snap = await getDocs(collection(db, "autorregistros"));
+    const q = query(collection(db, "autorregistros"), where("pacienteId", "==", pacienteId));
+    const snap = await getDocs(q);
     const lista = snap.docs
       .map(d => ({ id: d.id, ...d.data() }))
-      .filter(a => a.pacienteId === pacienteId)
       .sort((a,b) => new Date(b.creadaEn) - new Date(a.creadaEn));
     setAutorregistros(lista);
   } catch(e) { console.log("Error autorregistros:", e); }
 };
 const cargarRecursosPaciente = async (pacienteId) => {
   try {
-    const snap = await getDocs(collection(db, "recursos"));
+    const q = query(collection(db, "recursos"), where("pacienteId", "==", pacienteId));
+    const snap = await getDocs(q);
     const lista = snap.docs
       .map(d => ({ id: d.id, ...d.data() }))
-      .filter(r => r.pacienteId === pacienteId)
       .sort((a,b) => new Date(b.creadoEn) - new Date(a.creadoEn));
     setRecursos(lista);
   } catch(e) { console.log("Error recursos:", e); }
@@ -448,10 +446,10 @@ const marcarRecursoRecibido = async (recursoId) => {
 };
 const cargarTareasPaciente = async (pacienteId) => {
   try {
-    const snap = await getDocs(collection(db, "tareas"));
+    const q = query(collection(db, "tareas"), where("pacienteId", "==", pacienteId));
+    const snap = await getDocs(q);
     const lista = snap.docs
       .map(d => ({ id: d.id, ...d.data() }))
-      .filter(t => t.pacienteId === pacienteId)
       .sort((a,b) => new Date(b.creadaEn) - new Date(a.creadaEn));
     setTareasPsicologo(lista);
   } catch(e) { showToast("Error al cargar tareas ❌"); }
@@ -508,10 +506,10 @@ const toggleRecordatorio = async (recId, estadoActual) => {
 const cargarResenas = async (psicologoId) => {
   setLoadingResenas(true);
   try {
-    const snap = await getDocs(collection(db, "resenas"));
+    const q = query(collection(db, "resenas"), where("psicologoId", "==", psicologoId));
+    const snap = await getDocs(q);
     const lista = snap.docs
       .map(d => ({ id: d.id, ...d.data() }))
-      .filter(r => r.psicologoId === psicologoId)
       .sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
     setResenas(lista);
   } catch(e) { showToast("Error al cargar reseñas ❌"); }
