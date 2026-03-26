@@ -120,6 +120,12 @@ const [recMensaje, setRecMensaje] = useState("");
 const [recHora, setRecHora] = useState("");
 const [recDias, setRecDias] = useState([]);
 const [loadingRec, setLoadingRec] = useState(false);
+const [tareasPsicologo, setTareasPsicologo] = useState([]);
+const [tareaTitulo, setTareaTitulo] = useState("");
+const [tareaDescripcion, setTareaDescripcion] = useState("");
+const [tareaXP, setTareaXP] = useState(80);
+const [tareaVence, setTareaVence] = useState("");
+const [loadingTarea, setLoadingTarea] = useState(false);
 const [recordatorioEditando, setRecordatorioEditando] = useState(null);
 
   const unread = notifs.filter(n => !n.read).length;
@@ -330,6 +336,48 @@ const crearRecordatorio = async () => {
     setModal(null);
   } catch(e) { showToast("❌ " + e.message); console.log("Error completo:", e); }
   setLoadingRec(false);
+};
+const cargarTareasPaciente = async (pacienteId) => {
+  try {
+    const snap = await getDocs(collection(db, "tareas"));
+    const lista = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(t => t.pacienteId === pacienteId)
+      .sort((a,b) => new Date(b.creadaEn) - new Date(a.creadaEn));
+    setTareasPsicologo(lista);
+  } catch(e) { showToast("Error al cargar tareas ❌"); }
+};
+
+const crearTarea = async () => {
+  if (!tareaTitulo.trim()) { showToast("Escribe un título ❌"); return; }
+  if (!pacienteSeleccionado) { showToast("No hay paciente seleccionado ❌"); return; }
+  setLoadingTarea(true);
+  try {
+    const id = Date.now().toString();
+    const nuevaTarea = {
+      id,
+      psicologoId: usuarioActual.uid,
+      psicologoNombre: usuarioActual.nombre,
+      pacienteId: pacienteSeleccionado.id,
+      pacienteNombre: pacienteSeleccionado.nombre,
+      titulo: tareaTitulo,
+      descripcion: tareaDescripcion,
+      xp: tareaXP,
+      vence: tareaVence,
+      completada: false,
+      respuesta: "",
+      creadaEn: new Date().toISOString(),
+    };
+    await setDoc(doc(db, "tareas", id), nuevaTarea);
+    setTareasPsicologo(prev => [nuevaTarea, ...prev]);
+    setTareaTitulo("");
+    setTareaDescripcion("");
+    setTareaXP(80);
+    setTareaVence("");
+    setModal(null);
+    showToast("✅ Tarea asignada a " + pacienteSeleccionado.nombre);
+  } catch(e) { showToast("Error al crear tarea ❌"); }
+  setLoadingTarea(false);
 };
 
 const eliminarRecordatorio = async (recId) => {
@@ -1854,7 +1902,7 @@ const styles = `
                   </div>
                 ) : (
                   pacientes.map(p => (
-                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); showScreen("admin-paciente"); }}
+                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); cargarTareasPaciente(p.id); showScreen("admin-paciente"); }}
                       style={{ background:"white", borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:9, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", cursor:"pointer" }}>
                       <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum}20,${C.sage}20)`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👤</div>
                       <div style={{ flex:1 }}>
@@ -2210,6 +2258,28 @@ const styles = `
       ))}
   </div>
 )}
+<div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>📋 Tareas asignadas</div>
+{tareasPsicologo.length === 0 ? (
+  <div style={{ background:"white", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay tareas asignadas aún</div>
+) : tareasPsicologo.map(t => (
+  <div key={t.id} style={{ background:"white", borderRadius:16, padding:14, marginBottom:10, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", borderLeft:`4px solid ${t.completada ? C.green : C.sage}` }}>
+    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
+      <div style={{ fontSize:13, fontWeight:800, color:C.text, flex:1 }}>{t.titulo}</div>
+      <div style={{ fontSize:10, fontWeight:800, padding:"3px 8px", borderRadius:20, background:t.completada ? "#E8F5E9" : "#FFF3E0", color:t.completada ? C.green : C.amber }}>{t.completada ? "✅ Completada" : "⏳ Pendiente"}</div>
+    </div>
+    {t.descripcion ? <div style={{ fontSize:11, color:C.light, marginBottom:6, lineHeight:1.5 }}>{t.descripcion}</div> : null}
+    <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+      <div style={{ fontSize:10, color:C.amber, fontWeight:700 }}>⭐ +{t.xp} XP</div>
+      {t.vence ? <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>📅 Vence: {t.vence}</div> : null}
+    </div>
+    {t.respuesta ? (
+      <div style={{ marginTop:8, background:"#F5F0FF", borderRadius:10, padding:"8px 10px" }}>
+        <div style={{ fontSize:10, fontWeight:800, color:C.plum, marginBottom:3 }}>💬 Respuesta del paciente:</div>
+        <div style={{ fontSize:11, color:C.text, lineHeight:1.5 }}>{t.respuesta}</div>
+      </div>
+    ) : null}
+  </div>
+))}
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>🔒 Notas clínicas</div>
                 <div style={{ background:"white", borderRadius:16, padding:14, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", borderLeft:"3px solid #8B7BA0" }}>
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
@@ -2222,14 +2292,29 @@ const styles = `
               </div>
               {mdl("assign-task", (
                 <div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Asignar tarea 📋</div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📋 Asignar tarea</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Para: <strong>{pacienteSeleccionado?.nombre}</strong></div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
-                  <input placeholder="Ej: Registro de pensamientos..." style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción</div>
-                  <textarea placeholder="Instrucciones para el paciente..." style={{ width:"100%", minHeight:80, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <input placeholder="Ej: Registro de pensamientos..." value={tareaTitulo} onChange={e => setTareaTitulo(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción / instrucciones</div>
+                  <textarea placeholder="Explica qué debe hacer el paciente..." value={tareaDescripcion} onChange={e => setTareaDescripcion(e.target.value)}
+                    style={{ width:"100%", minHeight:80, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ display:"flex", gap:10, marginBottom:10 }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>⭐ XP al completar</div>
+                      <input type="number" value={tareaXP} onChange={e => setTareaXP(Number(e.target.value))}
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📅 Fecha límite</div>
+                      <input type="date" value={tareaVence} onChange={e => setTareaVence(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    </div>
+                  </div>
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => { setModal(null); showNotif("Tarea asignada", "Sofía recibirá la tarea en su app", "📋"); }, "Asignar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => crearTarea(), loadingTarea ? "Guardando..." : "Asignar ✓", { flex:2, padding:11, background:loadingTarea ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
