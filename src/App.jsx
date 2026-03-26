@@ -421,7 +421,7 @@ const subirArchivoCloudinary = async (archivo) => {
     if (data.secure_url) {
       let url = data.secure_url;
       if (archivo.type.includes("pdf")) {
-        url = data.secure_url.replace("/raw/upload/", "/raw/upload/fl_attachment/");
+        url = data.secure_url;
       }
       setRecursoUrl(url);
       const ext = archivo.name.split(".").pop().toUpperCase();
