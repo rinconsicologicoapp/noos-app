@@ -1488,7 +1488,7 @@ const styles = `
       <div key={r.id} style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
           <div style={{ width:44, height:44, borderRadius:12, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>
-            {r.tipo==="PDF"?"📄":r.tipo==="Audio"?"🎵":r.tipo==="Video"?"🎬":r.tipo==="Imagen"?"🖼️":"📎"}
+            {r.tipo==="PDF"?"📄":r.tipo==="Podcast"?"🎵":r.tipo==="YouTube"?"🎬":r.tipo==="Imagen"?"🖼️":r.tipo==="Enlace"?"🔗":"📎"}
           </div>
           <div style={{ flex:1 }}>
             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.nombre}</div>
@@ -2612,48 +2612,93 @@ const styles = `
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📤 Enviar material</div>
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Para: <strong>{pacienteSeleccionado?.nombre}</strong></div>
 
-                  {/* ZONA DE SUBIDA */}
-                  <label style={{ display:"block", cursor:"pointer" }}>
-                    <input type="file" accept=".pdf,.mp3,.mp4,.jpg,.jpeg,.png,.wav,.mov" style={{ display:"none" }}
-                      onChange={e => { if(e.target.files[0]) subirArchivoCloudinary(e.target.files[0]); }}/>
-                    <div style={{ border:`2px dashed ${recursoUrl ? C.sage : "rgba(0,0,0,0.15)"}`, borderRadius:14, padding:"20px 14px", textAlign:"center", background:recursoUrl ? "#F0FBF4" : "#FAFAFA", marginBottom:12, transition:"all 0.2s" }}>
-                      {subiendoArchivo ? (
-                        <div>
-                          <div style={{ fontSize:24, marginBottom:8 }}>⏳</div>
-                          <div style={{ fontSize:12, color:C.light }}>Subiendo archivo...</div>
-                        </div>
-                      ) : recursoUrl ? (
-                        <div>
-                          <div style={{ fontSize:24, marginBottom:6 }}>✅</div>
-                          <div style={{ fontSize:12, fontWeight:800, color:C.sageDark }}>Archivo subido correctamente</div>
-                          <div style={{ fontSize:10, color:C.light, marginTop:3 }}>Toca para cambiar el archivo</div>
-                        </div>
-                      ) : (
-                        <div>
-                          <div style={{ fontSize:32, marginBottom:8 }}>📎</div>
-                          <div style={{ fontSize:13, fontWeight:800, color:C.text }}>Toca para seleccionar archivo</div>
-                          <div style={{ fontSize:11, color:C.light, marginTop:4 }}>PDF, Audio, Video, Imagen</div>
-                        </div>
-                      )}
-                    </div>
-                  </label>
-
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre del material</div>
-                  <input placeholder="Ej: Técnica de respiración 4-7-8" value={recursoNombre} onChange={e => setRecursoNombre(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
-
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Tipo detectado</div>
-                  <div style={{ display:"flex", gap:8, marginBottom:16 }}>
-                    {["PDF","Imagen","Otro"].map(tipo => (
-                      <div key={tipo} onClick={() => setRecursoTipo(tipo)}
-                        style={{ flex:1, padding:"8px 0", borderRadius:10, textAlign:"center", cursor:"pointer", fontSize:11, fontWeight:800, border:`2px solid ${recursoTipo===tipo ? C.plum : "rgba(0,0,0,0.08)"}`, background:recursoTipo===tipo ? `${C.plum}15` : "white", color:recursoTipo===tipo ? C.plum : C.light }}>
-                        {tipo}
+                  {/* SELECTOR DE TIPO */}
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Tipo de material</div>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:7, marginBottom:16 }}>
+                    {[["🖼️","Imagen","Imagen"],["📄","PDF","PDF"],["🎵","Podcast","Podcast"],["🎬","YouTube","YouTube"],["🔗","Enlace","Enlace"]].map(([ic,lb,val]) => (
+                      <div key={val} onClick={() => { setRecursoTipo(val); setRecursoUrl(""); }}
+                        style={{ padding:"8px 13px", borderRadius:20, cursor:"pointer", fontSize:11, fontWeight:800, display:"flex", alignItems:"center", gap:5, border:`2px solid ${recursoTipo===val ? C.plum : "rgba(0,0,0,0.08)"}`, background:recursoTipo===val ? `${C.plum}15` : "white", color:recursoTipo===val ? C.plum : C.light, transition:"all 0.15s" }}>
+                        {ic} {lb}
                       </div>
                     ))}
                   </div>
 
+                  {/* IMAGEN — subida directa */}
+                  {recursoTipo === "Imagen" && (
+                    <label style={{ display:"block", cursor:"pointer", marginBottom:12 }}>
+                      <input type="file" accept=".jpg,.jpeg,.png,.webp" style={{ display:"none" }}
+                        onChange={e => { if(e.target.files[0]) subirArchivoCloudinary(e.target.files[0]); }}/>
+                      <div style={{ border:`2px dashed ${recursoUrl ? C.sage : "rgba(0,0,0,0.15)"}`, borderRadius:14, padding:"20px 14px", textAlign:"center", background:recursoUrl ? "#F0FBF4" : "#FAFAFA", transition:"all 0.2s" }}>
+                        {subiendoArchivo ? (
+                          <div><div style={{ fontSize:24, marginBottom:8 }}>⏳</div><div style={{ fontSize:12, color:C.light }}>Subiendo imagen...</div></div>
+                        ) : recursoUrl ? (
+                          <div>
+                            <img src={recursoUrl} alt="preview" style={{ width:80, height:80, objectFit:"cover", borderRadius:10, marginBottom:6 }}/>
+                            <div style={{ fontSize:12, fontWeight:800, color:C.sageDark }}>✅ Imagen subida</div>
+                            <div style={{ fontSize:10, color:C.light, marginTop:3 }}>Toca para cambiar</div>
+                          </div>
+                        ) : (
+                          <div><div style={{ fontSize:32, marginBottom:8 }}>🖼️</div><div style={{ fontSize:13, fontWeight:800, color:C.text }}>Toca para subir imagen</div><div style={{ fontSize:11, color:C.light, marginTop:4 }}>JPG, PNG, WEBP</div></div>
+                        )}
+                      </div>
+                    </label>
+                  )}
+
+                  {/* PDF — pegar URL */}
+                  {recursoTipo === "PDF" && (
+                    <div style={{ marginBottom:12 }}>
+                      <div style={{ background:"#FFF8E1", borderRadius:11, padding:"10px 12px", marginBottom:10, fontSize:11, color:C.amberDark, fontWeight:700 }}>
+                        💡 Sube el PDF a Google Drive, Dropbox o OneDrive, compártelo como "cualquiera con el link" y pega el link aquí
+                      </div>
+                      <input placeholder="https://drive.google.com/file/d/..." value={recursoUrl} onChange={e => setRecursoUrl(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.08)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                      {recursoUrl ? <div style={{ fontSize:10, color:C.sageDark, fontWeight:700, marginTop:4 }}>✅ Link listo</div> : null}
+                    </div>
+                  )}
+
+                  {/* PODCAST — pegar URL */}
+                  {recursoTipo === "Podcast" && (
+                    <div style={{ marginBottom:12 }}>
+                      <div style={{ background:"#F3E5F5", borderRadius:11, padding:"10px 12px", marginBottom:10, fontSize:11, color:"#7B1FA2", fontWeight:700 }}>
+                        🎵 Pega el link del episodio de Spotify, Apple Podcasts, Google Podcasts u otra plataforma
+                      </div>
+                      <input placeholder="https://open.spotify.com/episode/..." value={recursoUrl} onChange={e => setRecursoUrl(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.08)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                      {recursoUrl ? <div style={{ fontSize:10, color:C.sageDark, fontWeight:700, marginTop:4 }}>✅ Link listo</div> : null}
+                    </div>
+                  )}
+
+                  {/* YOUTUBE — pegar URL */}
+                  {recursoTipo === "YouTube" && (
+                    <div style={{ marginBottom:12 }}>
+                      <div style={{ background:"#FFEBEE", borderRadius:11, padding:"10px 12px", marginBottom:10, fontSize:11, color:"#C62828", fontWeight:700 }}>
+                        🎬 Pega el link del video de YouTube
+                      </div>
+                      <input placeholder="https://www.youtube.com/watch?v=..." value={recursoUrl} onChange={e => setRecursoUrl(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.08)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                      {recursoUrl ? <div style={{ fontSize:10, color:C.sageDark, fontWeight:700, marginTop:4 }}>✅ Link listo</div> : null}
+                    </div>
+                  )}
+
+                  {/* ENLACE — pegar URL */}
+                  {recursoTipo === "Enlace" && (
+                    <div style={{ marginBottom:12 }}>
+                      <div style={{ background:"#E3F2FD", borderRadius:11, padding:"10px 12px", marginBottom:10, fontSize:11, color:"#1565C0", fontWeight:700 }}>
+                        🔗 Pega cualquier link — artículo, recurso web, formulario, etc.
+                      </div>
+                      <input placeholder="https://..." value={recursoUrl} onChange={e => setRecursoUrl(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.08)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                      {recursoUrl ? <div style={{ fontSize:10, color:C.sageDark, fontWeight:700, marginTop:4 }}>✅ Link listo</div> : null}
+                    </div>
+                  )}
+
+                  {/* NOMBRE */}
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre del material</div>
+                  <input placeholder="Ej: Técnica de respiración 4-7-8" value={recursoNombre} onChange={e => setRecursoNombre(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
                   <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => { setModal(null); setRecursoUrl(""); setRecursoNombre(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => { setModal(null); setRecursoUrl(""); setRecursoNombre(""); setRecursoTipo("Imagen"); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(() => enviarRecurso(), loadingRecurso ? "Enviando..." : "Enviar ✓", { flex:2, padding:11, background:(!recursoUrl || loadingRecurso || subiendoArchivo) ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
