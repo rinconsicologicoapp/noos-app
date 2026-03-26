@@ -125,6 +125,7 @@ const [tareaTitulo, setTareaTitulo] = useState("");
 const [tareaDescripcion, setTareaDescripcion] = useState("");
 const [tareaXP, setTareaXP] = useState(80);
 const [tareaVence, setTareaVence] = useState("");
+const [tareaSinFecha, setTareaSinFecha] = useState(false);
 const [loadingTarea, setLoadingTarea] = useState(false);
 const [recordatorioEditando, setRecordatorioEditando] = useState(null);
 
@@ -374,6 +375,7 @@ const crearTarea = async () => {
     setTareaDescripcion("");
     setTareaXP(80);
     setTareaVence("");
+    setTareaSinFecha(false);
     setModal(null);
     showToast("✅ Tarea asignada a " + pacienteSeleccionado.nombre);
   } catch(e) { showToast("Error al crear tarea ❌"); }
@@ -2308,8 +2310,17 @@ const styles = `
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📅 Fecha límite</div>
-                      <input type="date" value={tareaVence} onChange={e => setTareaVence(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                      <div onClick={() => { setTareaSinFecha(!tareaSinFecha); setTareaVence(""); }}
+                        style={{ display:"flex", alignItems:"center", gap:7, marginBottom:7, cursor:"pointer" }}>
+                        <div style={{ width:18, height:18, borderRadius:5, border:`2px solid ${tareaSinFecha ? C.sage : "rgba(0,0,0,0.15)"}`, background:tareaSinFecha ? C.sage : "white", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          {tareaSinFecha && <span style={{ color:"white", fontSize:11, fontWeight:900 }}>✓</span>}
+                        </div>
+                        <span style={{ fontSize:11, color:tareaSinFecha ? C.sage : C.light, fontWeight:700 }}>Sin fecha límite</span>
+                      </div>
+                      {!tareaSinFecha && (
+                        <input type="date" value={tareaVence} onChange={e => setTareaVence(e.target.value)}
+                          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                      )}
                     </div>
                   </div>
                   <div style={{ display:"flex", gap:8 }}>
