@@ -377,8 +377,6 @@ const subirArchivoCloudinary = async (archivo) => {
       const ext = archivo.name.split(".").pop().toUpperCase();
       setRecursoTipo(
         ext === "PDF" ? "PDF" :
-        ["MP3","WAV","M4A"].includes(ext) ? "Audio" :
-        ["MP4","MOV","AVI"].includes(ext) ? "Video" :
         ["JPG","JPEG","PNG","WEBP"].includes(ext) ? "Imagen" : "Otro"
       );
       if (!recursoNombre) setRecursoNombre(archivo.name.replace(/\.[^/.]+$/, ""));
@@ -2488,7 +2486,7 @@ const styles = `
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Tipo detectado</div>
                   <div style={{ display:"flex", gap:8, marginBottom:16 }}>
-                    {["PDF","Audio","Video","Imagen","Otro"].map(tipo => (
+                    {["PDF","Imagen","Otro"].map(tipo => (
                       <div key={tipo} onClick={() => setRecursoTipo(tipo)}
                         style={{ flex:1, padding:"8px 0", borderRadius:10, textAlign:"center", cursor:"pointer", fontSize:11, fontWeight:800, border:`2px solid ${recursoTipo===tipo ? C.plum : "rgba(0,0,0,0.08)"}`, background:recursoTipo===tipo ? `${C.plum}15` : "white", color:recursoTipo===tipo ? C.plum : C.light }}>
                         {tipo}
