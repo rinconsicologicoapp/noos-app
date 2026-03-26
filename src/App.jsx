@@ -364,7 +364,7 @@ const subirArchivoCloudinary = async (archivo) => {
     formData.append("file", archivo);
     formData.append("upload_preset", "mipsicologo");
     formData.append("cloud_name", "dh0wutypb");
-    const res = await fetch(`https://api.cloudinary.com/v1_1/dh0wutypb/auto/upload`, {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/dh0wutypb/raw/upload`, {
       method: "POST",
       body: formData,
     });
@@ -372,9 +372,6 @@ const subirArchivoCloudinary = async (archivo) => {
     if (data.secure_url) {
       let url = data.secure_url;
       if (archivo.type.includes("pdf")) {
-        url = data.secure_url
-          .replace("/raw/upload/", "/image/upload/")
-          .replace(".pdf", ".pdf");
         url = data.secure_url.replace("/raw/upload/", "/raw/upload/fl_attachment/");
       }
       setRecursoUrl(url);
