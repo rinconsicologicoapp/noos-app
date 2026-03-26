@@ -373,7 +373,8 @@ const subirArchivoCloudinary = async (archivo) => {
     });
     const data = await res.json();
     if (data.secure_url) {
-      setRecursoUrl(data.secure_url);
+      const url = data.secure_url.replace("res.cloudinary.com", "dl.cloudinary.com");
+      setRecursoUrl(url);
       const ext = archivo.name.split(".").pop().toUpperCase();
       setRecursoTipo(
         ext === "PDF" ? "PDF" :
