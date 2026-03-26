@@ -364,16 +364,19 @@ const subirArchivoCloudinary = async (archivo) => {
     formData.append("file", archivo);
     formData.append("upload_preset", "mipsicologo");
     formData.append("cloud_name", "dh0wutypb");
-    const tipo = archivo.type.includes("pdf") ? "raw" :
-                 archivo.type.includes("audio") ? "video" :
-                 archivo.type.includes("video") ? "video" : "image";
-    const res = await fetch(`https://api.cloudinary.com/v1_1/dh0wutypb/${tipo}/upload`, {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/dh0wutypb/auto/upload`, {
       method: "POST",
       body: formData,
     });
     const data = await res.json();
     if (data.secure_url) {
-      const url = data.secure_url.replace("res.cloudinary.com", "dl.cloudinary.com");
+      let url = data.secure_url;
+      if (archivo.type.includes("pdf")) {
+        url = data.secure_url
+          .replace("/raw/upload/", "/image/upload/")
+          .replace(".pdf", ".pdf");
+        url = data.secure_url.replace("/raw/upload/", "/raw/upload/fl_attachment/");
+      }
       setRecursoUrl(url);
       const ext = archivo.name.split(".").pop().toUpperCase();
       setRecursoTipo(
