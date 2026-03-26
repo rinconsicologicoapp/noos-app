@@ -140,6 +140,16 @@ const [respuestaTarea, setRespuestaTarea] = useState("");
 const [tareaRespondiendo, setTareaRespondiendo] = useState(null);
 const [fraseDelMes, setFraseDelMes] = useState("");
 const [loadingFrase, setLoadingFrase] = useState(false);
+const [checkInMood, setCheckInMood] = useState(null);
+const [mostrarCheckIn, setMostrarCheckIn] = useState(false);
+const [registrosAnimo, setRegistrosAnimo] = useState([]);
+const [pullRefreshing, setPullRefreshing] = useState(false);
+const [pullStartY, setPullStartY] = useState(null);
+const [celebrando, setCelebrando] = useState(false);
+const [confettiItems] = useState(() => Array.from({length:20}, (_,i) => ({
+  id:i, x:Math.random()*100, color:["#5C4D6E","#7DAA92","#E8A87C","#F0C040","#E57373"][Math.floor(Math.random()*5)],
+  delay:Math.random()*0.5, size:Math.random()*8+4
+})));
 
   const unread = notifs.filter(n => !n.read).length;
 
@@ -161,6 +171,7 @@ const [loadingFrase, setLoadingFrase] = useState(false);
           cargarNotas(uid);
           cargarAutorregistros(uid);
           cargarTareasFirestore(uid);
+          setTimeout(() => verificarCheckInHoy(), 800);
           if (docSnap.data().psicologoId) {
             getDoc(doc(db, "usuarios", docSnap.data().psicologoId)).then(snap => {
               if (snap.exists()) {
@@ -484,6 +495,51 @@ const cargarTareasPaciente = async (pacienteId) => {
     setTareasPsicologo(lista);
   } catch(e) { showToast("Error al cargar tareas ❌"); }
 };
+const guardarAnimo = async (valor) => {
+  if (!usuarioActual?.uid) return;
+  const hoy = new Date().toISOString().split('T')[0];
+  const id = `${usuarioActual.uid}_${hoy}`;
+  const registro = {
+    id, pacienteId: usuarioActual.uid,
+    psicologoId: usuarioActual.psicologoId || "",
+    valor, fecha: hoy,
+    creadoEn: new Date().toISOString(),
+    emoji: ["😞","😕","😐","🙂","😄"][valor],
+    label: ["Mal","Regular","Neutro","Bien","Genial"][valor],
+  };
+  try {
+    await setDoc(doc(db, "registrosAnimo", id), registro);
+  } catch(e) { console.log("Error guardando ánimo:", e); }
+};
+
+const verificarCheckInHoy = () => {
+  const hoy = new Date().toISOString().split('T')[0];
+  const yaRegistro = localStorage.getItem(`checkin_${usuarioActual?.uid}_${hoy}`);
+  if (!yaRegistro) setMostrarCheckIn(true);
+};
+
+const completarCheckIn = async (valor) => {
+  const hoy = new Date().toISOString().split('T')[0];
+  setCheckInMood(valor);
+  await guardarAnimo(valor);
+  localStorage.setItem(`checkin_${usuarioActual?.uid}_${hoy}`, '1');
+  setTimeout(() => setMostrarCheckIn(false), 600);
+};
+
+const cargarRegistrosAnimo = async (pacienteId) => {
+  try {
+    const hace30 = new Date();
+    hace30.setDate(hace30.getDate() - 30);
+    const q = query(
+      collection(db, "registrosAnimo"),
+      where("pacienteId", "==", pacienteId),
+    );
+    const snap = await getDocs(q);
+    const lista = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+    setRegistrosAnimo(lista);
+  } catch(e) { console.log("Error cargando ánimo:", e); }
+};
 const cargarNotasClinicas = async (pacienteId) => {
   try {
     const q = query(collection(db, "notasClinicas"), where("pacienteId", "==", pacienteId), where("psicologoId", "==", usuarioActual.uid));
@@ -710,6 +766,7 @@ useEffect(() => {
           cargarNotas(user.uid);
           cargarAutorregistros(user.uid);
           cargarTareasFirestore(user.uid);
+          setTimeout(() => verificarCheckInHoy(), 800);
           if (data.psicologoId) {
             getDoc(doc(db, "usuarios", data.psicologoId)).then(snap => {
               if (snap.exists()) {
@@ -844,16 +901,40 @@ const styles = `
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  .screen-enter {
-    animation: fadeIn 0.25s ease;
+  .screen-enter { animation: fadeIn 0.25s ease; }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity:1; }
+    100% { transform: translateY(400px) rotate(720deg); opacity:0; }
+  }
+  @keyframes checkInIn {
+    from { opacity:0; transform:scale(0.92) translateY(20px); }
+    to { opacity:1; transform:scale(1) translateY(0); }
+  }
+  @keyframes pullSpin {
+    to { transform: rotate(360deg); }
+  }
+  .confetti-piece {
+    position:absolute; border-radius:2px;
+    animation: confettiFall 1.2s ease-in forwards;
+  }
+  .pull-spinner {
+    animation: pullSpin 0.8s linear infinite;
   }
 `;
-  const C = {
+  const C = darkMode ? {
+  plum:"#9B8AB4", sage:"#7DAA92", sageDark:"#5DB882",
+  amber:"#E8A87C", amberDark:"#E8A87C", cream:"#1a1a2e",
+  warm:"#2a2a3e", text:"#F0EBE3", light:"#6B6B8A",
+  red:"#E57373", green:"#66BB6A", blue:"#64B5F6",
+  dark:"#0f0f1a", gold:"#F0C040", bg:"#0f0f1a",
+  cardBg:"#252535", headerBg:"rgba(30,20,50,0.95)"
+} : {
   plum:"#5C4D6E", sage:"#7DAA92", sageDark:"#4A8A72",
   amber:"#E8A87C", amberDark:"#C4845A", cream:"#FAF7F2",
   warm:"#FFF3E8", text:"#2D2D3E", light:"#9A9AB0",
   red:"#E57373", green:"#66BB6A", blue:"#64B5F6",
-  dark:"#1a1a2e", gold:"#F0C040", bg:"#F0EBE3"
+  dark:"#1a1a2e", gold:"#F0C040", bg:"#F0EBE3",
+  cardBg:"white", headerBg:"white"
 };
 
   const avatars = ["🦋","🦁","🐺","🦊","🐘","🦅","🐬","🦉","🐆","🦓","🐢","🦜"];
@@ -871,30 +952,24 @@ const styles = `
   );
 
   const bnav = (active) => (
-  <>
-    {/* BOTÓN HAMBURGUESA */}
-    <div onClick={() => { if(navigator.vibrate) navigator.vibrate(10); setNavOpen(!navOpen); }}
-      style={{ position:"absolute", bottom:20, right:20, width:52, height:52, borderRadius:"50%", background:C.plum, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, cursor:"pointer", boxShadow:"0 4px 20px rgba(92,77,110,0.4)", zIndex:200, transition:"transform 0.2s ease", transform:navOpen?"rotate(45deg)":"rotate(0deg)" }}>
-      {navOpen ? "✕" : "☰"}
-    </div>
-
-    {/* OVERLAY */}
-    {navOpen && <div onClick={() => setNavOpen(false)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.4)", zIndex:198, backdropFilter:"blur(4px)" }}/>}
-
-    {/* BANDEJA */}
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:199, transform:navOpen?"translateY(0)":"translateY(100%)", transition:"transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", background:"white", borderRadius:"28px 28px 0 0", padding:"16px 20px 40px", boxShadow:"0 -8px 40px rgba(0,0,0,0.15)" }}>
-      <div style={{ width:36, height:4, background:"#E0E0E0", borderRadius:2, margin:"0 auto 20px" }}/>
-      <div style={{ fontSize:11, fontWeight:800, color:"#bbb", marginBottom:14, textTransform:"uppercase", letterSpacing:1.5 }}>Navegación</div>
-      {[["🏠","Inicio","home"],["📝","Notas","notas"],["📅","Citas","calendario"],["🏆","Logros","logros"],["👤","Perfil","perfil"]].map(([ic,lb,id]) => (
-        <div key={id} onClick={() => { showScreen(id); setNavOpen(false); }}
-          style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 14px", borderRadius:14, marginBottom:6, background:active===id?`${C.plum}12`:"transparent", cursor:"pointer" }}>
-          <div style={{ fontSize:22, width:42, height:42, borderRadius:12, background:active===id?C.plum:"#F5F5F5", display:"flex", alignItems:"center", justifyContent:"center" }}>{ic}</div>
-          <div style={{ fontSize:15, fontWeight:active===id?800:600, color:active===id?C.plum:C.text }}>{lb}</div>
-          {active===id && <div style={{ marginLeft:"auto", width:7, height:7, borderRadius:"50%", background:C.plum }}/>}
+  <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(26,20,46,0.85)":"rgba(250,247,242,0.85)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.06)"}`, display:"flex", paddingBottom:"env(safe-area-inset-bottom, 8px)", paddingTop:6 }}>
+    {[["🏠","Inicio","home"],["📝","Notas","notas"],["🎯","Tareas","notas"],["📅","Citas","calendario"],["👤","Perfil","perfil"]].map(([ic,lb,id]) => {
+      const isActive = active === id || (id === "notas" && active === "notas");
+      const isTareas = lb === "Tareas";
+      const tareasCount = tareasPsicologo.filter(t => !t.completada).length;
+      return (
+        <div key={lb} onClick={() => { if(navigator.vibrate) navigator.vibrate([6]); isTareas ? (showScreen("notas"), setTimeout(()=>setNoteTab("tareas"),50)) : showScreen(id); }}
+          style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:2, padding:"4px 0", cursor:"pointer", position:"relative" }}>
+          <div style={{ position:"relative" }}>
+            <div style={{ width:40, height:28, borderRadius:14, background:isActive?`${C.plum}20`:"transparent", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.2s", fontSize:20 }}>{ic}</div>
+            {isTareas && tareasCount > 0 && <div style={{ position:"absolute", top:-2, right:-2, width:14, height:14, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:900, color:"white" }}>{tareasCount}</div>}
+          </div>
+          <div style={{ fontSize:10, fontWeight:isActive?800:500, color:isActive?C.plum:C.light, transition:"all 0.2s" }}>{lb}</div>
+          {isActive && <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:20, height:3, background:C.plum, borderRadius:"0 0 3px 3px" }}/>}
         </div>
-      ))}
-    </div>
-  </>
+      );
+    })}
+  </div>
 );
 
   const anav = (active) => (
@@ -967,13 +1042,47 @@ const styles = `
 );
 
   return (
-    <div style={{ fontFamily:"system-ui,sans-serif", background:"#E8EDF0", height:"100vh", width:"100vw", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}><style>{styles}</style>
+    <div style={{ fontFamily:"system-ui,sans-serif", background:darkMode?"#0f0f1a":"#E8EDF0", height:"100vh", width:"100vw", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", transition:"background 0.3s" }}><style>{styles}</style>
       
       {/* CONTENEDOR PRINCIPAL */}
-      <div style={{ width:"100%", maxWidth:430, height:"100%", background:C.cream, overflow:"hidden", position:"relative", margin:"0 auto" }}>
+      <div style={{ width:"100%", maxWidth:430, height:"100%", background:C.cream, overflow:"hidden", position:"relative", margin:"0 auto", transition:"background 0.3s" }}>
 
         {/* CONTENIDO */}
         <div style={{ height:"calc(780px - 44px)", overflowY:"auto", overflowX:"hidden", position:"relative" }}>
+        {/* CONFETI CELEBRACIÓN */}
+          {celebrando && (
+            <div style={{ position:"absolute", inset:0, zIndex:600, pointerEvents:"none", overflow:"hidden" }}>
+              {confettiItems.map(c => (
+                <div key={c.id} className="confetti-piece" style={{ left:`${c.x}%`, top:0, width:c.size, height:c.size*1.5, background:c.color, animationDelay:`${c.delay}s` }}/>
+              ))}
+              <div style={{ position:"absolute", top:"40%", left:"50%", transform:"translate(-50%,-50%)", textAlign:"center", animation:"checkInIn 0.3s ease" }}>
+                <div style={{ fontSize:60 }}>🎉</div>
+                <div style={{ fontSize:18, fontWeight:900, color:"white", textShadow:"0 2px 10px rgba(0,0,0,0.5)", marginTop:8 }}>¡Tarea completada!</div>
+              </div>
+            </div>
+          )}
+        {/* CHECK-IN DIARIO ÁNIMO */}
+          {mostrarCheckIn && usuarioActual?.rol === "paciente" && (
+            <div style={{ position:"absolute", inset:0, zIndex:500, backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", background:"rgba(0,0,0,0.45)", display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
+              <div style={{ background:C.cardBg, borderRadius:28, padding:"28px 24px", width:"100%", animation:"checkInIn 0.4s cubic-bezier(0.34,1.56,0.64,1)" }}>
+                <div style={{ fontSize:40, textAlign:"center", marginBottom:8 }}>🌅</div>
+                <div style={{ fontSize:20, fontWeight:900, color:C.text, textAlign:"center", marginBottom:4 }}>¿Cómo llegaste hoy?</div>
+                <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:24 }}>Tu psicólogo podrá ver tu evolución</div>
+                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:28 }}>
+                  {[["😞","Mal",0],["😕","Regular",1],["😐","Neutro",2],["🙂","Bien",3],["😄","Genial",4]].map(([e,l,v]) => (
+                    <div key={v} onClick={() => completarCheckIn(v)}
+                      style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:6, cursor:"pointer", padding:"12px 8px", borderRadius:16, background:checkInMood===v?`${C.plum}20`:"transparent", border:`2px solid ${checkInMood===v?C.plum:"transparent"}`, transition:"all 0.2s", flex:1 }}>
+                      <span style={{ fontSize:30 }}>{e}</span>
+                      <span style={{ fontSize:10, color:checkInMood===v?C.plum:C.light, fontWeight:700 }}>{l}</span>
+                    </div>
+                  ))}
+                </div>
+                <div onClick={() => setMostrarCheckIn(false)} style={{ textAlign:"center", fontSize:12, color:C.light, cursor:"pointer", padding:8 }}>
+                  Saltar por hoy
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* PANEL NOTIFICACIONES */}
           {notifPanel && (
@@ -1240,6 +1349,16 @@ const styles = `
                     );
                   })()
                 )}
+                {/* ACCESO RÁPIDO AUTORREGISTRO */}
+                <div onClick={() => { showScreen("notas"); setTimeout(()=>{ setNoteTab("tareas"); setTareasTab("autorregistros"); }, 50); }}
+                  style={{ background:C.cardBg, borderRadius:20, padding:"14px 18px", boxShadow:"0 4px 20px rgba(0,0,0,0.07)", marginBottom:16, display:"flex", alignItems:"center", gap:14, cursor:"pointer", border:`1px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.04)"}` }}>
+                  <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:24, flexShrink:0 }}>📋</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:14, fontWeight:800, color:C.text }}>Autorregistro</div>
+                    <div style={{ fontSize:12, color:C.light, marginTop:2 }}>Registra lo que viviste hoy</div>
+                  </div>
+                  <div style={{ fontSize:20, color:C.light }}>›</div>
+                </div>
 
                 {/* FRASE MES */}
                 {fraseDelMes ? (
@@ -1528,7 +1647,12 @@ const styles = `
                 try {
                   await updateDoc(doc(db, "tareas", t.id), { completada: !t.completada });
                   setTareasPsicologo(prev => prev.map(x => x.id === t.id ? { ...x, completada: !t.completada } : x));
-                  if (!t.completada) sumarXP(t.xp || 80, "Tarea completada ✅");
+                  if (!t.completada) {
+                    sumarXP(t.xp || 80, "Tarea completada ✅");
+                    if(navigator.vibrate) navigator.vibrate([10,50,10,50,30]);
+                    setCelebrando(true);
+                    setTimeout(() => setCelebrando(false), 1500);
+                  }
                 } catch(e) { showToast("Error ❌"); }
               }} style={{ width:22, height:22, borderRadius:"50%", border:`2.5px solid ${t.completada?C.green:C.amber}`, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:11, color:"white", background:t.completada?C.green:"transparent", marginTop:1 }}>{t.completada?"✓":""}</div>
               <div style={{ flex:1 }}>
@@ -1794,6 +1918,14 @@ const styles = `
                 <div style={{ background:"white", borderRadius:16, overflow:"hidden", marginBottom:12, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
                   {[
                     ["🛡️", "Privacidad y seguridad", () => setModal("privacidad")],
+                    <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
+                      style={{ background:C.cardBg, borderRadius:13, padding:"13px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:7, cursor:"pointer" }}>
+                      <div style={{ fontSize:18, width:34, height:34, background:C.warm, borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>{darkMode?"☀️":"🌙"}</div>
+                      <div style={{ fontSize:13, fontWeight:700, color:C.text, flex:1 }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
+                      <div style={{ width:44, height:24, borderRadius:12, background:darkMode?C.plum:C.light, position:"relative", transition:"background 0.3s" }}>
+                        <div style={{ width:18, height:18, borderRadius:"50%", background:"white", position:"absolute", top:3, left:darkMode?23:3, transition:"left 0.3s" }}/>
+                      </div>
+                    </div>                    
                   ].map(([ic,lb,fn],i,arr) => (
                     <div key={lb} onClick={fn}
                       style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none", cursor:"pointer" }}>
@@ -2109,6 +2241,30 @@ const styles = `
                     </div>
                   ))}
                 </div>
+                {/* ALERTAS INTELIGENTES */}
+                {(() => {
+                  const hoy = new Date().toISOString().split('T')[0];
+                  const citasHoy = citas.filter(c => c.fecha === hoy);
+                  const recursosRecibidos = recursos.filter(r => r.recibido);
+                  if (citasHoy.length === 0 && recursosRecibidos.length === 0) return null;
+                  return (
+                    <div style={{ background:C.cardBg, borderRadius:16, padding:14, marginBottom:14, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:10 }}>🔔 Alertas del día</div>
+                      {citasHoy.map(c => (
+                        <div key={c.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}` }}>
+                          <div style={{ width:8, height:8, borderRadius:"50%", background:C.plum, flexShrink:0 }}/>
+                          <div style={{ flex:1, fontSize:12, color:C.text }}>Cita con <strong>{c.pacienteNombre}</strong> hoy a las {c.hora}</div>
+                        </div>
+                      ))}
+                      {recursosRecibidos.slice(0,3).map(r => (
+                        <div key={r.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}` }}>
+                          <div style={{ width:8, height:8, borderRadius:"50%", background:C.green, flexShrink:0 }}/>
+                          <div style={{ flex:1, fontSize:12, color:C.text }}><strong>{r.pacienteNombre}</strong> recibió "{r.nombre}" ✅</div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
 
                 {/* CITAS HOY */}
                 {citas.filter(c => c.fecha === new Date().toISOString().split('T')[0]).length > 0 && (
@@ -2146,7 +2302,7 @@ const styles = `
                   </div>
                 ) : (
                   pacientes.map(p => (
-                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); cargarTareasPsicologo(p.id, usuarioActual.uid); cargarRecursosPsicologo(p.id, usuarioActual.uid); cargarAutorregistros(p.id); cargarNotasClinicas(p.id); showScreen("admin-paciente"); }}
+                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); cargarTareasPsicologo(p.id, usuarioActual.uid); cargarRecursosPsicologo(p.id, usuarioActual.uid); cargarAutorregistros(p.id); cargarNotasClinicas(p.id); cargarRegistrosAnimo(p.id); showScreen("admin-paciente"); }}
                       style={{ background:"white", borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:9, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", cursor:"pointer" }}>
                       <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum}20,${C.sage}20)`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👤</div>
                       <div style={{ flex:1 }}>
@@ -2452,15 +2608,25 @@ const styles = `
                 </div>
                 <div style={{ background:"white", borderRadius:16, padding:14, marginBottom:12, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
                   <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:12 }}>📊 Estado de ánimo — últimos 7 días</div>
-                  <div style={{ display:"flex", alignItems:"flex-end", gap:5, height:60 }}>
-                    {[["😕",30,C.blue],["😐",45,C.amber],["🙂",55,C.sage],["😐",45,C.amber],["😕",28,C.red],["🙂",52,C.sage],["😄",58,C.green]].map(([e,h,col],i) => (
-                      <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3 }}>
-                        <div style={{ fontSize:11 }}>{e}</div>
-                        <div style={{ width:"100%", height:h, borderRadius:"4px 4px 0 0", background:col, opacity:.8 }}/>
-                        <div style={{ fontSize:9, color:C.light, fontWeight:700 }}>{"LMMJVSD"[i]}</div>
-                      </div>
-                    ))}
-                  </div>
+                  {registrosAnimo.length === 0 ? (
+                    <div style={{ textAlign:"center", padding:"16px 0", color:C.light, fontSize:12 }}>El paciente aún no ha registrado su ánimo</div>
+                  ) : (
+                    <div style={{ display:"flex", alignItems:"flex-end", gap:4, height:70 }}>
+                      {registrosAnimo.slice(-14).map((r, i) => {
+                        const colores = [C.red, C.amber, C.light, C.sage, C.green];
+                        const emojis = ["😞","😕","😐","🙂","😄"];
+                        const altura = [12,24,36,50,64][r.valor];
+                        const col = colores[r.valor];
+                        return (
+                          <div key={r.id} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                            <div style={{ fontSize:10 }}>{emojis[r.valor]}</div>
+                            <div style={{ width:"100%", height:altura, borderRadius:"4px 4px 0 0", background:col, opacity:0.85 }}/>
+                            <div style={{ fontSize:8, color:C.light, fontWeight:700 }}>{new Date(r.fecha).getDate()}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>📝 Autorregistros recientes</div>
                 {autorregistros.length === 0 ? (
