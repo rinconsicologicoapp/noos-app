@@ -131,6 +131,14 @@ const [subiendoArchivo, setSubiendoArchivo] = useState(false);
 const [progresoSubida, setProgresoSubida] = useState(0);
 const [loadingTarea, setLoadingTarea] = useState(false);
 const [recordatorioEditando, setRecordatorioEditando] = useState(null);
+const [notaClinicaTexto, setNotaClinicaTexto] = useState("");
+const [notaClinicaTitulo, setNotaClinicaTitulo] = useState("");
+const [loadingNotaClin, setLoadingNotaClin] = useState(false);
+const [notasClinicas, setNotasClinicas] = useState([]);
+const [respuestaTarea, setRespuestaTarea] = useState("");
+const [tareaRespondiendo, setTareaRespondiendo] = useState(null);
+const [fraseDelMes, setFraseDelMes] = useState("");
+const [loadingFrase, setLoadingFrase] = useState(false);
 
   const unread = notifs.filter(n => !n.read).length;
 
@@ -151,13 +159,26 @@ const [recordatorioEditando, setRecordatorioEditando] = useState(null);
           cargarRecursosPaciente(uid);
           cargarNotas(uid);
           cargarAutorregistros(uid);
+          cargarTareasFirestore(uid);
+          if (docSnap.data().psicologoId) {
+            getDoc(doc(db, "usuarios", docSnap.data().psicologoId)).then(snap => {
+              if (snap.exists()) {
+                const d = snap.data();
+                const mesActual = new Date().toISOString().slice(0,7);
+                if (d.fraseDelMesFecha === mesActual && d.fraseDelMes) {
+                  setFraseDelMes(d.fraseDelMes);
+                  setPsicologoData({ id: snap.id, ...d });
+                }
+              }
+            });
+          }
           showScreen("home");
       } else if (rol === "psicologo") {
         setUsuarioActual({ uid, ...docSnap.data() });
         cargarCitas(uid, "psicologo");
         cargarRecordatorios(uid);
         cargarResenas(uid);
-        const pacientesSnap = await getDocs(collection(db, "usuarios"));
+        const pacientesSnap = await getDocs(query(collection(db, "usuarios"), where("psicologoId", "==", uid)));
         const listaPacientes = pacientesSnap.docs
           .filter(d => d.data().rol === "paciente")
           .map(d => ({ id: d.id, ...d.data() }));
@@ -373,6 +394,17 @@ const cargarRecursosPaciente = async (pacienteId) => {
     setRecursos(lista);
   } catch(e) { console.log("Error recursos:", e); }
 };
+
+const cargarRecursosPsicologo = async (pacienteId, psicologoId) => {
+  try {
+    const q = query(collection(db, "recursos"), where("pacienteId", "==", pacienteId), where("psicologoId", "==", psicologoId));
+    const snap = await getDocs(q);
+    const lista = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b) => new Date(b.creadoEn) - new Date(a.creadoEn));
+    setRecursos(lista);
+  } catch(e) { console.log("Error recursos psicologo:", e); }
+};
 const subirArchivoCloudinary = async (archivo) => {
   setSubiendoArchivo(true);
   setProgresoSubida(0);
@@ -447,6 +479,36 @@ const marcarRecursoRecibido = async (recursoId) => {
 const cargarTareasPaciente = async (pacienteId) => {
   try {
     const q = query(collection(db, "tareas"), where("pacienteId", "==", pacienteId));
+    const snap = await getDocs(q);
+    const lista = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b) => new Date(b.creadaEn) - new Date(a.creadaEn));
+    setTareasPsicologo(lista);
+  } catch(e) { showToast("Error al cargar tareas ❌"); }
+};
+const cargarNotasClinicas = async (pacienteId) => {
+  try {
+    const q = query(collection(db, "notasClinicas"), where("pacienteId", "==", pacienteId), where("psicologoId", "==", usuarioActual.uid));
+    const snap = await getDocs(q);
+    const lista = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b) => new Date(b.creadaEn) - new Date(a.creadaEn));
+    setNotasClinicas(lista);
+  } catch(e) { console.log("Error notas clínicas:", e); }
+};
+const cargarTareasFirestore = async (pacienteId) => {
+  try {
+    const q = query(collection(db, "tareas"), where("pacienteId", "==", pacienteId));
+    const snap = await getDocs(q);
+    const lista = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b) => new Date(b.creadaEn) - new Date(a.creadaEn));
+    setTareasPsicologo(lista);
+  } catch(e) { console.log("Error tareas paciente:", e); }
+};
+const cargarTareasPsicologo = async (pacienteId, psicologoId) => {
+  try {
+    const q = query(collection(db, "tareas"), where("pacienteId", "==", pacienteId), where("psicologoId", "==", psicologoId));
     const snap = await getDocs(q);
     const lista = snap.docs
       .map(d => ({ id: d.id, ...d.data() }))
@@ -649,18 +711,30 @@ useEffect(() => {
           cargarRecursosPaciente(user.uid);
           cargarNotas(user.uid);
           cargarAutorregistros(user.uid);
-          showScreen("home");
+          cargarTareasFirestore(user.uid);
+          if (data.psicologoId) {
+            getDoc(doc(db, "usuarios", data.psicologoId)).then(snap => {
+              if (snap.exists()) {
+                const d = snap.data();
+                const mesActual = new Date().toISOString().slice(0,7);
+                if (d.fraseDelMesFecha === mesActual && d.fraseDelMes) {
+                  setFraseDelMes(d.fraseDelMes);
+                  setPsicologoData({ id: snap.id, ...d });
+                }
+              }
+            });
+          }
           showScreen("home");
         } else if (data.rol === "psicologo") {
           cargarCitas(user.uid, "psicologo");
           cargarRecordatorios(user.uid);
           cargarResenas(user.uid);
-          const pacientesSnap = await getDocs(collection(db, "usuarios"));
-          const listaPacientes = pacientesSnap.docs
-            .filter(d => d.data().rol === "paciente")
-            .map(d => ({ id: d.id, ...d.data() }));
-          setPacientes(listaPacientes);
-          showScreen("admin-perfil");
+          const pacientesSnap = await getDocs(query(collection(db, "usuarios"), where("psicologoId", "==", user.uid)));
+        const listaPacientes = pacientesSnap.docs
+          .filter(d => d.data().rol === "paciente")
+          .map(d => ({ id: d.id, ...d.data() }));
+        setPacientes(listaPacientes);
+        showScreen("admin-perfil");
         } else if (data.rol === "administrador") {
           showScreen("admin-home");
         }
@@ -1169,12 +1243,14 @@ const styles = `
                   })()
                 )}
 
-                {/* FRASE SEMANA */}
-                <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:20, padding:20, marginBottom:16 }}>
-                  <div style={{ fontSize:13, color:"rgba(255,255,255,0.6)", fontWeight:700, marginBottom:8 }}>✨ Frase de la semana</div>
-                  <div style={{ fontSize:15, color:"white", lineHeight:1.6, fontStyle:"italic" }}>"El coraje no es la ausencia de miedo, sino la decisión de que algo más es más importante."</div>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.5)", marginTop:8, fontWeight:700 }}>— Tu psicólogo</div>
-                </div>
+                {/* FRASE MES */}
+                {fraseDelMes ? (
+                  <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:20, padding:20, marginBottom:16 }}>
+                    <div style={{ fontSize:13, color:"rgba(255,255,255,0.6)", fontWeight:700, marginBottom:8 }}>✨ Frase del mes</div>
+                    <div style={{ fontSize:15, color:"white", lineHeight:1.6, fontStyle:"italic" }}>"{fraseDelMes}"</div>
+                    <div style={{ fontSize:11, color:"rgba(255,255,255,0.5)", marginTop:8, fontWeight:700 }}>— {psicologoData?.nombre || "Tu psicólogo"}</div>
+                  </div>
+                ) : null}
               </div>
 
               {mdl("confirmar-cita", citaSeleccionada && (
@@ -1440,22 +1516,40 @@ const styles = `
     {/* TAREAS */}
     {tareasTab === "tareas" && (
       <>
-        {[["Registro de pensamientos automáticos","Anota 3 momentos donde notes pensamientos negativos.","⏰ Vence hoy",true,0],["Diario de gratitud 3×3","Escribe 3 cosas por las que estás agradecida, 3 días seguidos.","📅 Vence en 4 días",false,1]].map(([titulo,desc,deadline,urgent,i]) => (
-          <div key={i} style={{ background:"white", borderRadius:18, padding:"14px 16px", marginBottom:12, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${tareas[i]?C.green:C.amber}`, opacity:tareas[i]?.75:1 }}>
+        {tareasPsicologo.length === 0 ? (
+          <div style={{ textAlign:"center", padding:30, color:C.light }}>
+            <div style={{ fontSize:36, marginBottom:8 }}>🎯</div>
+            <div style={{ fontSize:14, fontWeight:700 }}>Sin tareas asignadas</div>
+            <div style={{ fontSize:12, marginTop:4 }}>Tu psicólogo aún no te ha asignado tareas</div>
+          </div>
+        ) : tareasPsicologo.map(t => (
+          <div key={t.id} style={{ background:"white", borderRadius:18, padding:"14px 16px", marginBottom:12, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${t.completada?C.green:C.amber}`, opacity:t.completada?0.75:1 }}>
             <div style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:9 }}>
-              <div onClick={() => toggleTarea(i)} style={{ width:22, height:22, borderRadius:"50%", border:`2.5px solid ${tareas[i]?C.green:C.amber}`, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:11, color:"white", background:tareas[i]?C.green:"transparent", marginTop:1 }}>{tareas[i]?"✓":""}</div>
-              <div>
-                <div style={{ fontSize:13, fontWeight:800, color:C.text, textDecoration:tareas[i]?"line-through":"none" }}>{titulo}</div>
-                <div style={{ fontSize:11, color:C.light, marginTop:2, lineHeight:1.5 }}>{desc}</div>
-                <div style={{ display:"inline-flex", background:"#FFF8E6", color:C.amberDark, fontSize:10, fontWeight:800, padding:"2px 8px", borderRadius:20, marginTop:5 }}>⭐ +80 XP al completar</div>
-                <div style={{ fontSize:10, color:urgent?C.red:C.light, marginTop:2 }}>{deadline}</div>
+              <div onClick={async () => {
+                try {
+                  await updateDoc(doc(db, "tareas", t.id), { completada: !t.completada });
+                  setTareasPsicologo(prev => prev.map(x => x.id === t.id ? { ...x, completada: !t.completada } : x));
+                  if (!t.completada) sumarXP(t.xp || 80, "Tarea completada ✅");
+                } catch(e) { showToast("Error ❌"); }
+              }} style={{ width:22, height:22, borderRadius:"50%", border:`2.5px solid ${t.completada?C.green:C.amber}`, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:11, color:"white", background:t.completada?C.green:"transparent", marginTop:1 }}>{t.completada?"✓":""}</div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:13, fontWeight:800, color:C.text, textDecoration:t.completada?"line-through":"none" }}>{t.titulo}</div>
+                {t.descripcion ? <div style={{ fontSize:11, color:C.light, marginTop:2, lineHeight:1.5 }}>{t.descripcion}</div> : null}
+                <div style={{ display:"inline-flex", background:"#FFF8E6", color:C.amberDark, fontSize:10, fontWeight:800, padding:"2px 8px", borderRadius:20, marginTop:5 }}>⭐ +{t.xp || 80} XP al completar</div>
+                {t.vence ? <div style={{ fontSize:10, color:C.light, marginTop:2 }}>📅 Vence: {t.vence}</div> : null}
               </div>
             </div>
-            <div style={{ display:"flex", gap:7, flexWrap:"wrap" }}>
-              {btn(() => setModal("task-"+i), "✏️ Responder", { padding:"6px 12px", borderRadius:9, background:C.warm, color:C.amberDark, fontSize:11, fontWeight:800 })}
-              {btn(null, "📎 Subir", { padding:"6px 12px", borderRadius:9, background:"#EEF3FF", color:C.blue, fontSize:11, fontWeight:800 })}
-              {btn(() => toggleTarea(i), tareas[i]?"↩ Desmarcar":"✔ Listo", { padding:"6px 12px", borderRadius:9, background:"#E6FAF0", color:C.sageDark, fontSize:11, fontWeight:800 })}
-            </div>
+            {!t.completada && (
+              <div style={{ display:"flex", gap:7 }}>
+                {btn(() => { setTareaRespondiendo(t); setRespuestaTarea(t.respuesta || ""); setModal("responder-tarea-" + t.id); }, "✏️ Responder", { padding:"6px 12px", borderRadius:9, background:C.warm, color:C.amberDark, fontSize:11, fontWeight:800 })}
+              </div>
+            )}
+            {t.respuesta ? (
+              <div style={{ marginTop:8, background:"#F5F0FF", borderRadius:10, padding:"8px 10px" }}>
+                <div style={{ fontSize:10, fontWeight:800, color:C.plum, marginBottom:3 }}>💬 Tu respuesta:</div>
+                <div style={{ fontSize:11, color:C.text, lineHeight:1.5 }}>{t.respuesta}</div>
+              </div>
+            ) : null}
           </div>
         ))}
       </>
@@ -1464,17 +1558,30 @@ const styles = `
 )}
     </div>
 
-    {[0,1].map(i => mdl("task-"+i, (
-      <div key={i}>
-        <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:3 }}>{["Registro de pensamientos","Diario de gratitud 3×3"][i]}</div>
-        <div style={{ background:"#FFF8E6", borderRadius:11, padding:"9px 12px", fontSize:11, fontWeight:700, color:C.amberDark, marginBottom:12 }}>⭐ Ganarás +{[80,60][i]} XP</div>
-        <textarea placeholder="Escribe tu reflexión aquí..." style={{ width:"100%", minHeight:90, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:13, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+    {tareaRespondiendo && mdl("responder-tarea-" + tareaRespondiendo.id, (
+      <div>
+        <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>✏️ Responder tarea</div>
+        <div style={{ fontSize:13, fontWeight:800, color:C.plum, marginBottom:4 }}>{tareaRespondiendo.titulo}</div>
+        {tareaRespondiendo.descripcion ? <div style={{ fontSize:12, color:C.light, marginBottom:10, lineHeight:1.5 }}>{tareaRespondiendo.descripcion}</div> : null}
+        <div style={{ background:"#FFF8E6", borderRadius:11, padding:"9px 12px", fontSize:11, fontWeight:700, color:C.amberDark, marginBottom:12 }}>⭐ Ganarás +{tareaRespondiendo.xp || 80} XP al completar</div>
+        <textarea placeholder="Escribe tu reflexión aquí..." value={respuestaTarea} onChange={e => setRespuestaTarea(e.target.value)}
+          style={{ width:"100%", minHeight:90, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:13, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
         <div style={{ display:"flex", gap:8 }}>
-          {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-          {btn(() => { setModal(null); showNotif("Reflexión enviada", "Tu psicólogo podrá ver tu respuesta", "📝"); }, "Enviar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+          {btn(() => { setModal(null); setRespuestaTarea(""); setTareaRespondiendo(null); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+          {btn(async () => {
+            if (!respuestaTarea.trim()) { showToast("Escribe tu respuesta ❌"); return; }
+            try {
+              await updateDoc(doc(db, "tareas", tareaRespondiendo.id), { respuesta: respuestaTarea, completada: true });
+              setTareasPsicologo(prev => prev.map(t => t.id === tareaRespondiendo.id ? { ...t, respuesta: respuestaTarea, completada: true } : t));
+              sumarXP(tareaRespondiendo.xp || 80, "Tarea completada ✅");
+              setRespuestaTarea(""); setTareaRespondiendo(null);
+              setModal(null);
+              showToast("✅ Respuesta enviada a tu psicólogo");
+            } catch(e) { showToast("Error al enviar ❌"); }
+          }, "Enviar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
         </div>
       </div>
-    )))}
+    ))}
     {bnav("notas")}
   </div>
 )}
@@ -1707,7 +1814,7 @@ const styles = `
                 </div>
 
                 {/* CERRAR SESIÓN */}
-                <div onClick={() => showScreen("login")}
+                <div onClick={async () => { await signOut(auth); setUsuarioActual(null); setCitas([]); setInsights([]); setAutorregistros([]); setRecursos([]); setTareasPsicologo([]); showScreen("login"); }}
                   style={{ background:"white", borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:8, cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
                   <div style={{ fontSize:18, width:36, height:36, background:"#FFE5E5", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>🚪</div>
                   <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.red }}>Cerrar sesión</div>
@@ -2040,7 +2147,7 @@ const styles = `
                   </div>
                 ) : (
                   pacientes.map(p => (
-                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); cargarTareasPaciente(p.id); cargarRecursosPaciente(p.id); showScreen("admin-paciente"); }}
+                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); cargarTareasPsicologo(p.id, usuarioActual.uid); cargarRecursosPsicologo(p.id, usuarioActual.uid); cargarAutorregistros(p.id); cargarNotasClinicas(p.id); showScreen("admin-paciente"); }}
                       style={{ background:"white", borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:9, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", cursor:"pointer" }}>
                       <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum}20,${C.sage}20)`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👤</div>
                       <div style={{ flex:1 }}>
@@ -2337,7 +2444,7 @@ const styles = `
               </div>
               <div style={{ padding:14 }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:16 }}>
-                  {[["14","Registros"],["12","Sesiones"],["620","XP"]].map(([n,l]) => (
+                  {[[autorregistros.length,"Registros"],[citas.filter(c=>c.pacienteId===pacienteSeleccionado?.id).length,"Sesiones"],[pacienteSeleccionado?.xp||0,"XP"]].map(([n,l]) => (
                     <div key={l} style={{ background:"white", borderRadius:13, padding:"12px 8px", textAlign:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
                       <div style={{ fontSize:19, fontWeight:900, color:C.plum }}>{n}</div>
                       <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
@@ -2357,11 +2464,17 @@ const styles = `
                   </div>
                 </div>
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:10 }}>📝 Autorregistros recientes</div>
-                {[["Hoy · 8:42 AM · 😐","Mañana tranquila ☀️","Me desperté sin ansiedad. Hice ejercicios de respiración.",C.sage],["Ayer · 7:15 PM · 😕","Momento difícil en el trabajo","Conflicto con mi jefe. Usé el registro ABC.",C.red]].map(([date,title,text,col]) => (
-                  <div key={title} style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${col}` }}>
-                    <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>{date}</div>
-                    <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:4 }}>{title}</div>
-                    <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>{text}</div>
+                {autorregistros.length === 0 ? (
+                  <div style={{ background:"white", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
+                    El paciente aún no tiene autorregistros
+                  </div>
+                ) : autorregistros.slice(0,3).map(ar => (
+                  <div key={ar.id} style={{ background:"white", borderRadius:18, padding:16, marginBottom:10, boxShadow:"0 2px 10px rgba(0,0,0,0.06)", borderLeft:`4px solid ${C.plum}` }}>
+                    <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>📅 {ar.fecha}</div>
+                    <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:4 }}>¿Qué estaba haciendo?</div>
+                    <div style={{ fontSize:12, color:C.light, lineHeight:1.5, marginBottom:6 }}>{ar.haciendo}</div>
+                    <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:4 }}>¿Qué sucedió?</div>
+                    <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>{ar.sucedio}</div>
                   </div>
                 ))}
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
@@ -2440,14 +2553,20 @@ const styles = `
   </div>
 ))}
                 <div style={{ fontSize:15, fontWeight:800, color:C.text, margin:"16px 0 10px" }}>🔒 Notas clínicas</div>
-                <div style={{ background:"white", borderRadius:16, padding:14, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", borderLeft:"3px solid #8B7BA0" }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                    <div style={{ fontSize:12, fontWeight:800, color:C.text }}>Sesión 5 Mar · Progresos</div>
-                    <div style={{ fontSize:10, color:C.light }}>Hace 5 días</div>
+                {notasClinicas.length === 0 ? (
+                  <div style={{ background:"white", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
+                    Aún no has escrito notas clínicas para este paciente
                   </div>
-                  <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>Sofía muestra avances en identificar pensamientos automáticos.</div>
-                  <div style={{ display:"inline-block", background:"#F0EDF5", color:C.plum, fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20, marginTop:5 }}>🔒 Solo visible para ti</div>
-                </div>
+                ) : notasClinicas.map(n => (
+                  <div key={n.id} style={{ background:"white", borderRadius:16, padding:14, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", borderLeft:"3px solid #8B7BA0", marginBottom:10 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                      <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{n.titulo}</div>
+                      <div style={{ fontSize:10, color:C.light }}>{new Date(n.creadaEn).toLocaleDateString('es-CO', { day:'numeric', month:'short' })}</div>
+                    </div>
+                    <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>{n.texto}</div>
+                    <div style={{ display:"inline-block", background:"#F0EDF5", color:C.plum, fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20, marginTop:5 }}>🔒 Solo visible para ti</div>
+                  </div>
+                ))}
               </div>
               {mdl("assign-task", (
                 <div>
@@ -2537,14 +2656,76 @@ const styles = `
                   </div>
                 </div>
               ))}
+              {mdl("frase-mes", (
+                <div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>✨ Frase del mes</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Todos tus pacientes verán esta frase en su inicio</div>
+                  <div style={{ background:`${C.plum}10`, borderRadius:12, padding:"10px 14px", marginBottom:14, fontSize:11, color:C.plum, fontWeight:700 }}>
+                    📅 Mes actual: {new Date().toLocaleDateString('es-CO', { month:'long', year:'numeric' })}
+                  </div>
+                  {usuarioActual?.fraseDelMesFecha === new Date().toISOString().slice(0,7) && usuarioActual?.fraseDelMes && (
+                    <div style={{ background:"#F0FBF4", borderRadius:12, padding:"10px 14px", marginBottom:14, fontSize:12, color:C.sageDark, fontWeight:700 }}>
+                      ✅ Frase activa: "{usuarioActual.fraseDelMes}"
+                    </div>
+                  )}
+                  <textarea placeholder="Escribe una frase motivacional para tus pacientes este mes..." value={fraseDelMes} onChange={e => setFraseDelMes(e.target.value)}
+                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6 }}/>
+                  <div style={{ display:"flex", gap:8 }}>
+                    {btn(() => { setModal(null); setFraseDelMes(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(async () => {
+                      if (!fraseDelMes.trim()) { showToast("Escribe una frase ❌"); return; }
+                      setLoadingFrase(true);
+                      try {
+                        const mesActual = new Date().toISOString().slice(0,7);
+                        await updateDoc(doc(db, "usuarios", usuarioActual.uid), {
+                          fraseDelMes: fraseDelMes.trim(),
+                          fraseDelMesFecha: mesActual,
+                        });
+                        setUsuarioActual(prev => ({ ...prev, fraseDelMes: fraseDelMes.trim(), fraseDelMesFecha: mesActual }));
+                        setModal(null);
+                        showToast("✅ Frase del mes guardada");
+                      } catch(e) { showToast("Error al guardar ❌"); }
+                      setLoadingFrase(false);
+                    }, loadingFrase ? "Guardando..." : "Publicar frase ✨", { flex:2, padding:11, background:loadingFrase?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                  </div>
+                </div>
+              ))}
               {mdl("feedback", (
                 <div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Nota clínica 💬</div>
-                  <div style={{ background:"#F0EDF5", borderRadius:11, padding:"10px 12px", marginBottom:12, fontSize:11, color:C.plum, fontWeight:700 }}>🔒 Solo visible para ti</div>
-                  <textarea placeholder="Observaciones, progresos..." style={{ width:"100%", minHeight:110, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ background:"#F0EDF5", borderRadius:11, padding:"10px 12px", marginBottom:12, fontSize:11, color:C.plum, fontWeight:700 }}>🔒 Solo visible para ti — el paciente no puede verla</div>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
+                  <input placeholder="Ej: Sesión 5 Mar · Progresos" value={notaClinicaTitulo} onChange={e => setNotaClinicaTitulo(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Observaciones</div>
+                  <textarea placeholder="Observaciones, progresos, pendientes..." value={notaClinicaTexto} onChange={e => setNotaClinicaTexto(e.target.value)}
+                    style={{ width:"100%", minHeight:110, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
                   <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => { setModal(null); showNotif("Nota guardada", "La nota clínica fue guardada", "💬"); }, "Guardar", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => { setModal(null); setNotaClinicaTexto(""); setNotaClinicaTitulo(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(async () => {
+                      if (!notaClinicaTitulo.trim()) { showToast("Escribe un título ❌"); return; }
+                      if (!notaClinicaTexto.trim()) { showToast("Escribe la observación ❌"); return; }
+                      if (!pacienteSeleccionado) { showToast("Selecciona un paciente ❌"); return; }
+                      setLoadingNotaClin(true);
+                      try {
+                        const id = Date.now().toString();
+                        const nueva = {
+                          id,
+                          psicologoId: usuarioActual.uid,
+                          pacienteId: pacienteSeleccionado.id,
+                          pacienteNombre: pacienteSeleccionado.nombre,
+                          titulo: notaClinicaTitulo,
+                          texto: notaClinicaTexto,
+                          creadaEn: new Date().toISOString(),
+                        };
+                        await setDoc(doc(db, "notasClinicas", id), nueva);
+                        setNotasClinicas(prev => [nueva, ...prev]);
+                        setNotaClinicaTexto(""); setNotaClinicaTitulo("");
+                        setModal(null);
+                        showToast("✅ Nota clínica guardada");
+                      } catch(e) { showToast("Error al guardar ❌"); }
+                      setLoadingNotaClin(false);
+                    }, loadingNotaClin ? "Guardando..." : "Guardar 🔒", { flex:2, padding:11, background:loadingNotaClin?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
@@ -2681,7 +2862,7 @@ const styles = `
 
                 {/* ACCIONES RÁPIDAS */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
-                  {[["📅","Agendar cita",() => setModal("agendar-cita")],["👥","Mis pacientes",() => showScreen("psi-dashboard")],["💬","Nota clínica",() => setModal("feedback")],["🔔","Notificaciones",() => setNotifPanel(true)]].map(([ic,lb,fn]) => (
+                  {[["📅","Agendar cita",() => setModal("agendar-cita")],["👥","Mis pacientes",() => showScreen("psi-dashboard")],["💬","Nota clínica",() => setModal("feedback")],["✨","Frase del mes",() => { setFraseDelMes(usuarioActual?.fraseDelMes||""); setModal("frase-mes"); }],["🔔","Notificaciones",() => setNotifPanel(true)]].map(([ic,lb,fn]) => (
                     <div key={lb} onClick={fn} style={{ background:"white", borderRadius:16, padding:"16px 14px", textAlign:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.05)", cursor:"pointer", transition:"all 0.2s" }}>
                       <div style={{ fontSize:28, marginBottom:6 }}>{ic}</div>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{lb}</div>
@@ -2745,7 +2926,7 @@ const styles = `
                 )}
 
                 {/* CERRAR SESIÓN */}
-                <div onClick={() => showScreen("login")}
+                <div onClick={async () => { await signOut(auth); setUsuarioActual(null); setCitas([]); setPacientes([]); setResenas([]); setRecordatorios([]); setTareasPsicologo([]); setRecursos([]); showScreen("login"); }}
                   style={{ background:"white", borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,0.05)", marginBottom:8 }}>
                   <div style={{ fontSize:18, width:32, textAlign:"center" }}>🚪</div>
                   <div style={{ fontSize:13, fontWeight:700, color:C.red, flex:1 }}>Cerrar sesión</div>
