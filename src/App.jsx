@@ -131,6 +131,7 @@ const [subiendoArchivo, setSubiendoArchivo] = useState(false);
 const [progresoSubida, setProgresoSubida] = useState(0);
 const [loadingTarea, setLoadingTarea] = useState(false);
 const [recordatorioEditando, setRecordatorioEditando] = useState(null);
+const [recursoAEliminar, setRecursoAEliminar] = useState(null);
 const [notaClinicaTexto, setNotaClinicaTexto] = useState("");
 const [notaClinicaTitulo, setNotaClinicaTitulo] = useState("");
 const [loadingNotaClin, setLoadingNotaClin] = useState(false);
@@ -419,10 +420,7 @@ const subirArchivoCloudinary = async (archivo) => {
     });
     const data = await res.json();
     if (data.secure_url) {
-      let url = data.secure_url;
-      if (archivo.type.includes("pdf")) {
-        url = data.secure_url;
-      }
+      let url = data.secure_url;      
       setRecursoUrl(url);
       const ext = archivo.name.split(".").pop().toUpperCase();
       setRecursoTipo(
@@ -1507,6 +1505,7 @@ const styles = `
           ) : (
             <div style={{ flex:1, padding:"8px 0", borderRadius:10, background:"#E8F5E9", color:C.green, fontSize:11, fontWeight:800, textAlign:"center" }}>✅ Recibido</div>
           )}
+          {btn(() => { setRecursoAEliminar(r); setModal("confirmar-eliminar-recurso"); }, "🗑️", { padding:"8px 10px", borderRadius:10, background:"#FFE5E5", color:C.red, fontSize:13, fontWeight:800 })}
         </div>
       </div>
     ))}
@@ -2514,7 +2513,7 @@ const styles = `
   <div style={{ background:"white", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay materiales enviados aún</div>
 ) : recursos.map(r => (
   <div key={r.id} style={{ background:"white", borderRadius:16, padding:14, marginBottom:10, boxShadow:"0 2px 8px rgba(0,0,0,0.05)", borderLeft:`4px solid ${r.recibido ? C.green : C.sage}` }}>
-    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
       <div style={{ display:"flex", alignItems:"center", gap:10 }}>
         <div style={{ width:38, height:38, borderRadius:10, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
           {r.tipo==="PDF"?"📄":r.tipo==="Audio"?"🎵":r.tipo==="Video"?"🎬":r.tipo==="Imagen"?"🖼️":"📎"}
@@ -2527,6 +2526,9 @@ const styles = `
       <div style={{ fontSize:10, fontWeight:800, padding:"3px 8px", borderRadius:20, background:r.recibido ? "#E8F5E9" : "#FFF3E0", color:r.recibido ? C.green : C.amber }}>
         {r.recibido ? "✅ Recibido" : "⏳ Pendiente"}
       </div>
+    </div>
+    <div style={{ display:"flex", justifyContent:"flex-end" }}>
+      {btn(() => { setRecursoAEliminar(r); setModal("confirmar-eliminar-recurso"); }, "🗑️ Eliminar", { padding:"6px 12px", borderRadius:9, background:"#FFE5E5", color:C.red, fontSize:11, fontWeight:800 })}
     </div>
   </div>
 ))}
@@ -2653,6 +2655,32 @@ const styles = `
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => { setModal(null); setRecursoUrl(""); setRecursoNombre(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(() => enviarRecurso(), loadingRecurso ? "Enviando..." : "Enviar ✓", { flex:2, padding:11, background:(!recursoUrl || loadingRecurso || subiendoArchivo) ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                  </div>
+                </div>
+              ))}
+              {recursoAEliminar && mdl("confirmar-eliminar-recurso", (
+                <div>
+                  <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>🗑️</div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:8, textAlign:"center" }}>Eliminar material</div>
+                  <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:6 }}>¿Seguro que quieres eliminar este material?</div>
+                  <div style={{ background:C.warm, borderRadius:12, padding:"10px 14px", marginBottom:18, textAlign:"center" }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{recursoAEliminar.nombre}</div>
+                    <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{recursoAEliminar.tipo}</div>
+                  </div>
+                  <div style={{ background:"#FFE5E5", borderRadius:11, padding:"10px 12px", marginBottom:16, fontSize:11, color:C.red, fontWeight:700 }}>
+                    ⚠️ Esta acción no se puede deshacer
+                  </div>
+                  <div style={{ display:"flex", gap:8 }}>
+                    {btn(() => { setModal(null); setRecursoAEliminar(null); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(async () => {
+                      try {
+                        await deleteDoc(doc(db, "recursos", recursoAEliminar.id));
+                        setRecursos(prev => prev.filter(r => r.id !== recursoAEliminar.id));
+                        setRecursoAEliminar(null);
+                        setModal(null);
+                        showToast("🗑️ Material eliminado");
+                      } catch(e) { showToast("Error al eliminar ❌"); }
+                    }, "Sí, eliminar", { flex:2, padding:11, background:C.red, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
