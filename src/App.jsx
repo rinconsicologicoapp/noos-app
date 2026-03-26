@@ -57,17 +57,13 @@ const [loadingNotif, setLoadingNotif] = useState(false);
   const [toast, setToast] = useState(null);
   const [pinValue, setPinValue] = useState("");
   const [emailValue, setEmailValue] = useState("");
-  const [insights, setInsights] = useState(() => {
-  try { return JSON.parse(localStorage.getItem('insights')) || []; } catch { return []; }
-});
+  const [insights, setInsights] = useState([]);
 const [insightText, setInsightText] = useState("");
 const [insightTitle, setInsightTitle] = useState("");
 const [insightMood, setInsightMood] = useState(null);
 const [insightShared, setInsightShared] = useState(false);
 const [tareasTab, setTareasTab] = useState("autorregistros");
-const [autorregistros, setAutorregistros] = useState(() => {
-  try { return JSON.parse(localStorage.getItem('autorregistros')) || []; } catch { return []; }
-});
+const [autorregistros, setAutorregistros] = useState([]);
 const [arFecha, setArFecha] = useState("");
 const [arHaciendo, setArHaciendo] = useState("");
 const [arSucedio, setArSucedio] = useState("");
@@ -153,6 +149,8 @@ const [recordatorioEditando, setRecordatorioEditando] = useState(null);
          setUsuarioActual({ uid, ...docSnap.data() });
         cargarCitas(uid, "paciente");
           cargarRecursosPaciente(uid);
+          cargarNotas(uid);
+          cargarAutorregistros(uid);
           showScreen("home");
       } else if (rol === "psicologo") {
         setUsuarioActual({ uid, ...docSnap.data() });
@@ -345,6 +343,27 @@ const crearRecordatorio = async () => {
     setModal(null);
   } catch(e) { showToast("❌ " + e.message); console.log("Error completo:", e); }
   setLoadingRec(false);
+};
+const cargarNotas = async (pacienteId) => {
+  try {
+    const snap = await getDocs(collection(db, "notas"));
+    const lista = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(n => n.pacienteId === pacienteId)
+      .sort((a,b) => new Date(b.creadaEn) - new Date(a.creadaEn));
+    setInsights(lista);
+  } catch(e) { console.log("Error notas:", e); }
+};
+
+const cargarAutorregistros = async (pacienteId) => {
+  try {
+    const snap = await getDocs(collection(db, "autorregistros"));
+    const lista = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(a => a.pacienteId === pacienteId)
+      .sort((a,b) => new Date(b.creadaEn) - new Date(a.creadaEn));
+    setAutorregistros(lista);
+  } catch(e) { console.log("Error autorregistros:", e); }
 };
 const cargarRecursosPaciente = async (pacienteId) => {
   try {
@@ -629,6 +648,10 @@ useEffect(() => {
         await updateDoc(doc(db, "usuarios", user.uid), { timezone });
         if (data.rol === "paciente") {
           cargarCitas(user.uid, "paciente");
+          cargarRecursosPaciente(user.uid);
+          cargarNotas(user.uid);
+          cargarAutorregistros(user.uid);
+          showScreen("home");
           showScreen("home");
         } else if (data.rol === "psicologo") {
           cargarCitas(user.uid, "psicologo");
@@ -1241,25 +1264,29 @@ const styles = `
             </div>
 
             {/* BOTÓN GUARDAR */}
-            {btn(() => {
+            {btn(async () => {
               if (!insightText.trim()) return;
+              const id = Date.now().toString();
               const nueva = {
-                id: Date.now(),
+                id,
+                pacienteId: usuarioActual.uid,
                 title: insightTitle || "Para no olvidar",
                 text: insightText,
                 mood: insightMood,
                 shared: insightShared,
+                creadaEn: new Date().toISOString(),
                 date: new Date().toLocaleDateString('es-CO', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
               };
-              const nuevas = [nueva, ...insights];
-              setInsights(nuevas);
-              localStorage.setItem('insights', JSON.stringify(nuevas));
-              setInsightText("");
-              setInsightTitle("");
-              setInsightMood(null);
-              setInsightShared(false);
-              showNotif("Nota guardada", "Tu insight quedó registrado 💡", "✅");
-                  sumarXP(2, "Nota guardada 💡");
+              try {
+                await setDoc(doc(db, "notas", id), nueva);
+                setInsights(prev => [nueva, ...prev]);
+                setInsightText("");
+                setInsightTitle("");
+                setInsightMood(null);
+                setInsightShared(false);
+                showNotif("Nota guardada", "Tu insight quedó registrado 💡", "✅");
+                sumarXP(2, "Nota guardada 💡");
+              } catch(e) { showToast("Error al guardar nota ❌"); }
             }, "💾 Guardar nota", { width:"100%", padding:14, background:C.plum, color:"white", borderRadius:13, fontSize:14, fontWeight:800 })}
           </div>
 
@@ -1282,10 +1309,11 @@ const styles = `
               </div>
               <div style={{ fontSize:14, fontWeight:800, color:C.plum, marginBottom:6 }}>{n.title}</div>
               <div style={{ fontSize:12, color:C.text, lineHeight:1.6 }}>{n.text}</div>
-              <div onClick={() => {
-                const nuevas = insights.filter(i => i.id !== n.id);
-                setInsights(nuevas);
-                localStorage.setItem('insights', JSON.stringify(nuevas));
+              <div onClick={async () => {
+              try {
+                  await deleteDoc(doc(db, "notas", String(n.id)));
+                  setInsights(prev => prev.filter(i => i.id !== n.id));
+                } catch(e) { showToast("Error al eliminar ❌"); }
               }} style={{ marginTop:10, fontSize:11, color:C.light, cursor:"pointer", textAlign:"right" }}>🗑 Eliminar</div>
             </div>
           ))}
@@ -1351,15 +1379,25 @@ const styles = `
 
                 <div style={{ display:"flex", gap:8 }}>
                   {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                  {btn(() => {
+                  {btn(async () => {
                     if (!arFecha || !arHaciendo || !arSucedio || !arDespues) { showToast("Completa todos los campos ❌"); return; }
-                    const nuevo = { fecha:arFecha, haciendo:arHaciendo, sucedio:arSucedio, despues:arDespues };
-                    const nuevos = [nuevo, ...autorregistros];
-                    setAutorregistros(nuevos);
-                    localStorage.setItem('autorregistros', JSON.stringify(nuevos));
-                    setArFecha(""); setArHaciendo(""); setArSucedio(""); setArDespues("");
-                    setModal(null);
-                    sumarXP(1, "Autorregistro completado 📋");
+                    const id = Date.now().toString();
+                    const nuevo = {
+                      id,
+                      pacienteId: usuarioActual.uid,
+                      fecha: arFecha,
+                      haciendo: arHaciendo,
+                      sucedio: arSucedio,
+                      despues: arDespues,
+                      creadaEn: new Date().toISOString(),
+                    };
+                    try {
+                      await setDoc(doc(db, "autorregistros", id), nuevo);
+                      setAutorregistros(prev => [nuevo, ...prev]);
+                      setArFecha(""); setArHaciendo(""); setArSucedio(""); setArDespues("");
+                      setModal(null);
+                      sumarXP(1, "Autorregistro completado 📋");
+                    } catch(e) { showToast("Error al guardar ❌"); }
                   }, "Guardar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                 </div>
               </div>
@@ -1619,7 +1657,7 @@ const styles = `
               <div style={{ padding:"0 16px", marginTop:-24, position:"relative", zIndex:10 }}>
 
                 {/* MI PSICÓLOGO */}
-                <div onClick={() => { setPsicologoData(null); showScreen("perfil-psicologo"); }}
+                <div onClick={async () => { setPsicologoData(null); showScreen("perfil-psicologo"); }}
                   style={{ background:`linear-gradient(135deg,${C.dark},${C.plum})`, borderRadius:20, padding:18, display:"flex", alignItems:"center", gap:14, marginBottom:16, cursor:"pointer", boxShadow:"0 4px 20px rgba(0,0,0,0.15)" }}>
                   <div style={{ width:56, height:56, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28, flexShrink:0, border:"2px solid rgba(255,255,255,0.2)" }}>👨‍⚕️</div>
                   <div style={{ flex:1 }}>
