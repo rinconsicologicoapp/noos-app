@@ -937,12 +937,12 @@ const styles = `
   }
 `;
   const C = darkMode ? {
-  plum:"#B39DDB", sage:"#80CBC4", sageDark:"#4DB6AC",
-  amber:"#FFB74D", amberDark:"#FFA726", cream:"#121212",
-  warm:"#1E1E2E", text:"#FFFFFF", light:"#AAAACC",
-  red:"#EF9A9A", green:"#A5D6A7", blue:"#90CAF9",
-  dark:"#0A0A14", gold:"#FFD54F", bg:"#0A0A14",
-  cardBg:"#1E1E2E", headerBg:"rgba(12,12,20,0.98)"
+  plum:"#E8A87C", sage:"#7DAA92", sageDark:"#4A8A72",
+  amber:"#E8A87C", amberDark:"#C4845A", cream:"#1A1208",
+  warm:"#2A1E10", text:"#F5E6D0", light:"#8A6A4A",
+  red:"#E07070", green:"#6AAA72", blue:"#6A9AAA",
+  dark:"#120E06", gold:"#E8A87C", bg:"#1A1208",
+  cardBg:"#2A1E10", headerBg:"rgba(26,18,8,0.98)"
 } : {
   plum:"#8B5A3A", sage:"#7DAA92", sageDark:"#4A8A72",
   amber:"#C4845A", amberDark:"#A06040", cream:"#F5EDE0",
@@ -959,7 +959,7 @@ const styles = `
 );
 
   const mitem = (icon, label, onClick, danger) => (
-    <div onClick={onClick} style={{ background:"white", borderRadius:13, padding:"13px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:7, cursor:"pointer" }}>
+    <div onClick={onClick} style={{ background:"#FEFAF5", borderRadius:13, padding:"13px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:7, cursor:"pointer" }}>
       <div style={{ fontSize:18, width:34, height:34, background:C.warm, borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>{icon}</div>
       <div style={{ fontSize:13, fontWeight:700, color:danger?C.red:C.text, flex:1 }}>{label}</div>
       <div style={{ color:C.light }}>›</div>
@@ -995,21 +995,22 @@ const styles = `
     { icon:"user", lb:"Perfil", id:"perfil" },
   ];
   return (
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.94)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"env(safe-area-inset-bottom, 10px)", paddingTop:10, paddingLeft:4, paddingRight:4 }}>
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.96)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"env(safe-area-inset-bottom, 10px)", paddingTop:8, paddingLeft:4, paddingRight:4 }}>
       {items.map(({ icon, lb, id, isTareas }) => {
         const isActive = active === id || (isTareas && active === "notas" && lb==="Tareas") || (!isTareas && active === id);
-        const iconColor = isActive ? C.plum : darkMode ? "rgba(255,255,255,0.3)" : "#9A9AB0";
+        const iconColor = isActive ? "#E8A87C" : darkMode ? "rgba(255,255,255,0.3)" : "#9A9AB0";
         return (
           <div key={lb} onClick={() => { if(navigator.vibrate) navigator.vibrate([6,0,6]); isTareas ? (showScreen("notas"), setTimeout(()=>setNoteTab("tareas"),50)) : showScreen(id); }}
-            style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, paddingBottom:2, cursor:"pointer", position:"relative" }}>
+            style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3, paddingBottom:4, cursor:"pointer", position:"relative" }}>
             <div style={{ position:"relative" }}>
-              <LucideIcon name={icon} color={iconColor} size={22}/>
+              <div style={{ width:38, height:34, borderRadius:11, background:isActive?(darkMode?"#2A1E10":"#3A2A1C"):"transparent", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.25s", boxShadow:isActive?`0 0 14px rgba(196,132,90,${darkMode?0.5:0.35}),0 0 28px rgba(196,132,90,${darkMode?0.2:0.12})`:"none" }}>
+                <LucideIcon name={icon} color={iconColor} size={20}/>
+              </div>
               {isTareas && tareasCount > 0 && (
-                <div style={{ position:"absolute", top:-4, right:-6, width:14, height:14, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:900, color:"white", border:`2px solid ${darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.94)"}` }}>{tareasCount}</div>
+                <div style={{ position:"absolute", top:-3, right:-4, width:13, height:13, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:7, fontWeight:700, color:"white", border:`1.5px solid ${darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.96)"}` }}>{tareasCount}</div>
               )}
             </div>
-            <div style={{ fontSize:10, fontWeight:isActive?600:400, color:iconColor, transition:"all 0.2s", letterSpacing:0.1 }}>{lb}</div>
-            {isActive && <div style={{ position:"absolute", bottom:0, left:"50%", transform:"translateX(-50%)", width:22, height:2.5, background:C.plum, borderRadius:"2px 2px 0 0", transition:"all 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}/>}
+            <div style={{ fontSize:9.5, fontWeight:isActive?600:400, color:iconColor, transition:"all 0.2s" }}>{lb}</div>
           </div>
         );
       })}
@@ -1024,16 +1025,17 @@ const styles = `
     : [{ icon:"user", lb:"Perfil", id:"admin-perfil" }, { icon:"users", lb:"Pacientes", id:"psi-dashboard" }, { icon:"calendar", lb:"Citas", id:"calendario" }];
   const accentColor = isAdmin ? C.amber : C.plum;
   return (
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.94)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"env(safe-area-inset-bottom, 10px)", paddingTop:10, paddingLeft:4, paddingRight:4 }}>
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.96)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"env(safe-area-inset-bottom, 10px)", paddingTop:8, paddingLeft:4, paddingRight:4 }}>
       {navItems.map(({ icon, lb, id }) => {
         const isActive = active === id;
-        const iconColor = isActive ? accentColor : darkMode ? "rgba(255,255,255,0.3)" : "#9A9AB0";
+        const iconColor = isActive ? "#E8A87C" : darkMode ? "rgba(255,255,255,0.3)" : "#9A9AB0";
         return (
           <div key={id} onClick={() => { if(navigator.vibrate) navigator.vibrate([6,0,6]); showScreen(id); }}
-            style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, paddingBottom:2, cursor:"pointer", position:"relative" }}>
-            <LucideIcon name={icon} color={iconColor} size={22}/>
-            <div style={{ fontSize:10, fontWeight:isActive?600:400, color:iconColor, transition:"all 0.2s" }}>{lb}</div>
-            {isActive && <div style={{ position:"absolute", bottom:0, left:"50%", transform:"translateX(-50%)", width:22, height:2.5, background:accentColor, borderRadius:"2px 2px 0 0", transition:"all 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}/>}
+            style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3, paddingBottom:4, cursor:"pointer", position:"relative" }}>
+            <div style={{ width:38, height:34, borderRadius:11, background:isActive?(darkMode?"#2A1E10":"#3A2A1C"):"transparent", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.25s", boxShadow:isActive?`0 0 14px rgba(196,132,90,${darkMode?0.5:0.35}),0 0 28px rgba(196,132,90,${darkMode?0.2:0.12})`:"none" }}>
+              <LucideIcon name={icon} color={iconColor} size={20}/>
+            </div>
+            <div style={{ fontSize:9.5, fontWeight:isActive?600:400, color:iconColor, transition:"all 0.2s" }}>{lb}</div>
           </div>
         );
       })}
@@ -1115,7 +1117,7 @@ const styles = `
           {/* PANEL NOTIFICACIONES */}
           {notifPanel && (
             <div style={{ height:"100%", display:"flex", flexDirection:"column" }}>
-              <div style={{ background:"white", padding:"14px 20px", borderBottom:"1px solid rgba(0,0,0,0.06)", display:"flex", alignItems:"center", gap:10 }}>
+              <div style={{ background:"#FEFAF5", padding:"14px 20px", borderBottom:"0.5px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:10 }}>
                 <div onClick={() => setNotifPanel(false)} style={{ fontSize:20, cursor:"pointer", color:C.light }}>←</div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:18, fontWeight:900, color:C.text }}>Notificaciones 🔔</div>
@@ -1266,7 +1268,7 @@ const styles = `
     <div style={{ fontSize:13, color:C.light, marginBottom:32 }}>Únete a Mi Psicólogo</div>
 
     {/* FORMULARIO */}
-    <div style={{ width:"100%", background:"white", borderRadius:24, padding:28, boxShadow:"0 8px 32px rgba(92,77,110,0.12)" }}>
+    <div style={{ width:"100%", background:"rgba(255,255,255,0.07)", border:"1px solid rgba(232,168,124,0.1)", borderRadius:22, padding:24 }}>
 
       {/* NOMBRE */}
       <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Nombre completo</div>
@@ -1472,15 +1474,15 @@ const styles = `
 
           {/* NOTAS */}
 {!notifPanel && screen === "notas" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column" }}>
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", background:darkMode?"#1A1208":"#F5EDE0" }}>
     
     {/* HEADER */}
-    <div style={{ background:"#FEFAF5", padding:"14px 18px 0", borderBottom:"0.5px solid rgba(196,132,90,0.12)" }}>
+    <div style={{ background:darkMode?"#2A1E10":"#FEFAF5", padding:"14px 18px 0", borderBottom:"0.5px solid rgba(196,132,90,0.12)" }}>
       <div style={{ fontSize:17, fontWeight:700, color:C.text }}>Notas & Tareas</div>
       <div style={{ fontSize:11, color:C.light, fontWeight:600, marginBottom:10 }}>Tu espacio personal de registro</div>
-      <div style={{ display:"flex", borderBottom:"2px solid rgba(0,0,0,0.06)" }}>
-        {[["💡 Para no olvidar","insights"],["🎯 Tareas","tareas"]].map(([lb,id]) => (
-          <button key={id} onClick={() => setNoteTab(id)} style={{ flex:1, padding:"11px 0", fontSize:11, fontWeight:800, color:noteTab===id?C.plum:C.light, border:"none", background:"transparent", borderBottom:`3px solid ${noteTab===id?C.plum:"transparent"}`, marginBottom:-2, cursor:"pointer", fontFamily:"inherit" }}>
+      <div style={{ display:"flex", borderBottom:"0.5px solid rgba(196,132,90,0.12)" }}>
+        {[["Para no olvidar","insights"],["Tareas","tareas"]].map(([lb,id]) => (
+          <button key={id} onClick={() => setNoteTab(id)} style={{ flex:1, padding:"10px 0", fontSize:11, fontWeight:600, color:noteTab===id?C.amber:C.light, border:"none", background:"transparent", borderBottom:`2px solid ${noteTab===id?C.amber:"transparent"}`, marginBottom:-1, cursor:"pointer", fontFamily:"inherit" }}>
             {lb}{id==="tareas" && pendientes > 0 && <span style={{ background:C.amber, color:"white", fontSize:10, fontWeight:800, padding:"2px 7px", borderRadius:20, marginLeft:6 }}>{pendientes}</span>}
           </button>
         ))}
@@ -2096,7 +2098,7 @@ const styles = `
     </div>
 
     {/* NOTIFICACIONES */}
-    <div style={{ background:"white", borderRadius:14, padding:14, marginBottom:10, border:`2px solid rgba(0,0,0,0.06)` }}>
+    <div style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:`2px solid rgba(0,0,0,0.06)` }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
         <div>
           <div style={{ fontSize:13, fontWeight:800, color:C.text }}>🔔 Notificaciones push</div>
@@ -2133,7 +2135,7 @@ const styles = `
       </div>
     </div>
 
-    {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:10, background:"white", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
+    {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:10, background:"#FEFAF5", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
     {btn(() => setModal(null), "Cerrar", { width:"100%", padding:9, background:C.warm, color:C.text, borderRadius:12, fontSize:13, fontWeight:800 })}
   </div>
 ))}
@@ -2219,7 +2221,7 @@ const styles = `
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:"#F5EDE0" }}>
-              <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"24px 22px 52px", textAlign:"center", position:"relative" }}>
+              <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"24px 20px 44px", textAlign:"center", position:"relative" }}>
                 <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:20, left:20, fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
                 {psicologoData?.foto ? (
                   <img src={psicologoData.foto} alt="foto" style={{ width:80, height:80, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,0.2)", margin:"0 auto 14px", display:"block" }}/>
@@ -2263,7 +2265,7 @@ const styles = `
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
                     </div>
                     {resenas.map(r => (
-                      <div key={r.id} style={{ background:"white", borderRadius:14, padding:14, marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                      <div key={r.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)" }}>
                         <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                           <div style={{ fontSize:14 }}>{"⭐".repeat(r.rating)}</div>
                           <div style={{ fontSize:10, color:C.light }}>{new Date(r.fecha).toLocaleDateString('es-CO')}</div>
@@ -2309,7 +2311,7 @@ const styles = `
           {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:140, background:"#F5EDE0" }}>
-              <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
+              <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"16px 18px 20px", display:"flex", alignItems:"center", gap:12 }}>
                 <div onClick={() => showScreen("admin-perfil")} style={{ fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:16, fontWeight:700, color:"white" }}>👥 Mis pacientes</div>
@@ -2324,7 +2326,7 @@ const styles = `
               <div style={{ padding:14 }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:9, marginBottom:18 }}>
                   {[[pacientes.length,"Pacientes"],[citas.filter(c=>c.status==="pendiente").length,"Pendientes"],[citas.filter(c=>c.status==="confirmada").length,"Confirmadas"]].map(([n,l]) => (
-                    <div key={l} style={{ background:"white", borderRadius:14, padding:13, textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                    <div key={l} style={{ background:"#FEFAF5", borderRadius:14, padding:13, textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
                       <div style={{ fontSize:17, fontWeight:700, color:C.plum }}>{n}</div>
                       <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                     </div>
@@ -2360,7 +2362,7 @@ const styles = `
                   <>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📅 Citas de hoy</div>
                     {citas.filter(c => c.fecha === new Date().toISOString().split('T')[0]).map(c => (
-                      <div key={c.id} style={{ background:"white", borderRadius:14, padding:"12px 14px", marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${C.sage}` }}>
+                      <div key={c.id} style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${C.sage}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ flex:1 }}>
                             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{c.pacienteNombre}</div>
@@ -2410,7 +2412,7 @@ const styles = `
                 {/* BOTÓN AGENDAR */}
                 {btn(() => setModal("agendar-cita"), "📅 Agendar nueva cita", { width:"100%", padding:10, background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginTop:8, display:"block" })}
                 {btn(() => setModal("crear-recordatorio"), "🔔 Nuevo recordatorio", {
-  width:"100%", padding:10, background:"white", color:C.text,
+  width:"100%", padding:10, background:"#FEFAF5", color:C.text,
   borderRadius:12, fontSize:13, fontWeight:800,
   border:`2px solid rgba(0,0,0,0.08)`, marginBottom:8, marginTop:8
 })}
@@ -2421,7 +2423,7 @@ const styles = `
     {recordatorios
       .filter(r => r.pacienteId === pacienteSeleccionado?.id)
       .map(r => (
-        <div key={r.id} style={{ background:"white", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
+        <div key={r.id} style={{ background:"#FEFAF5", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.titulo}</div>
             <div style={{ display:"flex", gap:6, alignItems:"center" }}>
@@ -2448,7 +2450,7 @@ const styles = `
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario</div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
                   <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"white", boxSizing:"border-box" }}>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FEFAF5", boxSizing:"border-box" }}>
                     <option value="">— Seleccionar paciente —</option>
                     {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
                   </select>
@@ -2542,7 +2544,7 @@ const styles = `
       <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📊 Estadísticas generales</div>
       <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:9, marginBottom:18 }}>
         {[["🧠","Psicólogos activos","3"],["👥","Pacientes totales","68"],["💰","Ingresos del mes","$1.2M"],["⚠️","Cuentas inactivas","5"]].map(([ic,lb,val]) => (
-          <div key={lb} style={{ background:"white", borderRadius:14, padding:13, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+          <div key={lb} style={{ background:"#FEFAF5", borderRadius:14, padding:13, border:"0.5px solid rgba(196,132,90,0.12)" }}>
             <div style={{ fontSize:24, marginBottom:4 }}>{ic}</div>
             <div style={{ fontSize:20, fontWeight:900, color:C.plum }}>{val}</div>
             <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>{lb}</div>
@@ -2553,7 +2555,7 @@ const styles = `
       {/* PSICÓLOGOS */}
       <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>🧠 Psicólogos</div>
       {[["Dr. Danilo Rincón","23 pacientes","Activo"],["Dra. Laura Gómez","18 pacientes","Activo"],["Dr. Carlos Mejía","12 pacientes","Inactivo"]].map(([nombre,sub,status]) => (
-        <div key={nombre} style={{ background:"white", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+        <div key={nombre} style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, border:"0.5px solid rgba(196,132,90,0.12)" }}>
           <div style={{ fontSize:26, width:42, height:42, background:C.warm, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>🧠</div>
           <div><div style={{ fontSize:13, fontWeight:800, color:C.text }}>{nombre}</div><div style={{ fontSize:10, color:C.light }}>{sub}</div></div>
           <div style={{ marginLeft:"auto", background:status==="Activo"?"#A8C5B5":"#FFE0E0", color:status==="Activo"?C.sageDark:C.red, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>{status}</div>
@@ -2655,7 +2657,7 @@ const styles = `
       <>
         <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8, marginTop:4 }}>Psicólogo asignado</div>
         <select value={formPsicologoId} onChange={e => setFormPsicologoId(e.target.value)}
-          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", background:"white", boxSizing:"border-box" }}>
+          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", background:"#FEFAF5", boxSizing:"border-box" }}>
           <option value="">— Seleccionar psicólogo —</option>
           {todosUsuarios.filter(u => u.rol === "psicologo").map(p => (
             <option key={p.id} value={p.id}>{p.nombre}</option>
@@ -2689,7 +2691,7 @@ const styles = `
               <div style={{ padding:14 }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:16 }}>
                   {[[autorregistros.length,"Registros"],[citas.filter(c=>c.pacienteId===pacienteSeleccionado?.id).length,"Sesiones"],[pacienteSeleccionado?.xp||0,"XP"]].map(([n,l]) => (
-                    <div key={l} style={{ background:"white", borderRadius:13, padding:"12px 8px", textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                    <div key={l} style={{ background:"#FEFAF5", borderRadius:13, padding:"12px 8px", textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
                       <div style={{ fontSize:16, fontWeight:700, color:C.plum }}>{n}</div>
                       <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                     </div>
@@ -2719,7 +2721,7 @@ const styles = `
                 </div>
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📝 Autorregistros recientes</div>
                 {autorregistros.length === 0 ? (
-                  <div style={{ background:"white", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
+                  <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
                     El paciente aún no tiene autorregistros
                   </div>
                 ) : autorregistros.slice(0,3).map(ar => (
@@ -2744,7 +2746,7 @@ const styles = `
     {recordatorios
       .filter(r => r.pacienteId === pacienteSeleccionado?.id)
       .map(r => (
-        <div key={r.id} style={{ background:"white", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
+        <div key={r.id} style={{ background:"#FEFAF5", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.titulo}</div>
             <div style={{ display:"flex", gap:6, alignItems:"center" }}>
@@ -2765,7 +2767,7 @@ const styles = `
 )}
 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>📤 Materiales enviados</div>
 {recursos.length === 0 ? (
-  <div style={{ background:"white", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay materiales enviados aún</div>
+  <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay materiales enviados aún</div>
 ) : recursos.map(r => (
   <div key={r.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${r.recibido ? C.green : C.sage}` }}>
     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
@@ -2789,7 +2791,7 @@ const styles = `
 ))}
 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>📋 Tareas asignadas</div>
 {tareasPsicologo.length === 0 ? (
-  <div style={{ background:"white", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay tareas asignadas aún</div>
+  <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay tareas asignadas aún</div>
 ) : tareasPsicologo.map(t => (
   <div key={t.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${t.completada ? C.green : C.sage}` }}>
     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
@@ -2811,7 +2813,7 @@ const styles = `
 ))}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>🔒 Notas clínicas</div>
                 {notasClinicas.length === 0 ? (
-                  <div style={{ background:"white", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
+                  <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
                     Aún no has escrito notas clínicas para este paciente
                   </div>
                 ) : notasClinicas.map(n => (
@@ -3177,9 +3179,9 @@ const styles = `
               </div>
 
               {/* STATS */}
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:"rgba(0,0,0,0.06)", margin:"-1px 0 20px" }}>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:"rgba(196,132,90,0.1)", margin:"-1px 0 16px" }}>
                 {[[pacientes.length || "0","Pacientes"],[citas.length || "0","Citas"],[citas.filter(c=>c.status==="confirmada").length || "0","Confirmadas"]].map(([n,l]) => (
-                  <div key={l} style={{ background:"white", padding:"16px 8px", textAlign:"center" }}>
+                  <div key={l} style={{ background:"#FEFAF5", padding:"14px 8px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:900, color:C.plum }}>{n}</div>
                     <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                   </div>
@@ -3253,7 +3255,7 @@ const styles = `
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
                     </div>
                     {resenas.map(r => (
-                      <div key={r.id} style={{ background:"white", borderRadius:14, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                      <div key={r.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)" }}>
                         <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                           <div style={{ fontSize:14 }}>{"⭐".repeat(r.rating)}</div>
                           <div style={{ fontSize:10, color:C.light }}>{new Date(r.fecha).toLocaleDateString('es-CO')}</div>
@@ -3329,7 +3331,7 @@ const styles = `
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario</div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
                   <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"white", boxSizing:"border-box" }}>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FEFAF5", boxSizing:"border-box" }}>
                     <option value="">— Seleccionar paciente —</option>
                     {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
                   </select>
