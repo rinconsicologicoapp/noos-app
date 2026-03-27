@@ -923,12 +923,12 @@ const styles = `
   }
 `;
   const C = darkMode ? {
-  plum:"#B8A8D4", sage:"#7DAA92", sageDark:"#5DB882",
-  amber:"#E8A87C", amberDark:"#F0B882", cream:"#12111E",
-  warm:"#1E1D2E", text:"#EDE8F5", light:"#8B8BA8",
-  red:"#F48A8A", green:"#7DD87D", blue:"#7EC8F8",
-  dark:"#0A0916", gold:"#F5CC55", bg:"#0A0916",
-  cardBg:"#1E1D2E", headerBg:"rgba(18,17,30,0.97)"
+  plum:"#C4B0E8", sage:"#6EC6A0", sageDark:"#4DB88A",
+  amber:"#FFB877", amberDark:"#FFA055", cream:"#0F0E17",
+  warm:"#1A1926", text:"#F2EEF9", light:"#B0A8C8",
+  red:"#FF7B7B", green:"#6BCF7F", blue:"#70BEFF",
+  dark:"#080712", gold:"#FFD166", bg:"#080712",
+  cardBg:"#1A1926", headerBg:"rgba(15,14,23,0.98)"
 } : {
   plum:"#5C4D6E", sage:"#7DAA92", sageDark:"#4A8A72",
   amber:"#E8A87C", amberDark:"#C4845A", cream:"#FAF7F2",
