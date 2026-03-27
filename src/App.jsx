@@ -1135,7 +1135,23 @@ const styles = `
   <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, background:`linear-gradient(160deg, #FAF7F2, #EDE0F5, #D4EDE1)`, backgroundSize:"400% 400%", animation:"gradientMove 6s ease infinite" }}>
 
     {/* LOGO */}
-    <div style={{ fontSize:80, marginBottom:8, animation:"fadeIn 0.8s ease" }}>🛋️</div>
+    <div style={{ marginBottom:8, animation:"fadeIn 0.8s ease" }}>
+      <svg width="160" height="100" viewBox="180 140 320 200" xmlns="http://www.w3.org/2000/svg">
+        <rect x="195" y="240" width="60" height="52" rx="10" fill="#8B6355"/>
+        <rect x="425" y="240" width="60" height="52" rx="10" fill="#8B6355"/>
+        <rect x="170" y="185" width="340" height="40" rx="20" fill="#A0715E"/>
+        <rect x="185" y="200" width="310" height="95" rx="18" fill="#C4845A"/>
+        <rect x="170" y="195" width="72" height="115" rx="22" fill="#B8704A"/>
+        <rect x="438" y="195" width="72" height="115" rx="22" fill="#B8704A"/>
+        <rect x="185" y="200" width="310" height="20" rx="10" fill="#D4906A" opacity="0.4"/>
+        <ellipse cx="280" cy="248" rx="48" ry="38" fill="#D4906A" opacity="0.35"/>
+        <ellipse cx="400" cy="248" rx="48" ry="38" fill="#D4906A" opacity="0.35"/>
+        <line x1="338" y1="210" x2="338" y2="290" stroke="#8B6355" stroke-width="2" opacity="0.3"/>
+        <rect x="215" y="155" width="50" height="52" rx="14" fill="#E8A87C"/>
+        <rect x="415" y="155" width="50" height="52" rx="14" fill="#E8A87C"/>
+        <rect x="180" y="280" width="320" height="18" rx="9" fill="#C4845A" opacity="0.35"/>
+      </svg>
+    </div>
     <div style={{ fontSize:32, fontWeight:900, color:C.plum, letterSpacing:0, marginBottom:4 }}>Mi Psicólogo</div>
     <div style={{ fontSize:13, color:C.light, fontWeight:500, marginBottom:40, textAlign:"center" }}>Un espacio seguro</div>
 
@@ -1282,7 +1298,7 @@ const styles = `
 
           {/* HOME */}
           {!notifPanel && screen === "home" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:100, background:"#F8F7FA" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:"#F8F7FA" }}>
 
               {/* HEADER */}
               <div style={{ background:`linear-gradient(145deg,${C.plum},#3D3055)`, padding:"28px 24px 52px", position:"relative" }}>
@@ -1819,7 +1835,7 @@ const styles = `
 
           {/* LOGROS */}
           {!notifPanel && screen === "logros" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:100, background:"#F8F7FA" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:"#F8F7FA" }}>
               <div style={{ background:`linear-gradient(145deg,${C.amberDark},${C.gold})`, padding:"32px 24px 52px", textAlign:"center" }}>
                 <div style={{ fontSize:64, marginBottom:10 }}>{getRango(xp).icono}</div>
                 <div style={{ fontSize:28, fontWeight:900, color:"white", marginBottom:4 }}>{getRango(xp).nombre}</div>
@@ -1883,7 +1899,7 @@ const styles = `
 
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:100, background:"#F8F7FA" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:"#F8F7FA" }}>
 
               {/* HEADER */}
               <div style={{ background:`linear-gradient(145deg,${C.plum},#3D3055)`, padding:"32px 24px 52px", textAlign:"center" }}>
@@ -2142,7 +2158,7 @@ const styles = `
           )}
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:100, background:"#F8F7FA" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:"#F8F7FA" }}>
               <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"24px 22px 52px", textAlign:"center", position:"relative" }}>
                 <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:20, left:20, fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
                 {psicologoData?.foto ? (
