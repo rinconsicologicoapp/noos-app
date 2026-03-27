@@ -3107,14 +3107,12 @@ const styles = `
                 {/* CONFIGURACIÓN */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>⚙️ Configuración</div>
                 <div style={{ background:"white", borderRadius:16, overflow:"hidden", marginBottom:16, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
-                  {[["🔔","Notificaciones"],["📅","Disponibilidad"],["📊","Exportar datos"]].map(([ic,lb],i) => (
-                    <div key={lb} onClick={() => showNotif(lb, "Función disponible pronto", ic)}
-                      style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
-                      <div style={{ fontSize:18, width:32, textAlign:"center" }}>{ic}</div>
-                      <div style={{ fontSize:13, fontWeight:700, color:C.text, flex:1 }}>{lb}</div>
-                      <div style={{ color:C.light, fontSize:16 }}>›</div>
-                    </div>
-                  ))}
+                  <div onClick={() => setNotifPanel(true)}
+                    style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
+                    <div style={{ fontSize:18, width:32, textAlign:"center" }}>🔔</div>
+                    <div style={{ fontSize:13, fontWeight:700, color:C.text, flex:1 }}>Notificaciones</div>
+                    <div style={{ color:C.light, fontSize:16 }}>›</div>
+                  </div>
                   <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
                     <div style={{ fontSize:18, width:32, textAlign:"center" }}>{darkMode?"☀️":"🌙"}</div>
@@ -3157,15 +3155,7 @@ const styles = `
                       </div>
                     ))}
                   </>
-                )}
-
-                {/* CERRAR SESIÓN */}
-                <div onClick={async () => { await signOut(auth); setUsuarioActual(null); setCitas([]); setPacientes([]); setResenas([]); setRecordatorios([]); setTareasPsicologo([]); setRecursos([]); showScreen("login"); }}
-                  style={{ background:"white", borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,0.05)", marginBottom:8 }}>
-                  <div style={{ fontSize:18, width:32, textAlign:"center" }}>🚪</div>
-                  <div style={{ fontSize:13, fontWeight:700, color:C.red, flex:1 }}>Cerrar sesión</div>
-                  <div style={{ color:C.red, fontSize:16 }}>›</div>
-                </div>
+                )}                
 
               </div>
 
