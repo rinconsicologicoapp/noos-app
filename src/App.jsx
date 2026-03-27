@@ -966,45 +966,77 @@ const styles = `
     </div>
   );
 
-  const bnav = (active) => (
-  <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(26,20,46,0.85)":"rgba(250,247,242,0.85)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.06)"}`, display:"flex", paddingBottom:"env(safe-area-inset-bottom, 8px)", paddingTop:6 }}>
-    {[["🏠","Inicio","home"],["📝","Notas","notas"],["🎯","Tareas","notas"],["📅","Citas","calendario"],["👤","Perfil","perfil"]].map(([ic,lb,id]) => {
-      const isActive = active === id || (id === "notas" && active === "notas");
-      const isTareas = lb === "Tareas";
-      const tareasCount = tareasPsicologo.filter(t => !t.completada).length;
-      return (
-        <div key={lb} onClick={() => { if(navigator.vibrate) navigator.vibrate([6]); isTareas ? (showScreen("notas"), setTimeout(()=>setNoteTab("tareas"),50)) : showScreen(id); }}
-          style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:2, padding:"4px 0", cursor:"pointer", position:"relative" }}>
-          <div style={{ position:"relative" }}>
-            <div style={{ width:40, height:28, borderRadius:14, background:isActive?`${C.plum}20`:"transparent", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.2s", fontSize:20 }}>{ic}</div>
-            {isTareas && tareasCount > 0 && <div style={{ position:"absolute", top:-2, right:-2, width:14, height:14, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:900, color:"white" }}>{tareasCount}</div>}
+  const LucideIcon = ({ name, color, size=22 }) => {
+  const icons = {
+    home: <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>,
+    notes: <><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></>,
+    tasks: <><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></>,
+    calendar: <><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></>,
+    user: <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+    users: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
+    dashboard: <><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></>,
+    brain: <><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.88A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.88A2.5 2.5 0 0 0 14.5 2Z"/></>,
+    dollar: <><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>,
+  };
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      {icons[name]}
+    </svg>
+  );
+};
+
+  const bnav = (active) => {
+  const tareasCount = tareasPsicologo.filter(t => !t.completada).length;
+  const items = [
+    { icon:"home", lb:"Inicio", id:"home" },
+    { icon:"notes", lb:"Notas", id:"notas" },
+    { icon:"tasks", lb:"Tareas", id:"tareas-tab", isTareas:true },
+    { icon:"calendar", lb:"Citas", id:"calendario" },
+    { icon:"user", lb:"Perfil", id:"perfil" },
+  ];
+  return (
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.94)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"env(safe-area-inset-bottom, 10px)", paddingTop:10, paddingLeft:4, paddingRight:4 }}>
+      {items.map(({ icon, lb, id, isTareas }) => {
+        const isActive = active === id || (isTareas && active === "notas" && lb==="Tareas") || (!isTareas && active === id);
+        const iconColor = isActive ? C.plum : darkMode ? "rgba(255,255,255,0.3)" : "#9A9AB0";
+        return (
+          <div key={lb} onClick={() => { if(navigator.vibrate) navigator.vibrate([6,0,6]); isTareas ? (showScreen("notas"), setTimeout(()=>setNoteTab("tareas"),50)) : showScreen(id); }}
+            style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, paddingBottom:2, cursor:"pointer", position:"relative" }}>
+            <div style={{ position:"relative" }}>
+              <LucideIcon name={icon} color={iconColor} size={22}/>
+              {isTareas && tareasCount > 0 && (
+                <div style={{ position:"absolute", top:-4, right:-6, width:14, height:14, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:900, color:"white", border:`2px solid ${darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.94)"}` }}>{tareasCount}</div>
+              )}
+            </div>
+            <div style={{ fontSize:10, fontWeight:isActive?600:400, color:iconColor, transition:"all 0.2s", letterSpacing:0.1 }}>{lb}</div>
+            {isActive && <div style={{ position:"absolute", bottom:0, left:"50%", transform:"translateX(-50%)", width:22, height:2.5, background:C.plum, borderRadius:"2px 2px 0 0", transition:"all 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}/>}
           </div>
-          <div style={{ fontSize:10, fontWeight:isActive?800:500, color:isActive?C.plum:C.light, transition:"all 0.2s" }}>{lb}</div>
-          {isActive && <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:20, height:3, background:C.plum, borderRadius:"0 0 3px 3px" }}/>}
-        </div>
-      );
-    })}
-  </div>
-);
+        );
+      })}
+    </div>
+  );
+};
 
   const anav = (active) => {
   const isAdmin = active === "admin-home" || active === "admin-psicologo" || active === "admin-pacientes" || active === "admin-pagos";
   const navItems = isAdmin
-    ? [["👑","Dashboard","admin-home"],["🧠","Psicólogos","admin-psicologo"],["👥","Pacientes","admin-pacientes"],["💰","Pagos","admin-pagos"]]
-    : [["👤","Perfil","admin-perfil"],["👥","Pacientes","psi-dashboard"],["📅","Citas","calendario"]];
+    ? [{ icon:"dashboard", lb:"Dashboard", id:"admin-home" }, { icon:"brain", lb:"Psicólogos", id:"admin-psicologo" }, { icon:"users", lb:"Pacientes", id:"admin-pacientes" }, { icon:"dollar", lb:"Pagos", id:"admin-pagos" }]
+    : [{ icon:"user", lb:"Perfil", id:"admin-perfil" }, { icon:"users", lb:"Pacientes", id:"psi-dashboard" }, { icon:"calendar", lb:"Citas", id:"calendario" }];
+  const accentColor = isAdmin ? C.amber : C.plum;
   return (
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(15,10,30,0.9)":"rgba(26,26,46,0.92)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderTop:"0.5px solid rgba(255,255,255,0.08)", display:"flex", paddingBottom:"env(safe-area-inset-bottom, 8px)", paddingTop:6 }}>
-      {navItems.map(([ic,lb,id]) => {
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.94)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"env(safe-area-inset-bottom, 10px)", paddingTop:10, paddingLeft:4, paddingRight:4 }}>
+      {navItems.map(({ icon, lb, id }) => {
         const isActive = active === id;
+        const iconColor = isActive ? accentColor : darkMode ? "rgba(255,255,255,0.3)" : "#9A9AB0";
         return (
-          <div key={id} onClick={() => { if(navigator.vibrate) navigator.vibrate([6]); showScreen(id); }}
-            style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:2, padding:"4px 0", cursor:"pointer", position:"relative" }}>
-            <div style={{ width:40, height:28, borderRadius:14, background:isActive?"rgba(255,255,255,0.12)":"transparent", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.2s", fontSize:20 }}>{ic}</div>
-            <div style={{ fontSize:10, fontWeight:isActive?800:500, color:isActive?"white":"rgba(255,255,255,0.45)", transition:"all 0.2s" }}>{lb}</div>
-            {isActive && <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:20, height:3, background:C.amber, borderRadius:"0 0 3px 3px" }}/>}
+          <div key={id} onClick={() => { if(navigator.vibrate) navigator.vibrate([6,0,6]); showScreen(id); }}
+            style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, paddingBottom:2, cursor:"pointer", position:"relative" }}>
+            <LucideIcon name={icon} color={iconColor} size={22}/>
+            <div style={{ fontSize:10, fontWeight:isActive?600:400, color:iconColor, transition:"all 0.2s" }}>{lb}</div>
+            {isActive && <div style={{ position:"absolute", bottom:0, left:"50%", transform:"translateX(-50%)", width:22, height:2.5, background:accentColor, borderRadius:"2px 2px 0 0", transition:"all 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}/>}
           </div>
         );
-      })}      
+      })}
     </div>
   );
 };
