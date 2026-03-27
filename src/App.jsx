@@ -1132,90 +1132,119 @@ const styles = `
 
           {/* LOGIN */}
 {!notifPanel && screen === "login" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, background:`linear-gradient(160deg, #FAF7F2, #EDE0F5, #D4EDE1)`, backgroundSize:"400% 400%", animation:"gradientMove 6s ease infinite" }}>
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 28px", background:"linear-gradient(160deg, #2A2018 0%, #1E1610 60%, #181210 100%)", position:"relative", overflow:"hidden" }}>
 
-    {/* LOGO */}
-    <div style={{ marginBottom:8, animation:"fadeIn 0.8s ease" }}>
-      <svg width="160" height="100" viewBox="180 140 320 200" xmlns="http://www.w3.org/2000/svg">
-        <rect x="195" y="240" width="60" height="52" rx="10" fill="#8B6355"/>
-        <rect x="425" y="240" width="60" height="52" rx="10" fill="#8B6355"/>
-        <rect x="170" y="185" width="340" height="40" rx="20" fill="#A0715E"/>
+    {/* PILL TOP */}
+    <div style={{ width:40, height:3, borderRadius:2, background:"rgba(232,168,124,0.25)", marginBottom:28 }}/>
+
+    {/* SOFÁ */}
+    <div style={{ marginBottom:12, animation:"fadeIn 0.8s ease" }}>
+      <svg width="160" height="96" viewBox="180 140 320 200" xmlns="http://www.w3.org/2000/svg">
+        <rect x="195" y="240" width="60" height="52" rx="10" fill="#5A3820"/>
+        <rect x="425" y="240" width="60" height="52" rx="10" fill="#5A3820"/>
+        <rect x="170" y="185" width="340" height="40" rx="20" fill="#7A5030"/>
         <rect x="185" y="200" width="310" height="95" rx="18" fill="#C4845A"/>
-        <rect x="170" y="195" width="72" height="115" rx="22" fill="#B8704A"/>
-        <rect x="438" y="195" width="72" height="115" rx="22" fill="#B8704A"/>
-        <rect x="185" y="200" width="310" height="20" rx="10" fill="#D4906A" opacity="0.4"/>
-        <ellipse cx="280" cy="248" rx="48" ry="38" fill="#D4906A" opacity="0.35"/>
-        <ellipse cx="400" cy="248" rx="48" ry="38" fill="#D4906A" opacity="0.35"/>
-        <line x1="338" y1="210" x2="338" y2="290" stroke="#8B6355" stroke-width="2" opacity="0.3"/>
+        <rect x="170" y="195" width="72" height="115" rx="22" fill="#A06040"/>
+        <rect x="438" y="195" width="72" height="115" rx="22" fill="#A06040"/>
         <rect x="215" y="155" width="50" height="52" rx="14" fill="#E8A87C"/>
         <rect x="415" y="155" width="50" height="52" rx="14" fill="#E8A87C"/>
-        <rect x="180" y="280" width="320" height="18" rx="9" fill="#C4845A" opacity="0.35"/>
+        <rect x="180" y="280" width="320" height="16" rx="8" fill="#5A3820" opacity="0.4"/>
       </svg>
     </div>
-    <div style={{ fontSize:32, fontWeight:900, color:C.plum, letterSpacing:0, marginBottom:4 }}>Mi Psicólogo</div>
-    <div style={{ fontSize:13, color:C.light, fontWeight:500, marginBottom:40, textAlign:"center" }}>Un espacio seguro</div>
 
-    {/* FORMULARIO */}
-    <div style={{ width:"100%", background:"white", borderRadius:24, padding:28, boxShadow:"0 8px 32px rgba(92,77,110,0.12)" }}>
+    {/* TÍTULO */}
+    <div style={{ fontSize:28, fontWeight:800, color:"#F5E6D0", letterSpacing:0.2, marginBottom:8 }}>Mi Psicólogo</div>
 
-      {/* NOMBRE */}
-      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Nombre de usuario</div>
-<input
-  type="email"
-  placeholder="Tu correo"
-  value={emailValue}
-  onChange={e => setEmailValue(e.target.value)}
-  style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:14, marginBottom:20, outline:"none" }}
-/>
+    {/* BADGE SUBTÍTULO */}
+    <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(232,168,124,0.10)", border:"0.8px solid rgba(232,168,124,0.18)", borderRadius:20, padding:"5px 14px", marginBottom:28 }}>
+      <span style={{ fontSize:10, color:"rgba(232,168,124,0.55)" }}>✦ Un espacio seguro</span>
+    </div>
 
-      {/* PIN VISUAL */}
-      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:12 }}>PIN de acceso</div>
-      <div style={{ display:"flex", justifyContent:"center", gap:16, marginBottom:16 }}>
-        {[0,1,2,3].map(i => (
-          <div key={i} style={{ width:18, height:18, borderRadius:"50%", background: pinValue && pinValue.length > i ? C.plum : "transparent", border:`2.5px solid ${pinValue && pinValue.length > i ? C.plum : C.light}`, transition:"all 0.2s ease" }}/>
-        ))}
+    {/* CARD GLASS */}
+    <div style={{ width:"100%", background:"rgba(255,255,255,0.045)", border:"1px solid rgba(232,168,124,0.09)", borderRadius:24, overflow:"hidden", backdropFilter:"blur(10px)" }}>
+
+      {/* ACENTO SUPERIOR */}
+      <div style={{ height:3, background:"linear-gradient(90deg, transparent, #C4845A, transparent)", opacity:0.5 }}/>
+
+      <div style={{ padding:"24px 20px 20px" }}>
+
+        {/* CAMPO CORREO */}
+        <div style={{ position:"relative", marginBottom:1 }}>
+          <div style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(232,168,124,0.35)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
+          <input
+            type="email"
+            placeholder="tu@correo.com"
+            value={emailValue}
+            onChange={e => setEmailValue(e.target.value)}
+            style={{ width:"100%", padding:"14px 16px 14px 40px", background:"rgba(255,255,255,0.055)", border:"0.8px solid rgba(232,168,124,0.10)", borderRadius:14, fontSize:13, outline:"none", color:"#F5E6D0", fontFamily:"inherit", boxSizing:"border-box" }}
+          />
+        </div>
+
+        {/* DIVISOR */}
+        <div style={{ height:1, background:"rgba(232,168,124,0.07)", margin:"12px 0" }}/>
+
+        {/* CAMPO PIN */}
+        <div style={{ position:"relative", marginBottom:16 }}>
+          <div style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(232,168,124,0.35)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <div style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:14, padding:"14px 16px 14px 40px", background:"rgba(255,255,255,0.055)", border:"0.8px solid rgba(232,168,124,0.10)", borderRadius:14 }}>
+            {[0,1,2,3].map(i => (
+              <div key={i} style={{ width:10, height:10, borderRadius:"50%", background: pinValue && pinValue.length > i ? "#E8A87C" : "transparent", border:`1.5px solid ${pinValue && pinValue.length > i ? "#E8A87C" : "rgba(245,230,208,0.2)"}`, transition:"all 0.2s ease" }}/>
+            ))}
+          </div>
+          <input
+            type="password"
+            inputMode="numeric"
+            maxLength={4}
+            value={pinValue || ""}
+            onChange={e => setPinValue(e.target.value)}
+            style={{ position:"absolute", inset:0, opacity:0, cursor:"pointer", width:"100%", height:"100%" }}
+          />
+        </div>
+
+        {/* BOTÓN */}
+        <button
+          onClick={e => {
+            if (navigator.vibrate) navigator.vibrate(10);
+            const b = e.currentTarget;
+            const circle = document.createElement("span");
+            const diameter = Math.max(b.clientWidth, b.clientHeight);
+            circle.style.cssText = `width:${diameter}px;height:${diameter}px;position:absolute;border-radius:50%;background:rgba(255,255,255,0.2);transform:scale(0);animation:ripple 0.5s linear;left:${e.clientX - b.getBoundingClientRect().left - diameter/2}px;top:${e.clientY - b.getBoundingClientRect().top - diameter/2}px;pointer-events:none;`;
+            b.appendChild(circle);
+            setTimeout(() => circle.remove(), 500);
+            handleLogin();
+          }}
+          style={{ width:"100%", padding:"15px 0", background:"#C4845A", color:"white", borderRadius:21, fontSize:14, fontWeight:700, border:"none", cursor:"pointer", fontFamily:"inherit", position:"relative", overflow:"hidden", letterSpacing:0.3 }}
+        >
+          Entrar a mi espacio →
+        </button>
+
       </div>
-      <input
-        type="password"
-        placeholder="PIN"
-        inputMode="numeric"
-        maxLength={4}
-        value={pinValue || ""}
-        onChange={e => setPinValue(e.target.value)}
-        style={{ width:"100%", padding:"14px 16px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:14, fontSize:14, marginBottom:24, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:C.cream, textAlign:"center", letterSpacing:1 }}
-      />
-
-      {/* BOTÓN CON RIPPLE */}
-      <button
-        onClick={e => {
-          if (navigator.vibrate) navigator.vibrate(10);
-          const btn = e.currentTarget;
-          const circle = document.createElement("span");
-          const diameter = Math.max(btn.clientWidth, btn.clientHeight);
-          circle.style.cssText = `width:${diameter}px;height:${diameter}px;position:absolute;border-radius:50%;background:rgba(255,255,255,0.3);transform:scale(0);animation:ripple 0.5s linear;left:${e.clientX - btn.getBoundingClientRect().left - diameter/2}px;top:${e.clientY - btn.getBoundingClientRect().top - diameter/2}px;pointer-events:none;`;
-          btn.appendChild(circle);
-          setTimeout(() => circle.remove(), 500);
-          handleLogin();
-        }}
-        style={{ width:"100%", padding:16, background:C.plum, color:"white", borderRadius:15, fontSize:15, fontWeight:800, border:"none", cursor:"pointer", fontFamily:"inherit", position:"relative", overflow:"hidden" }}
-      >
-        Entrar
-      </button>
     </div>
 
     {/* FOOTER */}
-    <div style={{ marginTop:24, fontSize:12, color:C.light, textAlign:"center", lineHeight:1.6 }}>
-      ¿Problemas para entrar?<br/>
-      <span style={{ color:C.plum, fontWeight:700 }}>Contacta a tu psicólogo</span>
+    <div style={{ marginTop:20, textAlign:"center" }}>
+      <span style={{ fontSize:11, color:"rgba(245,230,208,0.25)" }}>¿Problemas para entrar? </span>
+      <span style={{ fontSize:11, color:"#E8A87C", fontWeight:700, cursor:"pointer" }}>Contacta a tu psicólogo</span>
     </div>
+
     {showInstall && (
-  <button onClick={handleInstall} style={{ marginTop:16, width:"100%", padding:"13px 0", background:"rgba(255,255,255,0.35)", color:"#5C4D2E", borderRadius:20, fontSize:13, fontWeight:800, border:"1.5px solid rgba(255,255,255,0.7)", cursor:"pointer", fontFamily:"inherit", letterSpacing:".3px", backdropFilter:"blur(8px)" }}>
-    ⬇️ Descargar App
-  </button>
-)}
+      <button onClick={handleInstall} style={{ marginTop:14, padding:"8px 20px", background:"rgba(232,168,124,0.08)", color:"rgba(232,168,124,0.4)", borderRadius:20, fontSize:11, fontWeight:600, border:"0.8px solid rgba(232,168,124,0.12)", cursor:"pointer", fontFamily:"inherit" }}>
+        ⬇ Descargar App
+      </button>
+    )}
 
   </div>
-  )}
+)}
 {/* REGISTRO */}
 {!notifPanel && screen === "registro" && (
   <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, background:`linear-gradient(160deg,${C.cream} 0%,#EDE8F5 100%)` }}>
