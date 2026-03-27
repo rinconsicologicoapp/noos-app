@@ -120,9 +120,9 @@ function getFraseHoy() {
 // ─────────────────────────────────────────
 // AVATAR CHARMAN
 // ─────────────────────────────────────────
-function CharmanAvatar() {
+function CharmanAvatar({ mini = false }) {
   return (
-    <svg viewBox="0 0 400 450" width="200" height="225"
+    <svg viewBox="0 0 400 450" width={mini ? 72 : 200} height={mini ? 81 : 225}
       xmlns="http://www.w3.org/2000/svg"
       style={{animation:"frailejFlotar 4s ease-in-out infinite"}}>
       <defs>
@@ -275,10 +275,10 @@ function CompaneroHome({ id }) {
     </div>
   );
 }
-function FrailejonAvatar() {
+function FrailejonAvatar({ mini = false }) {
   return (
-    <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding:"8px 0 0"}}>
-      <svg width="220" height="260" viewBox="20 10 280 340" xmlns="http://www.w3.org/2000/svg" style={{animation:"frailejFlotar 4.5s ease-in-out infinite"}}>
+    <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding: mini ? 0 : "8px 0 0"}}>
+      <svg width={mini ? 72 : 220} height={mini ? 85 : 260} viewBox="20 10 280 340" xmlns="http://www.w3.org/2000/svg" style={{animation:"frailejFlotar 4.5s ease-in-out infinite"}}>
         <defs>
           <radialGradient id="frj1" cx="40%" cy="30%" r="70%"><stop offset="0%" stopColor="#E8F5B0"/><stop offset="35%" stopColor="#A8C840"/><stop offset="70%" stopColor="#6A9020"/><stop offset="100%" stopColor="#3A5808"/></radialGradient>
           <radialGradient id="frj2" cx="60%" cy="65%" r="70%"><stop offset="0%" stopColor="#C8E890"/><stop offset="40%" stopColor="#78B030"/><stop offset="80%" stopColor="#408018"/><stop offset="100%" stopColor="#204808"/></radialGradient>
@@ -1891,10 +1891,8 @@ const styles = `
             display:"flex", alignItems:"center", gap:16,
           }}>
           {/* Avatar pequeño a la izquierda */}
-          <div style={{width:80,height:80,flexShrink:0,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",background:data.colorClaro,borderRadius:16}}>
-            <div style={{transform:"scale(0.38)",transformOrigin:"center center",width:210,height:210,marginLeft:-65,marginTop:-65}}>
-              <data.Componente/>
-            </div>
+          <div style={{width:80,height:80,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",background:data.colorClaro,borderRadius:16,overflow:"hidden"}}>
+            <data.Componente mini={true}/>
           </div>
           {/* Info a la derecha */}
           <div style={{flex:1}}>
@@ -1932,8 +1930,9 @@ const styles = `
             color:"white", fontSize:14, fontWeight:800,
           })
         ) : (
-          <div style={{textAlign:"center",fontSize:12,color:"rgba(58,42,28,0.35)",padding:"12px 0"}}>
-            Toca un compañero para seleccionarlo
+          <div style={{textAlign:"center",padding:"16px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
+            <div style={{fontSize:18,opacity:.3}}>☝️</div>
+            <div style={{fontSize:12,color:"rgba(58,42,28,0.35)"}}>Toca un compañero para seleccionarlo</div>
           </div>
         )}
       </div>
