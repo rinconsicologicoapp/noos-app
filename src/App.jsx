@@ -921,14 +921,28 @@ const styles = `
   .pull-spinner {
     animation: pullSpin 0.8s linear infinite;
   }
+  .dark-mode div[style*="background:white"],
+  .dark-mode div[style*='background:"white"'] {
+    background: #1E1D2E !important;
+  }
+  .dark-mode div[style*="background:#F8F7FA"] {
+    background: #12111E !important;
+  }
+  .dark-mode div[style*="background:#F5F5F5"] {
+    background: #252438 !important;
+  }
+  .dark-mode div[style*="color:#2D2D3E"],
+  .dark-mode div[style*="color:C.text"] {
+    color: #F2EEF9 !important;
+  }
 `;
   const C = darkMode ? {
-  plum:"#C4B0E8", sage:"#6EC6A0", sageDark:"#4DB88A",
-  amber:"#FFB877", amberDark:"#FFA055", cream:"#0F0E17",
-  warm:"#1A1926", text:"#F2EEF9", light:"#B0A8C8",
-  red:"#FF7B7B", green:"#6BCF7F", blue:"#70BEFF",
-  dark:"#080712", gold:"#FFD166", bg:"#080712",
-  cardBg:"#1A1926", headerBg:"rgba(15,14,23,0.98)"
+  plum:"#B39DDB", sage:"#80CBC4", sageDark:"#4DB6AC",
+  amber:"#FFB74D", amberDark:"#FFA726", cream:"#121212",
+  warm:"#1E1E2E", text:"#FFFFFF", light:"#AAAACC",
+  red:"#EF9A9A", green:"#A5D6A7", blue:"#90CAF9",
+  dark:"#0A0A14", gold:"#FFD54F", bg:"#0A0A14",
+  cardBg:"#1E1E2E", headerBg:"rgba(12,12,20,0.98)"
 } : {
   plum:"#5C4D6E", sage:"#7DAA92", sageDark:"#4A8A72",
   amber:"#E8A87C", amberDark:"#C4845A", cream:"#FAF7F2",
@@ -1013,7 +1027,7 @@ const styles = `
 );
 
   return (
-    <div style={{ fontFamily:"system-ui,sans-serif", background:darkMode?"#0f0f1a":"#E8EDF0", height:"100vh", width:"100vw", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", transition:"background 0.3s" }}><style>{styles}</style>
+    <div className={darkMode ? "dark-mode" : ""} style={{ fontFamily:"system-ui,sans-serif", background:darkMode?"#0F0E17":"#E8EDF0", height:"100vh", width:"100vw", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", transition:"background 0.3s" }}><style>{styles}</style>
       
       {/* CONTENEDOR PRINCIPAL */}
       <div style={{ width:"100%", maxWidth:430, height:"100%", background:C.cream, overflow:"hidden", position:"relative", margin:"0 auto", transition:"background 0.3s" }}>
@@ -1767,7 +1781,7 @@ const styles = `
                   </div>
                 </div>
               ))}
-              {bnav("calendario")}
+              {usuarioActual?.rol === "psicologo" ? anav("calendario") : bnav("calendario")}
             </div>
           )}
 
