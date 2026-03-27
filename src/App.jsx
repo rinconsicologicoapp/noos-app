@@ -146,10 +146,10 @@ const [registrosAnimo, setRegistrosAnimo] = useState([]);
 const [pullRefreshing, setPullRefreshing] = useState(false);
 const [pullStartY, setPullStartY] = useState(null);
 const [celebrando, setCelebrando] = useState(false);
-const [confettiItems] = useState(() => Array.from({length:20}, (_,i) => ({
+const confettiItems = Array.from({length:20}, (_,i) => ({
   id:i, x:Math.random()*100, color:["#5C4D6E","#7DAA92","#E8A87C","#F0C040","#E57373"][Math.floor(Math.random()*5)],
   delay:Math.random()*0.5, size:Math.random()*8+4
-})));
+}));
 
   const unread = notifs.filter(n => !n.read).length;
 
@@ -499,9 +499,10 @@ const guardarAnimo = async (valor) => {
   if (!usuarioActual?.uid) return;
   const hoy = new Date().toISOString().split('T')[0];
   const id = `${usuarioActual.uid}_${hoy}`;
+  const psicologoId = usuarioActual.psicologoId || psicologoData?.id || "";
   const registro = {
     id, pacienteId: usuarioActual.uid,
-    psicologoId: usuarioActual.psicologoId || "",
+    psicologoId,
     valor, fecha: hoy,
     creadoEn: new Date().toISOString(),
     emoji: ["😞","😕","😐","🙂","😄"][valor],
@@ -972,57 +973,32 @@ const styles = `
   </div>
 );
 
-  const anav = (active) => (
-  <>
-    {/* BOTÓN HAMBURGUESA */}
-    <div onClick={() => { if(navigator.vibrate) navigator.vibrate(10); setNavOpen(!navOpen); }}
-      style={{ position:"absolute", bottom:20, right:20, width:52, height:52, borderRadius:"50%", background:C.plum, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, cursor:"pointer", boxShadow:"0 4px 20px rgba(92,77,110,0.4)", zIndex:200, transition:"transform 0.2s ease", transform:navOpen?"rotate(45deg)":"rotate(0deg)" }}>
-      {navOpen ? "✕" : "☰"}
-    </div>
-
-    {/* OVERLAY */}
-    {navOpen && <div onClick={() => setNavOpen(false)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.5)", zIndex:198, backdropFilter:"blur(4px)" }}/>}
-
-    {/* BANDEJA */}
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:199, transform:navOpen?"translateY(0)":"translateY(100%)", transition:"transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", background:C.dark, borderRadius:"28px 28px 0 0", padding:"16px 20px 40px", boxShadow:"0 -8px 40px rgba(0,0,0,0.2)" }}>
-      <div style={{ width:36, height:4, background:"rgba(255,255,255,0.15)", borderRadius:2, margin:"0 auto 20px" }}/>
-      <div style={{ fontSize:11, fontWeight:800, color:"rgba(255,255,255,0.3)", marginBottom:14, textTransform:"uppercase", letterSpacing:1.5 }}>Navegación</div>
-
-      {active === "admin-home" || active === "admin-psicologo" || active === "admin-pacientes" || active === "admin-pagos" ? (
-        [["👑","Dashboard","admin-home"],["🧠","Psicólogos","admin-psicologo"],["👥","Pacientes","admin-pacientes"],["💰","Pagos","admin-pagos"]].map(([ic,lb,id]) => (
-          <div key={id} onClick={() => { setNavOpen(false); showScreen(id); }}
-            style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 14px", borderRadius:14, marginBottom:6, background:active===id?"rgba(255,255,255,0.1)":"transparent", cursor:"pointer" }}>
-            <div style={{ fontSize:22, width:42, height:42, borderRadius:12, background:active===id?"rgba(255,255,255,0.15)":"rgba(255,255,255,0.05)", display:"flex", alignItems:"center", justifyContent:"center" }}>{ic}</div>
-            <div style={{ fontSize:15, fontWeight:700, color:active===id?C.amber:"rgba(255,255,255,0.7)" }}>{lb}</div>
-            {active===id && <div style={{ marginLeft:"auto", width:7, height:7, borderRadius:"50%", background:C.amber }}/>}
+  const anav = (active) => {
+  const isAdmin = active === "admin-home" || active === "admin-psicologo" || active === "admin-pacientes" || active === "admin-pagos";
+  const navItems = isAdmin
+    ? [["👑","Dashboard","admin-home"],["🧠","Psicólogos","admin-psicologo"],["👥","Pacientes","admin-pacientes"],["💰","Pagos","admin-pagos"]]
+    : [["👤","Perfil","admin-perfil"],["👥","Pacientes","psi-dashboard"],["📅","Citas","calendario-psi"]];
+  return (
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(15,10,30,0.9)":"rgba(26,26,46,0.92)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderTop:"0.5px solid rgba(255,255,255,0.08)", display:"flex", paddingBottom:"env(safe-area-inset-bottom, 8px)", paddingTop:6 }}>
+      {navItems.map(([ic,lb,id]) => {
+        const isActive = active === id;
+        return (
+          <div key={id} onClick={() => { if(navigator.vibrate) navigator.vibrate([6]); showScreen(id); }}
+            style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:2, padding:"4px 0", cursor:"pointer", position:"relative" }}>
+            <div style={{ width:40, height:28, borderRadius:14, background:isActive?"rgba(255,255,255,0.12)":"transparent", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.2s", fontSize:20 }}>{ic}</div>
+            <div style={{ fontSize:10, fontWeight:isActive?800:500, color:isActive?"white":"rgba(255,255,255,0.45)", transition:"all 0.2s" }}>{lb}</div>
+            {isActive && <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:20, height:3, background:C.amber, borderRadius:"0 0 3px 3px" }}/>}
           </div>
-        ))
-      ) : (
-        [["👤","Mi Perfil","admin-perfil"],["👥","Pacientes","psi-dashboard"],["📅","Mis Citas","calendario-psi"]].map(([ic,lb,id]) => (
-          <div key={id} onClick={() => { setNavOpen(false); showScreen(id); }}
-            style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 14px", borderRadius:14, marginBottom:6, background:active===id?"rgba(255,255,255,0.1)":"transparent", cursor:"pointer" }}>
-            <div style={{ fontSize:22, width:42, height:42, borderRadius:12, background:active===id?"rgba(255,255,255,0.15)":"rgba(255,255,255,0.05)", display:"flex", alignItems:"center", justifyContent:"center" }}>{ic}</div>
-            <div style={{ fontSize:15, fontWeight:700, color:active===id?C.amber:"rgba(255,255,255,0.7)" }}>{lb}</div>
-            {active===id && <div style={{ marginLeft:"auto", width:7, height:7, borderRadius:"50%", background:C.amber }}/>}
-          </div>
-        ))
-      )}
-
-      <div style={{ height:1, background:"rgba(255,255,255,0.08)", margin:"8px 0" }}/>
-
-      <div onClick={async () => { 
-  setNavOpen(false); 
-  await signOut(auth);
-  setUsuarioActual(null);
-  showScreen("login"); 
-}}
-        style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 14px", borderRadius:14, cursor:"pointer" }}>
-        <div style={{ fontSize:22, width:42, height:42, borderRadius:12, background:"rgba(255,100,100,0.1)", display:"flex", alignItems:"center", justifyContent:"center" }}>🚪</div>
-        <div style={{ fontSize:15, fontWeight:700, color:"rgba(255,100,100,0.8)" }}>Cerrar sesión</div>
+        );
+      })}
+      <div onClick={async () => { await signOut(auth); setUsuarioActual(null); setCitas([]); setPacientes([]); setResenas([]); setRecordatorios([]); setTareasPsicologo([]); setRecursos([]); showScreen("login"); }}
+        style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:2, padding:"4px 0", cursor:"pointer" }}>
+        <div style={{ width:40, height:28, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>🚪</div>
+        <div style={{ fontSize:10, fontWeight:500, color:"rgba(255,100,100,0.7)" }}>Salir</div>
       </div>
     </div>
-  </>
-);
+  );
+};
 
   const mdl = (id, children) => modal === id ? (
     <div onClick={() => setModal(null)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.5)", zIndex:300, display:"flex", alignItems:"flex-end", borderRadius:44 }}>
@@ -1048,7 +1024,7 @@ const styles = `
       <div style={{ width:"100%", maxWidth:430, height:"100%", background:C.cream, overflow:"hidden", position:"relative", margin:"0 auto", transition:"background 0.3s" }}>
 
         {/* CONTENIDO */}
-        <div style={{ height:"calc(780px - 44px)", overflowY:"auto", overflowX:"hidden", position:"relative" }}>
+        <div style={{ height:"100%", overflowY:"auto", overflowX:"hidden", position:"relative" }}>
         {/* CONFETI CELEBRACIÓN */}
           {celebrando && (
             <div style={{ position:"absolute", inset:0, zIndex:600, pointerEvents:"none", overflow:"hidden" }}>
@@ -1916,24 +1892,20 @@ const styles = `
                 {/* CONFIGURACIÓN */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>Configuración</div>
                 <div style={{ background:"white", borderRadius:16, overflow:"hidden", marginBottom:12, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
-                  {[
-                    ["🛡️", "Privacidad y seguridad", () => setModal("privacidad")],
-                    <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
-                      style={{ background:C.cardBg, borderRadius:13, padding:"13px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:7, cursor:"pointer" }}>
-                      <div style={{ fontSize:18, width:34, height:34, background:C.warm, borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>{darkMode?"☀️":"🌙"}</div>
-                      <div style={{ fontSize:13, fontWeight:700, color:C.text, flex:1 }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
-                      <div style={{ width:44, height:24, borderRadius:12, background:darkMode?C.plum:C.light, position:"relative", transition:"background 0.3s" }}>
-                        <div style={{ width:18, height:18, borderRadius:"50%", background:"white", position:"absolute", top:3, left:darkMode?23:3, transition:"left 0.3s" }}/>
-                      </div>
-                    </div>                    
-                  ].map(([ic,lb,fn],i,arr) => (
-                    <div key={lb} onClick={fn}
-                      style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none", cursor:"pointer" }}>
-                      <div style={{ fontSize:18, width:36, height:36, background:C.warm, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{ic}</div>
-                      <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.text }}>{lb}</div>
-                      <div style={{ color:C.light, fontSize:16 }}>›</div>
+                  <div onClick={() => setModal("privacidad")}
+                    style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
+                    <div style={{ fontSize:18, width:36, height:36, background:C.warm, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>🛡️</div>
+                    <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.text }}>Privacidad y seguridad</div>
+                    <div style={{ color:C.light, fontSize:16 }}>›</div>
+                  </div>
+                  <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
+                    style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", cursor:"pointer" }}>
+                    <div style={{ fontSize:18, width:36, height:36, background:C.warm, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>{darkMode?"☀️":"🌙"}</div>
+                    <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.text }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
+                    <div style={{ width:44, height:24, borderRadius:12, background:darkMode?C.plum:C.light, position:"relative", transition:"background 0.3s" }}>
+                      <div style={{ width:18, height:18, borderRadius:"50%", background:"white", position:"absolute", top:3, left:darkMode?23:3, transition:"left 0.3s" }}/>
                     </div>
-                  ))}
+                  </div>
                 </div>
 
                 {/* VALORAR */}
