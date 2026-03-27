@@ -4,6 +4,277 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } f
 import { auth } from "./firebase";
 import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc, query, where } from "firebase/firestore";
 import { db } from "./firebase";
+// ─────────────────────────────────────────
+// BANCO DE 100 FRASES MOTIVADORAS
+// ─────────────────────────────────────────
+const FRASES_COMPANERO = [
+  "Si puedes. Lo estás logrando.",
+  "Ya buscaste ayuda. Eso es valentía.",
+  "Deberías sentirte orgullos@ de tu proceso.",
+  "Cada sesión cuenta. Aquí estoy contigo.",
+  "No tienes que ser perfecto/a para avanzar.",
+  "Hoy estás aquí. Eso ya es un logro.",
+  "Tu proceso es tuyo y va a tu ritmo.",
+  "Está bien no estar bien. Sigues adelante.",
+  "Lo que sientes es válido.",
+  "Pequeños pasos también son avance.",
+  "Eres más fuerte de lo que crees.",
+  "Pedir ayuda requiere mucho valor.",
+  "Estás invirtiendo en ti. Eso importa.",
+  "Hoy es un buen día para seguir.",
+  "Tu bienestar merece atención.",
+  "Confía en el proceso, aunque sea difícil.",
+  "No estás sol@ en esto.",
+  "Has llegado lejos. No te rindas.",
+  "Cada emoción tiene su mensaje. Escúchala.",
+  "Mereces sentirte bien.",
+  "Estás aprendiendo a conocerte. Eso es enorme.",
+  "La terapia es un regalo que te estás dando.",
+  "Un día a la vez. Hoy es suficiente.",
+  "Está bien pedir más de una sesión.",
+  "Tu historia importa y merece ser escuchada.",
+  "Permitirte sentir ya es sanar.",
+  "No hay prisa. Tu proceso tiene su tiempo.",
+  "Hoy te elegiste a ti. Bien hecho.",
+  "Cada crisis que superas te hace más resiliente.",
+  "Tu mente está trabajando. Dale tiempo.",
+  "Eres capaz de más de lo que imaginas.",
+  "Hablar de lo que duele también sana.",
+  "No tienes que cargar todo solo/a.",
+  "Buscar apoyo es inteligente, no debilidad.",
+  "Estás construyendo una mejor versión de ti.",
+  "Hoy hiciste algo por tu salud mental. Gracias.",
+  "Los cambios toman tiempo. Sé paciente contigo.",
+  "Reconocer cómo te sientes ya es avanzar.",
+  "Mereces paz interior.",
+  "Tu proceso es válido aunque nadie más lo vea.",
+  "Estar aquí ya es un acto de amor propio.",
+  "Todo lo que sientes tiene sentido.",
+  "No eres tus pensamientos más difíciles.",
+  "Hoy puedes. Un paso a la vez.",
+  "La terapia no te hace débil, te hace honesto/a.",
+  "Estás aprendiendo a cuidarte. Eso es poderoso.",
+  "Cada día que apareces aquí suma.",
+  "No tienes que tenerlo todo resuelto hoy.",
+  "Permitirse ayuda es señal de madurez.",
+  "Lo que viviste fue difícil. Y lo estás procesando.",
+  "Sigue. Lo estás haciendo muy bien.",
+  "Tu salud mental es tan importante como la física.",
+  "Hoy te ves diferente. El proceso funciona.",
+  "Confiar en alguien con lo que sientes es valiente.",
+  "Estás aprendiendo a soltar lo que no puedes controlar.",
+  "Mereces apoyo, no solo en los momentos difíciles.",
+  "Cada sesión es una semilla que plantas.",
+  "Lo difícil de hoy es la fortaleza de mañana.",
+  "Estás más cerca de lo que crees.",
+  "No te compares. Tu camino es único.",
+  "Lo que hoy te pesa, mañana puede pesar menos.",
+  "Estás aprendiendo a vivir contigo mismo/a.",
+  "Hoy fue un día más de tu proceso. Cuenta.",
+  "Tus emociones no te definen, te informan.",
+  "Seguir adelante también es un logro.",
+  "Mereces un espacio seguro para sanar.",
+  "Ya diste el paso más difícil: empezar.",
+  "Hoy apareciste. Eso es suficiente.",
+  "Tu bienestar no es un lujo, es una necesidad.",
+  "Lo estás haciendo aunque no siempre se sienta así.",
+  "Estás más entero/a que ayer.",
+  "Cada conversación honesta te libera un poco.",
+  "Permitirte ayuda también es fortaleza.",
+  "Tu proceso importa, aunque nadie más lo entienda.",
+  "Hoy elegiste cuidarte. Eso es todo.",
+  "No tienes que explicarle tu proceso a nadie.",
+  "Estás sanando a tu manera. Eso es válido.",
+  "Ser vulnerable no es debilidad, es coraje.",
+  "Cada semana que apareces cuenta doble.",
+  "Estás construyendo herramientas para toda la vida.",
+  "Reconocer que necesitas apoyo es lucidez.",
+  "Hoy te elegiste. Sigue haciéndolo.",
+  "No hay una forma incorrecta de sanar.",
+  "Lo que sientes hoy no es permanente.",
+  "Estás aprendiendo, no fallando.",
+  "Tu proceso tiene un ritmo propio. Respétalo.",
+  "Mereces estar bien, sin condiciones.",
+  "Cada vez que hablas de lo que duele, sanas un poco.",
+  "Hoy fue difícil. Y aquí sigues. Eso importa.",
+  "No tienes que ser más fuerte. Solo seguir.",
+  "Estás haciendo el trabajo más importante.",
+  "Tu mente y tu corazón merecen atención.",
+  "Hoy eres la versión más valiente de ti.",
+  "No necesitas permiso para sanar.",
+  "Cada esfuerzo que haces en terapia suma.",
+  "Estás escribiendo una historia de resiliencia.",
+  "Lo que hoy parece imposible, mañana será distinto.",
+  "Mereces el mismo amor que le das a otros.",
+  "Seguir es suficiente. Siempre.",
+];
+
+// Calcula qué frase mostrar hoy (cambia cada 2 días, cicla en 100)
+function getFraseHoy() {
+  const inicio = new Date("2024-01-01").getTime();
+  const hoy = Date.now();
+  const dias = Math.floor((hoy - inicio) / 86400000);
+  return FRASES_COMPANERO[Math.floor(dias / 2) % FRASES_COMPANERO.length];
+}
+
+// ─────────────────────────────────────────
+// AVATAR CHARMAN
+// ─────────────────────────────────────────
+function CharmanAvatar() {
+  return (
+    <svg viewBox="0 0 400 450" width="200" height="225"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{animation:"frailejFlotar 4s ease-in-out infinite"}}>
+      <defs>
+        <radialGradient id="cBodyG" cx="40%" cy="40%" r="60%">
+          <stop offset="0%" stopColor="#FFB37B"/>
+          <stop offset="70%" stopColor="#FF9A4B"/>
+          <stop offset="100%" stopColor="#E67E22"/>
+        </radialGradient>
+        <radialGradient id="cBellyG" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FEF9D7"/>
+          <stop offset="100%" stopColor="#FDF5BB"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="200" cy="300" rx="85" ry="100" fill="url(#cBodyG)"/>
+      <ellipse cx="200" cy="320" rx="55" ry="70" fill="url(#cBellyG)" opacity="0.9"/>
+      <path d="M120,180 Q120,100 200,100 Q280,100 280,180 Q280,240 200,240 Q120,240 120,180" fill="url(#cBodyG)"/>
+      <ellipse cx="165" cy="170" rx="18" ry="25" fill="#222"/>
+      <ellipse cx="165" cy="162" rx="7" ry="10" fill="white"/>
+      <ellipse cx="235" cy="170" rx="18" ry="25" fill="#222"/>
+      <ellipse cx="235" cy="162" rx="7" ry="10" fill="white"/>
+      <path d="M185,210 Q200,225 215,210" stroke="#8E441E" strokeWidth="3" fill="none" strokeLinecap="round"/>
+      <ellipse cx="115" cy="280" rx="25" ry="15" fill="#FF9A4B" transform="rotate(-30,115,280)"/>
+      <ellipse cx="285" cy="280" rx="25" ry="15" fill="#FF9A4B" transform="rotate(30,285,280)"/>
+      <g style={{transformOrigin:"335px 255px",animation:"frailejMecerse 1.8s ease-in-out infinite"}}>
+        <path d="M330,300 Q360,250 340,210 Q320,250 330,300" fill="#FF4D4D"/>
+        <path d="M332,290 Q345,260 335,230 Q325,260 332,290" fill="#FFCC00"/>
+      </g>
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────
+// MAPA CENTRAL DE COMPAÑEROS
+// ─────────────────────────────────────────
+const COMPANEROS = {
+  "frailejón": {
+    Componente: FrailejonAvatar,
+    nombre: "Frailejón",
+    descripcion: "Espíritu del páramo colombiano",
+    color: "#587018",
+    colorClaro: "rgba(88,112,24,0.1)",
+    colorBorde: "rgba(88,112,24,0.25)",
+  },
+  "charman": {
+    Componente: CharmanAvatar,
+    nombre: "Charman",
+    descripcion: "Espíritu del fuego",
+    color: "#C05010",
+    colorClaro: "rgba(192,80,16,0.1)",
+    colorBorde: "rgba(192,80,16,0.25)",
+  },
+};
+
+// ─────────────────────────────────────────
+// BASE FUTURISTA (anillos giratorios)
+// ─────────────────────────────────────────
+function BaseFlotante({ color }) {
+  return (
+    <svg width="260" height="70" viewBox="0 0 260 70"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{position:"absolute",bottom:0,left:"50%",transform:"translateX(-50%)",pointerEvents:"none"}}>
+      <defs>
+        <radialGradient id="bfg" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={color} stopOpacity=".3"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="130" cy="55" rx="105" ry="20" fill="url(#bfg)" style={{animation:"frailejBrillar 2.8s ease-in-out infinite"}}/>
+      <ellipse cx="130" cy="46" rx="84" ry="12" fill="#2A1E14" opacity=".88"/>
+      <ellipse cx="130" cy="44" rx="84" ry="12" fill="none" stroke={color} strokeWidth="1" opacity=".5"/>
+      <ellipse cx="130" cy="45" rx="66" ry="8" fill="none" stroke={color} strokeWidth=".5" opacity=".35"/>
+      <line x1="52" y1="45" x2="44" y2="45" stroke={color} strokeWidth="1.5" opacity=".6"/>
+      <line x1="208" y1="45" x2="216" y2="45" stroke={color} strokeWidth="1.5" opacity=".6"/>
+      <rect x="48" y="42" width="4" height="6" rx="1" fill={color} opacity=".5"/>
+      <rect x="208" y="42" width="4" height="6" rx="1" fill={color} opacity=".5"/>
+      <g style={{transformOrigin:"130px 45px",animation:"frailejMecerse 5s linear infinite"}}>
+        <ellipse cx="130" cy="45" rx="96" ry="15" fill="none" stroke={color} strokeWidth=".8" strokeDasharray="6 8" opacity=".4"/>
+        <circle cx="226" cy="45" r="3" fill={color} opacity=".75"/>
+      </g>
+      <g style={{transformOrigin:"130px 45px",animation:"frailejMecerseR 7s linear infinite"}}>
+        <ellipse cx="130" cy="45" rx="68" ry="9" fill="none" stroke={color} strokeWidth=".6" strokeDasharray="3 9" opacity=".3"/>
+        <circle cx="62" cy="45" r="2.5" fill={color} opacity=".65"/>
+      </g>
+      <path d="M46 45 L32 40 L32 50 Z" fill="#3A2A1C" stroke={color} strokeWidth=".8" opacity=".7"/>
+      <path d="M214 45 L228 40 L228 50 Z" fill="#3A2A1C" stroke={color} strokeWidth=".8" opacity=".7"/>
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────
+// NUBE DE PENSAMIENTO con frase
+// ─────────────────────────────────────────
+function NubeFrase({ frase, color }) {
+  return (
+    <div style={{position:"relative",display:"flex",justifyContent:"center",marginBottom:4}}>
+      <div style={{
+        background:"white",
+        border:`1.5px solid ${color}30`,
+        borderRadius:20,
+        padding:"10px 16px",
+        maxWidth:260,
+        position:"relative",
+        boxShadow:`0 4px 20px ${color}18`,
+      }}>
+        <div style={{fontSize:12,color:"#3A2A1C",lineHeight:1.6,textAlign:"center",fontStyle:"italic"}}>
+          "{frase}"
+        </div>
+        {/* Colita de nube apuntando hacia abajo al compañero */}
+        <div style={{
+          position:"absolute",bottom:-10,left:"50%",transform:"translateX(-50%)",
+          width:0,height:0,
+          borderLeft:"8px solid transparent",
+          borderRight:"8px solid transparent",
+          borderTop:`10px solid white`,
+          filter:`drop-shadow(0 2px 1px ${color}20)`,
+        }}/>
+        <div style={{
+          position:"absolute",bottom:-12,left:"50%",transform:"translateX(-50%)",
+          width:0,height:0,
+          borderLeft:"9px solid transparent",
+          borderRight:"9px solid transparent",
+          borderTop:`11px solid ${color}30`,
+          zIndex:-1,
+        }}/>
+      </div>
+      {/* Burbujitas estilo nube de pensamiento */}
+      <div style={{position:"absolute",bottom:-18,left:"calc(50% - 6px)",width:8,height:8,borderRadius:"50%",background:"white",border:`1.5px solid ${color}30`}}/>
+      <div style={{position:"absolute",bottom:-26,left:"calc(50% - 2px)",width:5,height:5,borderRadius:"50%",background:"white",border:`1.5px solid ${color}30`}}/>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// COMPAÑERO EN HOME (nube + avatar + base)
+// ─────────────────────────────────────────
+function CompaneroHome({ id }) {
+  const data = COMPANEROS[id];
+  if (!data) return null;
+  const { Componente, color } = data;
+  const frase = getFraseHoy();
+  return (
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"12px 0 0"}}>
+      <NubeFrase frase={frase} color={color}/>
+      <div style={{position:"relative",display:"flex",justifyContent:"center",alignItems:"flex-end",minHeight:240,width:"100%",marginTop:8}}>
+        <BaseFlotante color={color}/>
+        <div style={{position:"relative",zIndex:2,marginBottom:16}}>
+          <Componente/>
+        </div>
+      </div>
+    </div>
+  );
+}
 function FrailejonAvatar() {
   return (
     <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding:"8px 0 0"}}>
@@ -243,6 +514,8 @@ const [notasClinicas, setNotasClinicas] = useState([]);
 const [respuestaTarea, setRespuestaTarea] = useState("");
 const [tareaRespondiendo, setTareaRespondiendo] = useState(null);
 const [fraseDelMes, setFraseDelMes] = useState("");
+const [companero, setCompanero] = useState(null);
+const [companeroSeleccionando, setCompaneroSeleccionando] = useState(null);
 const [loadingFrase, setLoadingFrase] = useState(false);
 const [checkInMood, setCheckInMood] = useState(null);
 const [mostrarCheckIn, setMostrarCheckIn] = useState(false);
@@ -288,7 +561,12 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
               }
             });
           }
-          showScreen("home");
+          setCompanero(docSnap.data().companero || null);
+          if (!docSnap.data().companero) {
+            showScreen("elegir-companero");
+          } else {
+            showScreen("home");
+          }
       } else if (rol === "psicologo") {
         setUsuarioActual({ uid, ...docSnap.data() });
         cargarCitas(uid, "psicologo");
@@ -884,7 +1162,12 @@ useEffect(() => {
               }
             });
           }
-          showScreen("home");
+          setCompanero(data.companero || null);
+          if (!data.companero) {
+            showScreen("elegir-companero");
+          } else {
+            showScreen("home");
+          }
         } else if (data.rol === "psicologo") {
           cargarCitas(user.uid, "psicologo");
           cargarRecordatorios(user.uid);
@@ -1566,8 +1849,8 @@ const styles = `
                 ) : null}
               </div>
 
-              {/* Frailejón — compañero del páramo */}
-              <FrailejonAvatar />
+              {/* Compañero de terapia */}
+              <CompaneroHome id={companero || "frailejón"}/>
 
               {mdl("confirmar-cita", citaSeleccionada && (
                 <div>
@@ -1586,7 +1869,64 @@ const styles = `
             </div>
           )}
 
-          {/* NOTAS */}
+          {/* PANTALLA ELEGIR COMPAÑERO */}
+{screen === "elegir-companero" && (
+  <div style={{minHeight:"100vh",background:"#F5EDE0",display:"flex",flexDirection:"column"}}>
+    <div style={{background:"linear-gradient(160deg,#3A2A1C,#2A1E14)",padding:"32px 20px 36px",borderRadius:"0 0 28px 28px"}}>
+      <div style={{fontSize:11,color:"rgba(232,168,124,0.6)",letterSpacing:1.5,marginBottom:8,fontWeight:600}}>BIENVENIDO/A</div>
+      <div style={{fontSize:24,fontWeight:700,color:"#F5EDE0",lineHeight:1.3}}>Elige tu compañero</div>
+      <div style={{fontSize:13,color:"rgba(245,237,224,0.5)",marginTop:8,lineHeight:1.6}}>
+        Te acompañará durante tu proceso. Puedes cambiarlo una vez al mes.
+      </div>
+    </div>
+    <div style={{padding:"20px 16px",flex:1,overflowY:"auto"}}>
+      {Object.entries(COMPANEROS).map(([id, data]) => (
+        <div key={id}
+          onClick={() => setCompaneroSeleccionando(id)}
+          style={{
+            background: companeroSeleccionando === id ? data.colorClaro : "#FEFAF5",
+            border:`${companeroSeleccionando === id ? "1.5px" : "0.5px"} solid ${companeroSeleccionando === id ? data.color : "rgba(196,132,90,0.12)"}`,
+            borderRadius:20, padding:"16px 16px 8px", marginBottom:14,
+            cursor:"pointer", transition:"all 0.2s ease",
+            display:"flex", flexDirection:"column", alignItems:"center",
+          }}>
+          <data.Componente/>
+          <div style={{textAlign:"center",paddingBottom:8}}>
+            <div style={{fontSize:16,fontWeight:700,color:"#3A2A1C",marginTop:4}}>{data.nombre}</div>
+            <div style={{fontSize:11,color:"#A08060",marginTop:3}}>{data.descripcion}</div>
+          </div>
+          {companeroSeleccionando === id && (
+            <div style={{width:"100%",display:"flex",justifyContent:"center",paddingBottom:4}}>
+              <div style={{background:data.color,borderRadius:20,padding:"4px 20px"}}>
+                <span style={{fontSize:11,color:"white",fontWeight:700}}>✓ Seleccionado</span>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+      {companeroSeleccionando && (
+        <div style={{marginTop:4}}>
+          {btn(async () => {
+            try {
+              await updateDoc(doc(db,"usuarios",usuarioActual.uid),{
+                companero: companeroSeleccionando,
+                companeroDesde: new Date().toISOString().split("T")[0],
+                companeroUltimoCambio: new Date().toISOString().split("T")[0],
+              });
+              setCompanero(companeroSeleccionando);
+              setUsuarioActual(p=>({...p, companero: companeroSeleccionando}));
+              showScreen("home");
+            } catch(e) { console.error(e); }
+          }, `Elegir a ${COMPANEROS[companeroSeleccionando].nombre}`, {
+            width:"100%", padding:"14px 0", borderRadius:14,
+            background: COMPANEROS[companeroSeleccionando].color,
+            color:"white", fontSize:15, fontWeight:800, marginBottom:10,
+          })}
+        </div>
+      )}
+    </div>
+  </div>
+)}
 {!notifPanel && screen === "notas" && (
   <div style={{ height:"100%", display:"flex", flexDirection:"column", background:darkMode?"#1A1208":"#F5EDE0" }}>
     
