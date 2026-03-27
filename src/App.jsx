@@ -923,12 +923,12 @@ const styles = `
   }
 `;
   const C = darkMode ? {
-  plum:"#9B8AB4", sage:"#7DAA92", sageDark:"#5DB882",
-  amber:"#E8A87C", amberDark:"#E8A87C", cream:"#1a1a2e",
-  warm:"#2a2a3e", text:"#F0EBE3", light:"#6B6B8A",
-  red:"#E57373", green:"#66BB6A", blue:"#64B5F6",
-  dark:"#0f0f1a", gold:"#F0C040", bg:"#0f0f1a",
-  cardBg:"#252535", headerBg:"rgba(30,20,50,0.95)"
+  plum:"#B8A8D4", sage:"#7DAA92", sageDark:"#5DB882",
+  amber:"#E8A87C", amberDark:"#F0B882", cream:"#12111E",
+  warm:"#1E1D2E", text:"#EDE8F5", light:"#8B8BA8",
+  red:"#F48A8A", green:"#7DD87D", blue:"#7EC8F8",
+  dark:"#0A0916", gold:"#F5CC55", bg:"#0A0916",
+  cardBg:"#1E1D2E", headerBg:"rgba(18,17,30,0.97)"
 } : {
   plum:"#5C4D6E", sage:"#7DAA92", sageDark:"#4A8A72",
   amber:"#E8A87C", amberDark:"#C4845A", cream:"#FAF7F2",
@@ -977,7 +977,7 @@ const styles = `
   const isAdmin = active === "admin-home" || active === "admin-psicologo" || active === "admin-pacientes" || active === "admin-pagos";
   const navItems = isAdmin
     ? [["👑","Dashboard","admin-home"],["🧠","Psicólogos","admin-psicologo"],["👥","Pacientes","admin-pacientes"],["💰","Pagos","admin-pagos"]]
-    : [["👤","Perfil","admin-perfil"],["👥","Pacientes","psi-dashboard"],["📅","Citas","calendario-psi"]];
+    : [["👤","Perfil","admin-perfil"],["👥","Pacientes","psi-dashboard"],["📅","Citas","calendario"]];
   return (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(15,10,30,0.9)":"rgba(26,26,46,0.92)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderTop:"0.5px solid rgba(255,255,255,0.08)", display:"flex", paddingBottom:"env(safe-area-inset-bottom, 8px)", paddingTop:6 }}>
       {navItems.map(([ic,lb,id]) => {
@@ -990,12 +990,7 @@ const styles = `
             {isActive && <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:20, height:3, background:C.amber, borderRadius:"0 0 3px 3px" }}/>}
           </div>
         );
-      })}
-      <div onClick={async () => { await signOut(auth); setUsuarioActual(null); setCitas([]); setPacientes([]); setResenas([]); setRecordatorios([]); setTareasPsicologo([]); setRecursos([]); showScreen("login"); }}
-        style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:2, padding:"4px 0", cursor:"pointer" }}>
-        <div style={{ width:40, height:28, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>🚪</div>
-        <div style={{ fontSize:10, fontWeight:500, color:"rgba(255,100,100,0.7)" }}>Salir</div>
-      </div>
+      })}      
     </div>
   );
 };
