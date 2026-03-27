@@ -1003,8 +1003,8 @@ const styles = `
           <div key={lb} onClick={() => { if(navigator.vibrate) navigator.vibrate([6,0,6]); isTareas ? (showScreen("notas"), setTimeout(()=>setNoteTab("tareas"),50)) : showScreen(id); }}
             style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3, paddingBottom:4, cursor:"pointer", position:"relative" }}>
             <div style={{ position:"relative" }}>
-              <div style={{ width:38, height:34, borderRadius:11, background:isActive?(darkMode?"#2A1E10":"#3A2A1C"):"transparent", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.25s", boxShadow:isActive?`0 0 14px rgba(196,132,90,${darkMode?0.5:0.35}),0 0 28px rgba(196,132,90,${darkMode?0.2:0.12})`:"none" }}>
-                <LucideIcon name={icon} color={iconColor} size={20}/>
+              <div style={{ width:38, height:34, borderRadius:11, background:isActive?(darkMode?"#2A1E10":"rgba(196,132,90,0.15)"):"transparent", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.25s" }}>
+                <LucideIcon name={icon} color={isActive?(darkMode?"#E8A87C":"#A06040"):iconColor} size={20}/>
               </div>
               {isTareas && tareasCount > 0 && (
                 <div style={{ position:"absolute", top:-3, right:-4, width:13, height:13, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:7, fontWeight:700, color:"white", border:`1.5px solid ${darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.96)"}` }}>{tareasCount}</div>
