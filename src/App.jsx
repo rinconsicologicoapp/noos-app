@@ -1033,7 +1033,7 @@ const styles = `
       <div style={{ width:"100%", maxWidth:430, height:"100%", background:C.cream, overflow:"hidden", position:"relative", margin:"0 auto", transition:"background 0.3s" }}>
 
         {/* CONTENIDO */}
-        <div style={{ height:"100%", overflowY:"auto", overflowX:"hidden", position:"relative" }}>
+        <div style={{ height:"100%", overflowY:"hidden", overflowX:"hidden", position:"relative" }}>
         {/* CONFETI CELEBRACIÓN */}
           {celebrando && (
             <div style={{ position:"absolute", inset:0, zIndex:600, pointerEvents:"none", overflow:"hidden" }}>
