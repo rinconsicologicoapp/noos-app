@@ -1338,72 +1338,73 @@ const styles = `
 
           {/* HOME */}
           {!notifPanel && screen === "home" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:"#F8F7FA" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:darkMode?"#0F0E17":"#F5F0EB" }}>
 
               {/* HEADER */}
-              <div style={{ background:`linear-gradient(145deg,${C.plum},#3D3055)`, padding:"28px 24px 52px", position:"relative" }}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+              <div style={{ background:darkMode?"linear-gradient(160deg,#3A2A1C,#2A1E14)":"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"20px 20px 44px", position:"relative" }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <div>
-                    <div style={{ fontSize:13, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>
-                      {new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}
+                    <div style={{ display:"inline-flex", background:"rgba(232,168,124,0.12)", border:"0.5px solid rgba(232,168,124,0.2)", borderRadius:20, padding:"3px 10px", marginBottom:8 }}>
+                      <span style={{ fontSize:10, color:"rgba(232,168,124,0.65)" }}>{new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}</span>
                     </div>
-                    <div style={{ fontSize:20, color:"white", fontWeight:700, marginTop:4 }}>
-                      Hola, {usuarioActual?.nombre?.split(" ")[0] || "Bienvenido"} 👋
+                    <div style={{ fontSize:13, color:"rgba(245,230,208,0.55)", fontWeight:400, lineHeight:1 }}>Buenos días,</div>
+                    <div style={{ fontSize:20, color:"#E8A87C", fontWeight:700, marginTop:1 }}>
+                      {usuarioActual?.nombre?.split(" ")[0] || "Bienvenido"}
                     </div>
                   </div>
                   <div style={{ display:"flex", gap:10, alignItems:"center" }}>
-                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer" }}>
-                      <div style={{ fontSize:22 }}>🔔</div>
-                      {unread > 0 && <div style={{ position:"absolute", top:-4, right:-4, width:16, height:16, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:900, color:"white" }}>{unread}</div>}
+                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(232,168,124,0.1)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.7)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                      {unread > 0 && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"white" }}>{unread}</div>}
                     </div>
-                    <div onClick={() => showScreen("perfil")} style={{ width:44, height:44, background:`linear-gradient(135deg,${C.amber},${C.gold})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, border:"2px solid rgba(255,255,255,0.3)", cursor:"pointer" }}>{avatar}</div>
+                    <div onClick={() => showScreen("perfil")} style={{ width:36, height:36, background:"rgba(196,132,90,0.25)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, border:"1px solid rgba(232,168,124,0.3)", cursor:"pointer" }}>{avatar}</div>
                   </div>
                 </div>
 
                 {/* BARRA XP */}
-                <div style={{ background:"rgba(255,255,255,0.1)", borderRadius:14, padding:"10px 14px", marginTop:16 }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                    <span style={{ fontSize:11, color:"rgba(255,255,255,0.8)", fontWeight:700 }}>{getRango(xp).icono} {getRango(xp).nombre}</span>
-                    <span style={{ fontSize:11, color:C.amber, fontWeight:800 }}>{xp} XP</span>
+                <div style={{ display:"flex", alignItems:"center", gap:10, marginTop:14 }}>
+                  <div style={{ flex:1, height:3, background:"rgba(255,255,255,0.08)", borderRadius:2, overflow:"hidden" }}>
+                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:"linear-gradient(90deg,#C4845A,#E8A87C)", borderRadius:2, transition:"width 0.5s ease" }}/>
                   </div>
-                  <div style={{ height:6, background:"rgba(255,255,255,0.15)", borderRadius:3, overflow:"hidden" }}>
-                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:`linear-gradient(90deg,${C.amber},${C.gold})`, borderRadius:3, transition:"width 0.5s ease" }}/>
-                  </div>
+                  <span style={{ fontSize:10, color:"#E8A87C", fontWeight:600, whiteSpace:"nowrap" }}>{getRango(xp).icono} {xp} XP</span>
                 </div>
               </div>
 
               {/* PRÓXIMA CITA */}
-              <div style={{ padding:"0 16px", marginTop:-28, position:"relative", zIndex:10 }}>
+              <div style={{ padding:"0 14px", marginTop:-24, position:"relative", zIndex:10 }}>
                 {citas.length === 0 ? (
-                  <div style={{ background:"white", borderRadius:20, padding:14, boxShadow:"0 4px 20px rgba(0,0,0,0.08)", textAlign:"center", marginBottom:16 }}>
-                    <div style={{ fontSize:32, marginBottom:8 }}>📅</div>
-                    <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Sin citas agendadas</div>
-                    <div style={{ fontSize:12, color:C.light, marginTop:4 }}>Tu psicólogo agendará tu próxima sesión</div>
+                  <div style={{ background:darkMode?"#2A2018":"#2A2018", border:"0.5px solid rgba(232,168,124,0.12)", borderRadius:16, padding:14, textAlign:"center", marginBottom:12 }}>
+                    <div style={{ width:36, height:36, background:"rgba(196,132,90,0.15)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 8px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <div style={{ fontSize:12, fontWeight:600, color:"#F5E6D0" }}>Sin citas agendadas</div>
+                    <div style={{ fontSize:11, color:"rgba(245,230,208,0.4)", marginTop:3 }}>Tu psicólogo agendará tu próxima sesión</div>
                   </div>
                 ) : (
                   (() => {
                     const proxima = citas.filter(c => c.status !== "cancelada").sort((a,b) => new Date(a.fecha) - new Date(b.fecha))[0];
                     if (!proxima) return null;
                     return (
-                      <div style={{ background:"white", borderRadius:20, padding:14, boxShadow:"0 4px 20px rgba(0,0,0,0.08)", marginBottom:16 }}>
-                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-                          <div style={{ fontSize:12, fontWeight:800, color:C.plum, textTransform:"uppercase", letterSpacing:0.5 }}>📅 Próxima cita</div>
-                          <div style={{ background:proxima.status==="confirmada"?"#E6FAF0":"#FFF8E1", color:proxima.status==="confirmada"?C.sageDark:C.amberDark, fontSize:10, fontWeight:800, padding:"3px 9px", borderRadius:20 }}>
-                            {proxima.status==="confirmada"?"✅ Confirmada":"⏳ Pendiente"}
+                      <div style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.15)", borderRadius:16, padding:14, marginBottom:12, overflow:"hidden", position:"relative" }}>
+                        <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,#C4845A,transparent)", opacity:0.6 }}/>
+                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+                          <span style={{ fontSize:10, fontWeight:600, color:"rgba(232,168,124,0.55)", letterSpacing:0.8, textTransform:"uppercase" }}>Próxima cita</span>
+                          <div style={{ background:proxima.status==="confirmada"?"rgba(125,170,146,0.18)":"rgba(232,168,124,0.15)", color:proxima.status==="confirmada"?"#7DAA92":"#E8A87C", fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20 }}>
+                            {proxima.status==="confirmada"?"Confirmada":"Pendiente"}
                           </div>
                         </div>
-                        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
-                          <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:12, padding:"10px 12px", textAlign:"center", minWidth:52 }}>
-                            <div style={{ fontSize:18, fontWeight:900, color:"white", lineHeight:1 }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+                          <div style={{ background:"#C4845A", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:44 }}>
+                            <div style={{ fontSize:16, fontWeight:700, color:"white", lineHeight:1 }}>
                               {new Date(proxima.fecha).getDate()}
                             </div>
-                            <div style={{ fontSize:9, color:"rgba(255,255,255,0.7)", fontWeight:700, textTransform:"uppercase" }}>
+                            <div style={{ fontSize:8, color:"rgba(255,255,255,0.75)", fontWeight:600, textTransform:"uppercase" }}>
                               {new Date(proxima.fecha).toLocaleDateString('es-CO', { month:'short' })}
                             </div>
                           </div>
                           <div style={{ flex:1 }}>
-                            <div style={{ fontSize:15, fontWeight:900, color:C.text }}>Sesión con {proxima.psicologoNombre}</div>
-                            <div style={{ fontSize:12, color:C.light, marginTop:3 }}>⏰ {proxima.hora} · {proxima.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
+                            <div style={{ fontSize:13, fontWeight:600, color:"#F5E6D0" }}>Sesión con {proxima.psicologoNombre}</div>
+                            <div style={{ fontSize:11, color:"rgba(245,230,208,0.45)", marginTop:3 }}>{proxima.hora} · {proxima.modalidad==="virtual"?"Virtual":"Presencial"}</div>
                           </div>
                         </div>
                         {proxima.modalidad==="virtual" && proxima.link && (
@@ -1422,23 +1423,32 @@ const styles = `
                     );
                   })()
                 )}
-                {/* ACCESO RÁPIDO AUTORREGISTRO */}
-                <div onClick={() => { showScreen("notas"); setTimeout(()=>{ setNoteTab("tareas"); setTareasTab("autorregistros"); }, 50); }}
-                  style={{ background:C.cardBg, borderRadius:20, padding:"14px 18px", boxShadow:"0 4px 20px rgba(0,0,0,0.07)", marginBottom:16, display:"flex", alignItems:"center", gap:14, cursor:"pointer", border:`1px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.04)"}` }}>
-                  <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:24, flexShrink:0 }}>📋</div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Autorregistro</div>
-                    <div style={{ fontSize:12, color:C.light, marginTop:2 }}>Registra lo que viviste hoy</div>
+                {/* ACCESOS RÁPIDOS GRID */}
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:12 }}>
+                  <div onClick={() => { showScreen("notas"); setTimeout(()=>{ setNoteTab("tareas"); setTareasTab("autorregistros"); }, 50); }}
+                    style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:14, padding:"12px 12px", cursor:"pointer" }}>
+                    <div style={{ width:30, height:30, background:"rgba(196,132,90,0.15)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:8 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+                    </div>
+                    <div style={{ fontSize:12, fontWeight:600, color:"#F5E6D0" }}>Autorregistro</div>
+                    <div style={{ fontSize:10, color:"rgba(245,230,208,0.4)", marginTop:2 }}>Registra hoy</div>
                   </div>
-                  <div style={{ fontSize:20, color:C.light }}>›</div>
+                  <div onClick={() => { showScreen("notas"); setTimeout(()=>setNoteTab("insights"), 50); }}
+                    style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:14, padding:"12px 12px", cursor:"pointer" }}>
+                    <div style={{ width:30, height:30, background:"rgba(196,132,90,0.15)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:8 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                    </div>
+                    <div style={{ fontSize:12, fontWeight:600, color:"#F5E6D0" }}>Nueva nota</div>
+                    <div style={{ fontSize:10, color:"rgba(245,230,208,0.4)", marginTop:2 }}>Para no olvidar</div>
+                  </div>
                 </div>
 
                 {/* FRASE MES */}
                 {fraseDelMes ? (
-                  <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:20, padding:20, marginBottom:16 }}>
-                    <div style={{ fontSize:13, color:"rgba(255,255,255,0.6)", fontWeight:700, marginBottom:8 }}>✨ Frase del mes</div>
-                    <div style={{ fontSize:15, color:"white", lineHeight:1.6, fontStyle:"italic" }}>"{fraseDelMes}"</div>
-                    <div style={{ fontSize:11, color:"rgba(255,255,255,0.5)", marginTop:8, fontWeight:700 }}>— {psicologoData?.nombre || "Tu psicólogo"}</div>
+                  <div style={{ background:"rgba(196,132,90,0.08)", border:"0.5px solid rgba(232,168,124,0.15)", borderRadius:14, padding:"12px 14px", marginBottom:12 }}>
+                    <div style={{ fontSize:10, color:"rgba(232,168,124,0.55)", fontWeight:600, marginBottom:6, letterSpacing:0.5 }}>FRASE DEL MES</div>
+                    <div style={{ fontSize:13, color:"#F5E6D0", lineHeight:1.6, fontStyle:"italic" }}>"{fraseDelMes}"</div>
+                    <div style={{ fontSize:10, color:"rgba(245,230,208,0.4)", marginTop:6 }}>— {psicologoData?.nombre || "Tu psicólogo"}</div>
                   </div>
                 ) : null}
               </div>
@@ -1939,86 +1949,96 @@ const styles = `
 
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:"#F8F7FA" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:darkMode?"#0F0E17":"#F5F0EB" }}>
 
               {/* HEADER */}
-              <div style={{ background:`linear-gradient(145deg,${C.plum},#3D3055)`, padding:"32px 24px 52px", textAlign:"center" }}>
-                <div onClick={() => setModal("avatar")} style={{ position:"relative", display:"inline-block", marginBottom:12, cursor:"pointer" }}>
-                  <div style={{ fontSize:64 }}>{avatar}</div>
-                  <div style={{ position:"absolute", bottom:0, right:-4, width:24, height:24, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, border:"2px solid white" }}>✏️</div>
+              <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"28px 20px 40px", textAlign:"center" }}>
+                <div onClick={() => setModal("avatar")} style={{ position:"relative", display:"inline-block", marginBottom:10, cursor:"pointer" }}>
+                  <div style={{ width:64, height:64, background:"rgba(196,132,90,0.2)", borderRadius:"50%", border:"2px solid rgba(232,168,124,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32 }}>{avatar}</div>
+                  <div style={{ position:"absolute", bottom:0, right:0, width:20, height:20, background:"#C4845A", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid #2A1E14" }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+                  </div>
                 </div>
-                <div style={{ fontSize:22, fontWeight:900, color:"white", marginBottom:4 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginBottom:12 }}>{usuarioActual?.email || ""}</div>
-                <div style={{ display:"inline-flex", background:"rgba(255,255,255,0.12)", borderRadius:20, padding:"5px 14px", gap:6, alignItems:"center" }}>
-                  <span style={{ fontSize:13 }}>{getRango(xp).icono}</span>
-                  <span style={{ fontSize:11, fontWeight:700, color:"white" }}>{getRango(xp).nombre} · {xp} XP</span>
+                <div style={{ fontSize:17, fontWeight:700, color:"#F5E6D0", marginBottom:3 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
+                <div style={{ fontSize:11, color:"rgba(245,230,208,0.4)", marginBottom:10 }}>{usuarioActual?.email || ""}</div>
+                <div style={{ display:"inline-flex", background:"rgba(232,168,124,0.1)", border:"0.5px solid rgba(232,168,124,0.2)", borderRadius:20, padding:"4px 12px", gap:5, alignItems:"center" }}>
+                  <span style={{ fontSize:12 }}>{getRango(xp).icono}</span>
+                  <span style={{ fontSize:11, fontWeight:600, color:"#E8A87C" }}>{getRango(xp).nombre} · {xp} XP</span>
                 </div>
               </div>
 
-              <div style={{ padding:"0 16px", marginTop:-24, position:"relative", zIndex:10 }}>
+              <div style={{ padding:"0 14px", marginTop:-18, position:"relative", zIndex:10 }}>
 
                 {/* MI PSICÓLOGO */}
                 <div onClick={async () => { setPsicologoData(null); showScreen("perfil-psicologo"); }}
-                  style={{ background:`linear-gradient(135deg,${C.dark},${C.plum})`, borderRadius:20, padding:18, display:"flex", alignItems:"center", gap:14, marginBottom:16, cursor:"pointer", boxShadow:"0 4px 20px rgba(0,0,0,0.15)" }}>
-                  <div style={{ width:56, height:56, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28, flexShrink:0, border:"2px solid rgba(255,255,255,0.2)" }}>👨‍⚕️</div>
+                  style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.15)", borderRadius:16, padding:"12px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:12, cursor:"pointer" }}>
+                  <div style={{ width:44, height:44, background:"rgba(196,132,90,0.15)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👨‍⚕️</div>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)", fontWeight:700, textTransform:"uppercase", marginBottom:3 }}>Mi psicólogo</div>
-                    <div style={{ fontSize:16, fontWeight:900, color:"white" }}>{usuarioActual?.psicologoNombre || "Dr. Rincón"}</div>
-                    <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>Toca para ver su perfil completo</div>
+                    <div style={{ fontSize:10, color:"rgba(232,168,124,0.5)", fontWeight:600, textTransform:"uppercase", letterSpacing:0.5, marginBottom:2 }}>Mi psicólogo</div>
+                    <div style={{ fontSize:13, fontWeight:600, color:"#F5E6D0" }}>{usuarioActual?.psicologoNombre || "Dr. Rincón"}</div>
                   </div>
-                  <div style={{ color:"rgba(255,255,255,0.4)", fontSize:20 }}>›</div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.25)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
 
                 {/* MI CUENTA */}
-                <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>Mi cuenta</div>
-                <div style={{ background:"white", borderRadius:16, overflow:"hidden", marginBottom:12, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                <div style={{ fontSize:11, fontWeight:600, color:"rgba(245,230,208,0.35)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Mi cuenta</div>
+                <div style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
                   {[
-                    [avatar, "Cambiar avatar", () => setModal("avatar")],
-                    ["✏️", "Editar perfil", () => { setEditNombre(usuarioActual?.nombre || ""); setEditTel(usuarioActual?.telefono || ""); setModal("edit-perfil"); }],
-                    ["🔔", "Notificaciones", () => setNotifPanel(true)],
-                  ].map(([ic,lb,fn],i,arr) => (
+                    { ic:"user", lb:"Cambiar avatar", fn:() => setModal("avatar") },
+                    { ic:"edit", lb:"Editar perfil", fn:() => { setEditNombre(usuarioActual?.nombre || ""); setEditTel(usuarioActual?.telefono || ""); setModal("edit-perfil"); } },
+                    { ic:"bell", lb:"Notificaciones", fn:() => setNotifPanel(true) },
+                  ].map(({ ic, lb, fn }, i, arr) => (
                     <div key={lb} onClick={fn}
-                      style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none", cursor:"pointer" }}>
-                      <div style={{ fontSize:18, width:36, height:36, background:C.warm, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{ic}</div>
-                      <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.text }}>{lb}</div>
-                      <div style={{ color:C.light, fontSize:16 }}>›</div>
+                      style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:i<arr.length-1?"0.5px solid rgba(232,168,124,0.06)":"none", cursor:"pointer" }}>
+                      <div style={{ width:30, height:30, background:"rgba(196,132,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        {ic==="user" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
+                        {ic==="edit" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>}
+                        {ic==="bell" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>}
+                      </div>
+                      <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5E6D0" }}>{lb}</div>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.2)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                     </div>
                   ))}
                 </div>
 
                 {/* CONFIGURACIÓN */}
-                <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>Configuración</div>
-                <div style={{ background:"white", borderRadius:16, overflow:"hidden", marginBottom:12, boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
+                <div style={{ fontSize:11, fontWeight:600, color:"rgba(245,230,208,0.35)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Configuración</div>
+                <div style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
                   <div onClick={() => setModal("privacidad")}
-                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
-                    <div style={{ fontSize:18, width:36, height:36, background:C.warm, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>🛡️</div>
-                    <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.text }}>Privacidad y seguridad</div>
-                    <div style={{ color:C.light, fontSize:16 }}>›</div>
+                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(232,168,124,0.06)", cursor:"pointer" }}>
+                    <div style={{ width:30, height:30, background:"rgba(196,132,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5E6D0" }}>Privacidad y seguridad</div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.2)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                   <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
-                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", cursor:"pointer" }}>
-                    <div style={{ fontSize:18, width:36, height:36, background:C.warm, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>{darkMode?"☀️":"🌙"}</div>
-                    <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.text }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
-                    <div style={{ width:44, height:24, borderRadius:12, background:darkMode?C.plum:C.light, position:"relative", transition:"background 0.3s" }}>
-                      <div style={{ width:18, height:18, borderRadius:"50%", background:"white", position:"absolute", top:3, left:darkMode?23:3, transition:"left 0.3s" }}/>
+                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(232,168,124,0.06)", cursor:"pointer" }}>
+                    <div style={{ width:30, height:30, background:"rgba(196,132,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+                    </div>
+                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5E6D0" }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
+                    <div style={{ width:38, height:20, borderRadius:10, background:darkMode?"#C4845A":"rgba(245,230,208,0.15)", position:"relative", transition:"background 0.3s", flexShrink:0 }}>
+                      <div style={{ width:14, height:14, borderRadius:"50%", background:"white", position:"absolute", top:3, left:darkMode?21:3, transition:"left 0.3s" }}/>
                     </div>
                   </div>
-                </div>
-
-                {/* VALORAR */}
-                <div onClick={() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }}
-                  style={{ background:"white", borderRadius:16, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:12, cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
-                  <div style={{ fontSize:18, width:36, height:36, background:"#FFF8E1", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>⭐</div>
-                  <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.text }}>Valorar a mi psicólogo</div>
-                  <div style={{ color:C.light, fontSize:16 }}>›</div>
+                  <div onClick={() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }}
+                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", cursor:"pointer" }}>
+                    <div style={{ width:30, height:30, background:"rgba(196,132,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5E6D0" }}>Valorar a mi psicólogo</div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.2)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
                 </div>
 
                 {/* CERRAR SESIÓN */}
                 <div onClick={async () => { await signOut(auth); setUsuarioActual(null); setCitas([]); setInsights([]); setAutorregistros([]); setRecursos([]); setTareasPsicologo([]); showScreen("login"); }}
-                  style={{ background:"white", borderRadius:16, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:8, cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,0.05)" }}>
-                  <div style={{ fontSize:18, width:36, height:36, background:"#FFE5E5", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>🚪</div>
-                  <div style={{ flex:1, fontSize:13, fontWeight:700, color:C.red }}>Cerrar sesión</div>
-                  <div style={{ color:C.red, fontSize:16 }}>›</div>
+                  style={{ background:"rgba(239,154,154,0.08)", border:"0.5px solid rgba(239,154,154,0.15)", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:8, cursor:"pointer" }}>
+                  <div style={{ width:30, height:30, background:"rgba(239,154,154,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#EF9A9A" strokeWidth="1.75" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  </div>
+                  <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#EF9A9A" }}>Cerrar sesión</div>
                 </div>
 
               </div>
