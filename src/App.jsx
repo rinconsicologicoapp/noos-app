@@ -4,7 +4,111 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } f
 import { auth } from "./firebase";
 import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc, query, where } from "firebase/firestore";
 import { db } from "./firebase";
-
+function FrailejonAvatar() {
+  return (
+    <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding:"8px 0 0"}}>
+      <svg width="220" height="260" viewBox="20 10 280 340" xmlns="http://www.w3.org/2000/svg" style={{animation:"frailejFlotar 4.5s ease-in-out infinite"}}>
+        <defs>
+          <radialGradient id="frj1" cx="40%" cy="30%" r="70%"><stop offset="0%" stopColor="#E8F5B0"/><stop offset="35%" stopColor="#A8C840"/><stop offset="70%" stopColor="#6A9020"/><stop offset="100%" stopColor="#3A5808"/></radialGradient>
+          <radialGradient id="frj2" cx="60%" cy="65%" r="70%"><stop offset="0%" stopColor="#C8E890"/><stop offset="40%" stopColor="#78B030"/><stop offset="80%" stopColor="#408018"/><stop offset="100%" stopColor="#204808"/></radialGradient>
+          <radialGradient id="frj3" cx="45%" cy="35%" r="65%"><stop offset="0%" stopColor="#FFF8A0"/><stop offset="40%" stopColor="#F0D020"/><stop offset="75%" stopColor="#C09010"/><stop offset="100%" stopColor="#806008"/></radialGradient>
+          <radialGradient id="frj4" cx="50%" cy="40%" r="65%"><stop offset="0%" stopColor="#F8E8B0"/><stop offset="45%" stopColor="#D0A840"/><stop offset="85%" stopColor="#907020"/><stop offset="100%" stopColor="#584008"/></radialGradient>
+          <radialGradient id="frjC" cx="38%" cy="32%" r="65%"><stop offset="0%" stopColor="#D0E888"/><stop offset="50%" stopColor="#88B828"/><stop offset="100%" stopColor="#385008"/></radialGradient>
+          <radialGradient id="frjO" cx="30%" cy="28%" r="65%"><stop offset="0%" stopColor="#F8F0A0"/><stop offset="50%" stopColor="#D0A820"/><stop offset="100%" stopColor="#806010"/></radialGradient>
+          <radialGradient id="frjT" cx="40%" cy="30%" r="65%"><stop offset="0%" stopColor="#C8D880"/><stop offset="55%" stopColor="#789828"/><stop offset="100%" stopColor="#304808"/></radialGradient>
+        </defs>
+        <ellipse cx="160" cy="200" rx="120" ry="90" fill="#D8E8A0" opacity=".07"/>
+        <g style={{transformOrigin:"145px 210px",animation:"frailejónMecerse 3.8s ease-in-out infinite"}}>
+          <path d="M145 210 Q95 175 68 140 Q48 112 52 85 Q58 65 78 72 Q100 80 118 118 Q134 152 145 192Z" fill="url(#frj2)" opacity=".88"/>
+          <ellipse cx="90" cy="128" rx="20" ry="13" fill="#B0E060" opacity=".3" transform="rotate(-28,90,128)"/>
+          <ellipse cx="90" cy="128" rx="10" ry="7" fill="#E0F8A0" opacity=".38" transform="rotate(-28,90,128)"/>
+          <path d="M143 200 Q108 160 82 120 Q65 95 60 75" fill="none" stroke="#C0F060" strokeWidth="1.2" opacity=".4"/>
+        </g>
+        <g style={{transformOrigin:"175px 210px",animation:"frailejMecerseR 3.8s ease-in-out infinite"}}>
+          <path d="M175 210 Q225 175 252 140 Q272 112 268 85 Q262 65 242 72 Q220 80 202 118 Q186 152 175 192Z" fill="url(#frj1)" opacity=".88"/>
+          <ellipse cx="230" cy="128" rx="20" ry="13" fill="#C8E870" opacity=".3" transform="rotate(28,230,128)"/>
+          <path d="M177 200 Q212 160 238 120 Q255 95 260 75" fill="none" stroke="#D0F070" strokeWidth="1.2" opacity=".4"/>
+        </g>
+        <g style={{transformOrigin:"148px 220px",animation:"frailejónMecerse 3s ease-in-out infinite 0.3s"}}>
+          <path d="M148 220 Q108 198 82 182 Q62 170 56 152 Q52 136 68 132 Q88 128 108 152 Q128 176 145 208Z" fill="url(#frj4)" opacity=".9"/>
+          <ellipse cx="80" cy="164" rx="16" ry="10" fill="#F0D880" opacity=".35" transform="rotate(-15,80,164)"/>
+        </g>
+        <g style={{transformOrigin:"172px 220px",animation:"frailejMecerseR 3s ease-in-out infinite 0.3s"}}>
+          <path d="M172 220 Q212 198 238 182 Q258 170 264 152 Q268 136 252 132 Q232 128 212 152 Q192 176 175 208Z" fill="url(#frj3)" opacity=".88"/>
+          <ellipse cx="240" cy="164" rx="16" ry="10" fill="#F8F090" opacity=".32" transform="rotate(15,240,164)"/>
+        </g>
+        <g style={{transformOrigin:"150px 235px",animation:"frailejónMecerse 2.5s ease-in-out infinite 0.6s"}}>
+          <path d="M150 235 Q122 225 100 230 Q82 235 80 252 Q80 268 98 272 Q122 276 148 255Z" fill="url(#frj2)" opacity=".92"/>
+          <ellipse cx="100" cy="250" rx="15" ry="10" fill="#C0F070" opacity=".35" transform="rotate(12,100,250)"/>
+        </g>
+        <g style={{transformOrigin:"170px 235px",animation:"frailejMecerseR 2.5s ease-in-out infinite 0.6s"}}>
+          <path d="M170 235 Q198 225 220 230 Q238 235 240 252 Q240 268 222 272 Q198 276 172 255Z" fill="url(#frj1)" opacity=".92"/>
+        </g>
+        <g style={{transformOrigin:"160px 190px",animation:"frailejónMecerse 2s ease-in-out infinite 0.1s"}}>
+          <path d="M160 190 Q138 168 126 145 Q118 128 126 115 Q134 104 148 114 Q158 124 162 148Z" fill="url(#frj3)" opacity=".85"/>
+        </g>
+        <g style={{transformOrigin:"160px 190px",animation:"frailejMecerseR 2s ease-in-out infinite 0.1s"}}>
+          <path d="M160 190 Q182 168 194 145 Q202 128 194 115 Q186 104 172 114 Q162 124 158 148Z" fill="url(#frj4)" opacity=".85"/>
+        </g>
+        <g style={{transformOrigin:"160px 185px",animation:"frailejMecerseSlow 2.8s ease-in-out infinite 0.4s"}}>
+          <path d="M155 185 Q148 158 150 132 Q152 112 160 100 Q168 112 170 132 Q172 158 165 185Z" fill="url(#frj3)" opacity=".9"/>
+        </g>
+        <circle cx="45" cy="160" r="4" fill="#D0F070" opacity=".5" style={{animation:"frailejDrift 3.5s ease-in-out infinite"}}/>
+        <circle cx="38" cy="188" r="3" fill="#F0E080" opacity=".45" style={{animation:"frailejDrift 4s ease-in-out infinite 0.8s"}}/>
+        <circle cx="272" cy="155" r="4" fill="#C8F060" opacity=".5" style={{animation:"frailejDrift 3.2s ease-in-out infinite 1s"}}/>
+        <circle cx="278" cy="182" r="3" fill="#F0D880" opacity=".45" style={{animation:"frailejDrift 3.8s ease-in-out infinite 0.5s"}}/>
+        <circle cx="60" cy="230" r="2.5" fill="#E8F8A0" opacity=".4" style={{animation:"frailejDrift 4.2s ease-in-out infinite 1.3s"}}/>
+        <circle cx="260" cy="225" r="2.5" fill="#F8F0A0" opacity=".4" style={{animation:"frailejDrift 3.6s ease-in-out infinite 0.3s"}}/>
+        <ellipse cx="160" cy="295" rx="14" ry="36" fill="url(#frjT)"/>
+        <ellipse cx="160" cy="295" rx="9" ry="28" fill="#90B830" opacity=".6"/>
+        <ellipse cx="160" cy="278" rx="9" ry="6" fill="#B8D850" opacity=".5"/>
+        <ellipse cx="160" cy="292" rx="10" ry="7" fill="#A8C840" opacity=".45"/>
+        <ellipse cx="160" cy="308" rx="8" ry="6" fill="#90A830" opacity=".4"/>
+        <ellipse cx="160" cy="288" rx="4" ry="5" fill="#E8F890" opacity=".4" style={{animation:"frailejBrillar 2.2s ease-in-out infinite"}}/>
+        <ellipse cx="160" cy="332" rx="60" ry="9" fill="#88A020" opacity=".12"/>
+        <path d="M152 198 Q138 178 130 158" fill="none" stroke="#90A830" strokeWidth="3" strokeLinecap="round"/>
+        <circle cx="128" cy="153" r="10" fill="#506010"/>
+        <circle cx="128" cy="153" r="8" fill="#98C030"/>
+        <circle cx="128" cy="153" r="5.5" fill="#D8F070"/>
+        <circle cx="128" cy="153" r="3" fill="#F8FFB0"/>
+        <circle cx="125" cy="149" r="2" fill="white" opacity=".85"/>
+        <circle cx="128" cy="153" r="12" fill="none" stroke="#B8D840" strokeWidth="1" opacity=".35" style={{animation:"frailejBrillar 2s ease-in-out infinite"}}/>
+        <path d="M168 198 Q182 178 190 158" fill="none" stroke="#90A830" strokeWidth="3" strokeLinecap="round"/>
+        <circle cx="192" cy="153" r="10" fill="#506010"/>
+        <circle cx="192" cy="153" r="8" fill="#98C030"/>
+        <circle cx="192" cy="153" r="5.5" fill="#D8F070"/>
+        <circle cx="192" cy="153" r="3" fill="#F8FFB0"/>
+        <circle cx="189" cy="149" r="2" fill="white" opacity=".85"/>
+        <circle cx="192" cy="153" r="12" fill="none" stroke="#B8D840" strokeWidth="1" opacity=".35" style={{animation:"frailejBrillar 2s ease-in-out infinite 0.6s"}}/>
+        <ellipse cx="160" cy="222" rx="44" ry="40" fill="#304808"/>
+        <ellipse cx="160" cy="220" rx="40" ry="37" fill="url(#frjC)"/>
+        <ellipse cx="144" cy="208" rx="18" ry="13" fill="white" opacity=".1" transform="rotate(-12,144,208)"/>
+        <ellipse cx="120" cy="218" rx="14" ry="8" fill="#D8F080" opacity=".3"/>
+        <ellipse cx="200" cy="218" rx="14" ry="8" fill="#D8F080" opacity=".3"/>
+        <ellipse cx="135" cy="228" rx="13" ry="8" fill="#F0D840" opacity=".35"/>
+        <ellipse cx="185" cy="228" rx="13" ry="8" fill="#F0D840" opacity=".35"/>
+        <ellipse cx="135" cy="228" rx="8" ry="5" fill="#FFF090" opacity=".25"/>
+        <ellipse cx="185" cy="228" rx="8" ry="5" fill="#FFF090" opacity=".25"/>
+        <ellipse cx="144" cy="218" rx="17" ry="17" fill="#181E04"/>
+        <ellipse cx="176" cy="218" rx="17" ry="17" fill="#181E04"/>
+        <ellipse cx="144" cy="218" rx="15" ry="15" fill="white"/>
+        <ellipse cx="176" cy="218" rx="15" ry="15" fill="white"/>
+        <ellipse cx="144" cy="219" rx="11" ry="11" fill="url(#frjO)"/>
+        <ellipse cx="176" cy="219" rx="11" ry="11" fill="url(#frjO)"/>
+        <ellipse cx="144" cy="219" rx="6.5" ry="6.5" fill="#C09018"/>
+        <ellipse cx="176" cy="219" rx="6.5" ry="6.5" fill="#C09018"/>
+        <ellipse cx="144" cy="219" rx="3.5" ry="3.5" fill="#181004"/>
+        <ellipse cx="176" cy="219" rx="3.5" ry="3.5" fill="#181004"/>
+        <ellipse cx="138" cy="211" rx="5.5" ry="4.5" fill="white" opacity=".92"/>
+        <ellipse cx="170" cy="211" rx="5.5" ry="4.5" fill="white" opacity=".92"/>
+        <circle cx="149" cy="224" r="3" fill="white" opacity=".5"/>
+        <circle cx="181" cy="224" r="3" fill="white" opacity=".5"/>
+        <ellipse cx="160" cy="228" rx="4" ry="2.5" fill="#2A3A04"/>
+        <path d="M149 235 Q160 244 171 235" fill="none" stroke="#486010" strokeWidth="2.5" strokeLinecap="round"/>
+      </svg>
+    </div>
+  );
+}
 export default function NOOS() {
   const [screen, setScreen] = useState("login");
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -898,6 +1002,13 @@ const showScreen = (id) => {
 
   const pendientes = tareas.filter(t => !t).length;
 const styles = `
+  @keyframes frailejMecerse { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+  @keyframes frailejMecerseR { 0%,100%{transform:rotate(3deg)} 50%{transform:rotate(-3deg)} }
+  @keyframes frailejMecerseSlow { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(5deg)} }
+  @keyframes frailejFlotar { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  @keyframes frailejBrillar { 0%,100%{opacity:.25} 50%{opacity:.85} }
+  @keyframes frailejDrift { 0%,100%{transform:translate(0,0)} 33%{transform:translate(2px,-4px)} 66%{transform:translate(-2px,2px)} }
+  @keyframes frailejParpadear { 0%,85%,100%{transform:scaleY(1)} 91%{transform:scaleY(.06)} }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -1454,6 +1565,9 @@ const styles = `
                   </div>
                 ) : null}
               </div>
+
+              {/* Frailejón — compañero del páramo */}
+              <FrailejonAvatar />
 
               {mdl("confirmar-cita", citaSeleccionada && (
                 <div>
