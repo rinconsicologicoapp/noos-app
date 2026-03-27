@@ -1871,42 +1871,51 @@ const styles = `
 
           {/* PANTALLA ELEGIR COMPAÑERO */}
 {screen === "elegir-companero" && (
-  <div style={{minHeight:"100vh",background:"#F5EDE0",display:"flex",flexDirection:"column"}}>
-    <div style={{background:"linear-gradient(160deg,#3A2A1C,#2A1E14)",padding:"32px 20px 36px",borderRadius:"0 0 28px 28px"}}>
-      <div style={{fontSize:11,color:"rgba(232,168,124,0.6)",letterSpacing:1.5,marginBottom:8,fontWeight:600}}>BIENVENIDO/A</div>
-      <div style={{fontSize:24,fontWeight:700,color:"#F5EDE0",lineHeight:1.3}}>Elige tu compañero</div>
-      <div style={{fontSize:13,color:"rgba(245,237,224,0.5)",marginTop:8,lineHeight:1.6}}>
-        Te acompañará durante tu proceso. Puedes cambiarlo una vez al mes.
+  <div style={{position:"absolute",inset:0,background:"#F5EDE0",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10}}>
+    <div style={{background:"linear-gradient(160deg,#3A2A1C,#2A1E14)",padding:"28px 20px 28px",borderRadius:"0 0 24px 24px",flexShrink:0}}>
+      <div style={{fontSize:11,color:"rgba(232,168,124,0.6)",letterSpacing:1.5,marginBottom:6,fontWeight:600}}>BIENVENIDO/A</div>
+      <div style={{fontSize:22,fontWeight:700,color:"#F5EDE0",lineHeight:1.3}}>Elige tu compañero</div>
+      <div style={{fontSize:12,color:"rgba(245,237,224,0.45)",marginTop:6,lineHeight:1.5}}>
+        Te acompañará en tu proceso. Puedes cambiarlo una vez al mes.
       </div>
     </div>
-    <div style={{padding:"20px 16px",flex:1,overflowY:"auto"}}>
+    <div style={{padding:"16px 16px 40px"}}>
       {Object.entries(COMPANEROS).map(([id, data]) => (
         <div key={id}
           onClick={() => setCompaneroSeleccionando(id)}
           style={{
             background: companeroSeleccionando === id ? data.colorClaro : "#FEFAF5",
             border:`${companeroSeleccionando === id ? "1.5px" : "0.5px"} solid ${companeroSeleccionando === id ? data.color : "rgba(196,132,90,0.12)"}`,
-            borderRadius:20, padding:"16px 16px 8px", marginBottom:14,
+            borderRadius:20, padding:"12px 16px 10px", marginBottom:12,
             cursor:"pointer", transition:"all 0.2s ease",
-            display:"flex", flexDirection:"column", alignItems:"center",
+            display:"flex", alignItems:"center", gap:16,
           }}>
-          <data.Componente/>
-          <div style={{textAlign:"center",paddingBottom:8}}>
-            <div style={{fontSize:16,fontWeight:700,color:"#3A2A1C",marginTop:4}}>{data.nombre}</div>
-            <div style={{fontSize:11,color:"#A08060",marginTop:3}}>{data.descripcion}</div>
-          </div>
-          {companeroSeleccionando === id && (
-            <div style={{width:"100%",display:"flex",justifyContent:"center",paddingBottom:4}}>
-              <div style={{background:data.color,borderRadius:20,padding:"4px 20px"}}>
-                <span style={{fontSize:11,color:"white",fontWeight:700}}>✓ Seleccionado</span>
-              </div>
+          {/* Avatar pequeño a la izquierda */}
+          <div style={{width:80,height:80,flexShrink:0,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",background:data.colorClaro,borderRadius:16}}>
+            <div style={{transform:"scale(0.38)",transformOrigin:"center center",width:210,height:210,marginLeft:-65,marginTop:-65}}>
+              <data.Componente/>
             </div>
-          )}
+          </div>
+          {/* Info a la derecha */}
+          <div style={{flex:1}}>
+            <div style={{fontSize:16,fontWeight:700,color:"#3A2A1C"}}>{data.nombre}</div>
+            <div style={{fontSize:11,color:"#A08060",marginTop:3,lineHeight:1.4}}>{data.descripcion}</div>
+            {companeroSeleccionando === id && (
+              <div style={{display:"inline-flex",alignItems:"center",gap:4,marginTop:6,background:data.color,borderRadius:20,padding:"3px 12px"}}>
+                <span style={{fontSize:10,color:"white",fontWeight:700}}>✓ Seleccionado</span>
+              </div>
+            )}
+          </div>
+          {/* Check círculo der */}
+          <div style={{width:22,height:22,borderRadius:11,border:`1.5px solid ${companeroSeleccionando===id ? data.color : "rgba(196,132,90,0.2)"}`,background:companeroSeleccionando===id ? data.color : "transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+            {companeroSeleccionando === id && <span style={{fontSize:11,color:"white"}}>✓</span>}
+          </div>
         </div>
       ))}
-      {companeroSeleccionando && (
-        <div style={{marginTop:4}}>
-          {btn(async () => {
+      {/* Botón confirmar — siempre visible al final */}
+      <div style={{marginTop:8,paddingBottom:20}}>
+        {companeroSeleccionando ? (
+          btn(async () => {
             try {
               await updateDoc(doc(db,"usuarios",usuarioActual.uid),{
                 companero: companeroSeleccionando,
@@ -1917,13 +1926,17 @@ const styles = `
               setUsuarioActual(p=>({...p, companero: companeroSeleccionando}));
               showScreen("home");
             } catch(e) { console.error(e); }
-          }, `Elegir a ${COMPANEROS[companeroSeleccionando].nombre}`, {
+          }, `Comenzar con ${COMPANEROS[companeroSeleccionando].nombre} →`, {
             width:"100%", padding:"14px 0", borderRadius:14,
             background: COMPANEROS[companeroSeleccionando].color,
-            color:"white", fontSize:15, fontWeight:800, marginBottom:10,
-          })}
-        </div>
-      )}
+            color:"white", fontSize:14, fontWeight:800,
+          })
+        ) : (
+          <div style={{textAlign:"center",fontSize:12,color:"rgba(58,42,28,0.35)",padding:"12px 0"}}>
+            Toca un compañero para seleccionarlo
+          </div>
+        )}
+      </div>
     </div>
   </div>
 )}
