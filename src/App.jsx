@@ -1275,6 +1275,25 @@ const showScreen = (id) => {
   setScreen(id);
 };
 
+const BACK_MAP = {
+  "perfil":           "home",
+  "calendario":       "home",
+  "notas":            "home",
+  "perfil-psicologo": "home",
+  "psi-dashboard":    "admin-perfil",
+  "admin-paciente":   "psi-dashboard",
+  "admin-pagos":      "admin-perfil",
+  "admin-psicologo":  "admin-perfil",
+  "admin-pacientes":  "admin-perfil",
+};
+
+const goBack = () => {
+  if (notifPanel) { setNotifPanel(false); return; }
+  if (modal) { setModal(null); return; }
+  const destino = BACK_MAP[screen];
+  if (destino) showScreen(destino);
+};
+
   const markRead = (id) => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   const markAllRead = () => setNotifs(prev => prev.map(n => ({ ...n, read: true })));
 
@@ -1285,6 +1304,9 @@ const showScreen = (id) => {
 
   const pendientes = tareas.filter(t => !t).length;
 const styles = `
+  .safe-header {
+    padding-top: max(20px, env(safe-area-inset-top, 20px)) !important;
+  }
   @keyframes frailejMecerse { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
   @keyframes frailejMecerseR { 0%,100%{transform:rotate(3deg)} 50%{transform:rotate(-3deg)} }
   @keyframes frailejMecerseSlow { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(5deg)} }
@@ -1446,7 +1468,7 @@ const styles = `
     </div>
   ) : null;
   if (checkingAuth) return (
-  <div style={{ height:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:"linear-gradient(160deg,#2A2018 0%,#1E1610 60%,#181210 100%)", fontFamily:"system-ui" }}>
+  <div style={{ height:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:"linear-gradient(160deg,#2A2018 0%,#1E1610 60%,#181210 100%)", fontFamily:"system-ui", paddingTop:"env(safe-area-inset-top, 0px)", paddingBottom:"env(safe-area-inset-bottom, 0px)" }}>
     <style>{`
       @keyframes expandLine {
         0% { width:0; opacity:0; }
@@ -1466,10 +1488,35 @@ const styles = `
 );
 
   return (
-    <div className={darkMode ? "dark-mode" : ""} style={{ fontFamily:"system-ui,sans-serif", background:darkMode?"#0F0E17":"#E8EDF0", height:"100vh", width:"100vw", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", transition:"background 0.3s" }}><style>{styles}</style>
+    <div className={darkMode ? "dark-mode" : ""} style={{ fontFamily:"system-ui,sans-serif", background:darkMode?"#0F0E17":"#E8EDF0", height:"100vh", width:"100vw", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", transition:"background 0.3s", paddingTop:"env(safe-area-inset-top, 0px)" }}><style>{styles}</style>
       
       {/* CONTENEDOR PRINCIPAL */}
-      <div style={{ width:"100%", maxWidth:430, height:"100%", background:C.cream, overflow:"hidden", position:"relative", margin:"0 auto", transition:"background 0.3s" }}>
+      <div
+        style={{ width:"100%", maxWidth:430, height:"100%", background:C.cream, overflow:"hidden", position:"relative", margin:"0 auto", transition:"background 0.3s" }}
+        onTouchStart={e => {
+          const t = e.touches[0];
+          window._swipeStartX = t.clientX;
+          window._swipeStartY = t.clientY;
+          window._swipeStartTime = Date.now();
+        }}
+        onTouchEnd={e => {
+          if (window._swipeStartX === undefined) return;
+          const t = e.changedTouches[0];
+          const dx = t.clientX - window._swipeStartX;
+          const dy = Math.abs(t.clientY - window._swipeStartY);
+          const dt = Date.now() - window._swipeStartTime;
+          // Swipe derecha: desde borde izquierdo (primeros 30px), rápido, más horizontal que vertical
+          const desdeElBorde = window._swipeStartX < 30;
+          const esRapido = dt < 400;
+          const esDerecha = dx > 60;
+          const esMasHorizontal = dx > dy;
+          if (desdeElBorde && esRapido && esDerecha && esMasHorizontal) {
+            if (navigator.vibrate) navigator.vibrate(8);
+            goBack();
+          }
+          window._swipeStartX = undefined;
+        }}
+      >
 
         {/* CONTENIDO */}
         <div style={{ height:"100%", overflowY:"hidden", overflowX:"hidden", position:"relative" }}>
@@ -1734,10 +1781,10 @@ const styles = `
 
           {/* HOME */}
           {!notifPanel && screen === "home" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:darkMode?"#0F0E17":"#F5F0EB" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(120px + env(safe-area-inset-bottom, 0px))", background:darkMode?"#0F0E17":"#F5F0EB" }}>
 
               {/* HEADER */}
-              <div style={{ background:darkMode?"linear-gradient(160deg,#3A2A1C,#2A1E14)":"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"20px 20px 44px", position:"relative" }}>
+              <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative" }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <div>
                     <div style={{ display:"inline-flex", background:"rgba(232,168,124,0.12)", border:"0.5px solid rgba(232,168,124,0.2)", borderRadius:20, padding:"3px 10px", marginBottom:8 }}>
@@ -1997,7 +2044,7 @@ const styles = `
       </div>
     </div>
 
-    <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:140 }}>
+    <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))" }}>
       
       {/* PESTAÑA INSIGHTS */}
       {noteTab === "insights" && (
@@ -2303,7 +2350,7 @@ const styles = `
 )}
           {/* CALENDARIO */}
           {!notifPanel && screen === "calendario" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140, background:"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))", background:"#F5EDE0" }}>
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"18px 20px 22px" }}>
                 <div style={{ fontSize:18, fontWeight:700, color:"white" }}>📅 Mis citas</div>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:600 }}>
@@ -2395,7 +2442,7 @@ const styles = `
 
           {/* LOGROS */}
           {!notifPanel && screen === "logros" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(120px + env(safe-area-inset-bottom, 0px))", background:"#F5EDE0" }}>
               <div style={{ background:`linear-gradient(145deg,${C.amberDark},${C.gold})`, padding:"32px 24px 52px", textAlign:"center" }}>
                 <div style={{ fontSize:64, marginBottom:10 }}>{getRango(xp).icono}</div>
                 <div style={{ fontSize:20, fontWeight:700, color:"white", marginBottom:4 }}>{getRango(xp).nombre}</div>
@@ -2459,7 +2506,7 @@ const styles = `
 
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:darkMode?"#0F0E17":"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(120px + env(safe-area-inset-bottom, 0px))", background:darkMode?"#0F0E17":"#F5EDE0" }}>
 
               {/* HEADER */}
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"28px 20px 40px", textAlign:"center" }}>
@@ -2728,9 +2775,9 @@ const styles = `
           )}
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:120, background:"#F5EDE0" }}>
-              <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"24px 20px 44px", textAlign:"center", position:"relative" }}>
-                <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:20, left:20, fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(120px + env(safe-area-inset-bottom, 0px))", background:"#F5EDE0" }}>
+              <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative" }}>
+                <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(20px, env(safe-area-inset-top, 20px))", left:20, fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
                 {psicologoData?.foto ? (
                   <img src={psicologoData.foto} alt="foto" style={{ width:80, height:80, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,0.2)", margin:"0 auto 14px", display:"block" }}/>
                 ) : (
@@ -2818,8 +2865,8 @@ const styles = `
           )}    
           {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140, background:"#F5EDE0" }}>
-              <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"16px 18px 20px", display:"flex", alignItems:"center", gap:12 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))", background:"#F5EDE0" }}>
+              <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:12 }}>
                 <div onClick={() => showScreen("admin-perfil")} style={{ fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:16, fontWeight:700, color:"white" }}>👥 Mis pacientes</div>
@@ -3038,7 +3085,7 @@ const styles = `
           )}
           {/* ADMIN SaaS HOME */}
 {!notifPanel && screen === "admin-home" && (
-  <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
+  <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))" }}>
     <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
       <div style={{ fontSize:34 }}>👑</div>
       <div style={{ flex:1 }}>
@@ -3187,8 +3234,8 @@ const styles = `
 
           {/* ADMIN PACIENTE */}
           {!notifPanel && screen === "admin-paciente" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140 }}>
-              <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 22px 20px", display:"flex", alignItems:"center", gap:14 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))" }}>
+              <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 22px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:14 }}>
                 <div onClick={() => showScreen("psi-dashboard")} style={{ fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.8)" }}>←</div>
                 <div style={{ width:50, height:50, background:"rgba(255,255,255,0.15)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26 }}>👤</div>
                 <div>
@@ -3666,7 +3713,7 @@ const styles = `
 
           {/* ADMIN PERFIL */}
           {!notifPanel && screen === "admin-perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:140, background:"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))", background:"#F5EDE0" }}>
 
               {/* HEADER */}
               <div style={{ background:`linear-gradient(160deg,${C.dark},${C.plum})`, padding:"32px 24px 48px", textAlign:"center", position:"relative" }}>
