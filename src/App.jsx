@@ -726,7 +726,7 @@ const [regRol, setRegRol] = useState("paciente");
   const [avatar, setAvatar] = useState("🦋");
   const [modal, setModal] = useState(null);
   const [mood, setMood] = useState(2);
-  const [tareas, setTareas] = useState([false, false]);
+  const [tareas, setTareas] = useState([]);
   const [xp, setXp] = useState(0);
   const [xpCargado, setXpCargado] = useState(false);
   const [citaStatus, setCitaStatus] = useState("pending");
@@ -801,12 +801,37 @@ const handleInstall = async () => {
   const [navOpen, setNavOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
   const [notifPanel, setNotifPanel] = useState(false);
-  const [notifs, setNotifs] = useState([
-    { id:1, icon:"📅", title:"Cita mañana", msg:"Recuerda tu sesión con Dr. García mañana a las 10:00 AM", time:"Hace 1h", read:false },
-    { id:2, icon:"🎯", title:"Nueva tarea asignada", msg:"Dr. García te asignó: Registro de pensamientos automáticos", time:"Hace 3h", read:false },
-    { id:3, icon:"✨", title:"Frase de la semana", msg:'"El coraje no es la ausencia de miedo..." — Dr. García', time:"Hace 1 día", read:true },
-    { id:4, icon:"🔥", title:"¡Racha de 5 días!", msg:"Llevas 5 días seguidos registrando. +100 XP bonus", time:"Hace 2 días", read:true },
-  ]);
+  const cargarNotificaciones = async (pacienteId) => {
+  try {
+    const q = query(
+      collection(db, "notificaciones"),
+      where("pacienteId", "==", pacienteId)
+    );
+    const snap = await getDocs(q);
+    const lista = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => new Date(b.creadoEn) - new Date(a.creadoEn))
+      .slice(0, 20);
+    setNotifs(lista.map(n => ({
+      id: n.id,
+      icon: n.icon || "🔔",
+      title: n.titulo || "Notificación",
+      msg: n.mensaje || "",
+      time: (() => {
+        const diff = Date.now() - new Date(n.creadoEn).getTime();
+        const m = Math.floor(diff / 60000);
+        const h = Math.floor(diff / 3600000);
+        const d = Math.floor(diff / 86400000);
+        if (d > 0) return `Hace ${d} día${d > 1 ? "s" : ""}`;
+        if (h > 0) return `Hace ${h}h`;
+        if (m > 0) return `Hace ${m} min`;
+        return "Ahora";
+      })(),
+      read: n.leida || false,
+    })));
+  } catch(e) { console.log("Error cargando notificaciones:", e); }
+};
+  const [notifs, setNotifs] = useState([]);
   const [recordatorios, setRecordatorios] = useState([]);
 const [recTitulo, setRecTitulo] = useState("");
 const [recMensaje, setRecMensaje] = useState("");
@@ -870,6 +895,7 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
           cargarNotas(uid);
           cargarAutorregistros(uid);
           cargarTareasFirestore(uid);
+          cargarNotificaciones(uid);
           setTimeout(() => verificarCheckInHoy(), 800);
           if (docSnap.data().psicologoId) {
             getDoc(doc(db, "usuarios", docSnap.data().psicologoId)).then(snap => {
@@ -1217,27 +1243,118 @@ const guardarAnimo = async (valor) => {
   } catch(e) { console.log("Error guardando ánimo:", e); }
 };
 
-const verificarCheckInHoy = () => {
+const verificarCheckInHoy = async () => {
+  if (!usuarioActual?.uid) return;
   const hoy = new Date().toISOString().split('T')[0];
-  const yaRegistro = localStorage.getItem(`checkin_${usuarioActual?.uid}_${hoy}`);
-  if (!yaRegistro) setMostrarCheckIn(true);
+  const id = `${usuarioActual.uid}_${hoy}`;
+  try {
+    const snap = await getDoc(doc(db, "registrosAnimo", id));
+    if (!snap.exists()) setMostrarCheckIn(true);
+  } catch(e) { 
+    // Fallback a localStorage si falla Firestore
+    const yaRegistro = localStorage.getItem(`checkin_${usuarioActual?.uid}_${hoy}`);
+    if (!yaRegistro) setMostrarCheckIn(true);
+  }
 };
 
 const completarCheckIn = async (valor) => {
   const hoy = new Date().toISOString().split('T')[0];
   setCheckInMood(valor);
   await guardarAnimo(valor);
-  localStorage.setItem(`checkin_${usuarioActual?.uid}_${hoy}`, '1');
+  try { localStorage.setItem(`checkin_${usuarioActual?.uid}_${hoy}`, '1'); } catch(e) {}
   setTimeout(() => setMostrarCheckIn(false), 600);
+  limpiarAnimosViejos();
+  calcularYGuardarRacha();
+};
+const calcularYGuardarRacha = async () => {
+  if (!usuarioActual?.uid) return;
+  try {
+    // Cargar todos los registros de ánimo para calcular racha
+    const q = query(
+      collection(db, "registrosAnimo"),
+      where("pacienteId", "==", usuarioActual.uid)
+    );
+    const snap = await getDocs(q);
+    const fechas = snap.docs
+      .map(d => d.data().fecha)
+      .sort((a, b) => new Date(b) - new Date(a));
+
+    if (fechas.length === 0) return;
+
+    // Calcular racha consecutiva desde hoy hacia atrás
+    let racha = 0;
+    const hoy = new Date().toISOString().split('T')[0];
+    let diaActual = new Date(hoy);
+
+    for (let i = 0; i < 365; i++) {
+      const fechaStr = diaActual.toISOString().split('T')[0];
+      if (fechas.includes(fechaStr)) {
+        racha++;
+        diaActual.setDate(diaActual.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    // Guardar racha en Firestore
+    const rachaAnterior = usuarioActual?.racha || 0;
+    await updateDoc(doc(db, "usuarios", usuarioActual.uid), { racha });
+    setUsuarioActual(prev => ({ ...prev, racha }));
+
+    // Bonus XP por hitos de racha
+    const hitos = [3, 7, 14, 21, 30, 60, 90];
+    if (hitos.includes(racha) && racha > rachaAnterior) {
+      const bonus = racha >= 30 ? 50 : racha >= 14 ? 30 : 15;
+      await sumarXP(bonus, `🔥 ¡${racha} días de racha! +${bonus} XP`);
+      // Crear notificación de hito
+      await setDoc(doc(db, "notificaciones", `racha_${usuarioActual.uid}_${racha}`), {
+        pacienteId: usuarioActual.uid,
+        psicologoId: usuarioActual.psicologoId || "",
+        icon: "🔥",
+        titulo: `¡${racha} días de racha!`,
+        mensaje: `Llevas ${racha} días seguidos registrando tu estado de ánimo. +${bonus} XP`,
+        creadoEn: new Date().toISOString(),
+        leida: false,
+        tipo: "racha",
+      });
+    }
+  } catch(e) { console.log("Error calculando racha:", e); }
+};
+const limpiarAnimosViejos = async () => {
+  if (!usuarioActual?.uid) return;
+  try {
+    const hace120 = new Date();
+    hace120.setDate(hace120.getDate() - 120);
+    const limite = hace120.toISOString().split('T')[0];
+    // Cargar registros del paciente
+    const q = query(
+      collection(db, "registrosAnimo"),
+      where("pacienteId", "==", usuarioActual.uid)
+    );
+    const snap = await getDocs(q);
+    const viejos = snap.docs.filter(d => d.data().fecha < limite);
+    // Borrar solo los primeros 60 días si hay más de 120 días de datos
+    if (viejos.length > 0) {
+      const hace60 = new Date();
+      hace60.setDate(hace60.getDate() - 60);
+      const limite60 = hace60.toISOString().split('T')[0];
+      const aBorrar = snap.docs.filter(d => d.data().fecha < limite60);
+      for (const d of aBorrar) {
+        await deleteDoc(doc(db, "registrosAnimo", d.id));
+      }
+    }
+  } catch(e) { console.log("Error limpiando ánimos:", e); }
 };
 
 const cargarRegistrosAnimo = async (pacienteId) => {
   try {
-    const hace30 = new Date();
-    hace30.setDate(hace30.getDate() - 30);
+    const hace120 = new Date();
+    hace120.setDate(hace120.getDate() - 120);
+    const fechaLimite = hace120.toISOString().split('T')[0];
     const q = query(
       collection(db, "registrosAnimo"),
       where("pacienteId", "==", pacienteId),
+      where("fecha", ">=", fechaLimite),
     );
     const snap = await getDocs(q);
     const lista = snap.docs.map(d => ({ id: d.id, ...d.data() }))
@@ -1619,12 +1736,7 @@ const goBack = () => {
   const markRead = (id) => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   const markAllRead = () => setNotifs(prev => prev.map(n => ({ ...n, read: true })));
 
-  const toggleTarea = (i) => {
-    const next = [...tareas]; next[i] = !next[i]; setTareas(next);
-    if (!tareas[i]) sumarXP(5, "Tarea completada ✅");
-  };
-
-  const pendientes = tareas.filter(t => !t).length;
+  const pendientes = tareasPsicologo.filter(t => !t.completada && t.pacienteId === usuarioActual?.uid).length;
 const styles = `
   .safe-header {
     padding-top: max(20px, env(safe-area-inset-top, 20px)) !important;
@@ -1857,8 +1969,14 @@ const styles = `
           {mostrarCheckIn && usuarioActual?.rol === "paciente" && screen === "home" && (
             <div style={{ position:"absolute", inset:0, zIndex:500, backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", background:"rgba(0,0,0,0.45)", display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
               <div style={{ background:C.cardBg, borderRadius:28, padding:"28px 24px", width:"100%", animation:"checkInIn 0.4s cubic-bezier(0.34,1.56,0.64,1)" }}>
-                <div style={{ fontSize:40, textAlign:"center", marginBottom:8 }}>🌅</div>
-                <div style={{ fontSize:20, fontWeight:900, color:C.text, textAlign:"center", marginBottom:4 }}>¿Cómo llegaste hoy?</div>
+                <div style={{ display:"flex", justifyContent:"center", marginBottom:12 }}>
+                  <svg width="48" height="48" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 22 C8 16, 14 16, 18 22 C22 28, 28 28, 32 22 C36 16, 40 18, 42 22" stroke="#C4845A" strokeWidth="2.5" strokeLinecap="round"/>
+                    <path d="M4 30 C8 24, 14 24, 18 30 C22 36, 28 36, 32 30 C36 24, 40 26, 42 30" stroke="#E8A87C" strokeWidth="1.8" strokeLinecap="round" opacity=".5"/>
+                    <path d="M4 14 C8 8, 14 8, 18 14 C22 20, 28 20, 32 14 C36 8, 40 10, 42 14" stroke="#E8A87C" strokeWidth="1.8" strokeLinecap="round" opacity=".35"/>
+                  </svg>
+                </div>
+                <div style={{ fontSize:20, fontWeight:900, color:C.text, textAlign:"center", marginBottom:4 }}>¿Cómo te sientes hoy?</div>
                 <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:24 }}>Tu psicólogo podrá ver tu evolución</div>
                 <div style={{ display:"flex", justifyContent:"space-between", marginBottom:28 }}>
                   {[["😞","Mal",0],["😕","Regular",1],["😐","Neutro",2],["🙂","Bien",3],["😄","Genial",4]].map(([e,l,v]) => (
@@ -2115,6 +2233,12 @@ const styles = `
                     <div style={{ fontSize:20, color:"#E8A87C", fontWeight:700, marginTop:1 }}>
                       {usuarioActual?.nombre?.split(" ")[0] || "Bienvenido"}
                     </div>
+                    {(usuarioActual?.racha || 0) > 0 && (
+                      <div style={{ display:"inline-flex", alignItems:"center", gap:4, background:"rgba(232,168,124,0.15)", border:"0.5px solid rgba(232,168,124,0.3)", borderRadius:20, padding:"2px 8px", marginTop:4 }}>
+                        <span style={{ fontSize:11 }}>🔥</span>
+                        <span style={{ fontSize:10, color:"#E8A87C", fontWeight:700 }}>{usuarioActual.racha} día{usuarioActual.racha !== 1 ? "s" : ""} de racha</span>
+                      </div>
+                    )}
                   </div>
                   <div style={{ display:"flex", gap:10, alignItems:"center" }}>
                     <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(232,168,124,0.1)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -3405,6 +3529,7 @@ const styles = `
             </div>
           )}
           {/* ADMIN SaaS HOME */}
+{!notifPanel && screen === "admin-home" && todosUsuarios.length === 0 && cargarTodosUsuarios()}
 {!notifPanel && screen === "admin-home" && (
   <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))" }}>
     <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
@@ -3419,7 +3544,12 @@ const styles = `
       {/* ESTADÍSTICAS */}
       <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📊 Estadísticas generales</div>
       <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:9, marginBottom:18 }}>
-        {[["🧠","Psicólogos activos","3"],["👥","Pacientes totales","68"],["💰","Ingresos del mes","$1.2M"],["⚠️","Cuentas inactivas","5"]].map(([ic,lb,val]) => (
+        {[
+        ["🧠", "Psicólogos activos", todosUsuarios.filter(u=>u.rol==="psicologo"&&!u.inactivo).length || "—"],
+        ["👥", "Pacientes totales", todosUsuarios.filter(u=>u.rol==="paciente").length || "—"],
+        ["🔒", "Cuentas inactivas", todosUsuarios.filter(u=>u.inactivo).length || "0"],
+        ["👤", "Total usuarios", todosUsuarios.length || "—"]
+      ].map(([ic,lb,val]) => (
           <div key={lb} style={{ background:"#FEFAF5", borderRadius:14, padding:13, border:"0.5px solid rgba(196,132,90,0.12)" }}>
             <div style={{ fontSize:24, marginBottom:4 }}>{ic}</div>
             <div style={{ fontSize:20, fontWeight:900, color:C.plum }}>{val}</div>
@@ -3430,17 +3560,27 @@ const styles = `
 
       {/* PSICÓLOGOS */}
       <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>🧠 Psicólogos</div>
-      {[["Dr. Danilo Rincón","23 pacientes","Activo"],["Dra. Laura Gómez","18 pacientes","Activo"],["Dr. Carlos Mejía","12 pacientes","Inactivo"]].map(([nombre,sub,status]) => (
-        <div key={nombre} style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, border:"0.5px solid rgba(196,132,90,0.12)" }}>
-          <div style={{ fontSize:26, width:42, height:42, background:C.warm, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>🧠</div>
-          <div><div style={{ fontSize:13, fontWeight:800, color:C.text }}>{nombre}</div><div style={{ fontSize:10, color:C.light }}>{sub}</div></div>
-          <div style={{ marginLeft:"auto", background:status==="Activo"?"#A8C5B5":"#FFE0E0", color:status==="Activo"?C.sageDark:C.red, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>{status}</div>
-        </div>
-      ))}
+      {todosUsuarios.filter(u=>u.rol==="psicologo").length === 0 ? (
+        <div style={{ textAlign:"center", padding:"16px 0", color:C.light, fontSize:12 }}>No hay psicólogos registrados aún</div>
+      ) : todosUsuarios.filter(u=>u.rol==="psicologo").map(p => {
+        const pacientesCount = todosUsuarios.filter(u=>u.rol==="paciente"&&u.psicologoId===p.id).length;
+        return (
+          <div key={p.id} style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+            <div style={{ fontSize:26, width:42, height:42, background:C.warm, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>🧠</div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{p.nombre}</div>
+              <div style={{ fontSize:10, color:C.light }}>{pacientesCount} paciente{pacientesCount!==1?"s":""}</div>
+            </div>
+            <div style={{ background:p.inactivo?"#FFE0E0":"#A8C5B5", color:p.inactivo?C.red:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
+              {p.inactivo?"Inactivo":"Activo"}
+            </div>
+          </div>
+        );
+      })}
 
       {/* ACCIONES */}
       <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
-      {mitem("➕", "Agregar usuario", () => setModal("registro-admin"))}
+      {mitem("➕", "Agregar usuario", () => { cargarTodosUsuarios(); setModal("registro-admin"); })}
 {mitem("👥", "Ver y gestionar usuarios", () => { cargarTodosUsuarios(); setModal("gestionar-usuarios"); })}
 {mitem("💰", "Gestión de pagos", () => showNotif("Pagos", "Función disponible pronto", "💰"))}
 {mitem("📊", "Ver reportes", () => showNotif("Reportes", "Función disponible pronto", "📊"))}
@@ -3574,26 +3714,64 @@ const styles = `
                   ))}
                 </div>
                 <div style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:12, border:"0.5px solid rgba(196,132,90,0.12)" }}>
-                  <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:12 }}>📊 Estado de ánimo — últimos 7 días</div>
+                  <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:4 }}>📊 Estado de ánimo</div>
                   {registrosAnimo.length === 0 ? (
                     <div style={{ textAlign:"center", padding:"16px 0", color:C.light, fontSize:12 }}>El paciente aún no ha registrado su ánimo</div>
-                  ) : (
-                    <div style={{ display:"flex", alignItems:"flex-end", gap:4, height:70 }}>
-                      {registrosAnimo.slice(-14).map((r, i) => {
-                        const colores = [C.red, C.amber, C.light, C.sage, C.green];
-                        const emojis = ["😞","😕","😐","🙂","😄"];
-                        const altura = [12,24,36,50,64][r.valor];
-                        const col = colores[r.valor];
-                        return (
-                          <div key={r.id} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
-                            <div style={{ fontSize:10 }}>{emojis[r.valor]}</div>
-                            <div style={{ width:"100%", height:altura, borderRadius:"4px 4px 0 0", background:col, opacity:0.85 }}/>
-                            <div style={{ fontSize:8, color:C.light, fontWeight:700 }}>{new Date(r.fecha).getDate()}</div>
+                  ) : (() => {
+                    const ultimos30 = registrosAnimo.slice(-30);
+                    const promedio = (ultimos30.reduce((a,r) => a+r.valor, 0) / ultimos30.length).toFixed(1);
+                    const labels = ["Mal","Regular","Neutro","Bien","Genial"];
+                    const colores = [C.red, C.amber, C.light, C.sage, C.green];
+                    const emojis = ["😞","😕","😐","🙂","😄"];
+                    const promedioInt = Math.round(parseFloat(promedio));
+                    return (
+                      <div>
+                        {/* Resumen promedio */}
+                        <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+                          <div style={{ flex:1, background:C.warm, borderRadius:10, padding:"8px 10px", textAlign:"center" }}>
+                            <div style={{ fontSize:18 }}>{emojis[promedioInt]}</div>
+                            <div style={{ fontSize:10, fontWeight:800, color:C.text }}>{labels[promedioInt]}</div>
+                            <div style={{ fontSize:9, color:C.light }}>Promedio</div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                          <div style={{ flex:1, background:C.warm, borderRadius:10, padding:"8px 10px", textAlign:"center" }}>
+                            <div style={{ fontSize:18, fontWeight:900, color:C.plum }}>{registrosAnimo.length}</div>
+                            <div style={{ fontSize:10, fontWeight:800, color:C.text }}>registros</div>
+                            <div style={{ fontSize:9, color:C.light }}>Total</div>
+                          </div>
+                          <div style={{ flex:1, background:C.warm, borderRadius:10, padding:"8px 10px", textAlign:"center" }}>
+                            <div style={{ fontSize:18, fontWeight:900, color:C.plum }}>{promedio}</div>
+                            <div style={{ fontSize:10, fontWeight:800, color:C.text }}>/ 4.0</div>
+                            <div style={{ fontSize:9, color:C.light }}>Score</div>
+                          </div>
+                        </div>
+                        {/* Gráfica últimos 30 días */}
+                        <div style={{ fontSize:10, color:C.light, fontWeight:700, marginBottom:6 }}>Últimos {ultimos30.length} registros</div>
+                        <div style={{ display:"flex", alignItems:"flex-end", gap:3, height:70, overflowX:"auto" }}>
+                          {ultimos30.map((r) => {
+                            const altura = [12,24,36,50,64][r.valor];
+                            const col = colores[r.valor];
+                            const dia = new Date(r.fecha + 'T12:00:00').toLocaleDateString('es-CO', { day:'numeric', month:'short' });
+                            return (
+                              <div key={r.id} style={{ minWidth:22, display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                                <div style={{ fontSize:9 }}>{emojis[r.valor]}</div>
+                                <div style={{ width:18, height:altura, borderRadius:"3px 3px 0 0", background:col, opacity:0.85 }}/>
+                                <div style={{ fontSize:7, color:C.light, fontWeight:700, whiteSpace:"nowrap" }}>{new Date(r.fecha + 'T12:00:00').getDate()}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {/* Leyenda */}
+                        <div style={{ display:"flex", justifyContent:"space-between", marginTop:8 }}>
+                          {labels.map((lb, i) => (
+                            <div key={lb} style={{ display:"flex", alignItems:"center", gap:3 }}>
+                              <div style={{ width:8, height:8, borderRadius:2, background:colores[i] }}/>
+                              <span style={{ fontSize:8, color:C.light }}>{lb}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📝 Autorregistros recientes</div>
                 {autorregistros.length === 0 ? (
