@@ -1809,7 +1809,7 @@ const styles = `
 );
 
   return (
-    <div className={darkMode ? "dark-mode" : ""} style={{ fontFamily:"system-ui,sans-serif", background:darkMode?"#0F0E17":"#E8EDF0", height:"100vh", width:"100vw", overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", transition:"background 0.3s", paddingTop:"env(safe-area-inset-top, 0px)" }}><style>{styles}</style>
+    <div className={darkMode ? "dark-mode" : ""} style={{ fontFamily:"system-ui,sans-serif", background:darkMode?"#0F0E17":"#E8EDF0", position:"fixed", top:0, left:0, right:0, bottom:0, overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", transition:"background 0.3s", paddingTop:"env(safe-area-inset-top, 0px)" }}><style>{styles}</style>
       
       {/* CONTENEDOR PRINCIPAL */}
       <div
