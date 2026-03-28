@@ -153,6 +153,107 @@ function CharmanAvatar({ mini = false }) {
     </svg>
   );
 }
+// ─────────────────────────────────────────
+// AVATAR CACAITO
+// ─────────────────────────────────────────
+function CacaitoAvatar({ mini = false }) {
+  return (
+    <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding:mini?0:"8px 0 0"}}>
+      <svg width={mini?72:220} height={mini?85:260} viewBox="30 0 300 440" xmlns="http://www.w3.org/2000/svg"
+        style={{animation:"frailejFlotar 4.2s ease-in-out infinite"}}>
+        <defs>
+          <radialGradient id="ccCuerpo" cx="42%" cy="38%" r="62%"><stop offset="0%" stopColor="#E8B890"/><stop offset="40%" stopColor="#B87848"/><stop offset="75%" stopColor="#8B5230"/><stop offset="100%" stopColor="#6B3818"/></radialGradient>
+          <radialGradient id="ccPanza" cx="50%" cy="45%" r="55%"><stop offset="0%" stopColor="#F8EDD8"/><stop offset="50%" stopColor="#EED8B8"/><stop offset="100%" stopColor="#D8C090"/></radialGradient>
+          <radialGradient id="ccPie" cx="40%" cy="35%" r="65%"><stop offset="0%" stopColor="#C89060"/><stop offset="60%" stopColor="#8B5230"/><stop offset="100%" stopColor="#5B3018"/></radialGradient>
+          <radialGradient id="ccOjo" cx="30%" cy="28%" r="65%"><stop offset="0%" stopColor="#C09858"/><stop offset="45%" stopColor="#7B5030"/><stop offset="100%" stopColor="#3B2010"/></radialGradient>
+          <radialGradient id="ccGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#B87848" stopOpacity=".5"/><stop offset="100%" stopColor="#8B5230" stopOpacity="0"/></radialGradient>
+          <clipPath id="ccScan"><ellipse cx="185" cy="398" rx="82" ry="11"/></clipPath>
+        </defs>
+        {/* Partículas */}
+        <circle cx="95" cy="120" r="3.5" fill="#C89060" opacity=".5" style={{animation:"frailejDrift 3.5s ease-in-out infinite"}}/>
+        <circle cx="88" cy="150" r="2.5" fill="#D0A870" opacity=".4" style={{animation:"frailejDrift 4s ease-in-out infinite 0.8s"}}/>
+        <circle cx="275" cy="115" r="3.5" fill="#B87848" opacity=".5" style={{animation:"frailejDrift 3.2s ease-in-out infinite 1s"}}/>
+        <circle cx="282" cy="148" r="2.5" fill="#C89060" opacity=".4" style={{animation:"frailejDrift 3.8s ease-in-out infinite 0.5s"}}/>
+        <circle cx="100" cy="295" r="2.5" fill="#D4A870" opacity=".4" style={{animation:"frailejDrift 4.2s ease-in-out infinite 1.3s"}}/>
+        <circle cx="272" cy="290" r="2.5" fill="#C09050" opacity=".4" style={{animation:"frailejDrift 3.6s ease-in-out infinite 0.3s"}}/>
+        {/* Piernas */}
+        <ellipse cx="158" cy="345" rx="18" ry="28" fill="url(#ccPie)" transform="rotate(-8,158,345)"/>
+        <ellipse cx="148" cy="370" rx="24" ry="15" fill="url(#ccPie)"/>
+        <ellipse cx="144" cy="372" rx="15" ry="9" fill="#7B4228" opacity=".4"/>
+        <ellipse cx="212" cy="345" rx="18" ry="28" fill="url(#ccPie)" transform="rotate(8,212,345)"/>
+        <ellipse cx="222" cy="370" rx="24" ry="15" fill="url(#ccPie)"/>
+        <ellipse cx="226" cy="372" rx="15" ry="9" fill="#7B4228" opacity=".4"/>
+        {/* Cuerpo */}
+        <ellipse cx="185" cy="245" rx="88" ry="118" fill="url(#ccCuerpo)"/>
+        <path d="M185,130 Q162,245 185,362" stroke="#5B3018" strokeWidth="10" fill="none" strokeLinecap="round" opacity=".7"/>
+        <path d="M185,130 Q162,245 185,362" stroke="#C89060" strokeWidth="5" fill="none" strokeLinecap="round" opacity=".3"/>
+        <path d="M185,143 Q205,245 185,355" stroke="#5B3018" strokeWidth="5" fill="none" strokeLinecap="round" opacity=".25"/>
+        <path d="M155,153 Q140,245 158,348" stroke="#5B3018" strokeWidth="4" fill="none" strokeLinecap="round" opacity=".18"/>
+        <path d="M215,153 Q230,245 212,348" stroke="#5B3018" strokeWidth="4" fill="none" strokeLinecap="round" opacity=".18"/>
+        <ellipse cx="185" cy="265" rx="52" ry="72" fill="url(#ccPanza)" opacity=".75"/>
+        {/* Bracitos simples sin dedos */}
+        <ellipse cx="108" cy="245" rx="26" ry="16" fill="url(#ccCuerpo)" transform="rotate(-25,108,245)"/>
+        <ellipse cx="262" cy="245" rx="26" ry="16" fill="url(#ccCuerpo)" transform="rotate(25,262,245)"/>
+        {/* Pedúnculo y hojitas */}
+        <rect x="179" y="116" width="12" height="22" rx="6" fill="#4B2C10"/>
+        <ellipse cx="185" cy="116" rx="16" ry="8" fill="#5B3820"/>
+        <ellipse cx="168" cy="112" rx="14" ry="7" fill="#6B8020" opacity=".85" transform="rotate(-30,168,112)"/>
+        <ellipse cx="202" cy="112" rx="14" ry="7" fill="#7B9028" opacity=".85" transform="rotate(30,202,112)"/>
+        <ellipse cx="185" cy="106" rx="10" ry="6" fill="#5B7018" opacity=".8"/>
+        {/* Cabeza */}
+        <ellipse cx="185" cy="186" rx="68" ry="62" fill="url(#ccCuerpo)"/>
+        <ellipse cx="132" cy="198" rx="18" ry="11" fill="#E8A060" opacity=".32"/>
+        <ellipse cx="238" cy="198" rx="18" ry="11" fill="#E8A060" opacity=".32"/>
+        {/* Ojos izq */}
+        <ellipse cx="158" cy="184" rx="20" ry="22" fill="#2B1808"/>
+        <ellipse cx="158" cy="184" rx="18" ry="20" fill="white"/>
+        <ellipse cx="159" cy="185" rx="13" ry="14" fill="url(#ccOjo)"/>
+        <ellipse cx="159" cy="185" rx="8" ry="8" fill="#4B2C18"/>
+        <ellipse cx="159" cy="185" rx="4" ry="4" fill="#1B0C04"/>
+        <ellipse cx="152" cy="177" rx="5.5" ry="4.5" fill="white" opacity=".92"/>
+        <circle cx="164" cy="190" r="3" fill="white" opacity=".5"/>
+        {/* Ojos der */}
+        <ellipse cx="212" cy="184" rx="20" ry="22" fill="#2B1808"/>
+        <ellipse cx="212" cy="184" rx="18" ry="20" fill="white"/>
+        <ellipse cx="213" cy="185" rx="13" ry="14" fill="url(#ccOjo)"/>
+        <ellipse cx="213" cy="185" rx="8" ry="8" fill="#4B2C18"/>
+        <ellipse cx="213" cy="185" rx="4" ry="4" fill="#1B0C04"/>
+        <ellipse cx="206" cy="177" rx="5.5" ry="4.5" fill="white" opacity=".92"/>
+        <circle cx="218" cy="190" r="3" fill="white" opacity=".5"/>
+        {/* Nariz y boca */}
+        <ellipse cx="185" cy="200" rx="5" ry="3.5" fill="#4B2C18"/>
+        <path d="M172 210 Q185 222 198 210" fill="none" stroke="#3B1C08" strokeWidth="3" strokeLinecap="round"/>
+        {/* Base hexágono futurista */}
+        <ellipse cx="185" cy="408" rx="115" ry="28" fill="url(#ccGlow)"/>
+        <polygon points="185,378 228,390 228,412 185,424 142,412 142,390" fill="#1E1408" stroke="#8B5230" strokeWidth="1" opacity=".92"/>
+        <polygon points="185,382 224,393 224,409 185,420 146,409 146,393" fill="none" stroke="#C09050" strokeWidth=".5" opacity=".4"/>
+        <circle cx="185" cy="401" r="4" fill="#8B5230" opacity=".6" style={{animation:"frailejBrillar 1.5s ease-in-out infinite"}}/>
+        <circle cx="185" cy="401" r="2" fill="#E8B870" opacity=".9" style={{animation:"frailejBrillar 1.5s ease-in-out infinite 0.3s"}}/>
+        <g style={{transformOrigin:"185px 401px",animation:"frailejMecerse 5s linear infinite"}}>
+          <ellipse cx="185" cy="401" rx="100" ry="12" fill="none" stroke="#8B5230" strokeWidth=".8" strokeDasharray="5 7" opacity=".45" transform="rotate(-15,185,401)"/>
+          <circle cx="285" cy="401" r="4" fill="#C89060" opacity=".9"/>
+        </g>
+        <g style={{transformOrigin:"185px 401px",animation:"frailejMecerseR 7s linear infinite"}}>
+          <ellipse cx="185" cy="401" rx="72" ry="9" fill="none" stroke="#D0A060" strokeWidth=".6" strokeDasharray="3 9" opacity=".35" transform="rotate(20,185,401)"/>
+          <circle cx="113" cy="401" r="3" fill="#E8C080" opacity=".8"/>
+        </g>
+        <g style={{transformOrigin:"185px 401px",animation:"frailejMecerse 9s linear infinite"}}>
+          <ellipse cx="185" cy="401" rx="52" ry="6" fill="none" stroke="#B87848" strokeWidth=".5" strokeDasharray="2 8" opacity=".28" transform="rotate(45,185,401)"/>
+          <circle cx="185" cy="395" r="2.5" fill="#F0C880" opacity=".7"/>
+        </g>
+        <circle cx="185" cy="378" r="2.5" fill="#C89060" opacity=".7" style={{animation:"frailejBrillar 2s ease-in-out infinite"}}/>
+        <circle cx="228" cy="390" r="2.5" fill="#C89060" opacity=".6" style={{animation:"frailejBrillar 2s ease-in-out infinite 0.4s"}}/>
+        <circle cx="228" cy="412" r="2.5" fill="#C89060" opacity=".6" style={{animation:"frailejBrillar 2s ease-in-out infinite 0.8s"}}/>
+        <circle cx="185" cy="424" r="2.5" fill="#C89060" opacity=".7" style={{animation:"frailejBrillar 2s ease-in-out infinite 1.2s"}}/>
+        <circle cx="142" cy="412" r="2.5" fill="#C89060" opacity=".6" style={{animation:"frailejBrillar 2s ease-in-out infinite 1.6s"}}/>
+        <circle cx="142" cy="390" r="2.5" fill="#C89060" opacity=".6" style={{animation:"frailejBrillar 2s ease-in-out infinite 2s"}}/>
+        <line x1="185" y1="424" x2="185" y2="434" stroke="#8B5230" strokeWidth=".8" opacity=".35"/>
+        <line x1="155" y1="418" x2="148" y2="428" stroke="#8B5230" strokeWidth=".6" opacity=".25"/>
+        <line x1="215" y1="418" x2="222" y2="428" stroke="#8B5230" strokeWidth=".6" opacity=".25"/>
+      </svg>
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────
 // MAPA CENTRAL DE COMPAÑEROS
@@ -173,6 +274,14 @@ const COMPANEROS = {
     color: "#C05010",
     colorClaro: "rgba(192,80,16,0.1)",
     colorBorde: "rgba(192,80,16,0.25)",
+  },
+  "cacaito": {
+    Componente: CacaitoAvatar,
+    nombre: "Cacaito",
+    descripcion: "Espíritu del cacao colombiano",
+    color: "#8B5230",
+    colorClaro: "rgba(139,82,48,0.1)",
+    colorBorde: "rgba(139,82,48,0.25)",
   },
 };
 
