@@ -254,6 +254,97 @@ function CacaitoAvatar({ mini = false }) {
     </div>
   );
 }
+// ─────────────────────────────────────────
+// AVATAR ABSTRACTIS
+// ─────────────────────────────────────────
+function AbstractisAvatar({ mini = false }) {
+  return (
+    <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding:mini?0:"8px 0 0"}}>
+      <svg width={mini?72:200} height={mini?85:240} viewBox="30 0 220 310" xmlns="http://www.w3.org/2000/svg"
+        style={{animation:"frailejFlotar 4s ease-in-out infinite"}}>
+        <defs>
+          <radialGradient id="abCara" cx="45%" cy="40%" r="60%"><stop offset="0%" stopColor="#A8B8C8"/><stop offset="55%" stopColor="#7890A8"/><stop offset="100%" stopColor="#506078"/></radialGradient>
+          <radialGradient id="abOjo" cx="35%" cy="30%" r="65%"><stop offset="0%" stopColor="#90E060"/><stop offset="50%" stopColor="#40A820"/><stop offset="100%" stopColor="#186008"/></radialGradient>
+          <radialGradient id="abGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#7890A8" stopOpacity=".5"/><stop offset="100%" stopColor="#506078" stopOpacity="0"/></radialGradient>
+        </defs>
+        {/* Partículas */}
+        <circle cx="60" cy="90" r="3" fill="#E88020" opacity=".5" style={{animation:"frailejDrift 3.5s ease-in-out infinite"}}/>
+        <circle cx="215" cy="110" r="3" fill="#F8C040" opacity=".45" style={{animation:"frailejDrift 3s ease-in-out infinite 0.8s"}}/>
+        <circle cx="55" cy="140" r="2" fill="#F09030" opacity=".4" style={{animation:"frailejDrift 4s ease-in-out infinite 1.2s"}}/>
+        <circle cx="218" cy="155" r="2" fill="#E88020" opacity=".35" style={{animation:"frailejDrift 3.6s ease-in-out infinite 0.4s"}}/>
+        {/* Cabello mosaico naranja — tapa superior */}
+        <ellipse cx="145" cy="55" rx="72" ry="42" fill="#E88020"/>
+        <circle cx="105" cy="38" r="7" fill="#F8C040"/><circle cx="118" cy="28" r="6" fill="#E04800"/><circle cx="132" cy="22" r="7" fill="#F09030"/>
+        <circle cx="147" cy="18" r="8" fill="#F8C040"/><circle cx="162" cy="22" r="6" fill="#D06010"/><circle cx="176" cy="30" r="7" fill="#F09030"/>
+        <circle cx="188" cy="40" r="6" fill="#E88020"/><circle cx="196" cy="52" r="5" fill="#F8C040"/>
+        <rect x="108" y="44" width="8" height="8" rx="2" fill="#F0A030"/><rect x="120" y="38" width="7" height="7" rx="2" fill="#F8C040"/>
+        <rect x="133" y="34" width="9" height="9" rx="2" fill="#E04800"/><rect x="148" y="30" width="8" height="8" rx="2" fill="#F8D060"/>
+        <rect x="162" y="35" width="7" height="7" rx="2" fill="#F09030"/><rect x="175" y="42" width="8" height="8" rx="2" fill="#E88020"/>
+        {/* Cascada pelo izquierda */}
+        <ellipse cx="95" cy="100" rx="22" ry="55" fill="#E88020" transform="rotate(-8,95,100)"/>
+        <circle cx="86" cy="75" r="6" fill="#F8C040"/><circle cx="90" cy="90" r="5" fill="#E04800"/>
+        <circle cx="84" cy="106" r="6" fill="#F09030"/><circle cx="88" cy="122" r="5" fill="#F8C040"/>
+        <rect x="80" y="136" width="7" height="7" rx="2" fill="#E88020"/>
+        {/* CARA cubista azul */}
+        <path d="M110,68 Q88,75 84,120 Q80,165 100,200 Q120,230 145,228 Q170,226 185,200 Q200,172 198,130 Q196,88 178,70 Q162,55 145,58 Q128,60 110,68 Z" fill="url(#abCara)"/>
+        {/* Zona marrón oscura superior derecha */}
+        <path d="M158,68 Q178,72 192,92 Q198,112 190,130 Q178,118 168,100 Q160,84 158,68 Z" fill="#8B5A38" opacity=".85"/>
+        {/* Zona morada con escamas */}
+        <path d="M140,140 Q162,138 178,155 Q186,172 178,192 Q168,208 150,210 Q134,210 125,195 Q118,178 125,158 Q132,142 140,140 Z" fill="#6840A0" opacity=".88"/>
+        <path d="M130,155 Q140,150 150,155 Q140,160 130,155Z" fill="none" stroke="#9060C8" strokeWidth=".8" opacity=".5"/>
+        <path d="M148,155 Q158,150 168,155 Q158,160 148,155Z" fill="none" stroke="#9060C8" strokeWidth=".8" opacity=".5"/>
+        <path d="M134,165 Q144,160 154,165 Q144,170 134,165Z" fill="none" stroke="#9060C8" strokeWidth=".8" opacity=".5"/>
+        <path d="M152,165 Q162,160 172,165 Q162,170 152,165Z" fill="none" stroke="#9060C8" strokeWidth=".8" opacity=".5"/>
+        <path d="M130,175 Q140,170 150,175 Q140,180 130,175Z" fill="none" stroke="#9060C8" strokeWidth=".8" opacity=".5"/>
+        {/* OJO CENTRAL cubista — el más expresivo */}
+        <path d="M122,100 Q138,88 155,90 Q170,92 178,102 Q168,118 152,120 Q134,120 122,108 Q118,104 122,100 Z" fill="white"/>
+        <ellipse cx="150" cy="105" rx="16" ry="14" fill="url(#abOjo)"/>
+        <ellipse cx="150" cy="105" rx="8" ry="9" fill="#1A0C08"/>
+        <ellipse cx="145" cy="100" rx="5" ry="4" fill="white" opacity=".8"/>
+        {/* Párpado */}
+        <path d="M122,100 Q138,88 155,90 Q170,92 178,102" fill="none" stroke="#3A6828" strokeWidth="2" opacity=".6"/>
+        {/* Cejas cubistas */}
+        <path d="M118,94 Q138,84 162,86" fill="none" stroke="#3A2818" strokeWidth="3" strokeLinecap="round" opacity=".7"/>
+        {/* Arête dorado derecho */}
+        <path d="M185,140 Q196,142 200,152 Q196,162 185,162 Q182,152 185,140 Z" fill="#F0C020"/>
+        <ellipse cx="188" cy="152" rx="10" ry="12" fill="none" stroke="#E8A800" strokeWidth="2.5" opacity=".8"/>
+        {/* Labios rojos */}
+        <path d="M118,192 Q135,183 150,186 Q165,183 175,192 Q165,205 150,208 Q135,205 118,192 Z" fill="#CC2020"/>
+        <path d="M118,192 Q135,200 150,200 Q165,200 175,192" fill="#AA1818" opacity=".6"/>
+        <path d="M120,192 Q135,186 150,188 Q165,186 174,192" fill="none" stroke="#FF4040" strokeWidth="1" opacity=".4"/>
+        {/* Triángulo lateral izquierdo */}
+        <path d="M84,118 L75,108 L78,132 Z" fill="#7890A8" stroke="#506078" strokeWidth="1" opacity=".7"/>
+        {/* Puntitos decorativos laterales */}
+        <circle cx="78" cy="122" r="4" fill="#CC2020" opacity=".7"/>
+        <circle cx="78" cy="112" r="3" fill="#A8B8C8" opacity=".6"/>
+        <circle cx="78" cy="133" r="3" fill="#A8B8C8" opacity=".5"/>
+        {/* BASE futurista — arcos concéntricos tipo máscara ritual */}
+        <ellipse cx="145" cy="258" rx="82" ry="14" fill="#38485A" opacity=".88"/>
+        <ellipse cx="145" cy="256" rx="82" ry="14" fill="none" stroke="#7890A8" strokeWidth="1" opacity=".55"/>
+        <ellipse cx="145" cy="244" rx="70" ry="8" fill="none" stroke="#7890A8" strokeWidth="1.2" strokeDasharray="4 6" opacity=".4"/>
+        <ellipse cx="145" cy="234" rx="56" ry="6" fill="none" stroke="#A8B8C8" strokeWidth=".8" strokeDasharray="3 7" opacity=".3"/>
+        <ellipse cx="145" cy="226" rx="40" ry="4" fill="none" stroke="#7890A8" strokeWidth=".6" strokeDasharray="2 8" opacity=".22"/>
+        <circle cx="145" cy="257" r="4" fill="#506078" opacity=".8" style={{animation:"frailejBrillar 2s ease-in-out infinite"}}/>
+        <circle cx="145" cy="257" r="2" fill="#A8C8E0" opacity=".9"/>
+        <g style={{transformOrigin:"145px 257px",animation:"frailejMecerse 5s linear infinite"}}>
+          <ellipse cx="145" cy="257" rx="72" ry="10" fill="none" stroke="#7890A8" strokeWidth=".8" strokeDasharray="5 7" opacity=".45"/>
+          <circle cx="217" cy="257" r="3.5" fill="#E88020" opacity=".85" style={{animation:"frailejBrillar 1.5s ease-in-out infinite"}}/>
+        </g>
+        <g style={{transformOrigin:"145px 257px",animation:"frailejMecerseR 7s linear infinite"}}>
+          <ellipse cx="145" cy="257" rx="50" ry="7" fill="none" stroke="#A8B8C8" strokeWidth=".6" strokeDasharray="3 8" opacity=".35"/>
+          <circle cx="95" cy="257" r="2.5" fill="#F8C040" opacity=".7"/>
+        </g>
+        <line x1="63" y1="257" x2="50" y2="257" stroke="#7890A8" strokeWidth="1.5" opacity=".55"/>
+        <line x1="227" y1="257" x2="240" y2="257" stroke="#7890A8" strokeWidth="1.5" opacity=".55"/>
+        <path d="M50 257 L38 252 L38 262 Z" fill="#38485A" stroke="#7890A8" strokeWidth=".8" opacity=".65"/>
+        <path d="M240 257 L252 252 L252 262 Z" fill="#38485A" stroke="#7890A8" strokeWidth=".8" opacity=".65"/>
+        <line x1="115" y1="268" x2="110" y2="278" stroke="#7890A8" strokeWidth=".7" opacity=".3"/>
+        <line x1="145" y1="270" x2="145" y2="280" stroke="#A8B8C8" strokeWidth=".7" opacity=".3"/>
+        <line x1="175" y1="268" x2="180" y2="278" stroke="#7890A8" strokeWidth=".7" opacity=".3"/>
+      </svg>
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────
 // MAPA CENTRAL DE COMPAÑEROS
@@ -282,6 +373,14 @@ const COMPANEROS = {
     color: "#8B5230",
     colorClaro: "rgba(139,82,48,0.1)",
     colorBorde: "rgba(139,82,48,0.25)",
+  },
+  "abstractis": {
+    Componente: AbstractisAvatar,
+    nombre: "Abstractis",
+    descripcion: "Espíritu del arte y la expresión",
+    color: "#506078",
+    colorClaro: "rgba(80,96,120,0.1)",
+    colorBorde: "rgba(80,96,120,0.25)",
   },
 };
 
