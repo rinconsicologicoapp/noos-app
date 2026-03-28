@@ -260,7 +260,7 @@ function CacaitoAvatar({ mini = false }) {
 function AbstractisAvatar({ mini = false }) {
   return (
     <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding:mini?0:"8px 0 0"}}>
-      <svg width={mini?72:200} height={mini?85:240} viewBox="30 0 220 310" xmlns="http://www.w3.org/2000/svg"
+      <svg width={mini?72:200} height={mini?85:240} viewBox="30 -10 220 325" xmlns="http://www.w3.org/2000/svg"
         style={{animation:"frailejFlotar 4s ease-in-out infinite"}}>
         <defs>
           <radialGradient id="abCara" cx="45%" cy="40%" r="60%"><stop offset="0%" stopColor="#A8B8C8"/><stop offset="55%" stopColor="#7890A8"/><stop offset="100%" stopColor="#506078"/></radialGradient>
@@ -369,7 +369,7 @@ const COMPANEROS = {
   "cacaito": {
     Componente: CacaitoAvatar,
     nombre: "Cacaito",
-    descripcion: "Espíritu del cacao colombiano",
+    descripcion: "Espíritu del cacao",
     color: "#8B5230",
     colorClaro: "rgba(139,82,48,0.1)",
     colorBorde: "rgba(139,82,48,0.25)",
@@ -382,7 +382,121 @@ const COMPANEROS = {
     colorClaro: "rgba(80,96,120,0.1)",
     colorBorde: "rgba(80,96,120,0.25)",
   },
+  "robi": {
+    Componente: RobiAvatar,
+    nombre: "Robi",
+    descripcion: "Espiritu IA",
+    color: "#4060A0",
+    colorClaro: "rgba(64,96,160,0.1)",
+    colorBorde: "rgba(64,96,160,0.25)",
+  },
 };
+// ─────────────────────────────────────────
+// AVATAR ROBI
+// ─────────────────────────────────────────
+function RobiAvatar({ mini = false }) {
+  return (
+    <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding:mini?0:"8px 0 0"}}>
+      <svg width={mini?72:200} height={mini?85:240} viewBox="0 10 300 400" xmlns="http://www.w3.org/2000/svg"
+        style={{animation:"frailejFlotar 4s ease-in-out infinite"}}>
+        <defs>
+          <radialGradient id="rbCab" cx="35%" cy="25%" r="72%"><stop offset="0%" stopColor="#FFFFFF"/><stop offset="15%" stopColor="#F8FBFF"/><stop offset="40%" stopColor="#E8EEF8"/><stop offset="70%" stopColor="#CDD6EE"/><stop offset="100%" stopColor="#A4B2D0"/></radialGradient>
+          <radialGradient id="rbCue" cx="38%" cy="28%" r="70%"><stop offset="0%" stopColor="#FFFFFF"/><stop offset="20%" stopColor="#F4F7FF"/><stop offset="50%" stopColor="#E0E8F4"/><stop offset="80%" stopColor="#C8D4EC"/><stop offset="100%" stopColor="#9AAAD0"/></radialGradient>
+          <radialGradient id="rbCia" cx="50%" cy="100%" r="60%"><stop offset="0%" stopColor="#20F0E0" stopOpacity=".75"/><stop offset="50%" stopColor="#20F0E0" stopOpacity=".25"/><stop offset="100%" stopColor="#20F0E0" stopOpacity="0"/></radialGradient>
+          <radialGradient id="rbScr" cx="48%" cy="42%" r="60%"><stop offset="0%" stopColor="#18202E"/><stop offset="55%" stopColor="#0C1220"/><stop offset="100%" stopColor="#06090F"/></radialGradient>
+          <radialGradient id="rbEyL" cx="30%" cy="28%" r="70%"><stop offset="0%" stopColor="#C0FFF8"/><stop offset="35%" stopColor="#30E8E0"/><stop offset="70%" stopColor="#00A8A0"/><stop offset="100%" stopColor="#005858"/></radialGradient>
+          <radialGradient id="rbEyR" cx="30%" cy="28%" r="70%"><stop offset="0%" stopColor="#EDD8FF"/><stop offset="35%" stopColor="#C070FF"/><stop offset="70%" stopColor="#7820D0"/><stop offset="100%" stopColor="#350890"/></radialGradient>
+          <radialGradient id="rbArL" cx="30%" cy="22%" r="72%"><stop offset="0%" stopColor="#FFFFFF"/><stop offset="35%" stopColor="#E8EEF8"/><stop offset="70%" stopColor="#C8D4EC"/><stop offset="100%" stopColor="#98AACB"/></radialGradient>
+          <radialGradient id="rbArR" cx="68%" cy="22%" r="72%"><stop offset="0%" stopColor="#FFFFFF"/><stop offset="35%" stopColor="#E8EEF8"/><stop offset="70%" stopColor="#C8D4EC"/><stop offset="100%" stopColor="#98AACB"/></radialGradient>
+          <radialGradient id="rbLeg" cx="38%" cy="22%" r="70%"><stop offset="0%" stopColor="#FFFFFF"/><stop offset="40%" stopColor="#E4EAF6"/><stop offset="80%" stopColor="#C0CCEC"/><stop offset="100%" stopColor="#94A4CA"/></radialGradient>
+          <radialGradient id="rbAnt" cx="36%" cy="24%" r="68%"><stop offset="0%" stopColor="#F4F8FF"/><stop offset="60%" stopColor="#D8E0F4"/><stop offset="100%" stopColor="#A8B8D8"/></radialGradient>
+        </defs>
+        {/* Partículas */}
+        <circle cx="28" cy="135" r="3" fill="#20F0E0" opacity=".4" style={{animation:"frailejDrift 3.5s ease-in-out infinite"}}/>
+        <circle cx="22" cy="168" r="2" fill="#C090FF" opacity=".35" style={{animation:"frailejDrift 4s ease-in-out infinite 0.9s"}}/>
+        <circle cx="272" cy="130" r="3" fill="#20F0E0" opacity=".4" style={{animation:"frailejDrift 3.2s ease-in-out infinite 1.1s"}}/>
+        <circle cx="276" cy="164" r="2" fill="#C090FF" opacity=".35" style={{animation:"frailejDrift 3.8s ease-in-out infinite 0.5s"}}/>
+        {/* Antenas */}
+        <g style={{transformOrigin:"122px 72px",animation:"frailejMecerse 3s ease-in-out infinite"}}>
+          <path d="M120,95 C120,85 119,78 122,65" fill="none" stroke="url(#rbAnt)" strokeWidth="7" strokeLinecap="round"/>
+          <path d="M120,95 C120,85 119,78 122,65" fill="none" stroke="#C8D4F0" strokeWidth="5" strokeLinecap="round"/>
+          <circle cx="122" cy="62" r="9" fill="url(#rbAnt)"/>
+          <circle cx="122" cy="62" r="9" fill="none" stroke="#C8D4F0" strokeWidth="1.5"/>
+          <circle cx="119" cy="59" r="4" fill="white" opacity=".55"/>
+          <circle cx="122" cy="62" r="3" fill="#20F0E0" opacity=".5" style={{animation:"frailejBrillar 2s ease-in-out infinite"}}/>
+        </g>
+        <g style={{transformOrigin:"178px 72px",animation:"frailejMecerseR 3.5s ease-in-out infinite 0.5s"}}>
+          <path d="M178,95 C178,85 179,78 178,65" fill="none" stroke="url(#rbAnt)" strokeWidth="7" strokeLinecap="round"/>
+          <path d="M178,95 C178,85 179,78 178,65" fill="none" stroke="#C8D4F0" strokeWidth="5" strokeLinecap="round"/>
+          <circle cx="178" cy="62" r="9" fill="url(#rbAnt)"/>
+          <circle cx="178" cy="62" r="9" fill="none" stroke="#C8D4F0" strokeWidth="1.5"/>
+          <circle cx="175" cy="59" r="4" fill="white" opacity=".55"/>
+          <circle cx="178" cy="62" r="3" fill="#C090FF" opacity=".5" style={{animation:"frailejBrillar 2.4s ease-in-out infinite 0.5s"}}/>
+        </g>
+        {/* Brazo izq */}
+        <path d="M76,218 C58,218 36,226 24,243 C14,258 18,278 32,288 C44,298 62,296 70,284 C58,270 54,254 58,240 C62,228 70,220 76,218 Z" fill="url(#rbArL)"/>
+        <path d="M76,218 C58,218 36,226 24,243 C14,258 18,278 32,288 C44,298 62,296 70,284 C58,270 54,254 58,240 C62,228 70,220 76,218 Z" fill="none" stroke="#20F0E0" strokeWidth="1.5" opacity=".3"/>
+        <path d="M48,232 C40,244 36,258 40,270" fill="none" stroke="white" strokeWidth="7" strokeLinecap="round" opacity=".35"/>
+        {/* Brazo der */}
+        <path d="M224,218 C242,218 265,226 277,243 C287,258 283,278 268,288 C256,298 238,296 230,284 C242,270 246,254 242,240 C238,228 230,220 224,218 Z" fill="url(#rbArR)"/>
+        <path d="M224,218 C242,218 265,226 277,243 C287,258 283,278 268,288 C256,298 238,296 230,284 C242,270 246,254 242,240 C238,228 230,220 224,218 Z" fill="none" stroke="#20F0E0" strokeWidth="1.5" opacity=".3"/>
+        <path d="M252,232 C260,244 264,258 260,270" fill="none" stroke="white" strokeWidth="7" strokeLinecap="round" opacity=".35"/>
+        {/* Pierna izq */}
+        <path d="M118,346 C112,352 106,366 108,381 C110,396 122,404 135,402 C148,400 154,389 152,376 C150,362 140,352 128,348 Z" fill="url(#rbLeg)"/>
+        <path d="M118,346 C112,352 106,366 108,381 C110,396 122,404 135,402 C148,400 154,389 152,376 C150,362 140,352 128,348 Z" fill="none" stroke="#20F0E0" strokeWidth="1.2" opacity=".28"/>
+        {/* Pierna der */}
+        <path d="M182,346 C192,352 200,366 198,381 C196,396 184,404 170,402 C156,400 150,389 152,376 C154,362 164,352 175,348 Z" fill="url(#rbLeg)"/>
+        <path d="M182,346 C192,352 200,366 198,381 C196,396 184,404 170,402 C156,400 150,389 152,376 C154,362 164,352 175,348 Z" fill="none" stroke="#20F0E0" strokeWidth="1.2" opacity=".28"/>
+        {/* Cuerpo */}
+        <path d="M150,238 C120,238 98,246 88,262 C78,278 80,302 90,318 C100,334 116,346 150,348 C184,346 200,334 210,318 C220,302 222,278 212,262 C202,246 180,238 150,238 Z" fill="url(#rbCue)"/>
+        <path d="M150,238 C120,238 98,246 88,262 C78,278 80,302 90,318 C100,334 116,346 150,348 C184,346 200,334 210,318 C220,302 222,278 212,262 C202,246 180,238 150,238 Z" fill="url(#rbCia)" opacity=".6"/>
+        <path d="M150,238 C120,238 98,246 88,262 C78,278 80,302 90,318 C100,334 116,346 150,348 C184,346 200,334 210,318 C220,302 222,278 212,262 C202,246 180,238 150,238 Z" fill="none" stroke="#20F0E0" strokeWidth="2" opacity=".4"/>
+        <path d="M108,252 C96,264 92,282 96,298" fill="none" stroke="white" strokeWidth="10" strokeLinecap="round" opacity=".32"/>
+        <path d="M100,272 C118,264 150,260 200,272" fill="none" stroke="#20F0E0" strokeWidth="2.2" strokeLinecap="round" opacity=".55" style={{animation:"frailejBrillar 2s ease-in-out infinite"}}/>
+        <path d="M96,290 C116,282 150,278 204,290" fill="none" stroke="#20F0E0" strokeWidth="1.8" strokeLinecap="round" opacity=".4" style={{animation:"frailejBrillar 2.4s ease-in-out infinite 0.4s"}}/>
+        <path d="M98,308 C117,300 150,296 202,308" fill="none" stroke="#20F0E0" strokeWidth="1.3" strokeLinecap="round" opacity=".28" style={{animation:"frailejBrillar 2.8s ease-in-out infinite 0.8s"}}/>
+        <circle cx="150" cy="328" r="4" fill="#B0BCDC"/>
+        <circle cx="150" cy="328" r="2" fill="#20F0E0" opacity=".6" style={{animation:"frailejBrillar 1.8s ease-in-out infinite"}}/>
+        {/* Cabeza */}
+        <path d="M150,86 C104,86 70,94 66,130 C62,164 66,190 74,210 C82,230 96,240 150,240 C204,240 218,230 226,210 C234,190 238,164 234,130 C230,94 196,86 150,86 Z" fill="url(#rbCab)"/>
+        <path d="M150,86 C104,86 70,94 66,130 C62,164 66,190 74,210 C82,230 96,240 150,240 C204,240 218,230 226,210 C234,190 238,164 234,130 C230,94 196,86 150,86 Z" fill="url(#rbCia)" opacity=".45"/>
+        <path d="M150,86 C104,86 70,94 66,130 C62,164 66,190 74,210 C82,230 96,240 150,240 C204,240 218,230 226,210 C234,190 238,164 234,130 C230,94 196,86 150,86 Z" fill="none" stroke="#20F0E0" strokeWidth="1.5" opacity=".2"/>
+        {/* Brillo frente */}
+        <path d="M150,90 C116,92 88,106 78,128 C72,140 74,154 82,158 C100,138 124,128 150,128 C176,128 200,138 218,158 C226,154 228,140 222,128 C212,106 184,92 150,90 Z" fill="white" opacity=".62"/>
+        <path d="M150,92 C122,94 98,106 88,122 C84,130 86,140 92,146 C108,130 128,122 150,122 C172,122 192,130 208,146 C214,140 216,130 212,122 C202,106 178,94 150,92 Z" fill="white" opacity=".42"/>
+        {/* Auriculares */}
+        <path d="M68,148 C58,148 50,154 50,163 C50,172 58,178 68,178 C64,172 62,165 62,160 C62,155 64,150 68,148 Z" fill="url(#rbCab)"/>
+        <path d="M68,148 C58,148 50,154 50,163 C50,172 58,178 68,178" fill="none" stroke="#C0CCE8" strokeWidth="1.5"/>
+        <path d="M232,148 C242,148 250,154 250,163 C250,172 242,178 232,178 C236,172 238,165 238,160 C238,155 236,150 232,148 Z" fill="url(#rbCab)"/>
+        <path d="M232,148 C242,148 250,154 250,163 C250,172 242,178 232,178" fill="none" stroke="#C0CCE8" strokeWidth="1.5"/>
+        {/* Pantalla */}
+        <path d="M96,116 C90,128 88,144 88,158 C88,176 92,194 100,206 C110,220 128,226 150,226 C172,226 190,220 200,206 C208,194 212,176 212,158 C212,144 210,128 204,116 C194,98 174,90 150,90 C126,90 106,98 96,116 Z" fill="#181E2C"/>
+        <path d="M100,118 C94,130 92,146 92,160 C92,177 96,194 104,205 C114,218 130,224 150,224 C170,224 186,218 196,205 C204,194 208,177 208,160 C208,146 206,130 200,118 C190,102 172,95 150,95 C128,95 110,102 100,118 Z" fill="url(#rbScr)"/>
+        {/* Ojo izq turquesa */}
+        <circle cx="118" cy="162" r="24" fill="none" stroke="#20F0E0" strokeWidth="3.5" opacity=".8" style={{animation:"frailejBrillar 2s ease-in-out infinite"}}/>
+        <circle cx="118" cy="162" r="21" fill="#050E1C"/>
+        <circle cx="118" cy="162" r="18" fill="url(#rbEyL)"/>
+        <circle cx="118" cy="162" r="9" fill="#10A0A0" opacity=".85"/>
+        <circle cx="118" cy="162" r="5" fill="#003838"/>
+        <path d="M107,152 C110,149 116,149 119,152" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" opacity=".9"/>
+        <circle cx="124" cy="168" r="3" fill="white" opacity=".45"/>
+        {/* Ojo der lila */}
+        <circle cx="182" cy="162" r="24" fill="none" stroke="#C090FF" strokeWidth="3.5" opacity=".8" style={{animation:"frailejBrillar 2.3s ease-in-out infinite 0.4s"}}/>
+        <circle cx="182" cy="162" r="21" fill="#050E1C"/>
+        <circle cx="182" cy="162" r="18" fill="url(#rbEyR)"/>
+        <circle cx="182" cy="162" r="9" fill="#7030C0" opacity=".85"/>
+        <circle cx="182" cy="162" r="5" fill="#180038"/>
+        <path d="M171,152 C174,149 180,149 183,152" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" opacity=".9"/>
+        <circle cx="188" cy="168" r="3" fill="white" opacity=".45"/>
+        {/* Mejillas */}
+        <circle cx="96" cy="190" r="18" fill="#FF80C8" opacity=".35"/>
+        <circle cx="204" cy="190" r="18" fill="#FF80C8" opacity=".35"/>
+        {/* Boca */}
+        <path d="M134,200 C140,212 160,212 166,200" fill="none" stroke="#20F0E0" strokeWidth="3.5" strokeLinecap="round" opacity=".9"/>
+      </svg>
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────
 // BASE FUTURISTA (anillos giratorios)
@@ -1614,7 +1728,6 @@ const styles = `
   const items = [
     { icon:"home", lb:"Inicio", id:"home" },
     { icon:"notes", lb:"Notas", id:"notas" },
-    { icon:"tasks", lb:"Tareas", id:"tareas-tab", isTareas:true },
     { icon:"calendar", lb:"Citas", id:"calendario" },
     { icon:"user", lb:"Perfil", id:"perfil" },
   ];
