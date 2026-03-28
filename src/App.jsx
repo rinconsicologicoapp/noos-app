@@ -1486,7 +1486,7 @@ const styles = `
             </div>
           )}
         {/* CHECK-IN DIARIO ÁNIMO */}
-          {mostrarCheckIn && usuarioActual?.rol === "paciente" && (
+          {mostrarCheckIn && usuarioActual?.rol === "paciente" && screen === "home" && (
             <div style={{ position:"absolute", inset:0, zIndex:500, backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", background:"rgba(0,0,0,0.45)", display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
               <div style={{ background:C.cardBg, borderRadius:28, padding:"28px 24px", width:"100%", animation:"checkInIn 0.4s cubic-bezier(0.34,1.56,0.64,1)" }}>
                 <div style={{ fontSize:40, textAlign:"center", marginBottom:8 }}>🌅</div>
@@ -1872,67 +1872,109 @@ const styles = `
           {/* PANTALLA ELEGIR COMPAÑERO */}
 {screen === "elegir-companero" && (
   <div style={{position:"absolute",inset:0,background:"#F5EDE0",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10}}>
-    <div style={{background:"linear-gradient(160deg,#3A2A1C,#2A1E14)",padding:"28px 20px 28px",borderRadius:"0 0 24px 24px",flexShrink:0}}>
-      <div style={{fontSize:11,color:"rgba(232,168,124,0.6)",letterSpacing:1.5,marginBottom:6,fontWeight:600}}>BIENVENIDO/A</div>
-      <div style={{fontSize:22,fontWeight:700,color:"#F5EDE0",lineHeight:1.3}}>Elige tu compañero</div>
-      <div style={{fontSize:12,color:"rgba(245,237,224,0.45)",marginTop:6,lineHeight:1.5}}>
-        Te acompañará en tu proceso. Puedes cambiarlo una vez al mes.
+
+    {/* Header */}
+    <div style={{background:"linear-gradient(160deg,#3A2A1C,#2A1E14)",padding:"32px 20px 32px",borderRadius:"0 0 28px 28px",flexShrink:0,position:"relative",overflow:"hidden"}}>
+      {[...Array(18)].map((_,i)=>(
+        <div key={i} style={{position:"absolute",width:3,height:3,borderRadius:"50%",background:"rgba(232,168,124,0.15)",left:`${(i*67)%100}%`,top:`${(i*43)%100}%`}}/>
+      ))}
+      <div style={{fontSize:10,color:"rgba(232,168,124,0.5)",letterSpacing:2,marginBottom:8,fontWeight:700}}>PRIMER INGRESO</div>
+      <div style={{fontSize:23,fontWeight:800,color:"#F5EDE0",lineHeight:1.25}}>
+        Elige tu compañero{" "}
+        <span style={{color:"#E8A87C"}}>de terapia</span>
       </div>
+      <div style={{fontSize:12,color:"rgba(245,237,224,0.45)",marginTop:10,lineHeight:1.6}}>
+        Este será tu aliado en el camino.{" "}
+        <span style={{color:"rgba(232,168,124,0.6)"}}>Tómate el tiempo que necesites.</span>
+      </div>
+      <div style={{marginTop:16,height:2,width:40,background:"linear-gradient(90deg,#E8A87C,transparent)",borderRadius:2}}/>
     </div>
-    <div style={{padding:"16px 16px 40px"}}>
+
+    {/* Área cards */}
+    <div style={{padding:"20px 16px 40px",position:"relative"}}>
+
+      {/* Patrón puntitos tenue */}
+      <svg style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",opacity:.018}} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1.5" fill="#3A2A1C"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#dots)"/>
+      </svg>
+
+      {/* Cards */}
       {Object.entries(COMPANEROS).map(([id, data]) => (
         <div key={id}
           onClick={() => setCompaneroSeleccionando(id)}
           style={{
-            background: companeroSeleccionando === id ? data.colorClaro : "#FEFAF5",
-            border:`${companeroSeleccionando === id ? "1.5px" : "0.5px"} solid ${companeroSeleccionando === id ? data.color : "rgba(196,132,90,0.12)"}`,
-            borderRadius:20, padding:"12px 16px 10px", marginBottom:12,
-            cursor:"pointer", transition:"all 0.2s ease",
-            display:"flex", alignItems:"center", gap:16,
+            background: companeroSeleccionando === id ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.65)",
+            backdropFilter:"blur(16px)",
+            WebkitBackdropFilter:"blur(16px)",
+            border:`${companeroSeleccionando === id ? "1.5px" : "0.5px"} solid ${companeroSeleccionando === id ? data.color : "rgba(196,132,90,0.15)"}`,
+            borderLeft:`3px solid ${companeroSeleccionando === id ? data.color : "transparent"}`,
+            borderRadius:20,
+            padding:"14px 16px",
+            marginBottom:12,
+            cursor:"pointer",
+            transition:"all 0.22s ease",
+            display:"flex",
+            alignItems:"center",
+            gap:14,
+            transform: companeroSeleccionando === id ? "translateY(-2px)" : "translateY(0)",
+            boxShadow: companeroSeleccionando === id
+              ? `0 8px 28px ${data.color}22, 0 2px 8px rgba(0,0,0,0.06)`
+              : "0 1px 4px rgba(0,0,0,0.04)",
           }}>
-          {/* Avatar pequeño a la izquierda */}
-          <div style={{width:80,height:80,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",background:data.colorClaro,borderRadius:16,overflow:"hidden"}}>
+          {/* Avatar miniatura */}
+          <div style={{width:78,height:78,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",background:data.colorClaro,borderRadius:14,overflow:"hidden"}}>
             <data.Componente mini={true}/>
           </div>
-          {/* Info a la derecha */}
-          <div style={{flex:1}}>
-            <div style={{fontSize:16,fontWeight:700,color:"#3A2A1C"}}>{data.nombre}</div>
-            <div style={{fontSize:11,color:"#A08060",marginTop:3,lineHeight:1.4}}>{data.descripcion}</div>
+          {/* Info */}
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:16,fontWeight:800,color:"#3A2A1C",letterSpacing:.2}}>{data.nombre}</div>
+            <div style={{fontSize:11,color:"#A08060",marginTop:4,lineHeight:1.4}}>{data.descripcion}</div>
             {companeroSeleccionando === id && (
-              <div style={{display:"inline-flex",alignItems:"center",gap:4,marginTop:6,background:data.color,borderRadius:20,padding:"3px 12px"}}>
+              <div style={{display:"inline-flex",alignItems:"center",gap:4,marginTop:7,background:data.color,borderRadius:20,padding:"3px 12px"}}>
                 <span style={{fontSize:10,color:"white",fontWeight:700}}>✓ Seleccionado</span>
               </div>
             )}
           </div>
-          {/* Check círculo der */}
-          <div style={{width:22,height:22,borderRadius:11,border:`1.5px solid ${companeroSeleccionando===id ? data.color : "rgba(196,132,90,0.2)"}`,background:companeroSeleccionando===id ? data.color : "transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-            {companeroSeleccionando === id && <span style={{fontSize:11,color:"white"}}>✓</span>}
+          {/* Check círculo */}
+          <div style={{width:24,height:24,borderRadius:12,border:`1.5px solid ${companeroSeleccionando===id ? data.color : "rgba(196,132,90,0.2)"}`,background:companeroSeleccionando===id ? data.color : "transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.2s"}}>
+            {companeroSeleccionando === id && <span style={{fontSize:12,color:"white"}}>✓</span>}
           </div>
         </div>
       ))}
-      {/* Botón confirmar — siempre visible al final */}
-      <div style={{marginTop:8,paddingBottom:20}}>
+
+      {/* Botón o hint */}
+      <div style={{marginTop:10,paddingBottom:20}}>
         {companeroSeleccionando ? (
-          btn(async () => {
-            try {
-              await updateDoc(doc(db,"usuarios",usuarioActual.uid),{
-                companero: companeroSeleccionando,
-                companeroDesde: new Date().toISOString().split("T")[0],
-                companeroUltimoCambio: new Date().toISOString().split("T")[0],
-              });
-              setCompanero(companeroSeleccionando);
-              setUsuarioActual(p=>({...p, companero: companeroSeleccionando}));
-              showScreen("home");
-            } catch(e) { console.error(e); }
-          }, `Comenzar con ${COMPANEROS[companeroSeleccionando].nombre} →`, {
-            width:"100%", padding:"14px 0", borderRadius:14,
-            background: COMPANEROS[companeroSeleccionando].color,
-            color:"white", fontSize:14, fontWeight:800,
-          })
+          <div style={{animation:"checkInIn 0.3s cubic-bezier(0.34,1.56,0.64,1)"}}>
+            {btn(async () => {
+              try {
+                await updateDoc(doc(db,"usuarios",usuarioActual.uid),{
+                  companero: companeroSeleccionando,
+                  companeroDesde: new Date().toISOString().split("T")[0],
+                  companeroUltimoCambio: new Date().toISOString().split("T")[0],
+                });
+                setCompanero(companeroSeleccionando);
+                setUsuarioActual(p=>({...p, companero: companeroSeleccionando}));
+                showScreen("home");
+              } catch(e){ console.error(e); }
+            }, `Comenzar con ${COMPANEROS[companeroSeleccionando].nombre} →`, {
+              width:"100%", padding:"15px 0", borderRadius:16,
+              background:`linear-gradient(135deg,${COMPANEROS[companeroSeleccionando].color},${COMPANEROS[companeroSeleccionando].color}CC)`,
+              color:"white", fontSize:15, fontWeight:800,
+            })}
+            <div style={{textAlign:"center",fontSize:11,color:"rgba(58,42,28,0.35)",marginTop:10}}>
+              Podrás cambiarlo en 30 días
+            </div>
+          </div>
         ) : (
-          <div style={{textAlign:"center",padding:"16px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
-            <div style={{fontSize:18,opacity:.3}}>☝️</div>
-            <div style={{fontSize:12,color:"rgba(58,42,28,0.35)"}}>Toca un compañero para seleccionarlo</div>
+          <div style={{textAlign:"center",padding:"14px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
+            <div style={{fontSize:20,opacity:.25}}>☝️</div>
+            <div style={{fontSize:12,color:"rgba(58,42,28,0.3)"}}>Toca un compañero para seleccionarlo</div>
           </div>
         )}
       </div>
