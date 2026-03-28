@@ -259,7 +259,7 @@ function CacaitoAvatar({ mini = false }) {
 // ─────────────────────────────────────────
 function AbstractisAvatar({ mini = false }) {
   return (
-    <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding:mini?0:"8px 0 0"}}>
+    <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding:mini?0:"22px 0 0"}}>
       <svg width={mini?72:200} height={mini?85:240} viewBox="30 -10 220 325" xmlns="http://www.w3.org/2000/svg"
         style={{animation:"frailejFlotar 4s ease-in-out infinite"}}>
         <defs>
