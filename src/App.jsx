@@ -1535,6 +1535,39 @@ const enviarResena = async () => {
   } catch(e) { showToast("Error al enviar reseña ❌"); }
   setLoadingResenas(false);
 };
+const cerrarSesion = async () => {
+  try {
+    await signOut(auth);
+    // Datos de usuario
+    setUsuarioActual(null);
+    setXp(0); setXpCargado(false);
+    setAvatar("🦋"); setCompanero(null);
+    setCompaneroSeleccionando(null);
+    // Datos clínicos
+    setCitas([]); setCitaSeleccionada(null);
+    setPacientes([]); setPacienteSeleccionado(null);
+    setInsights([]); setAutorregistros([]);
+    setTareasPsicologo([]); setRecursos([]);
+    setRegistrosAnimo([]); setNotasClinicas([]);
+    setRecordatorios([]); setResenas([]);
+    setNotifs([]);
+    // Datos admin
+    setTodosUsuarios([]); setUsuariosSeleccionados([]);
+    // Psicólogo
+    setPsicologoData(null); setFraseDelMes("");
+    // UI — reset limpio
+    setModal(null); setNotifPanel(false);
+    setNotifCitaActiva(null); setCalCitaDetalle(null);
+    setMostrarCheckIn(false); setCheckInMood(null);
+    setAdminBusqueda("");
+    // Formularios
+    setEmailValue(""); setPinValue("");
+    // Ir al login
+    showScreen("login");
+  } catch(e) {
+    showToast("Error al cerrar sesión ❌");
+  }
+};
 const ofuscarNombre = (nombre) => {
   if (!nombre) return "Paciente anónimo";
   const partes = nombre.trim().split(" ");
@@ -3366,7 +3399,7 @@ const styles = `
                 </div>
 
                 {/* CERRAR SESIÓN */}
-                <div onClick={async () => { await signOut(auth); setUsuarioActual(null); setCitas([]); setInsights([]); setAutorregistros([]); setRecursos([]); setTareasPsicologo([]); showScreen("login"); }}
+                <div onClick={cerrarSesion}
                   style={{ background:"rgba(239,154,154,0.08)", border:"0.5px solid rgba(239,154,154,0.15)", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:8, cursor:"pointer" }}>
                   <div style={{ width:30, height:30, background:"rgba(239,154,154,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#EF9A9A" strokeWidth="1.75" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -4128,6 +4161,16 @@ const styles = `
 {mitem("👥", "Ver y gestionar usuarios", () => { cargarTodosUsuarios(); setModal("gestionar-usuarios"); })}
 {mitem("💰", "Gestión de pagos", () => showNotif("Pagos", "Función disponible pronto", "💰"))}
 {mitem("📊", "Ver reportes", () => showNotif("Reportes", "Función disponible pronto", "📊"))}
+<div style={{ margin:"8px 0 4px", height:"0.5px", background:"rgba(196,132,90,0.15)" }}/>
+<div onClick={cerrarSesion}
+style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", background:"#FFF0F0", borderRadius:14, marginBottom:8, cursor:"pointer", border:"0.5px solid rgba(192,80,80,0.15)" }}>
+  <div style={{ width:38, height:38, borderRadius:11, background:"rgba(192,80,80,0.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>🚪</div>
+  <div style={{ flex:1 }}>
+    <div style={{ fontSize:13, fontWeight:700, color:"#C05050" }}>Cerrar sesión</div>
+    <div style={{ fontSize:11, color:"rgba(192,80,80,0.6)", marginTop:1 }}>Salir del panel de administrador</div>
+  </div>
+  <div style={{ fontSize:16, color:"rgba(192,80,80,0.4)" }}>›</div>
+</div>
 
 {mdl("gestionar-usuarios", (
   <div>
@@ -4832,7 +4875,7 @@ const styles = `
                       <div style={{ width:18, height:18, borderRadius:"50%", background:"white", position:"absolute", top:3, left:darkMode?23:3, transition:"left 0.3s" }}/>
                     </div>
                   </div>
-                  <div onClick={async () => { await signOut(auth); setUsuarioActual(null); setCitas([]); setPacientes([]); setResenas([]); setRecordatorios([]); setTareasPsicologo([]); setRecursos([]); showScreen("login"); }}
+                  <div onClick={cerrarSesion}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", cursor:"pointer" }}>
                     <div style={{ fontSize:18, width:32, textAlign:"center" }}>🚪</div>
                     <div style={{ fontSize:13, fontWeight:700, color:C.red, flex:1 }}>Cerrar sesión</div>
