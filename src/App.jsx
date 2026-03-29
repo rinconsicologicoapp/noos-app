@@ -713,6 +713,7 @@ const [formFecha, setFormFecha] = useState("");
 const [formRol, setFormRol] = useState("paciente");
 const [formLoading, setFormLoading] = useState(false);
 const [formPsicologoId, setFormPsicologoId] = useState("");
+const [formPinAdmin, setFormPinAdmin] = useState("");
   const [pacientes, setPacientes] = useState([]);
   const [todosUsuarios, setTodosUsuarios] = useState([]);
   const [usuariosSeleccionados, setUsuariosSeleccionados] = useState([]);
@@ -734,10 +735,16 @@ const [regRol, setRegRol] = useState("paciente");
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
   const [citaFecha, setCitaFecha] = useState("");
   const [citaHora, setCitaHora] = useState("");
-  const [citaModalidad, setCitaModalidad] = useState("presencial");
+  const [citaModalidad, setCitaModalidad] = useState("virtual");
   const [citaLink, setCitaLink] = useState("");
   const [citaNotas, setCitaNotas] = useState("");
+  const [citaTitulo, setCitaTitulo] = useState("");
+  const [citaDescripcion, setCitaDescripcion] = useState("");
   const [citaPacienteId, setCitaPacienteId] = useState("");
+const [notifCitaActiva, setNotifCitaActiva] = useState(null);
+const [calMesVista, setCalMesVista] = useState(new Date().getMonth());
+const [calAnioVista, setCalAnioVista] = useState(new Date().getFullYear());
+const [calCitaDetalle, setCalCitaDetalle] = useState(null);
   const [loadingCitas, setLoadingCitas] = useState(false);
   const [notifTitulo, setNotifTitulo] = useState("");
 const [notifMensaje, setNotifMensaje] = useState("");
@@ -977,29 +984,78 @@ const crearCita = async () => {
   setLoadingCitas(true);
   try {
     const id = Date.now().toString();
-    const paciente = pacientes.find(p => p.id === citaPacienteId);
+    const paciente = pacientes.find(p => p.id === citaPacienteId) || pacienteSeleccionado;
+    const titulo = citaTitulo.trim() || "Sesión de terapia";
     const nuevaCita = {
       id,
-      psicologoId: usuarioActual.uid,
+      psicologoId:    usuarioActual.uid,
       psicologoNombre: usuarioActual.nombre,
-      pacienteId: citaPacienteId,
+      pacienteId:     citaPacienteId,
       pacienteNombre: paciente?.nombre || "",
-      fecha: citaFecha,
-      hora: citaHora,
-      modalidad: citaModalidad,
-      link: citaLink,
-      notas: citaNotas,
-      status: "pendiente",
-      creadaEn: new Date().toISOString(),
+      titulo,
+      descripcion:    citaDescripcion,
+      fecha:          citaFecha,
+      hora:           citaHora,
+      modalidad:      citaModalidad,
+      link:           citaLink,
+      notas:          citaNotas,
+      status:         "pendiente",
+      creadaEn:       new Date().toISOString(),
     };
     await setDoc(doc(db, "citas", id), nuevaCita);
     setCitas(prev => [...prev, nuevaCita].sort((a,b) => new Date(a.fecha) - new Date(b.fecha)));
-    showToast("¡Cita creada! El paciente fue notificado ✅");
-    showNotif("Nueva cita agendada", `${paciente?.nombre} — ${citaFecha} a las ${citaHora}`, "📅");
+
+    // Notificación inmediata en Firestore al paciente
+    const notifId = `cita_nueva_${id}`;
+    await setDoc(doc(db, "notificaciones", notifId), {
+      pacienteId:  citaPacienteId,
+      psicologoId: usuarioActual.uid,
+      icon:        "📅",
+      titulo:      `Nueva cita: ${titulo}`,
+      mensaje:     `${citaFecha} a las ${citaHora} — ${citaModalidad === "virtual" ? "Virtual 💻" : "Presencial 🏥"}`,
+      creadoEn:    new Date().toISOString(),
+      leida:       false,
+      tipo:        "cita_nueva",
+      citaId:      id,
+      link:        citaLink,
+    });
+
+    // Programar recordatorio 1h antes en Firestore
+    const fechaHoraCita = new Date(`${citaFecha}T${citaHora}:00`);
+    const una_hora_antes = new Date(fechaHoraCita.getTime() - 60 * 60 * 1000);
+    const cinco_min_antes = new Date(fechaHoraCita.getTime() - 5 * 60 * 1000);
+
+    await setDoc(doc(db, "recordatoriosCita", `${id}_1h`), {
+      citaId:      id,
+      pacienteId:  citaPacienteId,
+      psicologoId: usuarioActual.uid,
+      titulo:      `⏰ Tu cita es en 1 hora`,
+      mensaje:     `${titulo} — ${citaFecha} a las ${citaHora}`,
+      link:        citaLink,
+      enviarEn:    una_hora_antes.toISOString(),
+      enviado:     false,
+      tipo:        "1h",
+    });
+
+    await setDoc(doc(db, "recordatoriosCita", `${id}_5m`), {
+      citaId:      id,
+      pacienteId:  citaPacienteId,
+      psicologoId: usuarioActual.uid,
+      titulo:      `🔴 Tu cita empieza en 5 minutos`,
+      mensaje:     `${titulo} — Toca aquí para abrir el enlace`,
+      link:        citaLink,
+      enviarEn:    cinco_min_antes.toISOString(),
+      enviado:     false,
+      tipo:        "5m",
+    });
+
+    showToast(`✅ Cita agendada para ${paciente?.nombre}`);
+    showNotif("Cita agendada", `${paciente?.nombre} — ${citaFecha} a las ${citaHora}`, "📅");
+    setCitaTitulo(""); setCitaDescripcion("");
     setCitaFecha(""); setCitaHora(""); setCitaLink(""); setCitaNotas("");
-    setCitaModalidad("presencial"); setCitaPacienteId("");
+    setCitaModalidad("virtual"); setCitaPacienteId("");
     setModal(null);
-  } catch(e) { showToast("Error al crear cita ❌"); }
+  } catch(e) { console.log(e); showToast("Error al crear cita ❌"); }
   setLoadingCitas(false);
 };
 const actualizarStatusCita = async (citaId, nuevoStatus) => {
@@ -1540,26 +1596,47 @@ const toggleSeleccion = (uid) => {
     return;
   }
   setFormLoading(true);
+  // Guardar credenciales del admin actual ANTES de crear el nuevo usuario
+  const adminEmail = usuarioActual.email;
+  const adminUid   = usuarioActual.uid;
+  // Necesitamos el PIN del admin — lo pedimos desde formPinAdmin
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, formEmail, formPin + "**");
-    const uid = userCredential.user.uid;
+    // 1. Crear el nuevo usuario (esto loguea al nuevo usuario automáticamente)
+    const { user: nuevoUser } = await createUserWithEmailAndPassword(auth, formEmail, formPin + "**");
+    const uid = nuevoUser.uid;
+
+    // 2. Guardar datos del nuevo usuario en Firestore
     await setDoc(doc(db, "usuarios", uid), {
-      nombre: formNombre,
-      email: formEmail,
-      telefono: formTel,
+      nombre:          formNombre,
+      email:           formEmail,
+      telefono:        formTel,
       fechaNacimiento: formFecha,
-      rol: formRol,
-      creadoPor: "admin",
-      fechaCreacion: new Date().toISOString(),
-      psicologoId: formRol === "paciente" ? formPsicologoId : "",
+      rol:             formRol,
+      creadoPor:       "admin",
+      fechaCreacion:   new Date().toISOString(),
+      psicologoId:     formRol === "paciente" ? formPsicologoId : "",
+      psicologoNombre: formRol === "paciente"
+        ? (todosUsuarios.find(u => u.id === formPsicologoId)?.nombre || "")
+        : "",
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      xp: 0,
     });
-    showToast("¡Usuario creado exitosamente! ✅");
+
+    // 3. Cerrar sesión del nuevo usuario inmediatamente
+    await signOut(auth);
+
+    // 4. Volver a loguear al admin con sus credenciales
+    await signInWithEmailAndPassword(auth, adminEmail, formPinAdmin + "**");
+
+    showToast(`¡Usuario ${formNombre} creado! ✅`);
     setFormNombre(""); setFormEmail(""); setFormPin("");
-    setFormTel(""); setFormFecha(""); setFormRol("paciente"); setFormPsicologoId("");
+    setFormTel(""); setFormFecha(""); setFormRol("paciente");
+    setFormPsicologoId(""); setFormPinAdmin("");
     setModal(null);
+    cargarTodosUsuarios();
   } catch (error) {
-    showToast("Error al crear usuario ❌");
+    console.log(error);
+    showToast("Error al crear usuario: " + (error.message || "❌"));
   }
   setFormLoading(false);
 };
@@ -1678,6 +1755,61 @@ useEffect(() => {
     });
     return () => unsub();
   }
+}, [usuarioActual]);
+// Timer que revisa recordatorios de cita y los muestra al paciente
+useEffect(() => {
+  if (!usuarioActual?.uid || usuarioActual.rol !== "paciente") return;
+  const revisar = async () => {
+    try {
+      const ahora = new Date();
+      const q = query(
+        collection(db, "recordatoriosCita"),
+        where("pacienteId", "==", usuarioActual.uid),
+        where("enviado", "==", false)
+      );
+      const snap = await getDocs(q);
+      for (const d of snap.docs) {
+        const rec = d.data();
+        const enviarEn = new Date(rec.enviarEn);
+        if (ahora >= enviarEn) {
+          // Marcar como enviado
+          await updateDoc(doc(db, "recordatoriosCita", d.id), { enviado: true });
+          // Mostrar notificación interactiva en pantalla
+          setNotifCitaActiva({ titulo: rec.titulo, mensaje: rec.mensaje, link: rec.link, citaId: rec.citaId });
+          // También guardar en notificaciones del paciente
+          await setDoc(doc(db, "notificaciones", `rec_${d.id}`), {
+            pacienteId:  usuarioActual.uid,
+            icon:        rec.tipo === "5m" ? "🔴" : "⏰",
+            titulo:      rec.titulo,
+            mensaje:     rec.mensaje,
+            creadoEn:    new Date().toISOString(),
+            leida:       false,
+            tipo:        "recordatorio_cita",
+            citaId:      rec.citaId,
+            link:        rec.link,
+          });
+          // Notificación nativa del navegador si hay permiso
+          if (Notification.permission === "granted") {
+            const n = new Notification(rec.titulo, {
+              body: rec.mensaje,
+              icon: "/icon-192.png",
+              badge: "/icon-192.png",
+              tag: rec.citaId,
+              requireInteraction: rec.tipo === "5m",
+            });
+            n.onclick = () => {
+              window.focus();
+              showScreen("calendario");
+              n.close();
+            };
+          }
+        }
+      }
+    } catch(e) { console.log("Error revisando recordatorios:", e); }
+  };
+  revisar();
+  const interval = setInterval(revisar, 60 * 1000); // cada minuto
+  return () => clearInterval(interval);
 }, [usuarioActual]);
 useEffect(() => {
   
@@ -1966,6 +2098,34 @@ const styles = `
 
         {/* CONTENIDO */}
         <div style={{ height:"100%", overflowY:"hidden", overflowX:"hidden", position:"relative" }}>
+          {/* NOTIFICACIÓN INTERACTIVA DE CITA */}
+        {notifCitaActiva && (
+          <div style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:12, right:12, zIndex:900, animation:"frailejFlotar 0.4s ease" }}>
+            <div style={{ background:"linear-gradient(135deg,#1A1230,#2A1848)", borderRadius:18, padding:"14px 16px", boxShadow:"0 8px 32px rgba(0,0,0,0.4)", border:"1px solid rgba(196,132,90,0.3)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                <div style={{ width:44, height:44, borderRadius:12, background:"rgba(196,132,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>📅</div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:13, fontWeight:800, color:"white", marginBottom:2 }}>{notifCitaActiva.titulo}</div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", lineHeight:1.4 }}>{notifCitaActiva.mensaje}</div>
+                </div>
+                <div onClick={() => setNotifCitaActiva(null)} style={{ fontSize:18, color:"rgba(255,255,255,0.4)", cursor:"pointer", flexShrink:0, padding:4 }}>✕</div>
+              </div>
+              <div style={{ display:"flex", gap:8, marginTop:12 }}>
+                {notifCitaActiva.link && (
+                  <a href={notifCitaActiva.link} target="_blank" rel="noreferrer"
+                    onClick={() => setNotifCitaActiva(null)}
+                    style={{ flex:2, display:"block", padding:"10px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:11, fontSize:12, fontWeight:800, textAlign:"center", textDecoration:"none" }}>
+                    🔗 Abrir sesión ahora
+                  </a>
+                )}
+                <div onClick={() => { showScreen("calendario"); setNotifCitaActiva(null); }}
+                  style={{ flex:1, padding:"10px 0", background:"rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.7)", borderRadius:11, fontSize:12, fontWeight:700, textAlign:"center", cursor:"pointer" }}>
+                  Ver cita
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* CONFETI CELEBRACIÓN */}
           {celebrando && (
             <div style={{ position:"absolute", inset:0, zIndex:600, pointerEvents:"none", overflow:"hidden" }}>
@@ -2242,7 +2402,7 @@ const styles = `
                     <div style={{ display:"inline-flex", background:"rgba(232,168,124,0.12)", border:"0.5px solid rgba(232,168,124,0.2)", borderRadius:20, padding:"3px 10px", marginBottom:8 }}>
                       <span style={{ fontSize:10, color:"rgba(232,168,124,0.65)" }}>{new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}</span>
                     </div>
-                    <div style={{ fontSize:13, color:"rgba(245,230,208,0.55)", fontWeight:400, lineHeight:1 }}>Buenos días,</div>
+                    <div style={{ fontSize:13, color:"rgba(245,230,208,0.55)", fontWeight:400, lineHeight:1 }}>{(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días," : h < 18 ? "Buenas tardes," : "Buenas noches,"; })()}</div>
                     <div style={{ fontSize:20, color:"#E8A87C", fontWeight:700, marginTop:1 }}>
                       {usuarioActual?.nombre?.split(" ")[0] || "Bienvenido"}
                     </div>
@@ -2290,8 +2450,22 @@ const styles = `
                         <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,#C4845A,transparent)", opacity:0.6 }}/>
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
                           <span style={{ fontSize:10, fontWeight:600, color:"rgba(232,168,124,0.55)", letterSpacing:0.8, textTransform:"uppercase" }}>Próxima cita</span>
-                          <div style={{ background:proxima.status==="confirmada"?"rgba(125,170,146,0.18)":"rgba(232,168,124,0.15)", color:proxima.status==="confirmada"?"#7DAA92":"#E8A87C", fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20 }}>
-                            {proxima.status==="confirmada"?"Confirmada":"Pendiente"}
+                          <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                            {(() => {
+                              const diff = new Date(`${proxima.fecha}T${proxima.hora}:00`) - new Date();
+                              if (diff <= 0) return <span style={{ fontSize:10, fontWeight:700, color:"#E8A87C" }}>¡Es ahora!</span>;
+                              const dias = Math.floor(diff / 86400000);
+                              const horas = Math.floor((diff % 86400000) / 3600000);
+                              const mins = Math.floor((diff % 3600000) / 60000);
+                              return (
+                                <span style={{ fontSize:10, fontWeight:700, color:"rgba(232,168,124,0.7)", background:"rgba(232,168,124,0.08)", padding:"3px 8px", borderRadius:20 }}>
+                                  {dias > 0 ? `En ${dias}d ${horas}h` : horas > 0 ? `En ${horas}h ${mins}m` : `En ${mins} min`}
+                                </span>
+                              );
+                            })()}
+                            <div style={{ background:proxima.status==="confirmada"?"rgba(125,170,146,0.18)":"rgba(232,168,124,0.15)", color:proxima.status==="confirmada"?"#7DAA92":"#E8A87C", fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20 }}>
+                              {proxima.status==="confirmada"?"✅ Confirmada":"⏳ Pendiente"}
+                            </div>
                           </div>
                         </div>
                         <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
@@ -2807,96 +2981,240 @@ const styles = `
   </div>
 )}
           {/* CALENDARIO */}
-          {!notifPanel && screen === "calendario" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))", background:"#F5EDE0" }}>
-              <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"18px 20px 22px" }}>
-                <div style={{ fontSize:18, fontWeight:700, color:"white" }}>📅 Mis citas</div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", fontWeight:600 }}>
-                  {new Date().toLocaleDateString('es-CO', { month:'long', year:'numeric' })}
+          {!notifPanel && screen === "calendario" && (() => {
+            const hoy = new Date();
+            const mesVista = calMesVista;
+            const setMesVista = setCalMesVista;
+            const anioVista = calAnioVista;
+            const setAnioVista = setCalAnioVista;
+            const citaDetalle = calCitaDetalle;
+            const setCitaDetalle = setCalCitaDetalle;
+
+            const diasEnMes = new Date(anioVista, mesVista + 1, 0).getDate();
+            const primerDia = new Date(anioVista, mesVista, 1).getDay();
+            const offset = primerDia === 0 ? 6 : primerDia - 1; // lunes primero
+
+            const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+            const dias  = ["Lu","Ma","Mi","Ju","Vi","Sa","Do"];
+
+            const citasDelMes = citas.filter(c => {
+              const f = new Date(c.fecha + "T12:00:00");
+              return f.getMonth() === mesVista && f.getFullYear() === anioVista;
+            });
+
+            const citasPorDia = {};
+            citasDelMes.forEach(c => {
+              const d = new Date(c.fecha + "T12:00:00").getDate();
+              if (!citasPorDia[d]) citasPorDia[d] = [];
+              citasPorDia[d].push(c);
+            });
+
+            const colStatus = (s) => s === "confirmada" ? "#5A8A62" : s === "cancelada" ? C.red : C.amber;
+
+            const mesAnterior = () => {
+              if (mesVista === 0) { setMesVista(11); setAnioVista(a => a - 1); }
+              else setMesVista(m => m - 1);
+            };
+            const mesSiguiente = () => {
+              if (mesVista === 11) { setMesVista(0); setAnioVista(a => a + 1); }
+              else setMesVista(m => m + 1);
+            };
+
+            return (
+              <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5EDE0" }}>
+                {/* Header */}
+                <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"16px 18px 18px", paddingTop:"max(16px, env(safe-area-inset-top,16px))", flexShrink:0 }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:2 }}>
+                    <div onClick={mesAnterior} style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>‹</div>
+                    <div style={{ textAlign:"center" }}>
+                      <div style={{ fontSize:16, fontWeight:700, color:"white" }}>{meses[mesVista]} {anioVista}</div>
+                      <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)", marginTop:2 }}>{citasDelMes.length} cita{citasDelMes.length!==1?"s":""} este mes</div>
+                    </div>
+                    <div onClick={mesSiguiente} style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>›</div>
+                  </div>
                 </div>
-              </div>
-              <div style={{ padding:14 }}>
-                {loadingCitas ? (
-                  <div style={{ textAlign:"center", padding:30, color:C.light }}>
-                    <div style={{ fontSize:30, marginBottom:8 }}>⏳</div>
-                    <div style={{ fontSize:13, fontWeight:700 }}>Cargando citas...</div>
+
+                <div style={{ flex:1, overflowY:"auto", paddingBottom:"calc(100px + env(safe-area-inset-bottom,0px))" }}>
+                  {/* Grid calendario */}
+                  <div style={{ background:"#FEFAF5", margin:14, borderRadius:16, padding:12, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                    {/* Días semana */}
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", marginBottom:6 }}>
+                      {dias.map(d => (
+                        <div key={d} style={{ textAlign:"center", fontSize:10, fontWeight:700, color:C.light, padding:"4px 0" }}>{d}</div>
+                      ))}
+                    </div>
+                    {/* Celdas días */}
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:3 }}>
+                      {/* Espacios vacíos */}
+                      {Array.from({ length: offset }).map((_, i) => (
+                        <div key={"e"+i}/>
+                      ))}
+                      {/* Días del mes */}
+                      {Array.from({ length: diasEnMes }).map((_, i) => {
+                        const dia = i + 1;
+                        const esHoy = dia === hoy.getDate() && mesVista === hoy.getMonth() && anioVista === hoy.getFullYear();
+                        const tieneCitas = citasPorDia[dia];
+                        return (
+                          <div key={dia} onClick={() => tieneCitas && setCitaDetalle(tieneCitas[0])}
+                            style={{ aspectRatio:"1", borderRadius:10, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:tieneCitas?"pointer":"default", background:esHoy?"#3A2A1C":tieneCitas?"rgba(196,132,90,0.1)":"transparent", border:esHoy?"2px solid #E8A87C":tieneCitas?"1.5px solid rgba(196,132,90,0.25)":"1.5px solid transparent", position:"relative", transition:"all 0.15s" }}>
+                            <div style={{ fontSize:13, fontWeight:esHoy||tieneCitas?700:400, color:esHoy?"#E8A87C":tieneCitas?C.text:C.light }}>
+                              {dia}
+                            </div>
+                            {tieneCitas && (
+                              <div style={{ display:"flex", gap:2, marginTop:2 }}>
+                                {tieneCitas.slice(0,3).map((c,ci) => (
+                                  <div key={ci} style={{ width:5, height:5, borderRadius:"50%", background:colStatus(c.status) }}/>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                ) : citas.length === 0 ? (
-                  <div style={{ textAlign:"center", padding:40, color:C.light }}>
-                    <div style={{ fontSize:48, marginBottom:10 }}>📭</div>
-                    <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Sin citas agendadas</div>
-                    <div style={{ fontSize:12, marginTop:6 }}>Tu psicólogo agendará tu próxima sesión</div>
+
+                  {/* Leyenda */}
+                  <div style={{ display:"flex", gap:12, padding:"0 14px", marginBottom:14 }}>
+                    {[["#5A8A62","Confirmada"],[C.amber,"Pendiente"],[C.red,"Cancelada"]].map(([col,lb]) => (
+                      <div key={lb} style={{ display:"flex", alignItems:"center", gap:5 }}>
+                        <div style={{ width:8, height:8, borderRadius:"50%", background:col }}/>
+                        <span style={{ fontSize:10, color:C.light }}>{lb}</span>
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  citas.map(c => (
-                    <div key={c.id} style={{ background:"#FEFAF5", borderRadius:14, padding:"11px 14px", marginBottom:12, boxShadow:"0 2px 10px rgba(0,0,0,0.07)", borderLeft:`3px solid ${c.status==="cancelada"?C.red:c.status==="confirmada"?"#5A8A62":C.amber}` }}>
-                      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-                        <div style={{ background:c.modalidad==="virtual"?`${C.plum}15`:`${C.sage}15`, borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:52 }}>
-                          <div style={{ fontSize:20 }}>{c.modalidad==="virtual"?"💻":"🏥"}</div>
-                          <div style={{ fontSize:9, fontWeight:800, color:c.modalidad==="virtual"?C.plum:C.sageDark, textTransform:"uppercase" }}>{c.modalidad}</div>
+
+                  {/* Lista citas del mes */}
+                  <div style={{ padding:"0 14px" }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:C.text, marginBottom:10 }}>
+                      Citas de {meses[mesVista]}
+                    </div>
+                    {loadingCitas ? (
+                      <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>Cargando...</div>
+                    ) : citasDelMes.length === 0 ? (
+                      <div style={{ background:"#FEFAF5", borderRadius:14, padding:24, textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                        <div style={{ fontSize:32, marginBottom:8 }}>📭</div>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Sin citas este mes</div>
+                      </div>
+                    ) : citasDelMes
+                        .slice()
+                        .sort((a,b) => new Date(a.fecha+"T"+a.hora) - new Date(b.fecha+"T"+b.hora))
+                        .map(c => (
+                      <div key={c.id} style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`3px solid ${colStatus(c.status)}` }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                          {/* Fecha bloque */}
+                          <div style={{ background:colStatus(c.status)+"20", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:46, flexShrink:0 }}>
+                            <div style={{ fontSize:18, fontWeight:900, color:colStatus(c.status), lineHeight:1 }}>
+                              {new Date(c.fecha+"T12:00:00").getDate()}
+                            </div>
+                            <div style={{ fontSize:9, fontWeight:700, color:colStatus(c.status), textTransform:"uppercase" }}>
+                              {meses[new Date(c.fecha+"T12:00:00").getMonth()].slice(0,3)}
+                            </div>
+                          </div>
+                          <div style={{ flex:1, minWidth:0 }}>
+                            <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>
+                              {usuarioActual?.rol === "psicologo" ? c.pacienteNombre : `Sesión con ${c.psicologoNombre}`}
+                            </div>
+                            <div style={{ fontSize:11, color:C.light }}>⏰ {c.hora} · {c.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
+                          </div>
+                          {/* Botón abrir link */}
+                          {c.modalidad==="virtual" && c.link && (
+                            <a href={c.link} target="_blank" rel="noreferrer"
+                              style={{ flexShrink:0, background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:10, padding:"8px 12px", fontSize:11, fontWeight:800, textDecoration:"none", display:"flex", alignItems:"center", gap:4 }}>
+                              🔗 Abrir
+                            </a>
+                          )}
                         </div>
-                        <div style={{ flex:1 }}>
-                          <div style={{ fontSize:14, fontWeight:900, color:C.text }}>Sesión con {c.psicologoNombre}</div>
-                          <div style={{ fontSize:12, color:C.light, marginTop:2 }}>📅 {new Date(c.fecha).toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}</div>
-                          <div style={{ fontSize:12, color:C.light }}>⏰ {c.hora}</div>
+                        {/* Estado y acciones */}
+                        <div style={{ display:"flex", gap:6, marginTop:10 }}>
+                          <div style={{ fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20, background:colStatus(c.status)+"20", color:colStatus(c.status) }}>
+                            {c.status==="confirmada"?"✅ Confirmada":c.status==="cancelada"?"❌ Cancelada":"⏳ Pendiente"}
+                          </div>
+                          {c.status==="pendiente" && usuarioActual?.rol==="paciente" && (<>
+                            {btn(()=>{ setCitaSeleccionada(c); setModal("confirmar-cita"); }, "Confirmar", { padding:"3px 10px", borderRadius:9, background:C.green, color:"white", fontWeight:800, fontSize:10 })}
+                            {btn(()=>{ setCitaSeleccionada(c); setModal("cancelar-cita"); }, "Cancelar", { padding:"3px 10px", borderRadius:9, background:"#FFE5E5", color:C.red, fontWeight:800, fontSize:10 })}
+                          </>)}
+                        </div>
+                        {c.notas && (
+                          <div style={{ background:C.warm, borderRadius:9, padding:"7px 10px", marginTop:8, fontSize:11, color:C.light, fontStyle:"italic" }}>
+                            📝 {c.notas}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Modal detalle cita desde calendario */}
+                {citaDetalle && (
+                  <div onClick={()=>setCitaDetalle(null)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.45)", zIndex:500, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
+                    <div onClick={e=>e.stopPropagation()} style={{ background:"#FEFAF5", borderRadius:"20px 20px 0 0", padding:"20px 18px 32px", width:"100%", maxWidth:430 }}>
+                      <div style={{ width:36, height:4, background:"rgba(0,0,0,0.12)", borderRadius:2, margin:"0 auto 16px" }}/>
+                      <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:4 }}>
+                        {usuarioActual?.rol==="psicologo" ? citaDetalle.pacienteNombre : `Sesión con ${citaDetalle.psicologoNombre}`}
+                      </div>
+                      <div style={{ fontSize:12, color:C.light, marginBottom:12 }}>
+                        📅 {new Date(citaDetalle.fecha+"T12:00:00").toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})} · ⏰ {citaDetalle.hora}
+                      </div>
+                      <div style={{ display:"flex", gap:6, marginBottom:citaDetalle.link?14:0 }}>
+                        <div style={{ fontSize:9, fontWeight:800, padding:"4px 10px", borderRadius:20, background:colStatus(citaDetalle.status)+"20", color:colStatus(citaDetalle.status) }}>
+                          {citaDetalle.status==="confirmada"?"✅ Confirmada":citaDetalle.status==="cancelada"?"❌ Cancelada":"⏳ Pendiente"}
+                        </div>
+                        <div style={{ fontSize:9, fontWeight:800, padding:"4px 10px", borderRadius:20, background:"rgba(196,132,90,0.1)", color:C.amber }}>
+                          {citaDetalle.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}
                         </div>
                       </div>
-                      {c.modalidad==="virtual" && c.link && (
-                        <a href={c.link} target="_blank" rel="noreferrer"
-                          style={{ display:"block", width:"100%", padding:"9px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:10, fontSize:12, fontWeight:800, textAlign:"center", textDecoration:"none", marginBottom:8 }}>
-                          🎥 Unirse a la sesión virtual
+                      {citaDetalle.notas && (
+                        <div style={{ background:C.warm, borderRadius:10, padding:"9px 12px", marginBottom:12, fontSize:12, color:C.light, fontStyle:"italic" }}>
+                          📝 {citaDetalle.notas}
+                        </div>
+                      )}
+                      {citaDetalle.modalidad==="virtual" && citaDetalle.link && (
+                        <a href={citaDetalle.link} target="_blank" rel="noreferrer"
+                          style={{ display:"block", width:"100%", padding:"12px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:12, fontSize:13, fontWeight:800, textAlign:"center", textDecoration:"none", marginBottom:8 }}>
+                          🔗 Abrir sesión virtual
                         </a>
                       )}
-                      {c.notas && (
-                        <div style={{ background:C.warm, borderRadius:10, padding:"8px 12px", marginBottom:8, fontSize:12, color:C.light, fontStyle:"italic" }}>
-                          📝 {c.notas}
+                      {citaDetalle.status==="pendiente" && usuarioActual?.rol==="paciente" && (
+                        <div style={{ display:"flex", gap:8 }}>
+                          {btn(()=>{ setCitaSeleccionada(citaDetalle); setModal("confirmar-cita"); setCitaDetalle(null); }, "✓ Confirmar asistencia", { flex:1, padding:10, borderRadius:11, background:C.green, color:"white", fontWeight:800, fontSize:12 })}
+                          {btn(()=>{ setCitaSeleccionada(citaDetalle); setModal("cancelar-cita"); setCitaDetalle(null); }, "Cancelar", { padding:10, borderRadius:11, background:"#FFE5E5", color:C.red, fontWeight:800, fontSize:12 })}
                         </div>
                       )}
-                      <div style={{ display:"flex", gap:7 }}>
-                        {c.status === "pendiente" && (<>
-                          {btn(() => { setCitaSeleccionada(c); setModal("confirmar-cita"); }, "✓ Confirmar", { flex:1, padding:"7px 0", borderRadius:9, background:C.green, color:"white", fontWeight:800, fontSize:11 })}
-                          {btn(() => { setCitaSeleccionada(c); setModal("cancelar-cita"); }, "✕ Cancelar", { flex:1, padding:"7px 0", borderRadius:9, background:"#FFE5E5", color:C.red, fontWeight:800, fontSize:11 })}
-                        </>)}
-                        {c.status === "confirmada" && (
-                          <div style={{ flex:1, textAlign:"center", fontSize:11, fontWeight:800, padding:7, borderRadius:9, background:"#E6FAF0", color:C.sageDark }}>✅ Confirmada</div>
-                        )}
-                        {c.status === "cancelada" && (
-                          <div style={{ flex:1, textAlign:"center", fontSize:11, fontWeight:800, padding:7, borderRadius:9, background:"#FFE5E5", color:C.red }}>❌ Cancelada</div>
-                        )}
-                      </div>
+                      {btn(()=>setCitaDetalle(null), "Cerrar", { width:"100%", padding:10, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:700, marginTop:8 })}
                     </div>
-                  ))
+                  </div>
                 )}
+
+                {mdl("confirmar-cita", citaSeleccionada && (
+                  <div>
+                    <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>✅</div>
+                    <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Confirmar cita</div>
+                    <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>
+                      ¿Confirmas tu asistencia el <strong>{new Date(citaSeleccionada.fecha+"T12:00:00").toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})}</strong> a las <strong>{citaSeleccionada.hora}</strong>?
+                    </div>
+                    <div style={{ display:"flex", gap:9 }}>
+                      {btn(()=>setModal(null), "No aún", { flex:1, padding:9, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                      {btn(()=>actualizarStatusCita(citaSeleccionada.id,"confirmada"), "✓ Confirmar", { flex:1, padding:9, background:C.green, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    </div>
+                  </div>
+                ))}
+                {mdl("cancelar-cita", citaSeleccionada && (
+                  <div>
+                    <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>❌</div>
+                    <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Cancelar cita</div>
+                    <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>
+                      ¿Deseas cancelar la sesión del <strong>{new Date(citaSeleccionada.fecha+"T12:00:00").toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})}</strong>?
+                    </div>
+                    <div style={{ display:"flex", gap:9 }}>
+                      {btn(()=>setModal(null), "Volver", { flex:1, padding:9, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                      {btn(()=>actualizarStatusCita(citaSeleccionada.id,"cancelada"), "Sí, cancelar", { flex:1, padding:9, background:C.red, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    </div>
+                  </div>
+                ))}
+                {usuarioActual?.rol==="psicologo" ? anav("calendario") : bnav("calendario")}
               </div>
-              {mdl("confirmar-cita", citaSeleccionada && (
-                <div>
-                  <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>✅</div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Confirmar cita</div>
-                  <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>
-                    ¿Confirmas tu asistencia el <strong>{new Date(citaSeleccionada.fecha).toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}</strong> a las <strong>{citaSeleccionada.hora}</strong>?
-                  </div>
-                  <div style={{ display:"flex", gap:9 }}>
-                    {btn(() => setModal(null), "No aún", { flex:1, padding:9, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => actualizarStatusCita(citaSeleccionada.id, "confirmada"), "✓ Confirmar", { flex:1, padding:9, background:C.green, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
-                  </div>
-                </div>
-              ))}
-              {mdl("cancelar-cita", citaSeleccionada && (
-                <div>
-                  <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>❌</div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Cancelar cita</div>
-                  <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>
-                    ¿Deseas cancelar la sesión del <strong>{new Date(citaSeleccionada.fecha).toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}</strong>?
-                  </div>
-                  <div style={{ display:"flex", gap:9 }}>
-                    {btn(() => setModal(null), "Volver", { flex:1, padding:9, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => actualizarStatusCita(citaSeleccionada.id, "cancelada"), "Sí, cancelar", { flex:1, padding:9, background:C.red, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
-                  </div>
-                </div>
-              ))}
-              {usuarioActual?.rol === "psicologo" ? anav("calendario") : bnav("calendario")}
-            </div>
-          )}
+            );
+          })()}
 
           {/* LOGROS */}
           {!notifPanel && screen === "logros" && (
@@ -3274,7 +3592,7 @@ const styles = `
                 ) : (
                   <>
                     <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:16, padding:16, marginBottom:12, textAlign:"center" }}>
-                      <div style={{ fontSize:32, fontWeight:900, color:"white" }}>{(resenas.reduce((a,r) => a+r.rating, 0) / resenas.length).toFixed(1)} ⭐</div>
+                      <div style={{ fontSize:32, fontWeight:900, color:"white" }}>{resenas.length > 0 ? (resenas.reduce((a,r) => a+r.rating, 0) / resenas.length).toFixed(1) : "—"} ⭐</div>
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
                     </div>
                     {resenas.map(r => (
@@ -3408,22 +3726,27 @@ const styles = `
                   pacientes.map(p => (
                     <div key={p.id} onClick={() => { setPacienteSeleccionado(p); cargarTareasPsicologo(p.id, usuarioActual.uid); cargarRecursosPsicologo(p.id, usuarioActual.uid); cargarAutorregistros(p.id); cargarNotasClinicas(p.id); cargarRegistrosAnimo(p.id); showScreen("admin-paciente"); }}
                       style={{ background:"#FEFAF5", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer" }}>
-                      <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum}20,${C.sage}20)`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👤</div>
+                      <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum},${C.sage})`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, color:"white", fontWeight:700 }}>
+                        {p.nombre?.charAt(0).toUpperCase()}
+                      </div>
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{p.nombre}</div>
                         <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{p.email}</div>
-                        {p.telefono && <div style={{ fontSize:10, color:C.light }}>📞 {p.telefono}</div>}
+                        <div style={{ display:"flex", gap:6, marginTop:4 }}>
+                          {citas.filter(c=>c.pacienteId===p.id&&c.status==="pendiente").length > 0 && (
+                            <span style={{ fontSize:9, fontWeight:800, padding:"2px 6px", borderRadius:10, background:"rgba(232,168,124,0.15)", color:C.amber }}>
+                              📅 {citas.filter(c=>c.pacienteId===p.id&&c.status==="pendiente").length} cita(s) pendiente(s)
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
-                        <div style={{ background:"#E8F5E9", color:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>Activo</div>
-                        <div style={{ color:C.light, fontSize:18 }}>›</div>
-                      </div>
+                      <div style={{ color:C.light, fontSize:20, fontWeight:300 }}>›</div>
                     </div>
                   ))
                 )}
 
                 {/* BOTÓN AGENDAR */}
-                {btn(() => setModal("agendar-cita"), "📅 Agendar nueva cita", { width:"100%", padding:10, background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginTop:8, display:"block" })}
+                {btn(() => { setCitaPacienteId(""); setModal("agendar-cita"); }, "📅 Agendar nueva cita", { width:"100%", padding:10, background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginTop:8, display:"block" })}
                 {btn(() => setModal("crear-recordatorio"), "🔔 Nuevo recordatorio", {
   width:"100%", padding:10, background:"#FEFAF5", color:C.text,
   borderRadius:12, fontSize:13, fontWeight:800,
@@ -3448,7 +3771,7 @@ const styles = `
             </div>
           </div>
           <div style={{ fontSize:11, color:C.light }}>
-            🕐 {r.hora} · {["D","L","M","X","J","V","S"].filter((_,i) => r.diasSemana.includes(i)).join(", ")}
+            🕐 {r.hora} · {["D","L","M","X","J","V","S"].filter((_,i) => (r.diasSemana||[]).includes(i)).join(", ")}
           </div>
           <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{r.mensaje}</div>
         </div>
@@ -3460,19 +3783,42 @@ const styles = `
               {mdl("agendar-cita", (
                 <div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📅 Agendar cita</div>
-                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario en tiempo real</div>
+
+                  {/* Paciente — pre-llenado si viene de admin-paciente */}
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
-                  <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FEFAF5", boxSizing:"border-box" }}>
-                    <option value="">— Seleccionar paciente —</option>
-                    {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
-                  </select>
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
-                  <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
+                  {pacienteSeleccionado ? (
+                    <div style={{ background:"rgba(196,132,90,0.08)", border:"1px solid rgba(196,132,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
+                      <span style={{ fontSize:16 }}>👤</span>
+                      <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{pacienteSeleccionado.nombre}</span>
+                    </div>
+                  ) : (
+                    <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
+                      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FEFAF5", boxSizing:"border-box" }}>
+                      <option value="">— Seleccionar paciente —</option>
+                      {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
+                    </select>
+                  )}
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
+                  <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
                     style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
-                  <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
+                  <input placeholder="Ej: Continuaremos con técnicas de respiración" value={citaDescripcion} onChange={e => setCitaDescripcion(e.target.value)}
                     style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
+                      <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
+                      <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    </div>
+                  </div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
@@ -3879,9 +4225,12 @@ const styles = `
         </select>
       </>
     )}
+    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5, marginTop:4 }}>Tu PIN de administrador (para confirmar)</div>
+    <input type="password" placeholder="Tu PIN" inputMode="numeric" maxLength={4} value={formPinAdmin} onChange={e => setFormPinAdmin(e.target.value)}
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4 }}/>
     <div style={{ display:"flex", gap:8 }}>
-      {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-      {btn(() => handleCrearUsuarioAdmin(), formLoading ? "Creando..." : "Crear usuario ✓", { flex:2, padding:11, background:formLoading?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+      {btn(() => { setModal(null); setFormPinAdmin(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+      {btn(() => handleCrearUsuarioAdmin(), formLoading ? "Creando..." : "Crear usuario ✓", { flex:2, padding:11, background:formLoading||formPinAdmin.length<4?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
     </div>
   </div>
 ))}
@@ -3988,7 +4337,7 @@ const styles = `
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
                 {btn(() => setModal("assign-task"), "📋 Asignar nueva tarea", { width:"100%", padding:9, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, color:"white", borderRadius:13, fontSize:13, fontWeight:800, marginBottom:10 })}
                 {mitem("💬", "Nota clínica privada", () => setModal("feedback"))}
-                {mitem("📅", "Agendar cita", () => setModal("agendar-cita"))}
+                {mitem("📅", "Agendar cita", () => { setCitaPacienteId(pacienteSeleccionado?.id || ""); setModal("agendar-cita"); })}
                 {mitem("🔔", "Programar notificación", () => setModal("programar-notif"))}
                 {mitem("🔔", "Recordatorios recurrentes", () => setModal("crear-recordatorio"))}
                 {mitem("📤", "Enviar material", () => setModal("enviar-material"))}
@@ -4503,7 +4852,7 @@ const styles = `
                 ) : (
                   <>
                     <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:16, padding:16, marginBottom:12, textAlign:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.1)" }}>
-                      <div style={{ fontSize:36, fontWeight:900, color:"white" }}>{(resenas.reduce((a,r) => a+r.rating, 0) / resenas.length).toFixed(1)} ⭐</div>
+                      <div style={{ fontSize:36, fontWeight:900, color:"white" }}>{resenas.length > 0 ? (resenas.reduce((a,r) => a+r.rating, 0) / resenas.length).toFixed(1) : "—"} ⭐</div>
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
                     </div>
                     {resenas.map(r => (
@@ -4580,19 +4929,35 @@ const styles = `
               {mdl("agendar-cita", (
                 <div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📅 Agendar cita</div>
-                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario en tiempo real</div>
+
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
                   <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
                     style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FEFAF5", boxSizing:"border-box" }}>
                     <option value="">— Seleccionar paciente —</option>
                     {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
                   </select>
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
-                  <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
+                  <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
                     style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
-                  <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
+                  <input placeholder="Ej: Continuaremos con técnicas de respiración" value={citaDescripcion} onChange={e => setCitaDescripcion(e.target.value)}
                     style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
+                      <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
+                      <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    </div>
+                  </div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
