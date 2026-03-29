@@ -863,6 +863,7 @@ const [tareaRespondiendo, setTareaRespondiendo] = useState(null);
 const [fraseDelMes, setFraseDelMes] = useState("");
 const [companero, setCompanero] = useState(null);
 const [companeroSeleccionando, setCompaneroSeleccionando] = useState(null);
+const [adminBusqueda, setAdminBusqueda] = useState("");
 const [loadingFrase, setLoadingFrase] = useState(false);
 const [checkInMood, setCheckInMood] = useState(null);
 const [mostrarCheckIn, setMostrarCheckIn] = useState(false);
@@ -1463,6 +1464,8 @@ const enviarResena = async () => {
     const id = Date.now().toString();
     await setDoc(doc(db, "resenas", id), {
       psicologoId: usuarioActual.psicologoId,
+      pacienteId: usuarioActual.uid,
+      pacienteNombre: usuarioActual.nombre || "",
       rating: resenaRating,
       texto: resenaTexto,
       fecha: new Date().toISOString(),
@@ -1475,6 +1478,16 @@ const enviarResena = async () => {
     cargarResenas(usuarioActual.psicologoId);
   } catch(e) { showToast("Error al enviar reseña ❌"); }
   setLoadingResenas(false);
+};
+const ofuscarNombre = (nombre) => {
+  if (!nombre) return "Paciente anónimo";
+  const partes = nombre.trim().split(" ");
+  return partes.map((p, i) => {
+    if (p.length <= 1) return p + ".";
+    // Primera letra visible + asteriscos + última letra
+    if (i === 0) return p[0].toUpperCase() + "*".repeat(Math.max(p.length - 2, 2)) + p[p.length - 1].toLowerCase() + ".";
+    return p[0].toUpperCase() + "*".repeat(Math.max(p.length - 2, 2)) + ".";
+  }).join(" ");
 };
 const cargarTodosUsuarios = async () => {
   setLoadingUsuarios(true);
@@ -3271,7 +3284,7 @@ const styles = `
                           <div style={{ fontSize:10, color:C.light }}>{new Date(r.fecha).toLocaleDateString('es-CO')}</div>
                         </div>
                         <div style={{ fontSize:13, color:C.text, lineHeight:1.5 }}>{r.texto}</div>
-                        <div style={{ fontSize:10, color:C.light, marginTop:6, fontStyle:"italic" }}>— Paciente anónimo</div>
+                        <div style={{ fontSize:10, color:C.light, marginTop:6, fontStyle:"italic" }}>— {ofuscarNombre(r.pacienteNombre)}</div>
                       </div>
                     ))}
                   </>
@@ -3529,6 +3542,194 @@ const styles = `
             </div>
           )}
           {/* ADMIN SaaS HOME */}
+          {/* ADMIN — PSICÓLOGOS */}
+{!notifPanel && screen === "admin-psicologo" && todosUsuarios.length === 0 && cargarTodosUsuarios()}
+{!notifPanel && screen === "admin-psicologo" && (() => {
+  const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
+  const pacientes = todosUsuarios.filter(u => u.rol === "paciente");
+  return (
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5EDE0" }}>
+      {/* Header */}
+      <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
+        <div style={{ fontSize:16, fontWeight:700, color:"white" }}>🧠 Psicólogos</div>
+        <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>{psicologos.length} psicólogo{psicologos.length !== 1 ? "s" : ""} registrado{psicologos.length !== 1 ? "s" : ""}</div>
+      </div>
+      {/* Lista */}
+      <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 0px))" }}>
+        {psicologos.length === 0 ? (
+          <div style={{ textAlign:"center", padding:32, color:C.light, fontSize:13 }}>No hay psicólogos registrados</div>
+        ) : psicologos.map(p => {
+          const susPacientes = pacientes.filter(u => u.psicologoId === p.id);
+          const sinPsicologo = pacientes.filter(u => !u.psicologoId || u.psicologoId === "");
+          return (
+            <div key={p.id} style={{ background:"#FEFAF5", borderRadius:16, padding:14, marginBottom:12, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+              {/* Info psicólogo */}
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
+                <div style={{ width:44, height:44, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>🧠</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:14, fontWeight:800, color:C.text }}>{p.nombre}</div>
+                  <div style={{ fontSize:11, color:C.light }}>{p.email}</div>
+                </div>
+                <div style={{ background:p.inactivo?"#FFE0E0":"rgba(125,170,146,0.2)", color:p.inactivo?C.red:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
+                  {p.inactivo ? "Inactivo" : "Activo"}
+                </div>
+              </div>
+
+              {/* Pacientes actuales */}
+              <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6 }}>
+                PACIENTES ASIGNADOS ({susPacientes.length})
+              </div>
+              {susPacientes.length === 0 ? (
+                <div style={{ fontSize:11, color:C.light, fontStyle:"italic", marginBottom:8 }}>Sin pacientes aún</div>
+              ) : susPacientes.map(pac => (
+                <div key={pac.id} style={{ display:"flex", alignItems:"center", gap:8, background:"#F5EDE0", borderRadius:10, padding:"8px 10px", marginBottom:6 }}>
+                  <div style={{ fontSize:13 }}>👤</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{pac.nombre}</div>
+                    <div style={{ fontSize:10, color:C.light }}>{pac.email}</div>
+                  </div>
+                  {btn(async () => {
+                    try {
+                      await updateDoc(doc(db, "usuarios", pac.id), { psicologoId: "", psicologoNombre: "" });
+                      showToast(`${pac.nombre} desvinculado ✅`);
+                      await cargarTodosUsuarios();
+                    } catch(e) { showToast("Error al desvincular ❌"); }
+                  }, "Quitar", { padding:"4px 10px", background:"#FFE5E5", color:C.red, borderRadius:8, fontSize:10, fontWeight:800 })}
+                </div>
+              ))}
+
+              {/* Buscar y asignar paciente */}
+              {sinPsicologo.length > 0 && (
+                <div style={{ marginTop:8 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6 }}>ASIGNAR PACIENTE</div>
+                  <select
+                    style={{ width:"100%", padding:"9px 12px", border:"1px solid rgba(196,132,90,0.2)", borderRadius:10, fontSize:12, background:"#FEFAF5", color:C.text, fontFamily:"inherit", marginBottom:8 }}
+                    defaultValue=""
+                    onChange={async (e) => {
+                      const pacId = e.target.value;
+                      if (!pacId) return;
+                      const pac = sinPsicologo.find(x => x.id === pacId);
+                      if (!pac) return;
+                      try {
+                        await updateDoc(doc(db, "usuarios", pacId), {
+                          psicologoId: p.id,
+                          psicologoNombre: p.nombre,
+                        });
+                        showToast(`${pac.nombre} asignado a ${p.nombre} ✅`);
+                        await cargarTodosUsuarios();
+                      } catch(err) { showToast("Error al asignar ❌"); }
+                      e.target.value = "";
+                    }}
+                  >
+                    <option value="">+ Buscar y asignar paciente...</option>
+                    {sinPsicologo.map(pac => (
+                      <option key={pac.id} value={pac.id}>{pac.nombre} — {pac.email}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {anav("admin-psicologo")}
+    </div>
+  );
+})()}
+
+{/* ADMIN — PACIENTES */}
+{!notifPanel && screen === "admin-pacientes" && todosUsuarios.length === 0 && cargarTodosUsuarios()}
+{!notifPanel && screen === "admin-pacientes" && (() => {
+  const busqueda = adminBusqueda;
+  const setBusqueda = setAdminBusqueda;
+  const pacientes = todosUsuarios
+    .filter(u => u.rol === "paciente")
+    .filter(u => !busqueda || u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || u.email?.toLowerCase().includes(busqueda.toLowerCase()));
+  const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
+  return (
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5EDE0" }}>
+      <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
+        <div style={{ fontSize:16, fontWeight:700, color:"white" }}>👥 Pacientes</div>
+        <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>{todosUsuarios.filter(u=>u.rol==="paciente").length} pacientes registrados</div>
+        {/* Buscador */}
+        <div style={{ marginTop:10, position:"relative" }}>
+          <input
+            placeholder="Buscar por nombre o correo..."
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+            style={{ width:"100%", padding:"9px 12px 9px 34px", borderRadius:12, border:"none", fontSize:12, background:"rgba(255,255,255,0.12)", color:"white", fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
+          />
+          <span style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", fontSize:14, opacity:.6 }}>🔍</span>
+        </div>
+      </div>
+      <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 0px))" }}>
+        {pacientes.length === 0 ? (
+          <div style={{ textAlign:"center", padding:32, color:C.light, fontSize:13 }}>
+            {busqueda ? "Sin resultados" : "No hay pacientes registrados"}
+          </div>
+        ) : pacientes.map(pac => {
+          const psi = psicologos.find(p => p.id === pac.psicologoId);
+          return (
+            <div key={pac.id} style={{ background:"#FEFAF5", borderRadius:16, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+                <div style={{ width:40, height:40, background:"rgba(196,132,90,0.15)", borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>👤</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{pac.nombre}</div>
+                  <div style={{ fontSize:10, color:C.light }}>{pac.email}</div>
+                </div>
+                <div style={{ background:pac.inactivo?"#FFE0E0":"rgba(125,170,146,0.15)", color:pac.inactivo?C.red:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
+                  {pac.inactivo ? "Inactivo" : "Activo"}
+                </div>
+              </div>
+              {/* Psicólogo asignado */}
+              <div style={{ fontSize:10, color:C.light, marginBottom:6, fontWeight:600 }}>PSICÓLOGO ASIGNADO</div>
+              {psi ? (
+                <div style={{ display:"flex", alignItems:"center", gap:8, background:"#F5EDE0", borderRadius:10, padding:"8px 10px", marginBottom:8 }}>
+                  <span style={{ fontSize:13 }}>🧠</span>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{psi.nombre}</div>
+                  </div>
+                  {btn(async () => {
+                    try {
+                      await updateDoc(doc(db, "usuarios", pac.id), { psicologoId: "", psicologoNombre: "" });
+                      showToast(`${pac.nombre} desvinculado ✅`);
+                      await cargarTodosUsuarios();
+                    } catch(e) { showToast("Error ❌"); }
+                  }, "Desvincular", { padding:"4px 10px", background:"#FFE5E5", color:C.red, borderRadius:8, fontSize:10, fontWeight:800 })}
+                </div>
+              ) : (
+                <div style={{ fontSize:11, color:C.light, fontStyle:"italic", marginBottom:8 }}>Sin psicólogo asignado</div>
+              )}
+              {/* Cambiar / asignar psicólogo */}
+              <select
+                style={{ width:"100%", padding:"8px 12px", border:"1px solid rgba(196,132,90,0.2)", borderRadius:10, fontSize:12, background:"#FEFAF5", color:C.text, fontFamily:"inherit" }}
+                value={pac.psicologoId || ""}
+                onChange={async (e) => {
+                  const psiId = e.target.value;
+                  const psiObj = psicologos.find(p => p.id === psiId);
+                  try {
+                    await updateDoc(doc(db, "usuarios", pac.id), {
+                      psicologoId: psiId,
+                      psicologoNombre: psiObj?.nombre || "",
+                    });
+                    showToast(psiId ? `Asignado a ${psiObj?.nombre} ✅` : "Psicólogo removido ✅");
+                    await cargarTodosUsuarios();
+                  } catch(err) { showToast("Error ❌"); }
+                }}
+              >
+                <option value="">— Sin psicólogo —</option>
+                {psicologos.map(p => (
+                  <option key={p.id} value={p.id}>{p.nombre}</option>
+                ))}
+              </select>
+            </div>
+          );
+        })}
+      </div>
+      {anav("admin-pacientes")}
+    </div>
+  );
+})()}
 {!notifPanel && screen === "admin-home" && todosUsuarios.length === 0 && cargarTodosUsuarios()}
 {!notifPanel && screen === "admin-home" && (
   <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))" }}>
