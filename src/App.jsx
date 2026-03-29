@@ -3543,7 +3543,6 @@ const styles = `
           )}
           {/* ADMIN SaaS HOME */}
           {/* ADMIN — PSICÓLOGOS */}
-{!notifPanel && screen === "admin-psicologo" && todosUsuarios.length === 0 && cargarTodosUsuarios()}
 {!notifPanel && screen === "admin-psicologo" && (() => {
   const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
   const pacientes = todosUsuarios.filter(u => u.rol === "paciente");
@@ -3638,7 +3637,6 @@ const styles = `
 })()}
 
 {/* ADMIN — PACIENTES */}
-{!notifPanel && screen === "admin-pacientes" && todosUsuarios.length === 0 && cargarTodosUsuarios()}
 {!notifPanel && screen === "admin-pacientes" && (() => {
   const busqueda = adminBusqueda;
   const setBusqueda = setAdminBusqueda;
@@ -3730,7 +3728,6 @@ const styles = `
     </div>
   );
 })()}
-{!notifPanel && screen === "admin-home" && todosUsuarios.length === 0 && cargarTodosUsuarios()}
 {!notifPanel && screen === "admin-home" && (
   <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))" }}>
     <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
