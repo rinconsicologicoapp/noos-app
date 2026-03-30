@@ -978,13 +978,14 @@ const cargarCitas = async (uid, rol) => {
   setLoadingCitas(false);
 };
 const crearCita = async () => {
-  if (!citaFecha || !citaHora || !citaPacienteId) {
+  const pacienteIdFinal = citaPacienteId || pacienteSeleccionado?.id || "";
+  if (!citaFecha || !citaHora || !pacienteIdFinal) {
     showToast("Completa fecha, hora y paciente ❌"); return;
   }
   setLoadingCitas(true);
   try {
     const id = Date.now().toString();
-    const paciente = pacientes.find(p => p.id === citaPacienteId) || pacienteSeleccionado;
+    const paciente = pacientes.find(p => p.id === pacienteIdFinal) || pacienteSeleccionado;
     const titulo = citaTitulo.trim() || "Sesión de terapia";
     // Convertir fecha+hora del psicólogo a UTC universal
     const tzPsicologo = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -995,7 +996,7 @@ const crearCita = async () => {
       id,
       psicologoId:     usuarioActual.uid,
       psicologoNombre: usuarioActual.nombre,
-      pacienteId:      citaPacienteId,
+      pacienteId:      pacienteIdFinal,
       pacienteNombre:  paciente?.nombre || "",
       titulo,
       descripcion:     citaDescripcion,
@@ -1015,7 +1016,7 @@ const crearCita = async () => {
     // Notificación inmediata en Firestore al paciente
     const notifId = `cita_nueva_${id}`;
     await setDoc(doc(db, "notificaciones", notifId), {
-      pacienteId:  citaPacienteId,
+      pacienteId:  pacienteIdFinal,
       psicologoId: usuarioActual.uid,
       icon:        "📅",
       titulo:      `Nueva cita: ${titulo}`,
@@ -1034,7 +1035,7 @@ const crearCita = async () => {
 
     await setDoc(doc(db, "recordatoriosCita", `${id}_1h`), {
       citaId:      id,
-      pacienteId:  citaPacienteId,
+      pacienteId:  pacienteIdFinal,
       psicologoId: usuarioActual.uid,
       titulo:      `⏰ Tu cita es en 1 hora`,
       mensaje:     `${titulo} — ${citaFecha} a las ${citaHora}`,
@@ -1046,7 +1047,7 @@ const crearCita = async () => {
 
     await setDoc(doc(db, "recordatoriosCita", `${id}_5m`), {
       citaId:      id,
-      pacienteId:  citaPacienteId,
+      pacienteId:  pacienteIdFinal,
       psicologoId: usuarioActual.uid,
       titulo:      `🔴 Tu cita empieza en 5 minutos`,
       mensaje:     `${titulo} — Toca aquí para abrir el enlace`,
@@ -1415,11 +1416,12 @@ const cargarRegistrosAnimo = async (pacienteId) => {
     const fechaLimite = hace120.toISOString().split('T')[0];
     const q = query(
       collection(db, "registrosAnimo"),
-      where("pacienteId", "==", pacienteId),
-      where("fecha", ">=", fechaLimite),
+      where("pacienteId", "==", pacienteId)
     );
     const snap = await getDocs(q);
-    const lista = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    const lista = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(d => d.fecha >= fechaLimite)
       .sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
     setRegistrosAnimo(lista);
   } catch(e) { console.log("Error cargando ánimo:", e); }
