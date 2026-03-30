@@ -704,6 +704,7 @@ function FrailejonAvatar({ mini = false }) {
 }
 export default function NOOS() {
   const [screen, setScreen] = useState("login");
+  const [screenDir, setScreenDir] = useState("enter"); // "enter" | "forward" | "back"
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [formNombre, setFormNombre] = useState("");
 const [formEmail, setFormEmail] = useState("");
@@ -867,6 +868,8 @@ const [loadingNotaClin, setLoadingNotaClin] = useState(false);
 const [notasClinicas, setNotasClinicas] = useState([]);
 const [respuestaTarea, setRespuestaTarea] = useState("");
 const [tareaRespondiendo, setTareaRespondiendo] = useState(null);
+const [retrasoTexto, setRetrasoTexto] = useState("");
+const [retrasoMinutos, setRetrasoMinutos] = useState(10);
 const [fraseDelMes, setFraseDelMes] = useState("");
 const [companero, setCompanero] = useState(null);
 const [companeroSeleccionando, setCompaneroSeleccionando] = useState(null);
@@ -1070,8 +1073,35 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
   try {
     await updateDoc(doc(db, "citas", citaId), { status: nuevoStatus });
     setCitas(prev => prev.map(c => c.id === citaId ? { ...c, status: nuevoStatus } : c));
-    if (nuevoStatus === "confirmada") showNotif("Cita confirmada ✅", "Tu psicólogo fue notificado", "✅");
-    if (nuevoStatus === "cancelada") showNotif("Cita cancelada", "Tu psicólogo fue notificado", "❌");
+    const cita = citas.find(c => c.id === citaId);
+    if (nuevoStatus === "confirmada") {
+      showNotif("Cita confirmada ✅", "Tu psicólogo fue notificado", "✅");
+      if (cita?.psicologoId) {
+        setDoc(doc(db, "notificaciones", `conf_cita_${citaId}`), {
+          pacienteId: cita.psicologoId,
+          titulo: "Cita confirmada ✅",
+          mensaje: `${usuarioActual.nombre} confirmó la sesión del ${cita.fecha} a las ${cita.hora}`,
+          icon: "✅",
+          tipo: "cita_confirmada",
+          leida: false,
+          creadoEn: new Date().toISOString(),
+        }).catch(()=>{});
+      }
+    }
+    if (nuevoStatus === "cancelada") {
+      showNotif("Cita cancelada", "Tu psicólogo fue notificado", "❌");
+      if (cita?.psicologoId) {
+        setDoc(doc(db, "notificaciones", `canc_cita_${citaId}`), {
+          pacienteId: cita.psicologoId,
+          titulo: "Cita cancelada ❌",
+          mensaje: `${usuarioActual.nombre} canceló la sesión del ${cita.fecha} a las ${cita.hora}`,
+          icon: "❌",
+          tipo: "cita_cancelada",
+          leida: false,
+          creadoEn: new Date().toISOString(),
+        }).catch(()=>{});
+      }
+    }
     setModal(null);
   } catch(e) { showToast("Error al actualizar cita ❌"); }
 };
@@ -1926,8 +1956,32 @@ useEffect(() => {
   return () => clearInterval(timer);
 }, []);
   const showNotif = (title, msg, icon = "🔔") => {
-    setNotifs(prev => [{ id: Date.now(), icon, title, msg, time: "Ahora", read: false }, ...prev]);
+    const id = `notif_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+    const nueva = { id, icon, title, msg, time: "Ahora", read: false };
+    setNotifs(prev => [nueva, ...prev]);
     showToast(`${icon} ${title}`);
+    // Guardar en Firestore si hay usuario activo
+    if (usuarioActual?.uid) {
+      setDoc(doc(db, "notificaciones", id), {
+        pacienteId: usuarioActual.uid,
+        titulo: title,
+        mensaje: msg,
+        icon,
+        leida: false,
+        creadoEn: new Date().toISOString(),
+        tipo: "app",
+      }).catch(() => {});
+      // Depurar notificaciones > 7 días
+      const hace7 = new Date();
+      hace7.setDate(hace7.getDate() - 7);
+      getDocs(query(
+        collection(db, "notificaciones"),
+        where("pacienteId", "==", usuarioActual.uid),
+        where("creadoEn", "<", hace7.toISOString())
+      )).then(snap => {
+        snap.docs.forEach(d => deleteDoc(doc(db, "notificaciones", d.id)).catch(()=>{}));
+      }).catch(()=>{});
+    }
   };
 
   const playSound = (type = "click") => {
@@ -1963,6 +2017,7 @@ const showScreen = (id) => {
   playSound("nav");
   setNotifPanel(false);
   setModal(null);
+  setScreenDir("forward");
   setScreen(id);
 };
 
@@ -1983,7 +2038,12 @@ const goBack = () => {
   if (notifPanel) { setNotifPanel(false); return; }
   if (modal) { setModal(null); return; }
   const destino = BACK_MAP[screen];
-  if (destino) showScreen(destino);
+  if (destino) {
+    setScreenDir("back");
+    setNotifPanel(false);
+    setModal(null);
+    setScreen(destino);
+  }
 };
 
   const markRead = async (id) => {
@@ -2015,7 +2075,17 @@ const styles = `
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  .screen-enter { animation: fadeIn 0.25s ease; }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(32px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-32px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .screen-enter      { animation: fadeIn      0.22s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+  .screen-slide-in   { animation: slideInRight 0.22s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+  .screen-slide-back { animation: slideInLeft  0.22s cubic-bezier(0.25,0.46,0.45,0.94) both; }
   @keyframes confettiFall {
     0% { transform: translateY(-20px) rotate(0deg); opacity:1; }
     100% { transform: translateY(400px) rotate(720deg); opacity:0; }
@@ -2065,7 +2135,16 @@ const styles = `
   cardBg:"#FEFAF5", headerBg:"#FEFAF5"
 };
 
-  const avatars = ["🦋","🦁","🐺","🦊","🐘","🦅","🐬","🦉","🐆","🦓","🐢","🦜"];
+  const avatars = [
+    { id:"av1", label:"Mujer A",   svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#C4845A"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#8B5A3A"/><circle cx="20" cy="14" r="6" fill="#F5D5B8"/><ellipse cx="20" cy="10" rx="7" ry="5" fill="#3A2A1C"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#C4845A" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
+    { id:"av2", label:"Hombre A",  svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#7DAA92"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#4A8A72"/><circle cx="20" cy="14" r="6" fill="#F5D5B8"/><rect x="13" y="9" width="14" height="5" rx="3" fill="#3A2A1C"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#7DAA92" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
+    { id:"av3", label:"Mujer B",   svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#8B5A3A"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#C4845A"/><circle cx="20" cy="14" r="6" fill="#D4956A"/><path d="M13 10 Q20 5 27 10" stroke="#1A0E08" strokeWidth="2.5" fill="#1A0E08"/><path d="M13 10 Q16 14 13 18" stroke="#1A0E08" strokeWidth="1.5" fill="none"/><path d="M27 10 Q24 14 27 18" stroke="#1A0E08" strokeWidth="1.5" fill="none"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#8B5A3A" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
+    { id:"av4", label:"Hombre B",  svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#5A7A9A"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#3A5A7A"/><circle cx="20" cy="14" r="6" fill="#F5D5B8"/><path d="M13 11 Q20 7 27 11 L27 9 Q20 4 13 9Z" fill="#3A2A1C"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#5A7A9A" strokeWidth="1.2" fill="none" strokeLinecap="round"/><rect x="17" y="17" width="6" height="1.5" rx="0.75" fill="#D4956A"/></svg> },
+    { id:"av5", label:"Mujer C",   svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#A06040"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#7DAA92"/><circle cx="20" cy="14" r="6" fill="#F0C8A0"/><path d="M13 10 Q20 4 27 10 Q28 16 27 18 Q23 8 17 8 Q13 8 13 18Z" fill="#8B5A3A"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#C4845A" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
+    { id:"av6", label:"Hombre C",  svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#6A5A9A"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#4A3A7A"/><circle cx="20" cy="14" r="6" fill="#D4956A"/><rect x="13" y="8" width="14" height="6" rx="3" fill="#2A1A0A"/><path d="M14 17 Q16 16 18 17" stroke="#8B6A4A" strokeWidth="1" fill="none"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#6A5A9A" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
+    { id:"av7", label:"Mujer D",   svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#C4845A"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#8B5A3A"/><circle cx="20" cy="14" r="6" fill="#E8B090"/><path d="M12 9 Q20 3 28 9" stroke="#1A0808" strokeWidth="3" fill="#1A0808"/><path d="M12 9 Q10 15 12 20 Q14 10 20 10 Q26 10 28 20 Q30 15 28 9" fill="#1A0808"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#C4845A" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
+    { id:"av8", label:"Hombre D",  svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#7DAA92"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#4A8A72"/><circle cx="20" cy="14" r="6" fill="#F5D5B8"/><rect x="14" y="8" width="12" height="4" rx="2" fill="#2A1A0A"/><rect x="17" y="19" width="6" height="1.5" rx="0.75" fill="#D4956A"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#7DAA92" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
+  ];
 
   const btn = (onClick, children, s = {}) => (
   <button onClick={() => { playSound("click"); if(navigator.vibrate) navigator.vibrate(8); onClick && onClick(); }} style={{ border:"none", cursor:"pointer", fontFamily:"inherit", ...s }}>{children}</button>
@@ -2251,7 +2330,11 @@ const styles = `
       >
 
         {/* CONTENIDO */}
-        <div style={{ height:"100%", overflowY:"hidden", overflowX:"hidden", position:"relative" }}>
+        <div
+          key={screen}
+          className={screenDir === "forward" ? "screen-slide-in" : screenDir === "back" ? "screen-slide-back" : "screen-enter"}
+          style={{ height:"100%", overflowY:"hidden", overflowX:"hidden", position:"relative" }}
+        >
           {/* NOTIFICACIÓN INTERACTIVA DE CITA */}
         {notifCitaActiva && (
           <div style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:12, right:12, zIndex:900, animation:"frailejFlotar 0.4s ease" }}>
@@ -2574,7 +2657,9 @@ const styles = `
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.7)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                       {unread > 0 && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"white" }}>{unread}</div>}
                     </div>
-                    <div onClick={() => showScreen("perfil")} style={{ width:36, height:36, background:"rgba(196,132,90,0.25)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, border:"1px solid rgba(232,168,124,0.3)", cursor:"pointer" }}>{avatar}</div>
+                    <div onClick={() => showScreen("perfil")} style={{ width:36, height:36, background:"rgba(196,132,90,0.25)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, border:"1px solid rgba(232,168,124,0.3)", cursor:"pointer", overflow:"hidden" }}>
+                      {avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar}
+                    </div>
                   </div>
                 </div>
 
@@ -3296,6 +3381,45 @@ const styles = `
                     ))}
                   </div>
 
+                  {/* Próxima cita — solo paciente */}
+                  {usuarioActual?.rol === "paciente" && (() => {
+                    const ahora = new Date();
+                    const proxima = citas
+                      .filter(c => c.status !== "cancelada" && fechaOrden(c) > ahora.getTime() - 3600000)
+                      .sort((a,b) => fechaOrden(a) - fechaOrden(b))[0];
+                    if (!proxima) return null;
+                    return (
+                      <div style={{ margin:"0 14px 14px", background:"#2A2018", borderRadius:16, padding:14, border:"0.5px solid rgba(232,168,124,0.15)", position:"relative", overflow:"hidden" }}>
+                        <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,#C4845A,transparent)", opacity:0.6 }}/>
+                        <div style={{ fontSize:10, fontWeight:600, color:"rgba(232,168,124,0.55)", letterSpacing:0.8, textTransform:"uppercase", marginBottom:8 }}>Próxima sesión</div>
+                        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+                          <div style={{ background:"#C4845A", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:44 }}>
+                            <div style={{ fontSize:16, fontWeight:700, color:"white", lineHeight:1 }}>{mostrarFechaLocal(proxima,"dia")}</div>
+                            <div style={{ fontSize:8, color:"rgba(255,255,255,0.75)", fontWeight:600, textTransform:"uppercase" }}>{mostrarFechaLocal(proxima,"mes")}</div>
+                          </div>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:13, fontWeight:600, color:"#F5E6D0" }}>Sesión con {proxima.psicologoNombre}</div>
+                            <div style={{ fontSize:11, color:"rgba(245,230,208,0.5)", marginTop:2 }}>{mostrarFechaLocal(proxima,"hora")} · {proxima.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
+                          </div>
+                          <div style={{ background:proxima.status==="confirmada"?"rgba(125,170,146,0.2)":"rgba(232,168,124,0.15)", color:proxima.status==="confirmada"?"#7DAA92":"#E8A87C", fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20 }}>
+                            {proxima.status==="confirmada"?"✅ Confirmada":"⏳ Pendiente"}
+                          </div>
+                        </div>
+                        {proxima.modalidad==="virtual" && proxima.link && (
+                          <a href={proxima.link.startsWith("http")?proxima.link:`https://${proxima.link}`} target="_blank" rel="noreferrer"
+                            style={{ display:"block", padding:"9px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:11, fontSize:12, fontWeight:800, textAlign:"center", textDecoration:"none", marginBottom:8 }}>
+                            🎥 Unirse a la sesión
+                          </a>
+                        )}
+                        {proxima.status==="pendiente" && (
+                          <div style={{ display:"flex", gap:8 }}>
+                            {btn(()=>{ setCitaSeleccionada(proxima); setModal("confirmar-cita"); }, "✓ Confirmar asistencia", { flex:1, padding:"8px 0", borderRadius:10, background:C.green, color:"white", fontWeight:800, fontSize:11 })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+
                   {/* Lista citas del mes */}
                   <div style={{ padding:"0 14px" }}>
                     <div style={{ fontSize:12, fontWeight:700, color:C.text, marginBottom:10 }}>
@@ -3348,6 +3472,13 @@ const styles = `
                             {btn(()=>{ setCitaSeleccionada(c); setModal("confirmar-cita"); }, "Confirmar", { padding:"3px 10px", borderRadius:9, background:C.green, color:"white", fontWeight:800, fontSize:10 })}
                             {btn(()=>{ setCitaSeleccionada(c); setModal("cancelar-cita"); }, "Cancelar", { padding:"3px 10px", borderRadius:9, background:"#FFE5E5", color:C.red, fontWeight:800, fontSize:10 })}
                           </>)}
+                          {c.status==="confirmada" && usuarioActual?.rol==="paciente" && (
+                            <div onClick={()=>{ setCitaSeleccionada(c); setRetrasoTexto(""); setRetrasoMinutos(10); setModal("demora-aviso"); }}
+                              style={{ display:"flex", alignItems:"center", gap:5, padding:"3px 10px", borderRadius:9, background:"#F5F0E8", border:"1px solid rgba(196,132,90,0.2)", cursor:"pointer" }}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.amberDark} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                              <span style={{ fontSize:10, fontWeight:700, color:C.amberDark }}>Me demoraré un momento</span>
+                            </div>
+                          )}
                         </div>
                         {c.notas && (
                           <div style={{ background:C.warm, borderRadius:9, padding:"7px 10px", marginTop:8, fontSize:11, color:C.light, fontStyle:"italic" }}>
@@ -3434,6 +3565,72 @@ const styles = `
                     </div>
                   </div>
                 ))}
+                {mdl("demora-aviso", citaSeleccionada && (
+                  <div>
+                    {/* Icono SVG reloj profesional */}
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:14 }}>
+                      <div style={{ width:60, height:60, borderRadius:18, background:"rgba(196,132,90,0.1)", border:"1.5px solid rgba(196,132,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10"/>
+                          <polyline points="12 6 12 12 16 14"/>
+                          <line x1="12" y1="2" x2="12" y2="4"/>
+                          <line x1="12" y1="20" x2="12" y2="22"/>
+                          <line x1="2" y1="12" x2="4" y2="12"/>
+                          <line x1="20" y1="12" x2="22" y2="12"/>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize:19, fontWeight:900, color:C.text, textAlign:"center", marginBottom:4 }}>Me demoraré un momento</div>
+                    <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>
+                      Tu psicólogo recibirá un aviso discreto
+                    </div>
+
+                    {/* Selector minutos */}
+                    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Tiempo estimado de demora</div>
+                    <div style={{ display:"flex", gap:6, marginBottom:16 }}>
+                      {[5, 10, 15, 20, 30].map(m => (
+                        <div key={m} onClick={() => setRetrasoMinutos(m)}
+                          style={{ flex:1, padding:"10px 0", borderRadius:11, textAlign:"center", cursor:"pointer",
+                            border:`1.5px solid ${retrasoMinutos===m ? C.amber : "rgba(0,0,0,0.08)"}`,
+                            background: retrasoMinutos===m ? "#FFF8EE" : "white",
+                            transition:"all 0.15s" }}>
+                          <div style={{ fontSize:13, fontWeight:800, color:retrasoMinutos===m ? C.amberDark : C.text }}>{m}'</div>
+                          <div style={{ fontSize:8, color:retrasoMinutos===m ? C.amber : C.light, fontWeight:600 }}>min</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Mensaje opcional */}
+                    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nota adicional <span style={{ fontWeight:400, color:C.light }}>(opcional)</span></div>
+                    <textarea
+                      placeholder="Ej: Estoy saliendo del trabajo..."
+                      value={retrasoTexto}
+                      onChange={e => setRetrasoTexto(e.target.value)}
+                      style={{ width:"100%", minHeight:64, padding:"10px 12px", border:"1.5px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, color:C.text }}/>
+
+                    <div style={{ display:"flex", gap:8 }}>
+                      {btn(()=>setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                      {btn(async () => {
+                        if (!citaSeleccionada) return;
+                        try {
+                          const msg = `${usuarioActual.nombre} llegará aproximadamente ${retrasoMinutos} minutos tarde a la sesión del ${citaSeleccionada.fecha} a las ${citaSeleccionada.hora}${retrasoTexto.trim() ? `. "${retrasoTexto.trim()}"` : "."}`;
+                          await setDoc(doc(db, "notificaciones", `demora_${citaSeleccionada.id}_${Date.now()}`), {
+                            pacienteId: citaSeleccionada.psicologoId,
+                            titulo: `Aviso de demora — ${retrasoMinutos} min`,
+                            mensaje: msg,
+                            icon: "⏱",
+                            tipo: "demora",
+                            leida: false,
+                            creadoEn: new Date().toISOString(),
+                          });
+                          showToast("Aviso enviado a tu psicólogo");
+                          setModal(null);
+                        } catch(e) { showToast("Error al enviar el aviso"); }
+                      }, "Enviar aviso", { flex:2, padding:11, background:`linear-gradient(135deg,${C.amber},${C.amberDark})`, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    </div>
+                  </div>
+                ))}
                 {usuarioActual?.rol==="psicologo" ? anav("calendario") : bnav("calendario")}
               </div>
             );
@@ -3510,7 +3707,9 @@ const styles = `
               {/* HEADER */}
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"28px 20px 40px", textAlign:"center" }}>
                 <div onClick={() => setModal("avatar")} style={{ position:"relative", display:"inline-block", marginBottom:10, cursor:"pointer" }}>
-                  <div style={{ width:64, height:64, background:"rgba(196,132,90,0.2)", borderRadius:"50%", border:"2px solid rgba(232,168,124,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32 }}>{avatar}</div>
+                  <div style={{ width:64, height:64, background:"rgba(196,132,90,0.2)", borderRadius:"50%", border:"2px solid rgba(232,168,124,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, overflow:"hidden" }}>
+                    {avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar}
+                  </div>
                   <div style={{ position:"absolute", bottom:0, right:0, width:20, height:20, background:"#C4845A", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid #2A1E14" }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
                   </div>
@@ -3531,7 +3730,7 @@ const styles = `
                   <div style={{ width:44, height:44, background:"rgba(196,132,90,0.15)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👨‍⚕️</div>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:10, color:"rgba(232,168,124,0.5)", fontWeight:600, textTransform:"uppercase", letterSpacing:0.5, marginBottom:2 }}>Mi psicólogo</div>
-                    <div style={{ fontSize:13, fontWeight:600, color:"#F5E6D0" }}>{usuarioActual?.psicologoNombre || "Dr. Rincón"}</div>
+                    <div style={{ fontSize:13, fontWeight:600, color:"#F5E6D0" }}>{usuarioActual?.psicologoNombre || "Mi psicólogo"}</div>
                   </div>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.25)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
@@ -3604,8 +3803,9 @@ const styles = `
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Elige tu avatar 🐾</div>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginBottom:14 }}>
                     {avatars.map(a => (
-                      <div key={a} onClick={() => setAvatar(a)} style={{ aspectRatio:"1", background:avatar===a?"#F0EDF5":"white", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", border:`2px solid ${avatar===a?C.plum:"transparent"}` }}>
-                        <div style={{ fontSize:28 }}>{a}</div>
+                      <div key={a.id} onClick={() => setAvatar(a.id)} style={{ aspectRatio:"1", background:avatar===a.id?"#F0EDF5":"white", borderRadius:14, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:4, cursor:"pointer", border:`2px solid ${avatar===a.id?C.plum:"transparent"}`, padding:6 }}>
+                        {a.svg}
+                        <div style={{ fontSize:8, color:C.light, fontWeight:600, textAlign:"center" }}>{a.label}</div>
                       </div>
                     ))}
                   </div>
@@ -3621,7 +3821,11 @@ const styles = `
               {mdl("edit-perfil", (
                 <div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>✏️ Editar perfil</div>
-                  <div style={{ fontSize:52, textAlign:"center", marginBottom:14 }}>{avatar}</div>
+                  <div style={{ display:"flex", justifyContent:"center", marginBottom:14 }}>
+                    <div style={{ width:64, height:64, background:"rgba(196,132,90,0.1)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
+                      {avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : <span style={{fontSize:40}}>{avatar}</span>}
+                    </div>
+                  </div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre</div>
                   <input value={editNombre} onChange={e => setEditNombre(e.target.value)}
                     placeholder="Tu nombre completo"
