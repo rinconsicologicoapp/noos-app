@@ -1860,6 +1860,10 @@ useEffect(() => {
     });
     cargarResenas(usuarioActual.psicologoId);
   }
+  if (screen === "calendario" && usuarioActual?.uid) {
+    const rol = usuarioActual.rol === "paciente" ? "paciente" : "psicologo";
+    cargarCitas(usuarioActual.uid, rol);
+  }
 }, [screen]);
 useEffect(() => {
   if (usuarioActual?.uid && !xpCargado) {
@@ -2094,6 +2098,11 @@ const styles = `
     from { opacity:0; transform:scale(0.92) translateY(20px); }
     to { opacity:1; transform:scale(1) translateY(0); }
   }
+  @keyframes celebFadeOut {
+    0% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+    70% { opacity:1; transform:translate(-50%,-50%) scale(1.05); }
+    100% { opacity:0; transform:translate(-50%,-50%) scale(0.9); }
+  }
   @keyframes pullSpin {
     to { transform: rotate(360deg); }
   }
@@ -2136,14 +2145,16 @@ const styles = `
 };
 
   const avatars = [
-    { id:"av1", label:"Mujer A",   svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#C4845A"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#8B5A3A"/><circle cx="20" cy="14" r="6" fill="#F5D5B8"/><ellipse cx="20" cy="10" rx="7" ry="5" fill="#3A2A1C"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#C4845A" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
-    { id:"av2", label:"Hombre A",  svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#7DAA92"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#4A8A72"/><circle cx="20" cy="14" r="6" fill="#F5D5B8"/><rect x="13" y="9" width="14" height="5" rx="3" fill="#3A2A1C"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#7DAA92" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
-    { id:"av3", label:"Mujer B",   svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#8B5A3A"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#C4845A"/><circle cx="20" cy="14" r="6" fill="#D4956A"/><path d="M13 10 Q20 5 27 10" stroke="#1A0E08" strokeWidth="2.5" fill="#1A0E08"/><path d="M13 10 Q16 14 13 18" stroke="#1A0E08" strokeWidth="1.5" fill="none"/><path d="M27 10 Q24 14 27 18" stroke="#1A0E08" strokeWidth="1.5" fill="none"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#8B5A3A" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
-    { id:"av4", label:"Hombre B",  svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#5A7A9A"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#3A5A7A"/><circle cx="20" cy="14" r="6" fill="#F5D5B8"/><path d="M13 11 Q20 7 27 11 L27 9 Q20 4 13 9Z" fill="#3A2A1C"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#5A7A9A" strokeWidth="1.2" fill="none" strokeLinecap="round"/><rect x="17" y="17" width="6" height="1.5" rx="0.75" fill="#D4956A"/></svg> },
-    { id:"av5", label:"Mujer C",   svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#A06040"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#7DAA92"/><circle cx="20" cy="14" r="6" fill="#F0C8A0"/><path d="M13 10 Q20 4 27 10 Q28 16 27 18 Q23 8 17 8 Q13 8 13 18Z" fill="#8B5A3A"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#C4845A" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
-    { id:"av6", label:"Hombre C",  svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#6A5A9A"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#4A3A7A"/><circle cx="20" cy="14" r="6" fill="#D4956A"/><rect x="13" y="8" width="14" height="6" rx="3" fill="#2A1A0A"/><path d="M14 17 Q16 16 18 17" stroke="#8B6A4A" strokeWidth="1" fill="none"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#6A5A9A" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
-    { id:"av7", label:"Mujer D",   svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#C4845A"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#8B5A3A"/><circle cx="20" cy="14" r="6" fill="#E8B090"/><path d="M12 9 Q20 3 28 9" stroke="#1A0808" strokeWidth="3" fill="#1A0808"/><path d="M12 9 Q10 15 12 20 Q14 10 20 10 Q26 10 28 20 Q30 15 28 9" fill="#1A0808"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#C4845A" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
-    { id:"av8", label:"Hombre D",  svg:<svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="14" r="8" fill="#7DAA92"/><ellipse cx="20" cy="33" rx="11" ry="8" fill="#4A8A72"/><circle cx="20" cy="14" r="6" fill="#F5D5B8"/><rect x="14" y="8" width="12" height="4" rx="2" fill="#2A1A0A"/><rect x="17" y="19" width="6" height="1.5" rx="0.75" fill="#D4956A"/><circle cx="17" cy="14" r="1.2" fill="#3A2A1C"/><circle cx="23" cy="14" r="1.2" fill="#3A2A1C"/><path d="M17.5 17.5 Q20 19.5 22.5 17.5" stroke="#7DAA92" strokeWidth="1.2" fill="none" strokeLinecap="round"/></svg> },
+    { id:"av1",  label:"Mujer",    svg:<span style={{fontSize:28}}>👩</span> },
+    { id:"av2",  label:"Hombre",   svg:<span style={{fontSize:28}}>👨</span> },
+    { id:"av3",  label:"Zorro",    svg:<span style={{fontSize:28}}>🦊</span> },
+    { id:"av4",  label:"Lobo",     svg:<span style={{fontSize:28}}>🐺</span> },
+    { id:"av5",  label:"León",     svg:<span style={{fontSize:28}}>🦁</span> },
+    { id:"av6",  label:"Búho",     svg:<span style={{fontSize:28}}>🦉</span> },
+    { id:"av7",  label:"Tigre",    svg:<span style={{fontSize:28}}>🐯</span> },
+    { id:"av8",  label:"Panda",    svg:<span style={{fontSize:28}}>🐼</span> },
+    { id:"av9",  label:"Delfín",   svg:<span style={{fontSize:28}}>🐬</span> },
+    { id:"av10", label:"Águila",   svg:<span style={{fontSize:28}}>🦅</span> },
   ];
 
   const btn = (onClick, children, s = {}) => (
@@ -2369,7 +2380,7 @@ const styles = `
               {confettiItems.map(c => (
                 <div key={c.id} className="confetti-piece" style={{ left:`${c.x}%`, top:0, width:c.size, height:c.size*1.5, background:c.color, animationDelay:`${c.delay}s` }}/>
               ))}
-              <div style={{ position:"absolute", top:"40%", left:"50%", transform:"translate(-50%,-50%)", textAlign:"center", animation:"checkInIn 0.3s ease" }}>
+              <div style={{ position:"absolute", top:"40%", left:"50%", textAlign:"center", animation:"celebFadeOut 1.4s ease forwards" }}>
                 <div style={{ fontSize:60 }}>🎉</div>
                 <div style={{ fontSize:18, fontWeight:900, color:"white", textShadow:"0 2px 10px rgba(0,0,0,0.5)", marginTop:8 }}>¡Tarea completada!</div>
               </div>
@@ -2397,8 +2408,8 @@ const styles = `
                     </div>
                   ))}
                 </div>
-                <div onClick={() => setMostrarCheckIn(false)} style={{ textAlign:"center", fontSize:12, color:C.light, cursor:"pointer", padding:8 }}>
-                  Saltar por hoy
+                <div onClick={() => setMostrarCheckIn(false)} style={{ textAlign:"center", padding:"8px 0 2px", cursor:"pointer" }}>
+                  <span style={{ fontSize:12, color:C.light, borderBottom:`1px solid ${C.light}40`, paddingBottom:1 }}>Saltar por hoy</span>
                 </div>
               </div>
             </div>
@@ -2408,7 +2419,9 @@ const styles = `
           {notifPanel && (
             <div style={{ height:"100%", display:"flex", flexDirection:"column" }}>
               <div style={{ background:"#FEFAF5", padding:"14px 20px", borderBottom:"0.5px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:10 }}>
-                <div onClick={() => setNotifPanel(false)} style={{ fontSize:20, cursor:"pointer", color:C.light }}>←</div>
+                <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(196,132,90,0.08)" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:18, fontWeight:900, color:C.text }}>Notificaciones 🔔</div>
                   {unread > 0 && <div style={{ fontSize:11, color:C.light }}>{unread} sin leer</div>}
@@ -3436,7 +3449,7 @@ const styles = `
                       </div>
                     ) : citasDelMes
                         .slice()
-                        .sort((a,b) => new Date(a.fecha+"T"+a.hora) - new Date(b.fecha+"T"+b.hora))
+                        .sort((a,b) => fechaOrden(a) - fechaOrden(b))
                         .map(c => (
                       <div key={c.id} style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`3px solid ${colStatus(c.status)}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
@@ -3986,7 +3999,9 @@ const styles = `
           {!notifPanel && screen === "perfil-psicologo" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5EDE0" }}>
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative" }}>
-                <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(20px, env(safe-area-inset-top, 20px))", left:20, fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
+                <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,0.1)" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </div>
                 {psicologoData?.foto ? (
                   <img src={psicologoData.foto} alt="foto" style={{ width:80, height:80, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,0.2)", margin:"0 auto 14px", display:"block" }}/>
                 ) : (
@@ -4076,7 +4091,9 @@ const styles = `
           {!notifPanel && screen === "psi-dashboard" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5EDE0" }}>
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:12 }}>
-                <div onClick={() => showScreen("admin-perfil")} style={{ fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
+                <div onClick={() => showScreen("admin-perfil")} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,0.1)", flexShrink:0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:16, fontWeight:700, color:"white" }}>👥 Mis pacientes</div>
                   <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>{pacientes.length} paciente{pacientes.length !== 1 ? "s" : ""} activo{pacientes.length !== 1 ? "s" : ""}</div>
@@ -4687,7 +4704,9 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
           {!notifPanel && screen === "admin-paciente" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))" }}>
               <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 22px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:14 }}>
-                <div onClick={() => showScreen("psi-dashboard")} style={{ fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.8)" }}>←</div>
+                <div onClick={() => showScreen("psi-dashboard")} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,0.1)", flexShrink:0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </div>
                 <div style={{ width:50, height:50, background:"rgba(255,255,255,0.15)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26 }}>👤</div>
                 <div>
                   <div style={{ fontSize:18, fontWeight:900, color:"white" }}>{pacienteSeleccionado?.nombre || "Paciente"}</div>
@@ -5302,8 +5321,18 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 <div style={{ fontSize:22, fontWeight:900, color:"white", marginBottom:4 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:600, marginBottom:12 }}>{usuarioActual?.email || ""}</div>
                 <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
-                  <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>🧠 Psicólogo Clínico</span>
-                  <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>TCC · Mindfulness</span>
+                  {usuarioActual?.especialidad && (
+                    <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>🧠 {usuarioActual.especialidad}</span>
+                  )}
+                  {usuarioActual?.enfoque && (
+                    <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>{usuarioActual.enfoque}</span>
+                  )}
+                  {!usuarioActual?.especialidad && !usuarioActual?.enfoque && (
+                    <span style={{ background:"rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.45)", fontSize:11, fontWeight:600, padding:"5px 12px", borderRadius:20, cursor:"pointer" }}
+                      onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setModal("edit-psico"); }}>
+                      ✏️ Agregar especialidad y enfoque
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -5395,8 +5424,18 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                                 setResenas(prev => prev.map(x => x.id === r.id ? { ...x, oculta: !r.oculta } : x));
                                 showToast(r.oculta ? "✅ Reseña visible" : "🙈 Reseña ocultada");
                               } catch(e) { showToast("Error ❌"); }
-                            }} style={{ cursor:"pointer", fontSize:13, background:r.oculta ? "#FFF3E0" : "#F5F0FF", color:r.oculta ? C.amber : C.plum, padding:"2px 8px", borderRadius:20, fontWeight:700, fontSize:10 }}>
+                            }} style={{ cursor:"pointer", background:r.oculta ? "#FFF3E0" : "#F5F0FF", color:r.oculta ? C.amber : C.plum, padding:"2px 8px", borderRadius:20, fontWeight:700, fontSize:10 }}>
                               {r.oculta ? "👁 Mostrar" : "🙈 Ocultar"}
+                            </div>
+                            <div onClick={async () => {
+                              if (!window.confirm("¿Eliminar esta reseña permanentemente?")) return;
+                              try {
+                                await deleteDoc(doc(db, "resenas", r.id));
+                                setResenas(prev => prev.filter(x => x.id !== r.id));
+                                showToast("🗑️ Reseña eliminada");
+                              } catch(e) { showToast("Error ❌"); }
+                            }} style={{ cursor:"pointer", background:"#FFE5E5", color:C.red, padding:"2px 8px", borderRadius:20, fontWeight:700, fontSize:10 }}>
+                              Eliminar
                             </div>
                           </div>
                         </div>
@@ -5532,7 +5571,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
         {/* TOAST */}
         {toast && (
-          <div style={{ position:"absolute", top:58, left:"50%", transform:"translateX(-50%)", background:C.gold, color:"white", fontWeight:800, fontSize:12, padding:"9px 18px", borderRadius:20, zIndex:600, whiteSpace:"nowrap", boxShadow:"0 4px 14px rgba(0,0,0,0.2)", pointerEvents:"none" }}>
+          <div style={{ position:"absolute", bottom:"calc(90px + env(safe-area-inset-bottom, 0px))", left:"50%", transform:"translateX(-50%)", background:"rgba(42,30,20,0.92)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", color:"#F5E6D0", fontWeight:700, fontSize:13, padding:"11px 22px", borderRadius:24, zIndex:600, whiteSpace:"nowrap", boxShadow:"0 8px 24px rgba(0,0,0,0.3)", pointerEvents:"none", border:"0.5px solid rgba(232,168,124,0.2)", animation:"fadeIn 0.2s ease" }}>
             {toast}
           </div>
         )}
