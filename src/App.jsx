@@ -1785,6 +1785,7 @@ useEffect(() => {
             });
           }
           setCompanero(data.companero || null);
+          setAvatar(data.avatar || "🦋");
           if (!data.companero) {
             showScreen("elegir-companero");
           } else {
@@ -1972,8 +1973,18 @@ const goBack = () => {
   if (destino) showScreen(destino);
 };
 
-  const markRead = (id) => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-  const markAllRead = () => setNotifs(prev => prev.map(n => ({ ...n, read: true })));
+  const markRead = async (id) => {
+    setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    try { await updateDoc(doc(db, "notificaciones", id), { leida: true }); } catch(e) {}
+  };
+  const markAllRead = async () => {
+    setNotifs(prev => prev.map(n => ({ ...n, read: true })));
+    try {
+      await Promise.all(notifs.filter(n => !n.read).map(n =>
+        updateDoc(doc(db, "notificaciones", n.id), { leida: true })
+      ));
+    } catch(e) {}
+  };
 
   const pendientes = tareasPsicologo.filter(t => !t.completada && t.pacienteId === usuarioActual?.uid).length;
 const styles = `
@@ -2573,7 +2584,10 @@ const styles = `
                   </div>
                 ) : (
                   (() => {
-                    const proxima = citas.filter(c => c.status !== "cancelada").sort((a,b) => new Date(a.fecha) - new Date(b.fecha))[0];
+                    const ahora = new Date();
+                    const proxima = citas
+                      .filter(c => c.status !== "cancelada" && fechaOrden(c) > ahora.getTime() - 3600000)
+                      .sort((a,b) => fechaOrden(a) - fechaOrden(b))[0];
                     if (!proxima) return null;
                     return (
                       <div style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.15)", borderRadius:16, padding:14, marginBottom:12, overflow:"hidden", position:"relative" }}>
@@ -2613,7 +2627,7 @@ const styles = `
                           </div>
                         </div>
                         {proxima.modalidad==="virtual" && proxima.link && (
-                          <a href={proxima.link} target="_blank" rel="noreferrer"
+                          <a href={proxima.link.startsWith("http") ? proxima.link : `https://${proxima.link}`} target="_blank" rel="noreferrer"
                             style={{ display:"block", padding:"10px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:12, fontSize:12, fontWeight:800, textAlign:"center", textDecoration:"none", marginBottom:10 }}>
                             🎥 Unirse a la sesión
                           </a>
@@ -2629,22 +2643,26 @@ const styles = `
                   })()
                 )}
                 {/* ACCESOS RÁPIDOS GRID */}
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:12 }}>
+                <div style={{ display:"flex", gap:8, marginBottom:8 }}>
                   <div onClick={() => { showScreen("notas"); setTimeout(()=>{ setNoteTab("tareas"); setTareasTab("autorregistros"); }, 50); }}
-                    style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:14, padding:"12px 12px", cursor:"pointer" }}>
-                    <div style={{ width:30, height:30, background:"rgba(196,132,90,0.15)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:8 }}>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:12, padding:"9px 10px", cursor:"pointer" }}>
+                    <div style={{ width:26, height:26, background:"rgba(196,132,90,0.15)", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
                     </div>
-                    <div style={{ fontSize:12, fontWeight:600, color:"#F5E6D0" }}>Autorregistro</div>
-                    <div style={{ fontSize:10, color:"rgba(245,230,208,0.4)", marginTop:2 }}>Registra hoy</div>
+                    <div>
+                      <div style={{ fontSize:11, fontWeight:700, color:"#F5E6D0", lineHeight:1.2 }}>Autorregistro</div>
+                      <div style={{ fontSize:9, color:"rgba(245,230,208,0.4)" }}>Registra hoy</div>
+                    </div>
                   </div>
                   <div onClick={() => { showScreen("notas"); setTimeout(()=>setNoteTab("insights"), 50); }}
-                    style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:14, padding:"12px 12px", cursor:"pointer" }}>
-                    <div style={{ width:30, height:30, background:"rgba(196,132,90,0.15)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:8 }}>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:12, padding:"9px 10px", cursor:"pointer" }}>
+                    <div style={{ width:26, height:26, background:"rgba(196,132,90,0.15)", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
                     </div>
-                    <div style={{ fontSize:12, fontWeight:600, color:"#F5E6D0" }}>Nueva nota</div>
-                    <div style={{ fontSize:10, color:"rgba(245,230,208,0.4)", marginTop:2 }}>Para no olvidar</div>
+                    <div>
+                      <div style={{ fontSize:11, fontWeight:700, color:"#F5E6D0", lineHeight:1.2 }}>Para no olvidar</div>
+                      <div style={{ fontSize:9, color:"rgba(245,230,208,0.4)" }}>Nueva nota</div>
+                    </div>
                   </div>
                 </div>
 
@@ -2946,7 +2964,16 @@ const styles = `
             ) : (
               autorregistros.map((ar, i) => (
                 <div key={i} style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${C.plum}` }}>
-                  <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>📅 {ar.fecha}</div>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
+                    <div style={{ fontSize:11, color:C.light, fontWeight:700 }}>📅 {ar.fecha}</div>
+                    <div onClick={async () => {
+                      try {
+                        await deleteDoc(doc(db, "autorregistros", ar.id));
+                        setAutorregistros(prev => prev.filter(x => x.id !== ar.id));
+                        showToast("🗑️ Autorregistro eliminado");
+                      } catch(e) { showToast("Error al eliminar ❌"); }
+                    }} style={{ cursor:"pointer", fontSize:15, color:C.light, padding:"2px 4px" }}>🗑️</div>
+                  </div>
                   <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:6 }}>¿Qué estaba haciendo?</div>
                   <div style={{ fontSize:12, color:C.light, marginBottom:8, lineHeight:1.5 }}>{ar.haciendo}</div>
                   <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:6 }}>¿Qué sucedió?</div>
@@ -3064,6 +3091,17 @@ const styles = `
                     if(navigator.vibrate) navigator.vibrate([10,50,10,50,30]);
                     setCelebrando(true);
                     setTimeout(() => setCelebrando(false), 1500);
+                    if (t.psicologoId) {
+                      setDoc(doc(db, "notificaciones", `tarea_check_${t.id}`), {
+                        pacienteId: t.psicologoId,
+                        titulo: "Tarea completada ✅",
+                        mensaje: `${usuarioActual.nombre} marcó como completada: "${t.titulo}"`,
+                        icon: "✅",
+                        tipo: "tarea_completada",
+                        leida: false,
+                        creadoEn: new Date().toISOString(),
+                      }).catch(() => {});
+                    }
                   }
                 } catch(e) { showToast("Error ❌"); }
               }} style={{ width:22, height:22, borderRadius:"50%", border:`2.5px solid ${t.completada?C.green:C.amber}`, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:11, color:"white", background:t.completada?C.green:"transparent", marginTop:1 }}>{t.completada?"✓":""}</div>
@@ -3109,6 +3147,19 @@ const styles = `
               await updateDoc(doc(db, "tareas", tareaRespondiendo.id), { respuesta: respuestaTarea, completada: true });
               setTareasPsicologo(prev => prev.map(t => t.id === tareaRespondiendo.id ? { ...t, respuesta: respuestaTarea, completada: true } : t));
               sumarXP(tareaRespondiendo.xp || 80, "Tarea completada ✅");
+              if (tareaRespondiendo.psicologoId) {
+                try {
+                  await setDoc(doc(db, "notificaciones", `tarea_resp_${tareaRespondiendo.id}`), {
+                    pacienteId: tareaRespondiendo.psicologoId,
+                    titulo: "Tarea completada 🎯",
+                    mensaje: `${usuarioActual.nombre} completó: "${tareaRespondiendo.titulo}"`,
+                    icon: "🎯",
+                    tipo: "tarea_completada",
+                    leida: false,
+                    creadoEn: new Date().toISOString(),
+                  });
+                } catch(e) {}
+              }
               setRespuestaTarea(""); setTareaRespondiendo(null);
               setModal(null);
               showToast("✅ Respuesta enviada a tu psicólogo");
@@ -3543,7 +3594,13 @@ const styles = `
                       </div>
                     ))}
                   </div>
-                  {btn(() => { setModal(null); showNotif("Avatar actualizado", "Tu nuevo avatar fue guardado 🐾", "🐾"); }, "Guardar avatar ✓", { width:"100%", padding:14, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:700 })}
+                  {btn(async () => {
+                    try {
+                      await updateDoc(doc(db, "usuarios", usuarioActual.uid), { avatar });
+                      setModal(null);
+                      showNotif("Avatar actualizado", "Tu nuevo avatar fue guardado 🐾", "🐾");
+                    } catch(e) { showToast("Error al guardar avatar ❌"); }
+                  }, "Guardar avatar ✓", { width:"100%", padding:14, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:700 })}
                 </div>
               ))}
               {mdl("edit-perfil", (
@@ -4580,6 +4637,15 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
         <div style={{ fontSize:11, color:C.text, lineHeight:1.5 }}>{t.respuesta}</div>
       </div>
     ) : null}
+    <div style={{ display:"flex", justifyContent:"flex-end", marginTop:8 }}>
+      {btn(async () => {
+        try {
+          await deleteDoc(doc(db, "tareas", t.id));
+          setTareasPsicologo(prev => prev.filter(x => x.id !== t.id));
+          showToast("🗑️ Tarea eliminada");
+        } catch(e) { showToast("Error al eliminar ❌"); }
+      }, "🗑️ Eliminar", { padding:"5px 10px", borderRadius:8, background:"#FFE5E5", color:C.red, fontSize:11, fontWeight:800 })}
+    </div>
   </div>
 ))}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>🔒 Notas clínicas</div>
@@ -4591,7 +4657,16 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div key={n.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:"3px solid #8B7BA0", marginBottom:10 }}>
                     <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{n.titulo}</div>
-                      <div style={{ fontSize:10, color:C.light }}>{new Date(n.creadaEn).toLocaleDateString('es-CO', { day:'numeric', month:'short' })}</div>
+                      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                        <div style={{ fontSize:10, color:C.light }}>{new Date(n.creadaEn).toLocaleDateString('es-CO', { day:'numeric', month:'short' })}</div>
+                        <div onClick={async () => {
+                          try {
+                            await deleteDoc(doc(db, "notasClinicas", n.id));
+                            setNotasClinicas(prev => prev.filter(x => x.id !== n.id));
+                            showToast("🗑️ Nota clínica eliminada");
+                          } catch(e) { showToast("Error al eliminar ❌"); }
+                        }} style={{ cursor:"pointer", fontSize:14, color:C.light }}>🗑️</div>
+                      </div>
                     </div>
                     <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>{n.texto}</div>
                     <div style={{ display:"inline-block", background:"#F0EDF5", color:C.plum, fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20, marginTop:5 }}>🔒 Solo visible para ti</div>
