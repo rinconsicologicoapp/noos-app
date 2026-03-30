@@ -836,7 +836,7 @@ const handleInstall = async () => {
       })(),
       read: n.leida || false,
     })));
-  } catch(e) { console.log("Error cargando notificaciones:", e); }
+  } catch(e) {}
 };
   const [notifs, setNotifs] = useState([]);
   const [recordatorios, setRecordatorios] = useState([]);
@@ -986,24 +986,31 @@ const crearCita = async () => {
     const id = Date.now().toString();
     const paciente = pacientes.find(p => p.id === citaPacienteId) || pacienteSeleccionado;
     const titulo = citaTitulo.trim() || "Sesión de terapia";
+    // Convertir fecha+hora del psicólogo a UTC universal
+    const tzPsicologo = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // Construir la fecha en la zona del psicólogo y convertir a UTC
+    const fechaUTC = new Date(`${citaFecha}T${citaHora}:00`).toISOString();
+
     const nuevaCita = {
       id,
-      psicologoId:    usuarioActual.uid,
+      psicologoId:     usuarioActual.uid,
       psicologoNombre: usuarioActual.nombre,
-      pacienteId:     citaPacienteId,
-      pacienteNombre: paciente?.nombre || "",
+      pacienteId:      citaPacienteId,
+      pacienteNombre:  paciente?.nombre || "",
       titulo,
-      descripcion:    citaDescripcion,
-      fecha:          citaFecha,
-      hora:           citaHora,
-      modalidad:      citaModalidad,
-      link:           citaLink,
-      notas:          citaNotas,
-      status:         "pendiente",
-      creadaEn:       new Date().toISOString(),
+      descripcion:     citaDescripcion,
+      fechaUTC,                        // UTC — fuente de verdad
+      fecha:           citaFecha,      // solo para mostrar al psicólogo
+      hora:            citaHora,       // solo para mostrar al psicólogo
+      tzPsicologo,                     // zona del psicólogo al crear
+      modalidad:       citaModalidad,
+      link:            citaLink,
+      notas:           citaNotas,
+      status:          "pendiente",
+      creadaEn:        new Date().toISOString(),
     };
     await setDoc(doc(db, "citas", id), nuevaCita);
-    setCitas(prev => [...prev, nuevaCita].sort((a,b) => new Date(a.fecha) - new Date(b.fecha)));
+    setCitas(prev => [...prev, nuevaCita].sort((a,b) => fechaOrden(a) - fechaOrden(b)));
 
     // Notificación inmediata en Firestore al paciente
     const notifId = `cita_nueva_${id}`;
@@ -1055,7 +1062,7 @@ const crearCita = async () => {
     setCitaFecha(""); setCitaHora(""); setCitaLink(""); setCitaNotas("");
     setCitaModalidad("virtual"); setCitaPacienteId("");
     setModal(null);
-  } catch(e) { console.log(e); showToast("Error al crear cita ❌"); }
+  } catch(e) { showToast("Error al crear cita ❌"); }
   setLoadingCitas(false);
 };
 const actualizarStatusCita = async (citaId, nuevoStatus) => {
@@ -1084,8 +1091,7 @@ const activarNotificaciones = async () => {
     } else {
       showToast("❌ Permiso denegado — actívalas desde la configuración del navegador");
     }
-  } catch(e) {
-    console.log("Error FCM completo:", e.code, e.message, e);
+  } catch(e) {    
     showToast("❌ " + e.message);
   }
 };
@@ -1132,8 +1138,7 @@ const cargarRecordatorios = async (psicologoId) => {
   } catch(e) { showToast("Error al cargar recordatorios ❌"); }
 };
 
-const crearRecordatorio = async () => {
-  console.log("pacienteSeleccionado:", pacienteSeleccionado);
+const crearRecordatorio = async () => {  
   if (!recTitulo || !recMensaje || !recHora || recDias.length === 0 || !pacienteSeleccionado) {
     showToast("Completa todos los campos ❌"); return;
   }
@@ -1159,7 +1164,7 @@ const crearRecordatorio = async () => {
     showToast("✅ Recordatorio creado");
     setRecTitulo(""); setRecMensaje(""); setRecHora(""); setRecDias([]);
     setModal(null);
-  } catch(e) { showToast("❌ " + e.message); console.log("Error completo:", e); }
+  } catch(e) { showToast("❌ " + e.message); }
   setLoadingRec(false);
 };
 const cargarNotas = async (pacienteId) => {
@@ -1535,6 +1540,61 @@ const enviarResena = async () => {
   } catch(e) { showToast("Error al enviar reseña ❌"); }
   setLoadingResenas(false);
 };
+// Convierte fechaUTC a la zona local del usuario actual
+// Si no hay fechaUTC (citas antiguas), usa fecha+hora directamente
+const mostrarFechaLocal = (cita, formato = "fecha") => {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // Si la cita tiene fechaUTC (nuevo sistema)
+    if (cita.fechaUTC) {
+      const d = new Date(cita.fechaUTC);
+      if (formato === "hora") {
+        return d.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", timeZone: tz });
+      }
+      if (formato === "dia") {
+        return d.toLocaleDateString([], { day:"numeric", timeZone: tz });
+      }
+      if (formato === "mes") {
+        return d.toLocaleDateString([], { month:"short", timeZone: tz });
+      }
+      if (formato === "completa") {
+        return d.toLocaleDateString('es-CO', { weekday:"long", day:"numeric", month:"long", timeZone: tz });
+      }
+      if (formato === "corta") {
+        return d.toLocaleDateString('es-CO', { day:"numeric", month:"short", timeZone: tz });
+      }
+      // fecha YYYY-MM-DD local
+      return d.toLocaleDateString('es-CO', { year:"numeric", month:"2-digit", day:"2-digit", timeZone: tz })
+               .split("/").reverse().join("-");
+    }
+    // Fallback: citas antiguas sin fechaUTC
+    const d = new Date(`${cita.fecha}T${cita.hora || "12:00"}:00`);
+    if (formato === "hora") return cita.hora || "";
+    if (formato === "dia") return d.getDate().toString();
+    if (formato === "mes") return d.toLocaleDateString('es-CO', { month:"short" });
+    if (formato === "completa") return d.toLocaleDateString('es-CO', { weekday:"long", day:"numeric", month:"long" });
+    if (formato === "corta") return d.toLocaleDateString('es-CO', { day:"numeric", month:"short" });
+    return cita.fecha;
+  } catch { return cita.fecha || ""; }
+};
+
+// Para comparar si una cita es hoy (en zona local del usuario)
+const esCitaHoy = (cita) => {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const fechaCita = cita.fechaUTC
+      ? new Date(cita.fechaUTC).toLocaleDateString('en-CA', { timeZone: tz })
+      : cita.fecha;
+    const hoy = new Date().toLocaleDateString('en-CA', { timeZone: tz });
+    return fechaCita === hoy;
+  } catch { return false; }
+};
+
+// Para ordenar citas cronológicamente
+const fechaOrden = (cita) => {
+  if (cita.fechaUTC) return new Date(cita.fechaUTC).getTime();
+  return new Date(`${cita.fecha}T${cita.hora || "00:00"}:00`).getTime();
+};
 const cerrarSesion = async () => {
   try {
     await signOut(auth);
@@ -1896,6 +1956,7 @@ const BACK_MAP = {
   "perfil":           "home",
   "calendario":       "home",
   "notas":            "home",
+  "logros":           "home",
   "perfil-psicologo": "home",
   "psi-dashboard":    "admin-perfil",
   "admin-paciente":   "psi-dashboard",
@@ -1994,21 +2055,55 @@ const styles = `
     </div>
   );
 
-  const LucideIcon = ({ name, color, size=22 }) => {
+  const LucideIcon = ({ name, color, size=22, filled=false }) => {
   const icons = {
-    home: <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>,
-    notes: <><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></>,
-    tasks: <><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></>,
-    calendar: <><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></>,
-    user: <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
-    users: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
-    dashboard: <><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></>,
-    brain: <><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.88A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.88A2.5 2.5 0 0 0 14.5 2Z"/></>,
-    dollar: <><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>,
+    // NAV
+    home:      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>,
+    notes:     <><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></>,
+    tasks:     <><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></>,
+    calendar:  <><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></>,
+    user:      <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+    users:     <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
+    dashboard: <><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></>,
+    brain:     <><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.88A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.88A2.5 2.5 0 0 0 14.5 2Z"/></>,
+    dollar:    <><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>,
+    // ACCIONES
+    bell:      <><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>,
+    check:     <polyline points="20 6 9 17 4 12"/>,
+    checkCircle: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>,
+    xCircle:   <><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></>,
+    plus:      <><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>,
+    trash:     <><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></>,
+    edit:      <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></>,
+    send:      <><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></>,
+    lock:      <><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,
+    unlock:    <><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></>,
+    star:      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>,
+    award:     <><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></>,
+    flame:     <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>,
+    link:      <><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>,
+    video:     <><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></>,
+    clipBoard: <><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></>,
+    book:      <><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></>,
+    fileText:  <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></>,
+    activity:  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>,
+    target:    <><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>,
+    shield:    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>,
+    key:       <><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></>,
+    logout:    <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></>,
+    inbox:     <><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></>,
+    sparkles:  <><path d="M12 3L13.5 7.5L18 9L13.5 10.5L12 15L10.5 10.5L6 9L10.5 7.5L12 3Z"/><path d="M19 13l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3Z"/><path d="M5 3l.7 2.1L8 6l-2.3.9L5 9l-.7-2.1L2 6l2.3-.9L5 3Z"/></>,
+    crown:     <><path d="M2 20h20"/><path d="M5 20V8l7-6 7 6v12"/><path d="M5 20l7-8 7 8"/></>,
+    barChart:  <><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></>,
+    eye:       <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>,
+    chat:      <><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></>,
+    upload:    <><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></>,
+    doctor:    <><path d="M16 11c0 2.21-1.79 4-4 4s-4-1.79-4-4 1.79-4 4-4 4 1.79 4 4z"/><path d="M12 15v3"/><path d="M9 18h6"/><path d="M4 21v-1a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v1"/><path d="M12 8V5"/><path d="M10.5 6.5h3"/></>,
+    package:   <><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></>,
   };
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      {icons[name]}
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={filled?"currentColor":"none"} stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      {icons[name] || <circle cx="12" cy="12" r="5"/>}
     </svg>
   );
 };
@@ -2349,7 +2444,9 @@ const styles = `
   <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, background:`linear-gradient(160deg,${C.cream} 0%,#EDE8F5 100%)` }}>
     
     {/* LOGO */}
-    <div style={{ fontSize:48, marginBottom:8 }}>🧠</div>
+    <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
+                    <LucideIcon name="brain" color={C.plum} size={48}/>
+                  </div>
     <div style={{ fontSize:20, fontWeight:700, color:C.plum, marginBottom:4 }}>Crear cuenta</div>
     <div style={{ fontSize:13, color:C.light, marginBottom:32 }}>Únete a Mi Psicólogo</div>
 
@@ -2455,12 +2552,12 @@ const styles = `
                   </div>
                 </div>
 
-                {/* BARRA XP */}
-                <div style={{ display:"flex", alignItems:"center", gap:10, marginTop:14 }}>
+                {/* BARRA XP — clickeable → logros */}
+                <div onClick={() => showScreen("logros")} style={{ display:"flex", alignItems:"center", gap:10, marginTop:14, cursor:"pointer" }}>
                   <div style={{ flex:1, height:3, background:"rgba(255,255,255,0.08)", borderRadius:2, overflow:"hidden" }}>
                     <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:"linear-gradient(90deg,#C4845A,#E8A87C)", borderRadius:2, transition:"width 0.5s ease" }}/>
                   </div>
-                  <span style={{ fontSize:10, color:"#E8A87C", fontWeight:600, whiteSpace:"nowrap" }}>{getRango(xp).icono} {xp} XP</span>
+                  <span style={{ fontSize:10, color:"#E8A87C", fontWeight:600, whiteSpace:"nowrap" }}>{getRango(xp).icono} {xp} XP ›</span>
                 </div>
               </div>
 
@@ -2485,7 +2582,7 @@ const styles = `
                           <span style={{ fontSize:10, fontWeight:600, color:"rgba(232,168,124,0.55)", letterSpacing:0.8, textTransform:"uppercase" }}>Próxima cita</span>
                           <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                             {(() => {
-                              const diff = new Date(`${proxima.fecha}T${proxima.hora}:00`) - new Date();
+                              const diff = fechaOrden(proxima) - new Date().getTime();
                               if (diff <= 0) return <span style={{ fontSize:10, fontWeight:700, color:"#E8A87C" }}>¡Es ahora!</span>;
                               const dias = Math.floor(diff / 86400000);
                               const horas = Math.floor((diff % 86400000) / 3600000);
@@ -2504,15 +2601,15 @@ const styles = `
                         <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
                           <div style={{ background:"#C4845A", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:44 }}>
                             <div style={{ fontSize:16, fontWeight:700, color:"white", lineHeight:1 }}>
-                              {new Date(proxima.fecha).getDate()}
+                              {mostrarFechaLocal(proxima, "dia")}
                             </div>
                             <div style={{ fontSize:8, color:"rgba(255,255,255,0.75)", fontWeight:600, textTransform:"uppercase" }}>
-                              {new Date(proxima.fecha).toLocaleDateString('es-CO', { month:'short' })}
+                              {mostrarFechaLocal(proxima, "mes")}
                             </div>
                           </div>
                           <div style={{ flex:1 }}>
                             <div style={{ fontSize:13, fontWeight:600, color:"#F5E6D0" }}>Sesión con {proxima.psicologoNombre}</div>
-                            <div style={{ fontSize:11, color:"rgba(245,230,208,0.45)", marginTop:3 }}>{proxima.hora} · {proxima.modalidad==="virtual"?"Virtual":"Presencial"}</div>
+                            <div style={{ fontSize:11, color:"rgba(245,230,208,0.45)", marginTop:3 }}>{mostrarFechaLocal(proxima, "hora")} · {proxima.modalidad==="virtual"?"Virtual":"Presencial"}</div>
                           </div>
                         </div>
                         {proxima.modalidad==="virtual" && proxima.link && (
@@ -2566,10 +2663,14 @@ const styles = `
 
               {mdl("confirmar-cita", citaSeleccionada && (
                 <div>
-                  <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>✅</div>
+                  <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
+                    <div style={{ width:64, height:64, borderRadius:"50%", background:"rgba(90,138,98,0.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <LucideIcon name="checkCircle" color="#5A8A62" size={36}/>
+                    </div>
+                  </div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Confirmar cita</div>
                   <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>
-                    ¿Confirmas tu asistencia el <strong>{new Date(citaSeleccionada.fecha).toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}</strong> a las <strong>{citaSeleccionada.hora}</strong>?
+                    ¿Confirmas tu asistencia el <strong>{mostrarFechaLocal(citaSeleccionada, "completa")}</strong> a las <strong>{mostrarFechaLocal(citaSeleccionada, "hora")}</strong>?
                   </div>
                   <div style={{ display:"flex", gap:9 }}>
                     {btn(() => setModal(null), "No aún", { flex:1, padding:9, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -2789,7 +2890,9 @@ const styles = `
           {/* LISTA DE INSIGHTS */}
           {insights.length === 0 && (
             <div style={{ textAlign:"center", padding:40, color:C.light }}>
-              <div style={{ fontSize:40, marginBottom:12 }}>💡</div>
+              <div style={{ display:"flex", justifyContent:"center", marginBottom:12 }}>
+                <LucideIcon name="sparkles" color={C.light} size={40}/>
+              </div>
               <div style={{ fontSize:14, fontWeight:700 }}>Aún no tienes notas</div>
               <div style={{ fontSize:12, marginTop:4 }}>Escribe lo que no quieres olvidar para tu próxima sesión</div>
             </div>
@@ -2834,7 +2937,9 @@ const styles = `
 
             {autorregistros.length === 0 ? (
               <div style={{ textAlign:"center", padding:30, color:C.light }}>
-                <div style={{ fontSize:40, marginBottom:8 }}>📋</div>
+                <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
+                <LucideIcon name="clipBoard" color={C.light} size={40}/>
+              </div>
                 <div style={{ fontSize:14, fontWeight:700 }}>Aún no tienes autorregistros</div>
                 <div style={{ fontSize:12, marginTop:4 }}>Toca el botón de arriba para crear uno</div>
               </div>
@@ -2905,7 +3010,9 @@ const styles = `
   <div>
     {recursos.length === 0 ? (
       <div style={{ textAlign:"center", padding:30, color:C.light, fontSize:13 }}>
-        <div style={{ fontSize:36, marginBottom:10 }}>📭</div>
+        <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
+          <LucideIcon name="inbox" color={C.light} size={36}/>
+        </div>
         Tu psicólogo aún no ha enviado materiales
       </div>
     ) : recursos.map(r => (
@@ -3031,13 +3138,20 @@ const styles = `
             const dias  = ["Lu","Ma","Mi","Ju","Vi","Sa","Do"];
 
             const citasDelMes = citas.filter(c => {
-              const f = new Date(c.fecha + "T12:00:00");
-              return f.getMonth() === mesVista && f.getFullYear() === anioVista;
+              const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+              const f = c.fechaUTC
+                ? new Date(c.fechaUTC)
+                : new Date(`${c.fecha}T12:00:00`);
+              const mesLocal = parseInt(f.toLocaleDateString('en-CA', { month:"2-digit", timeZone: tz }).split("-")[1]) - 1;
+              const anioLocal = parseInt(f.toLocaleDateString('en-CA', { year:"numeric", timeZone: tz }));
+              return mesLocal === mesVista && anioLocal === anioVista;
             });
 
             const citasPorDia = {};
             citasDelMes.forEach(c => {
-              const d = new Date(c.fecha + "T12:00:00").getDate();
+              const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+              const f = c.fechaUTC ? new Date(c.fechaUTC) : new Date(`${c.fecha}T12:00:00`);
+              const d = parseInt(f.toLocaleDateString('en-CA', { day:"2-digit", timeZone: tz }).split("-")[2]);
               if (!citasPorDia[d]) citasPorDia[d] = [];
               citasPorDia[d].push(c);
             });
@@ -3125,7 +3239,9 @@ const styles = `
                       <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>Cargando...</div>
                     ) : citasDelMes.length === 0 ? (
                       <div style={{ background:"#FEFAF5", borderRadius:14, padding:24, textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
-                        <div style={{ fontSize:32, marginBottom:8 }}>📭</div>
+                        <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
+                          <LucideIcon name="inbox" color={C.light} size={32}/>
+                        </div>
                         <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Sin citas este mes</div>
                       </div>
                     ) : citasDelMes
@@ -3137,17 +3253,17 @@ const styles = `
                           {/* Fecha bloque */}
                           <div style={{ background:colStatus(c.status)+"20", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:46, flexShrink:0 }}>
                             <div style={{ fontSize:18, fontWeight:900, color:colStatus(c.status), lineHeight:1 }}>
-                              {new Date(c.fecha+"T12:00:00").getDate()}
+                              {mostrarFechaLocal(c, "dia")}
                             </div>
                             <div style={{ fontSize:9, fontWeight:700, color:colStatus(c.status), textTransform:"uppercase" }}>
-                              {meses[new Date(c.fecha+"T12:00:00").getMonth()].slice(0,3)}
+                              {mostrarFechaLocal(c, "mes")}
                             </div>
                           </div>
                           <div style={{ flex:1, minWidth:0 }}>
                             <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>
                               {usuarioActual?.rol === "psicologo" ? c.pacienteNombre : `Sesión con ${c.psicologoNombre}`}
                             </div>
-                            <div style={{ fontSize:11, color:C.light }}>⏰ {c.hora} · {c.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
+                            <div style={{ fontSize:11, color:C.light }}>⏰ {mostrarFechaLocal(c, "hora")} · {c.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
                           </div>
                           {/* Botón abrir link */}
                           {c.modalidad==="virtual" && c.link && (
@@ -3186,7 +3302,7 @@ const styles = `
                         {usuarioActual?.rol==="psicologo" ? citaDetalle.pacienteNombre : `Sesión con ${citaDetalle.psicologoNombre}`}
                       </div>
                       <div style={{ fontSize:12, color:C.light, marginBottom:12 }}>
-                        📅 {new Date(citaDetalle.fecha+"T12:00:00").toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})} · ⏰ {citaDetalle.hora}
+                        📅 {mostrarFechaLocal(citaDetalle, "completa")} · ⏰ {mostrarFechaLocal(citaDetalle, "hora")}
                       </div>
                       <div style={{ display:"flex", gap:6, marginBottom:citaDetalle.link?14:0 }}>
                         <div style={{ fontSize:9, fontWeight:800, padding:"4px 10px", borderRadius:20, background:colStatus(citaDetalle.status)+"20", color:colStatus(citaDetalle.status) }}>
@@ -3220,10 +3336,14 @@ const styles = `
 
                 {mdl("confirmar-cita", citaSeleccionada && (
                   <div>
-                    <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>✅</div>
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
+                    <div style={{ width:64, height:64, borderRadius:"50%", background:"rgba(90,138,98,0.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <LucideIcon name="checkCircle" color="#5A8A62" size={36}/>
+                    </div>
+                  </div>
                     <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Confirmar cita</div>
                     <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>
-                      ¿Confirmas tu asistencia el <strong>{new Date(citaSeleccionada.fecha+"T12:00:00").toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})}</strong> a las <strong>{citaSeleccionada.hora}</strong>?
+                      ¿Confirmas tu asistencia el <strong>{mostrarFechaLocal(citaSeleccionada, "completa")}</strong> a las <strong>{mostrarFechaLocal(citaSeleccionada, "hora")}</strong>?
                     </div>
                     <div style={{ display:"flex", gap:9 }}>
                       {btn(()=>setModal(null), "No aún", { flex:1, padding:9, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -3233,10 +3353,14 @@ const styles = `
                 ))}
                 {mdl("cancelar-cita", citaSeleccionada && (
                   <div>
-                    <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>❌</div>
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
+                    <div style={{ width:64, height:64, borderRadius:"50%", background:"rgba(192,82,74,0.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <LucideIcon name="xCircle" color="#C0524A" size={36}/>
+                    </div>
+                  </div>
                     <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Cancelar cita</div>
                     <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>
-                      ¿Deseas cancelar la sesión del <strong>{new Date(citaSeleccionada.fecha+"T12:00:00").toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})}</strong>?
+                      ¿Deseas cancelar la sesión del <strong>{mostrarFechaLocal(citaSeleccionada, "completa")}</strong>?
                     </div>
                     <div style={{ display:"flex", gap:9 }}>
                       {btn(()=>setModal(null), "Volver", { flex:1, padding:9, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -3698,8 +3822,7 @@ const styles = `
                 </div>
                 {/* ALERTAS INTELIGENTES */}
                 {(() => {
-                  const hoy = new Date().toISOString().split('T')[0];
-                  const citasHoy = citas.filter(c => c.fecha === hoy);
+                  const citasHoy = citas.filter(c => esCitaHoy(c));
                   const recursosRecibidos = recursos.filter(r => r.recibido);
                   if (citasHoy.length === 0 && recursosRecibidos.length === 0) return null;
                   return (
@@ -3730,7 +3853,7 @@ const styles = `
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ flex:1 }}>
                             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{c.pacienteNombre}</div>
-                            <div style={{ fontSize:11, color:C.light }}>⏰ {c.hora} · {c.modalidad === "virtual" ? "💻 Virtual" : "🏥 Presencial"}</div>
+                            <div style={{ fontSize:11, color:C.light }}>⏰ {mostrarFechaLocal(c, "hora")} · {c.modalidad === "virtual" ? "💻 Virtual" : "🏥 Presencial"}</div>
                           </div>
                           <div style={{ background:c.status==="confirmada"?"#E6FAF0":"#FFF8E1", color:c.status==="confirmada"?C.sageDark:C.amberDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
                             {c.status==="confirmada"?"✅ Confirmada":"⏳ Pendiente"}
@@ -3751,7 +3874,9 @@ const styles = `
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>👤 Lista de pacientes</div>
                 {pacientes.length === 0 ? (
                   <div style={{ textAlign:"center", padding:40, color:C.light }}>
-                    <div style={{ fontSize:40, marginBottom:8 }}>👥</div>
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
+                      <LucideIcon name="users" color={C.light} size={40}/>
+                    </div>
                     <div style={{ fontSize:14, fontWeight:700 }}>Sin pacientes aún</div>
                     <div style={{ fontSize:12, marginTop:4 }}>El admin debe crear y asignarte pacientes</div>
                   </div>
@@ -4110,7 +4235,9 @@ const styles = `
 {!notifPanel && screen === "admin-home" && (
   <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))" }}>
     <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
-      <div style={{ fontSize:34 }}>👑</div>
+      <div style={{ width:44, height:44, display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <LucideIcon name="crown" color="#E8A87C" size={34}/>
+      </div>
       <div style={{ flex:1 }}>
         <div style={{ fontSize:16, fontWeight:700, color:"white" }}>Panel Administrador</div>
         <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>Mipsicologo · Control total</div>
@@ -4606,7 +4733,11 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
               ))}
               {recursoAEliminar && mdl("confirmar-eliminar-recurso", (
                 <div>
-                  <div style={{ fontSize:44, textAlign:"center", marginBottom:10 }}>🗑️</div>
+                  <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
+                    <div style={{ width:64, height:64, borderRadius:"50%", background:"rgba(192,82,74,0.10)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <LucideIcon name="trash" color="#C0524A" size={32}/>
+                    </div>
+                  </div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:8, textAlign:"center" }}>Eliminar material</div>
                   <div style={{ fontSize:13, color:C.light, textAlign:"center", marginBottom:6 }}>¿Seguro que quieres eliminar este material?</div>
                   <div style={{ background:C.warm, borderRadius:12, padding:"10px 14px", marginBottom:18, textAlign:"center" }}>
@@ -4810,7 +4941,9 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   {usuarioActual?.foto ? (
                     <img src={usuarioActual.foto} alt="foto" style={{ width:90, height:90, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,0.25)", margin:"0 auto", display:"block" }}/>
                   ) : (
-                    <div style={{ width:90, height:90, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:44, border:"3px solid rgba(255,255,255,0.25)", margin:"0 auto" }}>👨‍⚕️</div>
+                    <div style={{ width:90, height:90, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", border:"3px solid rgba(255,255,255,0.25)", margin:"0 auto" }}>
+                    <LucideIcon name="doctor" color="white" size={44}/>
+                  </div>
                   )}
                   <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setModal("edit-psico"); }} style={{ position:"absolute", bottom:2, right:2, width:26, height:26, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, cursor:"pointer", border:"2px solid white", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>✏️</div>
                 </div>
