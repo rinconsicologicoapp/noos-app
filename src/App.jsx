@@ -1531,7 +1531,20 @@ const enviarResena = async () => {
       texto: resenaTexto,
       fecha: new Date().toISOString(),
       anonimo: true,
+      oculta: false,
     });
+    // Notificar al psicólogo
+    try {
+      await setDoc(doc(db, "notificaciones", `resena_${id}`), {
+        pacienteId: usuarioActual.psicologoId,
+        titulo: `Nueva reseña ${"⭐".repeat(resenaRating)}`,
+        mensaje: `Un paciente dejó una valoración de ${resenaRating} estrella${resenaRating !== 1 ? "s" : ""} en tu perfil`,
+        icon: "⭐",
+        tipo: "nueva_resena",
+        leida: false,
+        creadoEn: new Date().toISOString(),
+      });
+    } catch(e) {}
     showToast("¡Reseña enviada! ✅");
     setResenaRating(0);
     setResenaTexto("");
@@ -1630,12 +1643,10 @@ const cerrarSesion = async () => {
 };
 const ofuscarNombre = (nombre) => {
   if (!nombre) return "Paciente anónimo";
-  const partes = nombre.trim().split(" ");
-  return partes.map((p, i) => {
-    if (p.length <= 1) return p + ".";
-    // Primera letra visible + asteriscos + última letra
-    if (i === 0) return p[0].toUpperCase() + "*".repeat(Math.max(p.length - 2, 2)) + p[p.length - 1].toLowerCase() + ".";
-    return p[0].toUpperCase() + "*".repeat(Math.max(p.length - 2, 2)) + ".";
+  const partes = nombre.trim().split(" ").filter(p => p.length > 0);
+  return partes.map(p => {
+    if (p.length <= 1) return p.toUpperCase() + "*";
+    return p[0].toUpperCase() + "*".repeat(p.length - 1);
   }).join(" ");
 };
 const cargarTodosUsuarios = async () => {
@@ -3811,7 +3822,7 @@ const styles = `
                       <div style={{ fontSize:32, fontWeight:900, color:"white" }}>{resenas.length > 0 ? (resenas.reduce((a,r) => a+r.rating, 0) / resenas.length).toFixed(1) : "—"} ⭐</div>
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
                     </div>
-                    {resenas.map(r => (
+                    {resenas.filter(r => !r.oculta).map(r => (
                       <div key={r.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)" }}>
                         <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                           <div style={{ fontSize:14 }}>{"⭐".repeat(r.rating)}</div>
@@ -3960,10 +3971,7 @@ const styles = `
                       <div style={{ color:C.light, fontSize:20, fontWeight:300 }}>›</div>
                     </div>
                   ))
-                )}
-
-                {/* BOTÓN AGENDAR */}
-                {btn(() => { setCitaPacienteId(""); setModal("agendar-cita"); }, "📅 Agendar nueva cita", { width:"100%", padding:10, background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginTop:8, display:"block" })}
+                )}                
                 {btn(() => setModal("crear-recordatorio"), "🔔 Nuevo recordatorio", {
   width:"100%", padding:10, background:"#FEFAF5", color:C.text,
   borderRadius:12, fontSize:13, fontWeight:800,
@@ -5046,7 +5054,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                 {/* ACCIONES RÁPIDAS */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
-                  {[["📅","Agendar cita",() => setModal("agendar-cita")],["👥","Mis pacientes",() => showScreen("psi-dashboard")],["💬","Nota clínica",() => setModal("feedback")],["✨","Frase del mes",() => { setFraseDelMes(usuarioActual?.fraseDelMes||""); setModal("frase-mes"); }],["🔔","Notificaciones",() => setNotifPanel(true)]].map(([ic,lb,fn]) => (
+                  {[["📅","Agendar cita",() => { showToast("Selecciona un paciente para agendar 👆"); showScreen("psi-dashboard"); }],["👥","Mis pacientes",() => showScreen("psi-dashboard")],["💬","Nota clínica",() => setModal("feedback")],["✨","Frase del mes",() => { setFraseDelMes(usuarioActual?.fraseDelMes||""); setModal("frase-mes"); }],["🔔","Notificaciones",() => setNotifPanel(true)]].map(([ic,lb,fn]) => (
                     <div key={lb} onClick={fn} style={{ background:"#FEFAF5", borderRadius:14, padding:"11px 14px", textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer", transition:"all 0.2s" }}>
                       <div style={{ fontSize:28, marginBottom:6 }}>{ic}</div>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{lb}</div>
@@ -5109,13 +5117,24 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
                     </div>
                     {resenas.map(r => (
-                      <div key={r.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)" }}>
-                        <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                      <div key={r.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:`0.5px solid rgba(196,132,90,0.12)`, opacity:r.oculta ? 0.45 : 1 }}>
+                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
                           <div style={{ fontSize:14 }}>{"⭐".repeat(r.rating)}</div>
-                          <div style={{ fontSize:10, color:C.light }}>{new Date(r.fecha).toLocaleDateString('es-CO')}</div>
+                          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                            <div style={{ fontSize:10, color:C.light }}>{new Date(r.fecha).toLocaleDateString('es-CO')}</div>
+                            <div onClick={async () => {
+                              try {
+                                await updateDoc(doc(db, "resenas", r.id), { oculta: !r.oculta });
+                                setResenas(prev => prev.map(x => x.id === r.id ? { ...x, oculta: !r.oculta } : x));
+                                showToast(r.oculta ? "✅ Reseña visible" : "🙈 Reseña ocultada");
+                              } catch(e) { showToast("Error ❌"); }
+                            }} style={{ cursor:"pointer", fontSize:13, background:r.oculta ? "#FFF3E0" : "#F5F0FF", color:r.oculta ? C.amber : C.plum, padding:"2px 8px", borderRadius:20, fontWeight:700, fontSize:10 }}>
+                              {r.oculta ? "👁 Mostrar" : "🙈 Ocultar"}
+                            </div>
+                          </div>
                         </div>
                         <div style={{ fontSize:13, color:C.text, lineHeight:1.5 }}>{r.texto}</div>
-                        <div style={{ fontSize:10, color:C.light, marginTop:6, fontStyle:"italic" }}>— Paciente anónimo</div>
+                        <div style={{ fontSize:10, color:C.light, marginTop:6, fontStyle:"italic" }}>— {ofuscarNombre(r.pacienteNombre)}</div>
                       </div>
                     ))}
                   </>
