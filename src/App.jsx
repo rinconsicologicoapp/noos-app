@@ -5014,6 +5014,67 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
     </div>
   </div>
 ))}
+              {mdl("agendar-cita", (
+                <div>
+                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📅 Agendar cita</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario en tiempo real</div>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
+                  <div style={{ background:"rgba(196,132,90,0.08)", border:"1px solid rgba(196,132,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
+                    <span style={{ fontSize:16 }}>👤</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{pacienteSeleccionado?.nombre}</span>
+                  </div>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
+                  <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
+                  <input placeholder="Ej: Continuaremos con técnicas de respiración" value={citaDescripcion} onChange={e => setCitaDescripcion(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
+                      <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
+                      <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
+                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+                    {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
+                      <div key={val} onClick={() => setCitaModalidad(val)}
+                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,0.08)"}`, background:citaModalidad===val?`${C.plum}15`:"white" }}>
+                        <div style={{ fontSize:22 }}>{ic}</div>
+                        <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {citaModalidad === "virtual" && (
+                    <>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet / Zoom</div>
+                      <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    </>
+                  )}
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📝 Notas para el paciente</div>
+                  <textarea placeholder="Ej: Recuerda traer tu diario..." value={citaNotas} onChange={e => setCitaNotas(e.target.value)}
+                    style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+                  <div style={{ display:"flex", gap:8 }}>
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar ✓", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                  </div>
+                </div>
+              ))}
               {anav("admin-paciente")}
             </div>
           )}
