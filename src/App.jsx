@@ -2119,6 +2119,8 @@ const styles = `
   );
 };
 
+  const NAV_PB = "calc(80px + env(safe-area-inset-bottom, 16px))";
+
   const bnav = (active) => {
   const tareasCount = tareasPsicologo.filter(t => !t.completada).length;
   const items = [
@@ -2534,7 +2536,7 @@ const styles = `
 
           {/* HOME */}
           {!notifPanel && screen === "home" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(120px + env(safe-area-inset-bottom, 0px))", background:darkMode?"#0F0E17":"#F5F0EB" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:darkMode?"#0F0E17":"#F5F0EB" }}>
 
               {/* HEADER */}
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative" }}>
@@ -2828,7 +2830,7 @@ const styles = `
       </div>
     </div>
 
-    <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))" }}>
+    <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:NAV_PB }}>
       
       {/* PESTAÑA INSIGHTS */}
       {noteTab === "insights" && (
@@ -3232,7 +3234,7 @@ const styles = `
                   </div>
                 </div>
 
-                <div style={{ flex:1, overflowY:"auto", paddingBottom:"calc(100px + env(safe-area-inset-bottom,0px))" }}>
+                <div style={{ flex:1, overflowY:"auto", paddingBottom:NAV_PB }}>
                   {/* Grid calendario */}
                   <div style={{ background:"#FEFAF5", margin:14, borderRadius:16, padding:12, border:"0.5px solid rgba(196,132,90,0.12)" }}>
                     {/* Días semana */}
@@ -3426,7 +3428,7 @@ const styles = `
 
           {/* LOGROS */}
           {!notifPanel && screen === "logros" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(120px + env(safe-area-inset-bottom, 0px))", background:"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5EDE0" }}>
               <div style={{ background:`linear-gradient(145deg,${C.amberDark},${C.gold})`, padding:"32px 24px 52px", textAlign:"center" }}>
                 <div style={{ fontSize:64, marginBottom:10 }}>{getRango(xp).icono}</div>
                 <div style={{ fontSize:20, fontWeight:700, color:"white", marginBottom:4 }}>{getRango(xp).nombre}</div>
@@ -3490,7 +3492,7 @@ const styles = `
 
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(120px + env(safe-area-inset-bottom, 0px))", background:darkMode?"#0F0E17":"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:darkMode?"#0F0E17":"#F5EDE0" }}>
 
               {/* HEADER */}
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"28px 20px 40px", textAlign:"center" }}>
@@ -3765,7 +3767,7 @@ const styles = `
           )}
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(120px + env(safe-area-inset-bottom, 0px))", background:"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5EDE0" }}>
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative" }}>
                 <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(20px, env(safe-area-inset-top, 20px))", left:20, fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
                 {psicologoData?.foto ? (
@@ -3855,7 +3857,7 @@ const styles = `
           )}    
           {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))", background:"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5EDE0" }}>
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:12 }}>
                 <div onClick={() => showScreen("admin-perfil")} style={{ fontSize:20, cursor:"pointer", color:"rgba(255,255,255,0.7)" }}>←</div>
                 <div style={{ flex:1 }}>
@@ -4115,7 +4117,7 @@ const styles = `
         <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>{psicologos.length} psicólogo{psicologos.length !== 1 ? "s" : ""} registrado{psicologos.length !== 1 ? "s" : ""}</div>
       </div>
       {/* Lista */}
-      <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 0px))" }}>
+      <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:NAV_PB }}>
         {psicologos.length === 0 ? (
           <div style={{ textAlign:"center", padding:32, color:C.light, fontSize:13 }}>No hay psicólogos registrados</div>
         ) : psicologos.map(p => {
@@ -4221,7 +4223,7 @@ const styles = `
           <span style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", fontSize:14, opacity:.6 }}>🔍</span>
         </div>
       </div>
-      <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 0px))" }}>
+      <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:NAV_PB }}>
         {pacientes.length === 0 ? (
           <div style={{ textAlign:"center", padding:32, color:C.light, fontSize:13 }}>
             {busqueda ? "Sin resultados" : "No hay pacientes registrados"}
@@ -4290,7 +4292,7 @@ const styles = `
   );
 })()}
 {!notifPanel && screen === "admin-home" && (
-  <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))" }}>
+  <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB }}>
     <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
       <div style={{ width:44, height:44, display:"flex", alignItems:"center", justifyContent:"center" }}>
         <LucideIcon name="crown" color="#E8A87C" size={34}/>
@@ -5008,7 +5010,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
           {/* ADMIN PERFIL */}
           {!notifPanel && screen === "admin-perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))", background:"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5EDE0" }}>
 
               {/* HEADER */}
               <div style={{ background:`linear-gradient(160deg,${C.dark},${C.plum})`, padding:"32px 24px 48px", textAlign:"center", position:"relative" }}>
