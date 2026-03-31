@@ -5,124 +5,281 @@ const { getMessaging } = require('firebase-admin/messaging');
 if (!getApps().length) {
   initializeApp({
     credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
+      projectId:   process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      privateKey:  process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     })
   });
 }
 
+// ─── Helper: obtener fcmToken de un usuario por uid ───────────────────────────
+async function getTokenDeUsuario(db, uid) {
+  if (!uid) return null;
+  try {
+    const snap = await db.collection('usuarios').doc(uid).get();
+    return snap.exists ? (snap.data()?.fcmToken || null) : null;
+  } catch { return null; }
+}
+
+// ─── Helper: enviar FCM y manejar token inválido ──────────────────────────────
+async function enviarFCM(db, token, titulo, mensaje, data = {}) {
+  if (!token) return false;
+  try {
+    await getMessaging().send({
+      token,
+      notification: { title: titulo, body: mensaje },
+      data: Object.fromEntries(
+        Object.entries({ ...data, timestamp: String(Date.now()) })
+          .map(([k, v]) => [k, String(v)])
+      ),
+      android: {
+        priority: 'high',
+        notification: {
+          channelId: 'mi_psicologo',
+          sound: 'default',
+          color: '#C4845A',
+          priority: 'high',
+          defaultVibrateTimings: true,
+        },
+      },
+      apns: {
+        payload: {
+          aps: { sound: 'default', badge: 1, 'content-available': 1 },
+        },
+      },
+      webpush: {
+        headers: { Urgency: 'high' },
+        notification: {
+          icon: '/icon-192.png',
+          badge: '/icon-192.png',
+          requireInteraction: data.requireInteraction === 'true',
+        },
+        fcmOptions: {
+          link: data.link || 'https://mipsicologo.vercel.app',
+        },
+      },
+    });
+    return true;
+  } catch (e) {
+    // Token caducado o inválido → limpiar de Firestore
+    if (
+      e.code === 'messaging/registration-token-not-registered' ||
+      e.code === 'messaging/invalid-registration-token'
+    ) {
+      try {
+        const snap = await db.collection('usuarios')
+          .where('fcmToken', '==', token).limit(1).get();
+        if (!snap.empty) {
+          await snap.docs[0].ref.update({ fcmToken: '' });
+        }
+      } catch {}
+    }
+    console.error('FCM error:', e.code || e.message);
+    return false;
+  }
+}
+
 module.exports = async function handler(req, res) {
-  if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+  // Seguridad: validar header enviado por cron-job.org
+  const auth = req.headers['authorization'] || '';
+  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  try {
-    const db = getFirestore();
-    const ahora = new Date();
-    const ahoraISO = ahora.toISOString();
-    let enviadas = 0;
+  const db = getFirestore();
+  const ahora = new Date();
+  const ahoraISO = ahora.toISOString();
+  const stats = { recordatoriosCita: 0, programadas: 0, generales: 0, recurrentes: 0, errores: 0 };
 
-    // ── 1. NOTIFICACIONES PROGRAMADAS (puntuales) ──────────
-    const snapProgramadas = await db.collection('notificaciones_programadas')
+  try {
+
+    // ════════════════════════════════════════════════════════════════════════
+    // 1. RECORDATORIOS DE CITA (1h y 5min antes)
+    //    Colección: recordatoriosCita
+    //    Campo clave: enviado == false, enviarEn <= ahora
+    // ════════════════════════════════════════════════════════════════════════
+    const snapCita = await db.collection('recordatoriosCita')
+      .where('enviado', '==', false)
+      .where('enviarEn', '<=', ahoraISO)
+      .limit(50)
+      .get();
+
+    for (const docSnap of snapCita.docs) {
+      const rec = docSnap.data();
+
+      // Marcar enviado PRIMERO para evitar duplicados si el cron se solapa
+      await docSnap.ref.update({ enviado: true, enviadoEn: ahoraISO });
+
+      const token = await getTokenDeUsuario(db, rec.pacienteId);
+      const ok = await enviarFCM(db, token, rec.titulo, rec.mensaje, {
+        tipo: 'recordatorio_cita',
+        citaId: rec.citaId || '',
+        link: rec.link || '',
+        tag: rec.citaId || docSnap.id,
+        requireInteraction: rec.tipo === '5m' ? 'true' : 'false',
+      });
+
+      if (ok) {
+        stats.recordatoriosCita++;
+        // Guardar en panel de notificaciones del paciente
+        await db.collection('notificaciones').doc(`rec_${docSnap.id}`).set({
+          pacienteId: rec.pacienteId,
+          titulo:     rec.titulo,
+          mensaje:    rec.mensaje,
+          icon:       rec.tipo === '5m' ? '⏰' : '🔔',
+          tipo:       'recordatorio_cita',
+          citaId:     rec.citaId || '',
+          link:       rec.link || '',
+          leida:      false,
+          pushEnviada: true,
+          creadoEn:   ahoraISO,
+        });
+      } else {
+        stats.errores++;
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // 2. NOTIFICACIONES PROGRAMADAS por psicólogo (una sola vez)
+    //    Colección: notificaciones_programadas
+    //    Campo clave: enviada == false, scheduledAt <= ahora
+    // ════════════════════════════════════════════════════════════════════════
+    const snapProg = await db.collection('notificaciones_programadas')
       .where('enviada', '==', false)
       .where('scheduledAt', '<=', ahoraISO)
       .limit(50)
       .get();
 
-    for (const docSnap of snapProgramadas.docs) {
-      const { token, title, body } = docSnap.data();
-      try {
-        await getMessaging().send({
-          token,
-          notification: { title, body },
-          webpush: {
-            notification: {
-              title, body,
-              icon: '/icon-192.png',
-              badge: '/icon-192.png',
-              vibrate: [200, 100, 200]
-            }
-          }
-        });
-        await docSnap.ref.update({ enviada: true, enviadaEn: ahoraISO });
-        enviadas++;
-      } catch(e) {
-        console.error('Error notif programada:', e.message);
-      }
+    for (const docSnap of snapProg.docs) {
+      const notif = docSnap.data();
+
+      await docSnap.ref.update({ enviada: true, enviadaEn: ahoraISO });
+
+      const token = await getTokenDeUsuario(db, notif.pacienteId);
+      const ok = await enviarFCM(db, token, notif.title, notif.body, {
+        tipo: 'notif_programada',
+        tag: `prog_${docSnap.id}`,
+      });
+
+      if (ok) stats.programadas++;
+      else stats.errores++;
     }
 
-    // ── 2. RECORDATORIOS RECURRENTES ───────────────────────
-    const snapRecordatorios = await db.collection('recordatorios')
+    // ════════════════════════════════════════════════════════════════════════
+    // 3. NOTIFICACIONES GENERALES pendientes de push
+    //    Colección: notificaciones
+    //    Tipos: cita_nueva, tarea_completada, nueva_resena, cita_confirmada,
+    //           cita_cancelada, demora, racha
+    //    Campo clave: pushEnviada == false, creadoEn últimos 10 min
+    // ════════════════════════════════════════════════════════════════════════
+    const hace10 = new Date(ahora.getTime() - 10 * 60 * 1000).toISOString();
+    const snapGeneral = await db.collection('notificaciones')
+      .where('pushEnviada', '==', false)
+      .limit(50)
+      .get();
+    // Filtramos en memoria para evitar índice compuesto en Firestore
+    const docsGenerales = docsGenerales.filter(d => {
+      const creadoEn = d.data().creadoEn || '';
+      return creadoEn >= hace10;
+    });
+
+    for (const docSnap of docsGenerales) {
+      const notif = docSnap.data();
+
+      // Marcar antes de enviar
+      await docSnap.ref.update({ pushEnviada: true });
+
+      const token = await getTokenDeUsuario(db, notif.pacienteId);
+      const ok = await enviarFCM(db, token, notif.titulo, notif.mensaje, {
+        tipo:               notif.tipo || 'general',
+        citaId:             notif.citaId || '',
+        link:               notif.link || '',
+        tag:                docSnap.id,
+        requireInteraction: notif.tipo === 'demora' ? 'true' : 'false',
+      });
+
+      if (ok) stats.generales++;
+      else stats.errores++;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // 4. RECORDATORIOS RECURRENTES (días de la semana a hora fija)
+    //    Colección: recordatorios
+    //    Misma lógica que tenías — mejorada con ventana de 4 min
+    // ════════════════════════════════════════════════════════════════════════
+    const snapRec = await db.collection('recordatorios')
       .where('activo', '==', true)
       .get();
 
-    const diaSemanaUTC = ahora.getUTCDay(); // 0=dom...6=sáb
-    const horaUTC = ahora.getUTCHours();
-    const minutoUTC = ahora.getUTCMinutes();
-
-    for (const docSnap of snapRecordatorios.docs) {
+    for (const docSnap of snapRec.docs) {
       const rec = docSnap.data();
-      const { token, titulo, mensaje, hora, diasSemana, pacienteTimezone, pacienteId } = rec;
+      const { titulo, mensaje, hora, diasSemana, pacienteTimezone, pacienteId } = rec;
 
-      if (!hora || !diasSemana || !pacienteTimezone) continue;
+      if (!hora || !diasSemana || !pacienteTimezone || !pacienteId) continue;
 
-      // Convertir la hora del recordatorio a UTC según timezone del paciente
-      const [horaRec, minRec] = hora.split(':').map(Number);
-
-      // Calcular offset del timezone del paciente
-      const fechaEnTZ = new Date(ahora.toLocaleString('en-US', { timeZone: pacienteTimezone }));
-      const offsetMs = ahora - fechaEnTZ;
-      const offsetHoras = Math.round(offsetMs / (1000 * 60 * 60));
-
-      // Hora en UTC equivalente a la hora local del paciente
-      const horaRecUTC = (horaRec + offsetHoras + 24) % 24;
-
-      // Día de semana en la timezone del paciente
-      const fechaLocal = new Date(ahora.toLocaleString('en-US', { timeZone: pacienteTimezone }));
-      const diaSemanaLocal = fechaLocal.getDay();
-
-      // Verificar si toca enviar ahora (mismo día, misma hora, mismo minuto ±2)
-      const mismodia = diasSemana.includes(diaSemanaLocal);
-      const mismaHora = horaUTC === horaRecUTC;
-      const mismoMinuto = Math.abs(minutoUTC - minRec) <= 4;
-
-      if (!mismodia || !mismaHora || !mismoMinuto) continue;
-
-      // Verificar que no se haya enviado ya hoy
-      const hoy = fechaLocal.toISOString().split('T')[0];
-      const yaEnviado = rec.ultimoEnvio === hoy;
-      if (yaEnviado) continue;
-
-      // Obtener token del paciente
       try {
-        const pacienteDoc = await db.collection('usuarios').doc(pacienteId).get();
-        const fcmToken = pacienteDoc.data()?.fcmToken;
-        if (!fcmToken) continue;
+        // Hora actual en el timezone del paciente
+        const fechaLocal = new Date(ahora.toLocaleString('en-US', { timeZone: pacienteTimezone }));
+        const diaLocal   = fechaLocal.getDay();
+        const horaLocal  = fechaLocal.getHours();
+        const minLocal   = fechaLocal.getMinutes();
 
-        await getMessaging().send({
-          token: fcmToken,
-          notification: { title: titulo, body: mensaje },
-          webpush: {
-            notification: {
-              title: titulo,
-              body: mensaje,
-              icon: '/icon-192.png',
-              badge: '/icon-192.png',
-              vibrate: [200, 100, 200]
-            }
-          }
+        const [horaRec, minRec] = hora.split(':').map(Number);
+
+        const mismodia    = diasSemana.includes(diaLocal);
+        const mismaHora   = horaLocal === horaRec;
+        const mismoMinuto = Math.abs(minLocal - minRec) <= 4;
+
+        if (!mismodia || !mismaHora || !mismoMinuto) continue;
+
+        // Evitar duplicado del mismo día
+        const hoyKey = fechaLocal.toISOString().split('T')[0];
+        if (rec.ultimoEnvio === hoyKey) continue;
+
+        const token = await getTokenDeUsuario(db, pacienteId);
+        const ok = await enviarFCM(db, token, titulo, mensaje, {
+          tipo: 'recordatorio_recurrente',
+          tag:  `rec_${docSnap.id}_${hoyKey}`,
         });
 
-        await docSnap.ref.update({ ultimoEnvio: hoy });
-        enviadas++;
-      } catch(e) {
+        if (ok) {
+          stats.recurrentes++;
+          await docSnap.ref.update({ ultimoEnvio: hoyKey });
+        } else {
+          stats.errores++;
+        }
+      } catch (e) {
         console.error('Error recordatorio recurrente:', e.message);
+        stats.errores++;
       }
     }
 
-    return res.status(200).json({ ok: true, enviadas });
-  } catch(e) {
+    // ════════════════════════════════════════════════════════════════════════
+    // 5. LIMPIEZA: notificaciones > 7 días (solo entre las 3:00-3:05 AM)
+    // ════════════════════════════════════════════════════════════════════════
+    if (ahora.getUTCHours() === 8 && ahora.getUTCMinutes() < 5) {
+      // 8 UTC = 3 AM Bogotá
+      const hace7 = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const viejas = await db.collection('notificaciones')
+        .where('creadoEn', '<', hace7.toISOString())
+        .limit(200).get();
+
+      if (!viejas.empty) {
+        const batch = db.batch();
+        viejas.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        console.log(`Limpiadas ${viejas.size} notificaciones`);
+      }
+    }
+
+  } catch (e) {
+    console.error('Error general en process-notifications:', e.message);
     return res.status(500).json({ error: e.message });
   }
+
+  return res.status(200).json({
+    ok: true,
+    timestamp: ahoraISO,
+    ...stats,
+  });
 };

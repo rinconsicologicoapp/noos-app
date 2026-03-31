@@ -743,6 +743,7 @@ const [regRol, setRegRol] = useState("paciente");
   const [citaDescripcion, setCitaDescripcion] = useState("");
   const [citaPacienteId, setCitaPacienteId] = useState("");
 const [notifCitaActiva, setNotifCitaActiva] = useState(null);
+const [notifCitaTimer, setNotifCitaTimer] = useState(null);
 const [calMesVista, setCalMesVista] = useState(new Date().getMonth());
 const [calAnioVista, setCalAnioVista] = useState(new Date().getFullYear());
 const [calCitaDetalle, setCalCitaDetalle] = useState(null);
@@ -931,6 +932,7 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
         cargarCitas(uid, "psicologo");
         cargarRecordatorios(uid);
         cargarResenas(uid);
+        cargarNotificaciones(uid);
         const pacientesSnap = await getDocs(query(collection(db, "usuarios"), where("psicologoId", "==", uid)));
         const listaPacientes = pacientesSnap.docs
           .filter(d => d.data().rol === "paciente")
@@ -1026,15 +1028,17 @@ const crearCita = async () => {
       mensaje:     `${citaFecha} a las ${citaHora} — ${citaModalidad === "virtual" ? "Virtual 💻" : "Presencial 🏥"}`,
       creadoEn:    new Date().toISOString(),
       leida:       false,
+      pushEnviada: false,
       tipo:        "cita_nueva",
       citaId:      id,
       link:        citaLink,
     });
 
     // Programar recordatorio 1h antes en Firestore
-    const fechaHoraCita = new Date(`${citaFecha}T${citaHora}:00`);
-    const una_hora_antes = new Date(fechaHoraCita.getTime() - 60 * 60 * 1000);
-    const cinco_min_antes = new Date(fechaHoraCita.getTime() - 5 * 60 * 1000);
+    // Usamos fechaUTC (ya calculado arriba) para evitar errores de timezone
+    const fechaHoraCitaUTC = new Date(fechaUTC);
+    const una_hora_antes = new Date(fechaHoraCitaUTC.getTime() - 60 * 60 * 1000);
+    const cinco_min_antes = new Date(fechaHoraCitaUTC.getTime() - 5 * 60 * 1000);
 
     await setDoc(doc(db, "recordatoriosCita", `${id}_1h`), {
       citaId:      id,
@@ -1084,6 +1088,7 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
           icon: "✅",
           tipo: "cita_confirmada",
           leida: false,
+          pushEnviada: false,
           creadoEn: new Date().toISOString(),
         }).catch(()=>{});
       }
@@ -1098,6 +1103,7 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
           icon: "❌",
           tipo: "cita_cancelada",
           leida: false,
+          pushEnviada: false,
           creadoEn: new Date().toISOString(),
         }).catch(()=>{});
       }
@@ -1133,25 +1139,19 @@ const programarNotificacion = async () => {
   }
   setLoadingNotif(true);
   try {
-    const pacienteDoc = await getDoc(doc(db, "usuarios", pacienteSeleccionado.id));
-    const fcmToken = pacienteDoc.data()?.fcmToken;
-    if (!fcmToken) {
-      showToast("El paciente no tiene notificaciones activadas ❌");
-      setLoadingNotif(false); return;
-    }
     const scheduledAt = new Date(`${notifFecha}T${notifHora}:00`).toISOString();
-    await fetch('/api/schedule-notification', {
+    const resp = await fetch('/api/schedule-notification', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         pacienteId: pacienteSeleccionado.id,
-        token: fcmToken,
         title: notifTitulo,
         body: notifMensaje,
         scheduledAt,
         intervals: notifIntervalos
       })
     });
+    if (!resp.ok) throw new Error("Error del servidor");
     showToast(`✅ Notificación programada para ${notifFecha} a las ${notifHora}`);
     setNotifTitulo(""); setNotifMensaje("");
     setNotifFecha(""); setNotifHora("");
@@ -1574,6 +1574,7 @@ const enviarResena = async () => {
         icon: "⭐",
         tipo: "nueva_resena",
         leida: false,
+        pushEnviada: false,
         creadoEn: new Date().toISOString(),
       });
     } catch(e) {}
@@ -1838,6 +1839,7 @@ useEffect(() => {
           cargarCitas(user.uid, "psicologo");
           cargarRecordatorios(user.uid);
           cargarResenas(user.uid);
+          cargarNotificaciones(user.uid);
           const pacientesSnap = await getDocs(query(collection(db, "usuarios"), where("psicologoId", "==", user.uid)));
         const listaPacientes = pacientesSnap.docs
           .filter(d => d.data().rol === "paciente")
@@ -1892,12 +1894,41 @@ useEffect(() => {
 
     const unsub = onMessage(messaging, payload => {
       const { title, body } = payload.notification || {};
+      const data = payload.data || {};
       showNotif(title || "Nueva notificación", body || "", "🔔");
+      // Si es recordatorio de cita y la app está abierta → mostrar banner
+      if (data.tipo === "recordatorio_cita" && data.citaId) {
+        setNotifCitaActiva({ titulo: title, mensaje: body, link: data.link || "", citaId: data.citaId });
+        if (notifCitaTimer) clearTimeout(notifCitaTimer);
+        setNotifCitaTimer(setTimeout(() => setNotifCitaActiva(null), 30000));
+      }
     });
-    return () => unsub();
+    // Escuchar clicks en notificaciones desde el Service Worker
+    const swHandler = (event) => {
+      if (event.data?.type === "NOTIFICATION_CLICK") {
+        const data = event.data.data || {};
+        if (data.tipo === "recordatorio_cita") showScreen("calendario");
+        else if (data.tipo === "cita_nueva") showScreen("calendario");
+        else if (data.tipo === "cita_confirmada") showScreen("calendario");
+        else if (data.tipo === "cita_cancelada") showScreen("calendario");
+        else if (data.tipo === "tarea_completada") showScreen(usuarioActual?.rol === "psicologo" ? "admin-paciente" : "notas");
+        else if (data.tipo === "demora") showScreen("calendario");
+        else if (data.tipo === "nueva_resena") showScreen("admin-perfil");
+      }
+    };
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.addEventListener("message", swHandler);
+    }
+    return () => {
+      unsub();
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker.removeEventListener("message", swHandler);
+      }
+    };
   }
 }, [usuarioActual]);
-// Timer que revisa recordatorios de cita y los muestra al paciente
+// Timer cliente: solo muestra el banner interactivo si la app está ABIERTA.
+// La push real al celular bloqueado la envía el cron /api/process-notifications.
 useEffect(() => {
   if (!usuarioActual?.uid || usuarioActual.rol !== "paciente") return;
   const revisar = async () => {
@@ -1911,45 +1942,17 @@ useEffect(() => {
       const snap = await getDocs(q);
       for (const d of snap.docs) {
         const rec = d.data();
-        const enviarEn = new Date(rec.enviarEn);
-        if (ahora >= enviarEn) {
-          // Marcar como enviado
-          await updateDoc(doc(db, "recordatoriosCita", d.id), { enviado: true });
-          // Mostrar notificación interactiva en pantalla
+        if (ahora >= new Date(rec.enviarEn)) {
+          // Solo mostrar banner en pantalla — el cron ya envió la push
           setNotifCitaActiva({ titulo: rec.titulo, mensaje: rec.mensaje, link: rec.link, citaId: rec.citaId });
-          // También guardar en notificaciones del paciente
-          await setDoc(doc(db, "notificaciones", `rec_${d.id}`), {
-            pacienteId:  usuarioActual.uid,
-            icon:        rec.tipo === "5m" ? "🔴" : "⏰",
-            titulo:      rec.titulo,
-            mensaje:     rec.mensaje,
-            creadoEn:    new Date().toISOString(),
-            leida:       false,
-            tipo:        "recordatorio_cita",
-            citaId:      rec.citaId,
-            link:        rec.link,
-          });
-          // Notificación nativa del navegador si hay permiso
-          if (Notification.permission === "granted") {
-            const n = new Notification(rec.titulo, {
-              body: rec.mensaje,
-              icon: "/icon-192.png",
-              badge: "/icon-192.png",
-              tag: rec.citaId,
-              requireInteraction: rec.tipo === "5m",
-            });
-            n.onclick = () => {
-              window.focus();
-              showScreen("calendario");
-              n.close();
-            };
-          }
+          if (notifCitaTimer) clearTimeout(notifCitaTimer);
+          setNotifCitaTimer(setTimeout(() => setNotifCitaActiva(null), 30000));
         }
       }
     } catch(e) { console.log("Error revisando recordatorios:", e); }
   };
   revisar();
-  const interval = setInterval(revisar, 60 * 1000); // cada minuto
+  const interval = setInterval(revisar, 60 * 1000);
   return () => clearInterval(interval);
 }, [usuarioActual]);
 useEffect(() => {
@@ -2082,6 +2085,14 @@ const styles = `
   @keyframes slideInRight {
     from { opacity: 0; transform: translateX(32px); }
     to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes slideUp {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to   { opacity: 0; transform: translateY(-16px) scale(0.96); }
   }
   @keyframes slideInLeft {
     from { opacity: 0; transform: translateX(-32px); }
@@ -2375,7 +2386,7 @@ const styles = `
         >
           {/* NOTIFICACIÓN INTERACTIVA DE CITA */}
         {notifCitaActiva && (
-          <div style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:12, right:12, zIndex:900, animation:"frailejFlotar 0.4s ease" }}>
+          <div style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:12, right:12, zIndex:900, animation:"slideDown 0.35s cubic-bezier(0.34,1.56,0.64,1) both" }}>
             <div style={{ background:"linear-gradient(135deg,#1A1230,#2A1848)", borderRadius:18, padding:"14px 16px", boxShadow:"0 8px 32px rgba(0,0,0,0.4)", border:"1px solid rgba(196,132,90,0.3)" }}>
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ width:44, height:44, borderRadius:12, background:"rgba(196,132,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>📅</div>
@@ -2443,35 +2454,60 @@ const styles = `
           )}
 
           {/* PANEL NOTIFICACIONES */}
-          {notifPanel && (
-            <div style={{ height:"100%", display:"flex", flexDirection:"column" }}>
-              <div style={{ background:"#FEFAF5", padding:"14px 20px", borderBottom:"0.5px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:10 }}>
-                <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(196,132,90,0.08)" }}>
+          {notifPanel && (() => {
+            // Recargar siempre que se abre el panel
+            if (usuarioActual?.uid) cargarNotificaciones(usuarioActual.uid);
+            return (
+            <div style={{ height:"100%", display:"flex", flexDirection:"column", background:darkMode?"#0F0E17":"#F5EDE0" }}>
+              {/* HEADER */}
+              <div style={{ background:darkMode?"#1A1208":"#FEFAF5", padding:"16px 18px", borderBottom:`0.5px solid rgba(196,132,90,0.12)`, display:"flex", alignItems:"center", gap:10, paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
+                <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(196,132,90,0.08)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:18, fontWeight:900, color:C.text }}>Notificaciones 🔔</div>
-                  {unread > 0 && <div style={{ fontSize:11, color:C.light }}>{unread} sin leer</div>}
+                  <div style={{ fontSize:17, fontWeight:900, color:C.text }}>Notificaciones</div>
+                  <div style={{ fontSize:11, color:C.light, marginTop:1 }}>
+                    {unread > 0 ? `${unread} sin leer` : "Todo al día"}
+                  </div>
                 </div>
-                {unread > 0 && btn(markAllRead, "Marcar todas ✓", { fontSize:11, fontWeight:800, color:C.plum, background:C.warm, padding:"5px 10px", borderRadius:9 })}
+                {unread > 0 && btn(markAllRead, "Leer todas", { fontSize:11, fontWeight:700, color:C.plum, background:`${C.plum}12`, padding:"6px 12px", borderRadius:20 })}
               </div>
-              <div style={{ flex:1, overflowY:"auto", padding:14 }}>
-                {notifs.map(n => (
-                  <div key={n.id} onClick={() => markRead(n.id)} style={{ background:n.read?"white":"#F5F0FB", borderRadius:16, padding:"12px 14px", marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)", display:"flex", gap:12, alignItems:"flex-start", cursor:"pointer", borderLeft:`3px solid ${n.read?"transparent":C.plum}` }}>
-                    <div style={{ width:40, height:40, borderRadius:12, background:n.read?C.warm:"#EDE8F5", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>{n.icon}</div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
-                        <div style={{ fontSize:13, fontWeight:800, color:n.read?C.text:C.plum }}>{n.title}</div>
-                        {!n.read && <div style={{ width:8, height:8, borderRadius:"50%", background:C.plum, flexShrink:0, marginTop:3 }}/>}
+
+              {/* LISTA */}
+              <div style={{ flex:1, overflowY:"auto", padding:"12px 14px", paddingBottom:NAV_PB }}>
+                {notifs.length === 0 ? (
+                  /* ESTADO VACÍO */
+                  <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", paddingTop:60, gap:12 }}>
+                    <div style={{ width:64, height:64, borderRadius:20, background:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.5" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
+                    <div style={{ fontSize:15, fontWeight:700, color:C.text }}>Sin notificaciones</div>
+                    <div style={{ fontSize:12, color:C.light, textAlign:"center", maxWidth:200, lineHeight:1.5 }}>Aquí aparecerán tus citas, tareas y mensajes importantes</div>
+                  </div>
+                ) : notifs.map((n, i) => (
+                  <div key={n.id} onClick={() => markRead(n.id)}
+                    style={{ background:n.read?(darkMode?"#1A1208":"white"):(darkMode?"#2A1848":"#F5F0FB"), borderRadius:16, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.read?"rgba(196,132,90,0.08)":"rgba(139,90,58,0.15)"}`, display:"flex", gap:12, alignItems:"flex-start", cursor:"pointer", position:"relative", overflow:"hidden", transition:"all 0.15s", animation:`fadeIn 0.2s ease ${i * 0.03}s both` }}>
+                    {/* Barra lateral de color según tipo */}
+                    <div style={{ position:"absolute", left:0, top:0, bottom:0, width:3, borderRadius:"16px 0 0 16px", background:n.read?"transparent": n.tipo==="demora"?C.amber : n.tipo==="cita_nueva"||n.tipo==="recordatorio_cita"?"#5A7A9A" : n.tipo==="tarea_completada"?C.green : C.plum }}/>
+                    {/* Ícono */}
+                    <div style={{ width:42, height:42, borderRadius:13, background:n.read?(darkMode?"rgba(196,132,90,0.08)":C.warm):(darkMode?"rgba(139,90,200,0.2)":"#EDE8F5"), display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, marginLeft:6 }}>{n.icon}</div>
+                    {/* Contenido */}
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:3 }}>
+                        <div style={{ fontSize:13, fontWeight:n.read?600:800, color:n.read?C.light:C.text, flex:1, paddingRight:8 }}>{n.title}</div>
+                        <div style={{ display:"flex", alignItems:"center", gap:5, flexShrink:0 }}>
+                          <div style={{ fontSize:10, color:C.light, whiteSpace:"nowrap" }}>{n.time}</div>
+                          {!n.read && <div style={{ width:7, height:7, borderRadius:"50%", background:C.plum, flexShrink:0 }}/>}
+                        </div>
                       </div>
-                      <div style={{ fontSize:11, color:C.light, lineHeight:1.5 }}>{n.msg}</div>
-                      <div style={{ fontSize:10, color:C.light, marginTop:4, fontWeight:600 }}>{n.time}</div>
+                      <div style={{ fontSize:11, color:C.light, lineHeight:1.5, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{n.msg}</div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* LOGIN */}
 {!notifPanel && screen === "login" && (
@@ -3239,6 +3275,7 @@ const styles = `
                         icon: "✅",
                         tipo: "tarea_completada",
                         leida: false,
+                        pushEnviada: false,
                         creadoEn: new Date().toISOString(),
                       }).catch(() => {});
                     }
@@ -3296,6 +3333,7 @@ const styles = `
                     icon: "🎯",
                     tipo: "tarea_completada",
                     leida: false,
+                    pushEnviada: false,
                     creadoEn: new Date().toISOString(),
                   });
                 } catch(e) {}
@@ -3662,6 +3700,7 @@ const styles = `
                             icon: "⏱",
                             tipo: "demora",
                             leida: false,
+                            pushEnviada: false,
                             creadoEn: new Date().toISOString(),
                           });
                           showToast("Aviso enviado a tu psicólogo");
