@@ -178,7 +178,7 @@ module.exports = async function handler(req, res) {
       .limit(50)
       .get();
     // Filtramos en memoria para evitar índice compuesto en Firestore
-    const docsGenerales = docsGenerales.filter(d => {
+    const docsGenerales = snapGeneral.docs.filter(d => {
       const creadoEn = d.data().creadoEn || '';
       return creadoEn >= hace10;
     });
