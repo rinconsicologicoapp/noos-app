@@ -871,6 +871,10 @@ const [respuestaTarea, setRespuestaTarea] = useState("");
 const [tareaRespondiendo, setTareaRespondiendo] = useState(null);
 const [retrasoTexto, setRetrasoTexto] = useState("");
 const [retrasoMinutos, setRetrasoMinutos] = useState(10);
+const [notaAbierta, setNotaAbierta] = useState(null);       // nota/tarea abierta en pantalla completa
+const [notaEditando, setNotaEditando] = useState(false);    // modo edición
+const [notaTextoEdit, setNotaTextoEdit] = useState("");     // texto en edición
+const [notaTituloEdit, setNotaTituloEdit] = useState("");   // título en edición
 const [fraseDelMes, setFraseDelMes] = useState("");
 const [companero, setCompanero] = useState(null);
 const [companeroSeleccionando, setCompaneroSeleccionando] = useState(null);
@@ -1108,6 +1112,8 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
         }).catch(()=>{});
       }
     }
+    // Forzar re-render de la cita actualizada ANTES de cerrar el modal
+    setCitas(prev => prev.map(c => c.id === citaId ? { ...c, status: nuevoStatus } : c));
     setModal(null);
   } catch(e) { showToast("Error al actualizar cita ❌"); }
 };
@@ -2997,16 +3003,240 @@ const styles = `
     </div>
   </div>
 )}
+{/* ── PANTALLA NOTA/TAREA ABIERTA (estilo bloc nativo) ── */}
+{notaAbierta && (
+  <div style={{ position:"absolute", inset:0, zIndex:800, display:"flex", flexDirection:"column",
+    background: notaAbierta.tipo === "tarea" ? "#FFFDF5" :
+                notaAbierta.tipo === "clinica" ? "#F5F0FB" : "#FFFEF8",
+    animation:"slideInRight 0.25s ease" }}>
+
+    {/* HEADER */}
+    <div style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 16px",
+      paddingTop:"max(14px, env(safe-area-inset-top, 14px))",
+      background: notaAbierta.tipo === "tarea" ? "#FFF8E6" :
+                  notaAbierta.tipo === "clinica" ? "#EDE8F5" : "#FFFEF8",
+      borderBottom:"0.5px solid rgba(0,0,0,0.06)" }}>
+      <div onClick={() => { setNotaAbierta(null); setNotaEditando(false); }}
+        style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center",
+          borderRadius:10, background:"rgba(0,0,0,0.05)", cursor:"pointer", flexShrink:0 }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div style={{ flex:1, minWidth:0 }}>
+        {notaEditando ? (
+          <input value={notaTituloEdit} onChange={e => setNotaTituloEdit(e.target.value)}
+            style={{ width:"100%", fontSize:16, fontWeight:700, color:C.text, border:"none",
+              background:"transparent", outline:"none", fontFamily:"inherit" }}
+            placeholder="Título"/>
+        ) : (
+          <div style={{ fontSize:15, fontWeight:700, color:C.text, overflow:"hidden",
+            textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+            {notaAbierta.titulo || notaAbierta.title || "Sin título"}
+          </div>
+        )}
+        <div style={{ fontSize:11, color:C.light, marginTop:1 }}>
+          {notaAbierta.tipo === "tarea" ? `⭐ +${notaAbierta.xp || 80} XP` :
+           notaAbierta.tipo === "clinica" ? "🔒 Nota clínica privada" :
+           notaAbierta.date || ""}
+        </div>
+      </div>
+      {/* Botones acción */}
+      <div style={{ display:"flex", gap:8 }}>
+        {notaEditando ? (<>
+          <div onClick={async () => {
+            if (!notaTextoEdit.trim()) return;
+            try {
+              if (notaAbierta.tipo === "insight") {
+                await updateDoc(doc(db, "notas", notaAbierta.id), { text: notaTextoEdit, title: notaTituloEdit });
+                setInsights(prev => prev.map(n => n.id === notaAbierta.id ? { ...n, text: notaTextoEdit, title: notaTituloEdit } : n));
+              } else if (notaAbierta.tipo === "clinica") {
+                await updateDoc(doc(db, "notasClinicas", notaAbierta.id), { texto: notaTextoEdit, titulo: notaTituloEdit });
+                setNotasClinicas(prev => prev.map(n => n.id === notaAbierta.id ? { ...n, texto: notaTextoEdit, titulo: notaTituloEdit } : n));
+              }
+              setNotaAbierta(prev => ({ ...prev, text: notaTextoEdit, texto: notaTextoEdit, title: notaTituloEdit, titulo: notaTituloEdit }));
+              setNotaEditando(false);
+              showToast("✅ Guardado");
+            } catch(e) { showToast("Error al guardar ❌"); }
+          }} style={{ padding:"6px 14px", background:C.plum, color:"white", borderRadius:20,
+            fontSize:12, fontWeight:700, cursor:"pointer" }}>Guardar</div>
+          <div onClick={() => setNotaEditando(false)}
+            style={{ padding:"6px 14px", background:"rgba(0,0,0,0.06)", color:C.text,
+              borderRadius:20, fontSize:12, fontWeight:700, cursor:"pointer" }}>Cancelar</div>
+        </>) : (
+          notaAbierta.tipo !== "tarea" && (
+            <div onClick={() => { setNotaEditando(true); setNotaTextoEdit(notaAbierta.text || notaAbierta.texto || ""); setNotaTituloEdit(notaAbierta.titulo || notaAbierta.title || ""); }}
+              style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,0.05)",
+                display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+
+    {/* CUERPO — bloc de notas con líneas */}
+    <div style={{ flex:1, overflowY:"auto", position:"relative" }}>
+      {/* Líneas de papel */}
+      <div style={{ position:"absolute", inset:0, pointerEvents:"none",
+        backgroundImage:`repeating-linear-gradient(
+          transparent, transparent 31px,
+          rgba(196,132,90,0.08) 31px, rgba(196,132,90,0.08) 32px
+        )`,
+        backgroundSize:"100% 32px",
+        backgroundPositionY:"48px"
+      }}/>
+      {/* Línea roja izquierda estilo cuaderno */}
+      <div style={{ position:"absolute", left:44, top:0, bottom:0, width:1,
+        background:"rgba(196,90,90,0.12)", pointerEvents:"none" }}/>
+
+      <div style={{ padding:"20px 20px 20px 56px", minHeight:"100%" }}>
+        {/* Si es tarea — mostrar descripción + área de respuesta */}
+        {notaAbierta.tipo === "tarea" && (
+          <>
+            {notaAbierta.descripcion && (
+              <div style={{ fontSize:13, color:C.light, lineHeight:1.8, marginBottom:24,
+                fontStyle:"italic", paddingBottom:16, borderBottom:"0.5px solid rgba(196,132,90,0.15)" }}>
+                {notaAbierta.descripcion}
+              </div>
+            )}
+            {notaAbierta.completada ? (
+              <div>
+                <div style={{ fontSize:11, fontWeight:700, color:C.green, marginBottom:10,
+                  textTransform:"uppercase", letterSpacing:0.5 }}>✓ Tu respuesta</div>
+                <div style={{ fontSize:14, color:C.text, lineHeight:1.9 }}>
+                  {notaAbierta.respuesta}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontSize:11, fontWeight:700, color:C.amber, marginBottom:12,
+                  textTransform:"uppercase", letterSpacing:0.5 }}>Escribe tu respuesta</div>
+                <textarea
+                  value={notaTextoEdit}
+                  onChange={e => setNotaTextoEdit(e.target.value)}
+                  placeholder="Empieza a escribir aquí..."
+                  autoFocus
+                  style={{ width:"100%", minHeight:300, background:"transparent", border:"none",
+                    outline:"none", fontSize:14, color:C.text, lineHeight:"32px",
+                    resize:"none", fontFamily:"inherit", boxSizing:"border-box",
+                    letterSpacing:"0.01em" }}/>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Si es nota/insight/clinica — mostrar texto */}
+        {notaAbierta.tipo !== "tarea" && (
+          notaEditando ? (
+            <textarea
+              value={notaTextoEdit}
+              onChange={e => setNotaTextoEdit(e.target.value)}
+              autoFocus
+              style={{ width:"100%", minHeight:400, background:"transparent", border:"none",
+                outline:"none", fontSize:14, color:C.text, lineHeight:"32px",
+                resize:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+          ) : (
+            <div style={{ fontSize:14, color:C.text, lineHeight:"32px", whiteSpace:"pre-wrap",
+              letterSpacing:"0.01em", minHeight:200 }}>
+              {notaAbierta.text || notaAbierta.texto || ""}
+            </div>
+          )
+        )}
+      </div>
+    </div>
+
+    {/* FOOTER — acciones */}
+    <div style={{ padding:"12px 16px", paddingBottom:"max(12px, env(safe-area-inset-bottom, 12px))",
+      background:"rgba(255,255,255,0.9)", backdropFilter:"blur(8px)",
+      borderTop:"0.5px solid rgba(0,0,0,0.06)", display:"flex", gap:10, alignItems:"center" }}>
+
+      {/* Tarea: botón enviar respuesta */}
+      {notaAbierta.tipo === "tarea" && !notaAbierta.completada && (
+        <div onClick={async () => {
+          if (!notaTextoEdit.trim()) { showToast("Escribe tu respuesta ❌"); return; }
+          try {
+            await updateDoc(doc(db, "tareas", notaAbierta.id), { respuesta: notaTextoEdit, completada: true });
+            setTareasPsicologo(prev => prev.map(t => t.id === notaAbierta.id ? { ...t, respuesta: notaTextoEdit, completada: true } : t));
+            sumarXP(notaAbierta.xp || 80, "Tarea completada ✅");
+            setCelebrando(true); setTimeout(() => setCelebrando(false), 1500);
+            if (notaAbierta.psicologoId) {
+              setDoc(doc(db, "notificaciones", `tarea_resp_${notaAbierta.id}`), {
+                pacienteId: notaAbierta.psicologoId,
+                titulo: "Tarea completada 🎯",
+                mensaje: `${usuarioActual.nombre} completó: "${notaAbierta.titulo}"`,
+                icon: "🎯", tipo: "tarea_completada", leida: false, pushEnviada: false,
+                creadoEn: new Date().toISOString(),
+              }).catch(()=>{});
+            }
+            setNotaAbierta(prev => ({ ...prev, respuesta: notaTextoEdit, completada: true }));
+            showToast("✅ Respuesta enviada a tu psicólogo");
+          } catch(e) { showToast("Error ❌"); }
+        }} style={{ flex:1, padding:"12px 0", background:C.plum, color:"white", borderRadius:14,
+          fontSize:13, fontWeight:700, textAlign:"center", cursor:"pointer" }}>
+          Enviar respuesta
+        </div>
+      )}
+
+      {/* Eliminar */}
+      {notaAbierta.tipo !== "tarea" && (
+        <div onClick={async () => {
+          try {
+            const col = notaAbierta.tipo === "clinica" ? "notasClinicas" : "notas";
+            await deleteDoc(doc(db, col, notaAbierta.id));
+            if (notaAbierta.tipo === "clinica") setNotasClinicas(prev => prev.filter(n => n.id !== notaAbierta.id));
+            else setInsights(prev => prev.filter(n => n.id !== notaAbierta.id));
+            setNotaAbierta(null);
+            showToast("🗑️ Nota eliminada");
+          } catch(e) { showToast("Error ❌"); }
+        }} style={{ width:44, height:44, borderRadius:12, background:"#FFE5E5",
+          display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="1.75" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </div>
+      )}
+
+      {/* Compartir con psicólogo (solo insights) */}
+      {notaAbierta.tipo === "insight" && (
+        <div onClick={async () => {
+          const nuevoShared = !notaAbierta.shared;
+          try {
+            await updateDoc(doc(db, "notas", notaAbierta.id), { shared: nuevoShared });
+            setInsights(prev => prev.map(n => n.id === notaAbierta.id ? { ...n, shared: nuevoShared } : n));
+            setNotaAbierta(prev => ({ ...prev, shared: nuevoShared }));
+            showToast(nuevoShared ? "👁 Compartida con tu psicólogo" : "🔒 Solo visible para ti");
+          } catch(e) {}
+        }} style={{ width:44, height:44, borderRadius:12,
+          background: notaAbierta.shared ? `${C.sageDark}20` : "rgba(0,0,0,0.05)",
+          display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={notaAbierta.shared ? C.sageDark : C.light} strokeWidth="1.75" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
 {!notifPanel && screen === "notas" && (
   <div style={{ height:"100%", display:"flex", flexDirection:"column", background:darkMode?"#1A1208":"#F5EDE0" }}>
     
     {/* HEADER */}
-    <div style={{ background:darkMode?"#2A1E10":"#FEFAF5", padding:"14px 18px 0", borderBottom:"0.5px solid rgba(196,132,90,0.12)" }}>
-      <div style={{ fontSize:17, fontWeight:700, color:C.text }}>Notas & Tareas</div>
-      <div style={{ fontSize:11, color:C.light, fontWeight:600, marginBottom:10 }}>Tu espacio personal de registro</div>
+    <div style={{ background:darkMode?"#2A1E10":"#FEFAF5", padding:"16px 18px 0", borderBottom:"0.5px solid rgba(196,132,90,0.12)" }}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+        <div>
+          <div style={{ fontSize:17, fontWeight:700, color:C.text }}>Mis notas</div>
+          <div style={{ fontSize:11, color:C.light, marginTop:2 }}>
+            {noteTab === "insights"
+              ? `${insights.length} nota${insights.length !== 1 ? "s" : ""} · ${insights.filter(n=>n.shared).length} compartida${insights.filter(n=>n.shared).length !== 1 ? "s" : ""}`
+              : `${pendientes} tarea${pendientes !== 1 ? "s" : ""} pendiente${pendientes !== 1 ? "s" : ""}`}
+          </div>
+        </div>
+        {noteTab === "insights" && (
+          <div onClick={() => setModal("nueva-nota-modal")}
+            style={{ width:34, height:34, background:C.plum, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+        )}
+      </div>
       <div style={{ display:"flex", borderBottom:"0.5px solid rgba(196,132,90,0.12)" }}>
-        {[["Para no olvidar","insights"],["Tareas","tareas"]].map(([lb,id]) => (
-          <button key={id} onClick={() => setNoteTab(id)} style={{ flex:1, padding:"10px 0", fontSize:11, fontWeight:600, color:noteTab===id?C.amber:C.light, border:"none", background:"transparent", borderBottom:`2px solid ${noteTab===id?C.amber:"transparent"}`, marginBottom:-1, cursor:"pointer", fontFamily:"inherit" }}>
+        {[["Notas","insights"],["Tareas","tareas"]].map(([lb,id]) => (
+          <button key={id} onClick={() => setNoteTab(id)} style={{ flex:1, padding:"10px 0", fontSize:12, fontWeight:600, color:noteTab===id?C.plum:C.light, border:"none", background:"transparent", borderBottom:`2px solid ${noteTab===id?C.plum:"transparent"}`, marginBottom:-1, cursor:"pointer", fontFamily:"inherit" }}>
             {lb}{id==="tareas" && pendientes > 0 && <span style={{ background:C.amber, color:"white", fontSize:10, fontWeight:800, padding:"2px 7px", borderRadius:20, marginLeft:6 }}>{pendientes}</span>}
           </button>
         ))}
@@ -3018,105 +3248,84 @@ const styles = `
       {/* PESTAÑA INSIGHTS */}
       {noteTab === "insights" && (
         <>
-          {/* FORMULARIO NUEVA NOTA */}
-          <div style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
-            <div style={{ fontSize:14, fontWeight:900, color:C.plum, marginBottom:12 }}>💡 Nueva nota</div>
-            
-            {/* SELECTOR ÁNIMO */}
-            <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:8 }}>¿Cómo te sientes?</div>
-            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:14 }}>
-              {[["😞","Mal"],["😕","Regular"],["😐","Neutro"],["🙂","Bien"],["😄","Genial"]].map(([e,l],i) => (
-                <div key={i} onClick={() => setInsightMood(i)} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, cursor:"pointer", padding:"7px 9px", borderRadius:11, background:insightMood===i?`${C.plum}15`:"transparent", border:`2px solid ${insightMood===i?C.plum:"transparent"}`, transition:"all 0.2s" }}>
-                  <span style={{ fontSize:22 }}>{e}</span>
-                  <span style={{ fontSize:9, color:C.light, fontWeight:700 }}>{l}</span>
+          {/* MODAL NUEVA NOTA */}
+          {mdl("nueva-nota-modal", (
+            <div>
+              <div style={{ fontSize:17, fontWeight:700, color:C.text, marginBottom:4 }}>Nueva nota</div>
+              <div style={{ fontSize:12, color:C.light, marginBottom:16 }}>¿Cómo te sientes hoy?</div>
+              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:16 }}>
+                {[["😞","Mal"],["😕","Regular"],["😐","Neutro"],["🙂","Bien"],["😄","Genial"]].map(([e,l],i) => (
+                  <div key={i} onClick={() => setInsightMood(i)} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, cursor:"pointer", padding:"8px 6px", borderRadius:12, background:insightMood===i?`${C.plum}15`:"transparent", border:`1.5px solid ${insightMood===i?C.plum:"transparent"}`, transition:"all 0.15s", flex:1 }}>
+                    <span style={{ fontSize:24 }}>{e}</span>
+                    <span style={{ fontSize:9, color:insightMood===i?C.plum:C.light, fontWeight:700 }}>{l}</span>
+                  </div>
+                ))}
+              </div>
+              <input type="text" placeholder="Título (opcional)" value={insightTitle} onChange={e => setInsightTitle(e.target.value)}
+                style={{ width:"100%", padding:"11px 14px", border:"1.5px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:"#FEFAF5" }}/>
+              <textarea placeholder="Escribe lo que no quieres olvidar para tu próxima sesión..." value={insightText} onChange={e => setInsightText(e.target.value)}
+                style={{ width:"100%", minHeight:100, padding:"11px 14px", border:"1.5px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6 }}/>
+              <div onClick={() => setInsightShared(!insightShared)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:11, background:insightShared?`${C.sage}18`:"rgba(0,0,0,0.03)", cursor:"pointer", marginBottom:14 }}>
+                <div style={{ width:20, height:20, borderRadius:6, border:`1.5px solid ${insightShared?C.sageDark:C.light}`, background:insightShared?C.sageDark:"transparent", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  {insightShared && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </div>
-              ))}
-            </div>
-
-            {/* TÍTULO */}
-            <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Título</div>
-            <input
-              type="text"
-              placeholder="Para no olvidar..."
-              value={insightTitle}
-              onChange={e => setInsightTitle(e.target.value)}
-              style={{ width:"100%", padding:"12px 14px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:12, fontSize:13, marginBottom:12, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:"#FEFAF5" }}
-            />
-
-            {/* TEXTO */}
-            <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Nota</div>
-            <textarea
-              placeholder="Escribe aquí lo que no quieres olvidar para tu próxima sesión..."
-              value={insightText}
-              onChange={e => setInsightText(e.target.value)}
-              style={{ width:"100%", minHeight:90, padding:"12px 14px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", background:"#FEFAF5", lineHeight:1.5 }}
-            />
-
-            {/* CASILLA COMPARTIR */}
-            <div onClick={() => setInsightShared(!insightShared)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:12, background:insightShared?`${C.sage}20`:"#F5F5F5", cursor:"pointer", marginBottom:14, transition:"all 0.2s" }}>
-              <div style={{ width:20, height:20, borderRadius:6, border:`2px solid ${insightShared?C.sageDark:C.light}`, background:insightShared?C.sageDark:"transparent", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, color:"white", transition:"all 0.2s" }}>
-                {insightShared ? "✓" : ""}
+                <div>
+                  <div style={{ fontSize:12, fontWeight:600, color:insightShared?C.sageDark:C.text }}>Compartir con mi psicólogo</div>
+                  <div style={{ fontSize:10, color:C.light }}>Tu psicólogo podrá ver esta nota</div>
+                </div>
               </div>
-              <div>
-                <div style={{ fontSize:12, fontWeight:800, color:insightShared?C.sageDark:C.text }}>Compartir con mi psicólogo</div>
-                <div style={{ fontSize:10, color:C.light }}>Tu psicólogo podrá ver esta nota</div>
+              <div style={{ display:"flex", gap:8 }}>
+                {btn(() => { setModal(null); setInsightText(""); setInsightTitle(""); setInsightMood(null); setInsightShared(false); }, "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,0.05)", color:C.text, borderRadius:11, fontSize:13, fontWeight:600 })}
+                {btn(async () => {
+                  if (!insightText.trim()) return;
+                  const id = Date.now().toString();
+                  const nueva = { id, pacienteId:usuarioActual.uid, title:insightTitle||"Para no olvidar", text:insightText, mood:insightMood, shared:insightShared, creadaEn:new Date().toISOString(), date:new Date().toLocaleDateString('es-CO', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) };
+                  try {
+                    await setDoc(doc(db, "notas", id), nueva);
+                    setInsights(prev => [nueva, ...prev]);
+                    setInsightText(""); setInsightTitle(""); setInsightMood(null); setInsightShared(false);
+                    setModal(null);
+                    showToast("✅ Nota guardada");
+                    sumarXP(2, "Nota guardada 💡");
+                  } catch(e) { showToast("Error al guardar ❌"); }
+                }, "Guardar", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:13, fontWeight:700 })}
               </div>
             </div>
-
-            {/* BOTÓN GUARDAR */}
-            {btn(async () => {
-              if (!insightText.trim()) return;
-              const id = Date.now().toString();
-              const nueva = {
-                id,
-                pacienteId: usuarioActual.uid,
-                title: insightTitle || "Para no olvidar",
-                text: insightText,
-                mood: insightMood,
-                shared: insightShared,
-                creadaEn: new Date().toISOString(),
-                date: new Date().toLocaleDateString('es-CO', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
-              };
-              try {
-                await setDoc(doc(db, "notas", id), nueva);
-                setInsights(prev => [nueva, ...prev]);
-                setInsightText("");
-                setInsightTitle("");
-                setInsightMood(null);
-                setInsightShared(false);
-                showNotif("Nota guardada", "Tu insight quedó registrado 💡", "✅");
-                sumarXP(2, "Nota guardada 💡");
-              } catch(e) { showToast("Error al guardar nota ❌"); }
-            }, "💾 Guardar nota", { width:"100%", padding:14, background:C.plum, color:"white", borderRadius:13, fontSize:13, fontWeight:700 })}
-          </div>
+          ))}
 
           {/* LISTA DE INSIGHTS */}
           {insights.length === 0 && (
-            <div style={{ textAlign:"center", padding:40, color:C.light }}>
-              <div style={{ display:"flex", justifyContent:"center", marginBottom:12 }}>
-                <LucideIcon name="sparkles" color={C.light} size={40}/>
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", paddingTop:60, gap:12 }}>
+              <div style={{ width:56, height:56, borderRadius:16, background:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.5" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               </div>
-              <div style={{ fontSize:14, fontWeight:700 }}>Aún no tienes notas</div>
-              <div style={{ fontSize:12, marginTop:4 }}>Escribe lo que no quieres olvidar para tu próxima sesión</div>
+              <div style={{ fontSize:15, fontWeight:700, color:C.text }}>Aún no tienes notas</div>
+              <div style={{ fontSize:12, color:C.light, textAlign:"center", maxWidth:220, lineHeight:1.5 }}>Toca el botón + para escribir lo que no quieres olvidar</div>
             </div>
           )}
           {insights.map(n => (
-            <div key={n.id} style={{ background:"#FEFAF5", borderRadius:18, padding:16, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${n.shared?C.sageDark:C.plum}` }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
-                <div style={{ fontSize:11, color:C.light, fontWeight:700 }}>{n.date}</div>
-                <div style={{ display:"flex", gap:6, alignItems:"center" }}>
-                  {n.mood !== null && <span style={{ fontSize:16 }}>{["😞","😕","😐","🙂","😄"][n.mood]}</span>}
-                  {n.shared && <span style={{ background:`${C.sageDark}20`, color:C.sageDark, fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20 }}>👁 Psicólogo</span>}
+            <div key={n.id} onClick={() => setNotaAbierta({ ...n, tipo:"insight" })}
+              style={{ background:n.shared?"#F5FAF7":"#FEFAF5", borderRadius:14, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.shared?"rgba(74,138,114,0.2)":"rgba(196,132,90,0.10)"}`, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+              <div style={{ width:32, height:32, borderRadius:9, background:n.shared?`${C.sageDark}15`:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:1 }}>
+                {n.shared
+                  ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.sageDark} strokeWidth="1.75" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                }
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
+                  <div style={{ fontSize:13, fontWeight:600, color:C.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", maxWidth:"60%" }}>{n.title}</div>
+                  <div style={{ display:"flex", gap:5, alignItems:"center", flexShrink:0 }}>
+                    {n.mood !== null && <span style={{ fontSize:14 }}>{["😞","😕","😐","🙂","😄"][n.mood]}</span>}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+                <div style={{ fontSize:11, color:C.light, lineHeight:1.5, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{n.text}</div>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:6 }}>
+                  <div style={{ fontSize:10, color:C.light }}>{n.date}</div>
+                  {n.shared && <span style={{ background:`${C.sageDark}15`, color:C.sageDark, fontSize:9, fontWeight:600, padding:"1px 7px", borderRadius:10 }}>Compartida con psicólogo</span>}
                 </div>
               </div>
-              <div style={{ fontSize:13, fontWeight:700, color:C.plum, marginBottom:6 }}>{n.title}</div>
-              <div style={{ fontSize:12, color:C.text, lineHeight:1.6 }}>{n.text}</div>
-              <div onClick={async () => {
-              try {
-                  await deleteDoc(doc(db, "notas", String(n.id)));
-                  setInsights(prev => prev.filter(i => i.id !== n.id));
-                } catch(e) { showToast("Error al eliminar ❌"); }
-              }} style={{ marginTop:10, fontSize:11, color:C.light, cursor:"pointer", textAlign:"right" }}>🗑 Eliminar</div>
             </div>
           ))}
         </>
@@ -3148,23 +3357,21 @@ const styles = `
               </div>
             ) : (
               autorregistros.map((ar, i) => (
-                <div key={i} style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${C.plum}` }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
-                    <div style={{ fontSize:11, color:C.light, fontWeight:700 }}>📅 {ar.fecha}</div>
-                    <div onClick={async () => {
-                      try {
-                        await deleteDoc(doc(db, "autorregistros", ar.id));
-                        setAutorregistros(prev => prev.filter(x => x.id !== ar.id));
-                        showToast("🗑️ Autorregistro eliminado");
-                      } catch(e) { showToast("Error al eliminar ❌"); }
-                    }} style={{ cursor:"pointer", fontSize:15, color:C.light, padding:"2px 4px" }}>🗑️</div>
+                <div key={i} onClick={() => setNotaAbierta({ ...ar, tipo:"autorregistro" })}
+                  style={{ background:"#FEFAF5", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(196,132,90,0.10)", cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+                  <div style={{ width:32, height:32, borderRadius:9, background:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:1 }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </div>
-                  <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:6 }}>¿Qué estaba haciendo?</div>
-                  <div style={{ fontSize:12, color:C.light, marginBottom:8, lineHeight:1.5 }}>{ar.haciendo}</div>
-                  <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:6 }}>¿Qué sucedió?</div>
-                  <div style={{ fontSize:12, color:C.light, marginBottom:8, lineHeight:1.5 }}>{ar.sucedio}</div>
-                  <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:6 }}>¿Qué hizo después?</div>
-                  <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>{ar.despues}</div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:3 }}>
+                      <div style={{ fontSize:13, fontWeight:600, color:C.text }}>Autorregistro</div>
+                      <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                        <div style={{ fontSize:10, color:C.light }}>{ar.fecha}</div>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                      </div>
+                    </div>
+                    <div style={{ fontSize:11, color:C.light, lineHeight:1.5, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{ar.haciendo}</div>
+                  </div>
                 </div>
               ))
             )}
@@ -3265,7 +3472,8 @@ const styles = `
             <div style={{ fontSize:12, marginTop:4 }}>Tu psicólogo aún no te ha asignado tareas</div>
           </div>
         ) : tareasPsicologo.map(t => (
-          <div key={t.id} style={{ background:"#FEFAF5", borderRadius:16, padding:"11px 14px", marginBottom:12, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${t.completada?C.green:C.amber}`, opacity:t.completada?0.75:1 }}>
+          <div key={t.id} onClick={() => { setNotaAbierta({ ...t, tipo:"tarea" }); setNotaTextoEdit(t.respuesta || ""); }}
+            style={{ background:"#FEFAF5", borderRadius:16, padding:"11px 14px", marginBottom:12, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${t.completada?C.green:C.amber}`, opacity:t.completada?0.75:1, cursor:"pointer" }}>
             <div style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:9 }}>
               <div onClick={async () => {
                 try {
@@ -4964,7 +5172,8 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     Aún no has escrito notas clínicas para este paciente
                   </div>
                 ) : notasClinicas.map(n => (
-                  <div key={n.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:"3px solid #8B7BA0", marginBottom:10 }}>
+                  <div key={n.id} onClick={() => setNotaAbierta({ ...n, tipo:"clinica" })}
+                    style={{ background:"#FEFAF5", borderRadius:14, padding:14, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:"3px solid #8B7BA0", marginBottom:10, cursor:"pointer" }}>
                     <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{n.titulo}</div>
                       <div style={{ display:"flex", alignItems:"center", gap:8 }}>
