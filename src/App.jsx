@@ -1113,23 +1113,28 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
 };
 const activarNotificaciones = async () => {
   try {
+    // Si ya está bloqueado, no podemos pedir de nuevo — instruir al usuario
+    if (Notification.permission === "denied") {
+      showToast("⚙️ Ve a Ajustes del navegador y activa notificaciones para esta app");
+      return;
+    }
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
-      
       const token = await getToken(messaging, {
         vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-      
       });
       if (token) {
         await updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: token });
         setUsuarioActual(prev => ({ ...prev, fcmToken: token }));
-        showToast("✅ Notificaciones activadas");
+        showToast("✅ Notificaciones activadas — recibirás avisos aunque el celular esté bloqueado");
+      } else {
+        showToast("⚠️ No se pudo obtener el token — intenta de nuevo");
       }
     } else {
-      showToast("❌ Permiso denegado — actívalas desde la configuración del navegador");
+      showToast("⚙️ Permiso denegado — actívalas desde Ajustes del navegador");
     }
-  } catch(e) {    
-    showToast("❌ " + e.message);
+  } catch(e) {
+    showToast("❌ Error: " + e.message);
   }
 };
 const programarNotificacion = async () => {
@@ -1879,18 +1884,16 @@ useEffect(() => {
 }, [usuarioActual]);
 useEffect(() => {
   if (usuarioActual?.uid) {
-    Notification.requestPermission().then(async permission => {
-      if (permission === "granted") {
-        try {
-          const token = await getToken(messaging, {
-            vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
-          });
+    // Solo refrescar token si ya tenía permiso concedido antes — sin pedir en silencio
+    if (Notification.permission === "granted") {
+      getToken(messaging, { vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY })
+        .then(token => {
           if (token) {
-            await updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: token });
+            updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: token }).catch(()=>{});
           }
-        } catch(e) { console.log("Error FCM:", e); }
-      }
-    });
+        })
+        .catch(e => console.log("Error FCM refresh:", e));
+    }
 
     const unsub = onMessage(messaging, payload => {
       const { title, body } = payload.notification || {};
