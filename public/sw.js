@@ -21,20 +21,86 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   const notification = payload.notification || {};
   const data         = payload.data         || {};
+  const tipo         = data.tipo            || 'general';
+
+  // ─── Vibración según urgencia ────────────────────────────────────────────
+  // 5min antes: vibración larga e insistente (como llamada entrante)
+  // 1h antes:   vibración suave
+  // demora:     doble pulso (señal de alerta)
+  // resto:      patrón estándar
+  const vibracion = {
+    '5m':                   [400, 100, 400, 100, 600],
+    'recordatorio_cita':    data.requireInteraction === 'true'
+                              ? [400, 100, 400, 100, 600]
+                              : [200, 100, 200],
+    'demora':               [300, 80, 300, 80, 300],
+    'tarea_completada':     [150, 50, 150],
+    'notif_programada':     [200, 100, 400],
+  }[tipo] || [200, 100, 200];
+
+  // ─── Ícono según tipo ────────────────────────────────────────────────────
+  const icono = {
+    'cita_nueva':           '/icons/icon-calendar.png',
+    'recordatorio_cita':    '/icons/icon-calendar.png',
+    'cita_confirmada':      '/icons/icon-check.png',
+    'cita_cancelada':       '/icons/icon-cancel.png',
+    'tarea_completada':     '/icons/icon-task.png',
+    'nueva_resena':         '/icons/icon-star.png',
+    'demora':               '/icons/icon-clock.png',
+    'notif_programada':     '/icons/icon-bell.png',
+  }[tipo] || '/icon-192.png';
+
+  // ─── Acciones según tipo ─────────────────────────────────────────────────
+  const acciones = {
+    'recordatorio_cita': data.link
+      ? [
+          { action: 'join',    title: '🔗 Unirse ahora' },
+          { action: 'dismiss', title: 'Descartar'       },
+        ]
+      : [
+          { action: 'open',    title: '📅 Ver cita'  },
+          { action: 'dismiss', title: 'Descartar'    },
+        ],
+    'cita_nueva': [
+      { action: 'open',    title: '📅 Ver cita'   },
+      { action: 'dismiss', title: 'Más tarde'     },
+    ],
+    'tarea_completada': [
+      { action: 'open',    title: '✅ Ver tarea'  },
+      { action: 'dismiss', title: 'OK'            },
+    ],
+    'demora': [
+      { action: 'open',    title: '⏱ Ver aviso'  },
+      { action: 'dismiss', title: 'Entendido'     },
+    ],
+    'nueva_resena': [
+      { action: 'open',    title: '⭐ Ver reseña' },
+      { action: 'dismiss', title: 'Cerrar'        },
+    ],
+  }[tipo] || [
+    { action: 'open',    title: 'Abrir'      },
+    { action: 'dismiss', title: 'Descartar'  },
+  ];
+
+  // ─── requireInteraction: la notificación NO desaparece sola ─────────────
+  // Solo para citas que empiezan en 5 minutos o avisos de demora
+  const persistente = data.requireInteraction === 'true'
+    || tipo === 'demora';
 
   const options = {
-    body:              notification.body  || '',
-    icon:              notification.icon  || '/icon-192.png',
-    badge:                                   '/icon-192.png',
-    tag:               data.tag           || data.citaId || String(Date.now()),
+    body:               notification.body || '',
+    icon:               icono,
+    badge:              '/icon-192.png',        // ícono pequeño en barra Android    
+    tag:                data.tag || data.citaId || tipo + '_' + Date.now(),
+    renotify:           true,                    // vibra aunque el tag sea igual
     data,
-    vibrate:           [200, 100, 200],
-    requireInteraction: data.requireInteraction === 'true',
-    timestamp:         Date.now(),
-    actions: data.link ? [
-      { action: 'open',    title: 'Abrir'     },
-      { action: 'dismiss', title: 'Descartar' },
-    ] : [],
+    vibrate:            vibracion,
+    requireInteraction: persistente,
+    silent:             false,                   // siempre con sonido
+    timestamp:          Date.now(),
+    dir:                'ltr',
+    lang:               'es',
+    actions:            acciones,
   };
 
   return self.registration.showNotification(

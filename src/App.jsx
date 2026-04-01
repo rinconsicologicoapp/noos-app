@@ -1898,7 +1898,11 @@ useEffect(() => {
     const unsub = onMessage(messaging, payload => {
       const { title, body } = payload.notification || {};
       const data = payload.data || {};
-      showNotif(title || "Nueva notificación", body || "", "🔔");
+      // Solo mostrar en pantalla, NO guardar en Firestore
+      // (el cron ya guardó el doc al enviarlo)
+      const id = `notif_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+      setNotifs(prev => [{ id, icon: "🔔", title: title || "Nueva notificación", msg: body || "", time: "Ahora", read: false }, ...prev]);
+      showToast(`🔔 ${title || "Nueva notificación"}`);
       // Si es recordatorio de cita y la app está abierta → mostrar banner
       if (data.tipo === "recordatorio_cita" && data.citaId) {
         setNotifCitaActiva({ titulo: title, mensaje: body, link: data.link || "", citaId: data.citaId });
@@ -1946,7 +1950,9 @@ useEffect(() => {
       for (const d of snap.docs) {
         const rec = d.data();
         if (ahora >= new Date(rec.enviarEn)) {
-          // Solo mostrar banner en pantalla — el cron ya envió la push
+          // Marcar enviado para que el cron no lo procese de nuevo
+          await updateDoc(doc(db, "recordatoriosCita", d.id), { enviado: true }).catch(()=>{});
+          // Mostrar banner en pantalla
           setNotifCitaActiva({ titulo: rec.titulo, mensaje: rec.mensaje, link: rec.link, citaId: rec.citaId });
           if (notifCitaTimer) clearTimeout(notifCitaTimer);
           setNotifCitaTimer(setTimeout(() => setNotifCitaActiva(null), 30000));
