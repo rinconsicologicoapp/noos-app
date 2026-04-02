@@ -5441,7 +5441,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                             <div style={{ fontSize:9, color:C.light }}>Score</div>
                           </div>
                         </div>
-                        {/* Gráfica últimos 30 días */}
+                        {/* Gráfica últimos 30 día */}
                         <div style={{ fontSize:10, color:C.light, fontWeight:700, marginBottom:6 }}>Últimos {ultimos30.length} registros</div>
                         <div style={{ display:"flex", alignItems:"flex-end", gap:2, height:90, overflowX:"auto", paddingBottom:4 }}>
                           {ultimos30.map((r) => {
