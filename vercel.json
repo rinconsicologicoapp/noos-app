@@ -4,7 +4,7 @@
 
   "functions": {
     "api/process-notifications.js": {
-      "maxDuration": 25
+      "maxDuration": 10
     },
     "api/schedule-notification.js": {
       "maxDuration": 10
