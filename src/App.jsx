@@ -875,6 +875,11 @@ const [metodosPago, setMetodosPago] = useState([]);
 const [editandoPagos, setEditandoPagos] = useState(false);
 const [pagoEditTemp, setPagoEditTemp] = useState([]);
 const [pagosPsicologo, setPagosPsicologo] = useState([]);
+const [habitos, setHabitos] = useState([{ id:1, activo:false, titulo:"", descripcion:"" }, { id:2, activo:false, titulo:"", descripcion:"" }, { id:3, activo:false, titulo:"", descripcion:"" }]);
+const [registrosHabito, setRegistrosHabito] = useState({});
+const [habitosEditando, setHabitosEditando] = useState(false);
+const [habitosPacienteId, setHabitosPacienteId] = useState(null);
+const [screenHabitos, setScreenHabitos] = useState(false);
 const [notaAbierta, setNotaAbierta] = useState(null);       // nota/tarea abierta en pantalla completa
 const [notaEditando, setNotaEditando] = useState(false);    // modo edición
 const [notaTextoEdit, setNotaTextoEdit] = useState("");     // texto en edición
@@ -1144,6 +1149,56 @@ const activarNotificaciones = async () => {
     showToast("❌ Error: " + e.message);
   }
 };
+const cargarHabitos = async (pacienteId) => {
+  try {
+    const snap = await getDocs(query(collection(db, "habitos"), where("pacienteId", "==", pacienteId)));
+    const lista = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+    // Normalizar a 3 slots
+    const slots = [1,2,3].map(i => {
+      const h = lista.find(x => x.slot === i);
+      return h ? { ...h, activo: true } : { id: `slot_${i}_${pacienteId}`, slot: i, activo: false, titulo: "", descripcion: "", pacienteId };
+    });
+    setHabitos(slots);
+  } catch(e) { console.log("Error cargando hábitos:", e); }
+};
+
+const cargarRegistrosHabito = async (pacienteId) => {
+  try {
+    const snap = await getDocs(query(collection(db, "registrosHabito"), where("pacienteId", "==", pacienteId)));
+    const regs = {};
+    snap.docs.forEach(doc => {
+      const data = doc.data();
+      if (!regs[data.habitoId]) regs[data.habitoId] = {};
+      regs[data.habitoId][data.fecha] = data.estado;
+    });
+    setRegistrosHabito(regs);
+  } catch(e) {}
+};
+
+const guardarHabitos = async (pacienteId) => {
+  try {
+    for (const h of habitos) {
+      const ref = doc(db, "habitos", `${pacienteId}_slot${h.slot || h.id}`);
+      if (h.activo && h.titulo.trim()) {
+        await setDoc(ref, { pacienteId, psicologoId: usuarioActual?.rol === "psicologo" ? usuarioActual.uid : (usuarioActual?.psicologoId || ""), slot: h.slot || parseInt(String(h.id).replace(/\D/g,"")), titulo: h.titulo.trim(), descripcion: h.descripcion || "", activo: true, actualizadoEn: new Date().toISOString() });
+      } else {
+        await setDoc(ref, { pacienteId, psicologoId: usuarioActual?.rol === "psicologo" ? usuarioActual.uid : (usuarioActual?.psicologoId || ""), slot: h.slot || parseInt(String(h.id).replace(/\D/g,"")), titulo: "", descripcion: "", activo: false, actualizadoEn: new Date().toISOString() });
+      }
+    }
+    setHabitosEditando(false);
+    showToast("✅ Hábitos guardados");
+  } catch(e) { showToast("Error al guardar ❌"); }
+};
+
+const registrarHabito = async (habitoId, fecha, estado) => {
+  try {
+    const id = `${habitoId}_${fecha}`;
+    await setDoc(doc(db, "registrosHabito", id), { habitoId, pacienteId: usuarioActual.uid, fecha, estado, creadoEn: new Date().toISOString() });
+    setRegistrosHabito(prev => ({ ...prev, [habitoId]: { ...(prev[habitoId]||{}), [fecha]: estado } }));
+    if (navigator.vibrate) navigator.vibrate(10);
+  } catch(e) { showToast("Error ❌"); }
+};
+
 const programarNotificacion = async () => {
   
   if (!notifTitulo || !notifMensaje || !notifFecha || !notifHora) {
@@ -1657,7 +1712,13 @@ const esCitaHoy = (cita) => {
       ? new Date(cita.fechaUTC).toLocaleDateString('en-CA', { timeZone: tz })
       : cita.fecha;
     const hoy = new Date().toLocaleDateString('en-CA', { timeZone: tz });
-    return fechaCita === hoy;
+    if (fechaCita !== hoy) return false;
+    // Ocultar si ya pasó hace más de 1 hora
+    const horaCita = cita.fechaUTC
+      ? new Date(cita.fechaUTC).getTime()
+      : new Date(`${cita.fecha}T${cita.hora || '00:00'}:00`).getTime();
+    const unaHoraDespues = horaCita + 60 * 60 * 1000;
+    return Date.now() <= unaHoraDespues;
   } catch { return false; }
 };
 
@@ -1892,6 +1953,10 @@ useEffect(() => {
     getDoc(doc(db, "metodosPago", usuarioActual.psicologoId))
       .then(s => { setPagosPsicologo(s.exists() ? (s.data().metodos || []) : []); })
       .catch(() => setPagosPsicologo([]));
+    // Cargar hábitos del paciente
+    cargarHabitos(usuarioActual.uid);
+    cargarRegistrosHabito(usuarioActual.uid);
+    setHabitosPacienteId(usuarioActual.uid);
   }
   if (screen === "calendario" && usuarioActual?.uid) {
     const rol = usuarioActual.rol === "paciente" ? "paciente" : "psicologo";
@@ -2470,6 +2535,30 @@ const styles = `
             </div>
           )}
         {/* CHECK-IN DIARIO ÁNIMO */}
+          {/* MINI WIDGET HÁBITOS en home */}
+          {!mostrarCheckIn && usuarioActual?.rol === "paciente" && screen === "home" && habitos.filter(h=>h.activo&&h.titulo).length > 0 && (() => {
+            const getFechaLocal = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+            const hoy = getFechaLocal();
+            const pendientes = habitos.filter(h => h.activo && h.titulo && !registrosHabito[`${usuarioActual.uid}_slot${h.slot||h.id}`]?.[hoy]).length;
+            if (pendientes === 0) return null;
+            return (
+              <div onClick={() => { setHabitosPacienteId(usuarioActual.uid); setScreenHabitos(true); }}
+                style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:12, right:12, zIndex:200,
+                  background:"linear-gradient(135deg,#2A1E14,#3A2A1C)", borderRadius:16, padding:"12px 16px",
+                  border:"0.5px solid rgba(196,132,90,0.25)", cursor:"pointer", display:"flex", alignItems:"center", gap:12,
+                  animation:"slideDown 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}>
+                <div style={{ width:36, height:36, borderRadius:10, background:"rgba(196,132,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:"#F5E6D0" }}>Registra tus hábitos de hoy</div>
+                  <div style={{ fontSize:10, color:"rgba(245,230,208,0.5)", marginTop:1 }}>{pendientes} hábito{pendientes!==1?"s":""} pendiente{pendientes!==1?"s":""}</div>
+                </div>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.3)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            );
+          })()}
+
           {mostrarCheckIn && usuarioActual?.rol === "paciente" && screen === "home" && (
             <div style={{ position:"absolute", inset:0, zIndex:500, backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", background:"rgba(0,0,0,0.45)", display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
               <div style={{ background:C.cardBg, borderRadius:28, padding:"28px 24px", width:"100%", animation:"checkInIn 0.4s cubic-bezier(0.34,1.56,0.64,1)" }}>
@@ -4358,6 +4447,19 @@ const styles = `
                 {btn(() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }, "⭐ Escribir reseña", { width:"100%", padding:10, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginTop:8, display:"block" })}
 
                 {/* MÉTODOS DE PAGO del psicólogo */}
+                {/* ACCESO A MIS HÁBITOS desde perfil del psicólogo */}
+                <div onClick={() => { cargarHabitos(usuarioActual.uid); cargarRegistrosHabito(usuarioActual.uid); setHabitosPacienteId(usuarioActual.uid); setScreenHabitos(true); }}
+                  style={{ background:"linear-gradient(135deg,#F5EDE0,#EDE0D0)", borderRadius:16, padding:"14px 16px", marginBottom:14, border:"0.5px solid rgba(196,132,90,0.15)", cursor:"pointer", display:"flex", alignItems:"center", gap:14 }}>
+                  <div style={{ width:40, height:40, borderRadius:12, background:"linear-gradient(135deg,#8B5A3A,#6A3E28)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Mis hábitos</div>
+                    <div style={{ fontSize:11, color:C.light, marginTop:1 }}>Ver y registrar tu seguimiento diario</div>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+
                 {pagosPsicologo.length > 0 && (() => {
                   const METODOS_INFO = { nequi:{nombre:"Nequi",color:"#7B2D8B",bg:"#F5E8FA"}, bancolombia:{nombre:"Bancolombia",color:"#F5A800",bg:"#FFF8E6"}, davivienda:{nombre:"Davivienda",color:"#E30613",bg:"#FDE8EA"}, daviplata:{nombre:"Daviplata",color:"#FF6B00",bg:"#FFF0E6"}, breve:{nombre:"Breve",color:"#00B4A0",bg:"#E6FAF8"}, transferencia:{nombre:"Transferencia",color:"#3A7BD5",bg:"#E8F0FB"} };
                   return (
@@ -4465,10 +4567,10 @@ const styles = `
                 })()}
 
                 {/* CITAS HOY */}
-                {citas.filter(c => c.fecha === new Date().toISOString().split('T')[0]).length > 0 && (
+                {citas.filter(c => esCitaHoy(c)).length > 0 && (
                   <>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📅 Citas de hoy</div>
-                    {citas.filter(c => c.fecha === new Date().toISOString().split('T')[0]).map(c => (
+                    {citas.filter(c => esCitaHoy(c)).map(c => (
                       <div key={c.id} style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${C.sage}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ flex:1 }}>
@@ -4502,21 +4604,14 @@ const styles = `
                   </div>
                 ) : (
                   pacientes.map(p => (
-                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); cargarTareasPsicologo(p.id, usuarioActual.uid); cargarRecursosPsicologo(p.id, usuarioActual.uid); cargarAutorregistros(p.id); cargarNotasClinicas(p.id); cargarRegistrosAnimo(p.id); showScreen("admin-paciente"); }}
+                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); cargarTareasPsicologo(p.id, usuarioActual.uid); cargarRecursosPsicologo(p.id, usuarioActual.uid); cargarAutorregistros(p.id); cargarNotasClinicas(p.id); cargarRegistrosAnimo(p.id); cargarHabitos(p.id); cargarRegistrosHabito(p.id); setHabitosPacienteId(p.id); showScreen("admin-paciente"); }}
                       style={{ background:"#FEFAF5", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer" }}>
                       <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum},${C.sage})`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, color:"white", fontWeight:700 }}>
                         {p.nombre?.charAt(0).toUpperCase()}
                       </div>
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{p.nombre}</div>
-                        <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{p.email}</div>
-                        <div style={{ display:"flex", gap:6, marginTop:4 }}>
-                          {citas.filter(c=>c.pacienteId===p.id&&c.status==="pendiente").length > 0 && (
-                            <span style={{ fontSize:9, fontWeight:800, padding:"2px 6px", borderRadius:10, background:"rgba(232,168,124,0.15)", color:C.amber }}>
-                              📅 {citas.filter(c=>c.pacienteId===p.id&&c.status==="pendiente").length} cita(s) pendiente(s)
-                            </span>
-                          )}
-                        </div>
+                        <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{p.email}</div>                        
                       </div>
                       <div style={{ color:C.light, fontSize:20, fontWeight:300 }}>›</div>
                     </div>
@@ -4846,6 +4941,176 @@ const styles = `
     </div>
   );
 })()}
+{screenHabitos && (() => {
+  const getFechaLocal = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+  const hoy = getFechaLocal();
+  const esEditable = true; // tanto paciente como psicólogo pueden editar
+  const pacId = habitosPacienteId || usuarioActual?.uid;
+  const ESTADOS = [{ k:"si", label:"Sí", color:"#4A8A72", bg:"#E8F5EE" }, { k:"parcial", label:"Parcial", color:"#C4845A", bg:"#FFF3E8" }, { k:"no", label:"No", color:"#C0524A", bg:"#FFE8E8" }];
+
+  // Últimos 14 días para la barra visual
+  const ultimos14 = Array.from({ length:14 }, (_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - 13 + i);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  });
+  return (
+    <div style={{ position:"absolute", inset:0, zIndex:900, display:"flex", flexDirection:"column", background:"#F5EDE0", animation:"slideInRight 0.25s ease" }}>
+      {/* HEADER */}
+      <div style={{ background:"linear-gradient(135deg,#2A1E14,#3A2A1C)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+          <div onClick={() => { setScreenHabitos(false); setHabitosEditando(false); }} style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:17, fontWeight:700, color:"white" }}>Mis hábitos</div>
+            <div style={{ fontSize:11, color:"rgba(255,255,255,0.5)", marginTop:1 }}>Seguimiento terapéutico diario</div>
+          </div>
+          <div onClick={() => setHabitosEditando(!habitosEditando)} style={{ padding:"6px 14px", background: habitosEditando ? "rgba(255,255,255,0.15)" : "rgba(196,132,90,0.3)", borderRadius:20, cursor:"pointer" }}>
+            <span style={{ fontSize:11, fontWeight:700, color:"white" }}>{habitosEditando ? "Cancelar" : "✏️ Editar"}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ flex:1, overflowY:"auto", padding:16, paddingBottom:"calc(40px + env(safe-area-inset-bottom, 16px))" }}>
+
+        {habitosEditando ? (
+          // MODO EDICIÓN
+          <div>
+            <div style={{ fontSize:12, color:C.light, marginBottom:16, lineHeight:1.5 }}>Activa hasta 3 hábitos y ponles nombre. Solo los hábitos activos aparecerán en el seguimiento.</div>
+            {habitos.map((h, i) => (
+              <div key={h.id} style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:12, border:`1.5px solid ${h.activo ? "#8B5A3A" : "rgba(196,132,90,0.12)"}`, transition:"all 0.2s" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom: h.activo ? 14 : 0 }}>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Hábito {i+1}</div>
+                    {!h.activo && <div style={{ fontSize:11, color:C.light, marginTop:2 }}>Toca para activar</div>}
+                  </div>
+                  {/* Toggle switch */}
+                  <div onClick={() => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, activo:!x.activo } : x))}
+                    style={{ width:46, height:26, borderRadius:13, background:h.activo?"#8B5A3A":"rgba(0,0,0,0.12)", position:"relative", cursor:"pointer", transition:"background 0.2s", flexShrink:0 }}>
+                    <div style={{ position:"absolute", top:3, left: h.activo ? 23 : 3, width:20, height:20, borderRadius:"50%", background:"white", transition:"left 0.2s", boxShadow:"0 1px 3px rgba(0,0,0,0.2)" }}/>
+                  </div>
+                </div>
+                {h.activo && (<>
+                  <input placeholder="Nombre del hábito (ej: Meditación 5 min)" value={h.titulo} onChange={e => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, titulo:e.target.value } : x))}
+                    style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(196,132,90,0.2)", borderRadius:10, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FEFAF5", marginBottom:8 }}/>
+                  <input placeholder="Descripción breve (opcional)" value={h.descripcion} onChange={e => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, descripcion:e.target.value } : x))}
+                    style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(196,132,90,0.2)", borderRadius:10, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FEFAF5", color:C.light }}/>
+                </>)}
+              </div>
+            ))}
+            <div onClick={() => guardarHabitos(pacId)} style={{ background:"#8B5A3A", color:"white", borderRadius:14, padding:14, textAlign:"center", fontSize:14, fontWeight:700, cursor:"pointer", marginTop:8 }}>
+              Guardar hábitos
+            </div>
+          </div>
+        ) : (
+          // MODO SEGUIMIENTO
+          habitos.filter(h => h.activo && h.titulo).length === 0 ? (
+            <div style={{ textAlign:"center", padding:"60px 24px" }}>
+              <div style={{ width:64, height:64, borderRadius:20, background:"rgba(139,90,58,0.1)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.5" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div style={{ fontSize:15, fontWeight:700, color:C.text, marginBottom:8 }}>Sin hábitos activos</div>
+              <div style={{ fontSize:12, color:C.light, lineHeight:1.6 }}>Toca "Editar" para agregar hasta 3 hábitos terapéuticos</div>
+            </div>
+          ) : (
+            habitos.filter(h => h.activo && h.titulo).map(h => {
+              const regsHabito = registrosHabito[`${pacId}_slot${h.slot || h.id}`] || {};
+              const diasCumplidos = ultimos14.filter(f => regsHabito[f] === "si").length;
+              const racha = (() => {
+                let r = 0;
+                for (let i = ultimos14.length - 1; i >= 0; i--) {
+                  if (regsHabito[ultimos14[i]] === "si") r++;
+                  else break;
+                }
+                return r;
+              })();
+              const estadoHoy = regsHabito[hoy];
+              return (
+                <div key={h.id} style={{ background:"#FEFAF5", borderRadius:20, padding:18, marginBottom:14, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                  {/* Título y racha */}
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:12 }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:15, fontWeight:700, color:C.text }}>{h.titulo}</div>
+                      {h.descripcion && <div style={{ fontSize:11, color:C.light, marginTop:3 }}>{h.descripcion}</div>}
+                    </div>
+                    {racha > 0 && (
+                      <div style={{ background:"linear-gradient(135deg,#8B5A3A,#C4845A)", borderRadius:20, padding:"4px 10px", display:"flex", alignItems:"center", gap:4, flexShrink:0 }}>
+                        <span style={{ fontSize:11, fontWeight:700, color:"white" }}>🔥 {racha} días</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Barra 14 días con fechas */}
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                    <span style={{ fontSize:9, color:C.light }}>{new Date(Date.now()-13*86400000).toLocaleDateString('es-CO',{day:'numeric',month:'short'})}</span>
+                    <span style={{ fontSize:9, color:C.light }}>Hoy</span>
+                  </div>
+                  <div style={{ display:"flex", gap:3, marginBottom:6 }}>
+                    {ultimos14.map(f => {
+                      const est = regsHabito[f];
+                      const esHoyF = f === hoy;
+                      return (
+                        <div key={f} style={{ flex:1, height:8, borderRadius:4,
+                          background: est === "si" ? "#4A8A72" : est === "parcial" ? "#C4845A" : est === "no" ? "#FFB3B0" : esHoyF ? "rgba(196,132,90,0.3)" : "rgba(0,0,0,0.06)",
+                          border: esHoyF ? "1.5px solid #C4845A" : "none",
+                          transition:"background 0.2s" }}/>
+                      );
+                    })}
+                  </div>
+                  {/* Leyenda */}
+                  <div style={{ display:"flex", gap:10, marginBottom:14 }}>
+                    {[["#4A8A72","Sí"],["#C4845A","Parcial"],["#FFB3B0","No"],["rgba(0,0,0,0.06)","Sin registro"]].map(([color,label]) => (
+                      <div key={label} style={{ display:"flex", alignItems:"center", gap:4 }}>
+                        <div style={{ width:8, height:8, borderRadius:2, background:color, flexShrink:0 }}/>
+                        <span style={{ fontSize:9, color:C.light }}>{label}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Botones de hoy */}
+                  {usuarioActual?.rol === "paciente" && (
+                    <div>
+                      <div style={{ fontSize:10, fontWeight:600, color:C.light, marginBottom:8, textTransform:"uppercase", letterSpacing:0.5 }}>¿Hoy lo cumpliste?</div>
+                      <div style={{ display:"flex", gap:8 }}>
+                        {ESTADOS.map(e => (
+                          <div key={e.k} onClick={() => registrarHabito(`${pacId}_slot${h.slot || h.id}`, hoy, e.k)}
+                            style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", transition:"all 0.15s",
+                              background: estadoHoy === e.k ? e.color : e.bg,
+                              border: `1.5px solid ${estadoHoy === e.k ? e.color : "transparent"}` }}>
+                            <div style={{ fontSize:12, fontWeight:700, color: estadoHoy === e.k ? "white" : e.color }}>{e.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Vista psicólogo — solo lectura con stats */}
+                  {usuarioActual?.rol === "psicologo" && (
+                    <div style={{ display:"flex", gap:8 }}>
+                      <div style={{ flex:1, background:"rgba(74,138,114,0.08)", borderRadius:10, padding:"8px 0", textAlign:"center" }}>
+                        <div style={{ fontSize:16, fontWeight:700, color:"#4A8A72" }}>{Math.round(diasCumplidos/14*100)}%</div>
+                        <div style={{ fontSize:9, color:C.light }}>adherencia</div>
+                      </div>
+                      <div style={{ flex:1, background:"rgba(196,132,90,0.08)", borderRadius:10, padding:"8px 0", textAlign:"center" }}>
+                        <div style={{ fontSize:16, fontWeight:700, color:C.plum }}>{racha}</div>
+                        <div style={{ fontSize:9, color:C.light }}>días racha</div>
+                      </div>
+                      <div style={{ flex:1, background:"rgba(139,90,58,0.08)", borderRadius:10, padding:"8px 0", textAlign:"center" }}>
+                        <div style={{ fontSize:16, fontWeight:700, color:C.text }}>{diasCumplidos}</div>
+                        <div style={{ fontSize:9, color:C.light }}>de 14 días</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )
+        )}
+      </div>
+    </div>
+  );
+})()}
+
 {!notifPanel && screen === "psi-pagos" && (() => {
   const METODOS_DISPONIBLES = [
     { id:"nequi",       nombre:"Nequi",        color:"#7B2D8B", bg:"#F5E8FA", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#7B2D8B"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">N</text></svg> },
@@ -5178,9 +5443,9 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                         </div>
                         {/* Gráfica últimos 30 días */}
                         <div style={{ fontSize:10, color:C.light, fontWeight:700, marginBottom:6 }}>Últimos {ultimos30.length} registros</div>
-                        <div style={{ display:"flex", alignItems:"flex-end", gap:3, height:70, overflowX:"auto" }}>
+                        <div style={{ display:"flex", alignItems:"flex-end", gap:2, height:90, overflowX:"auto", paddingBottom:4 }}>
                           {ultimos30.map((r) => {
-                            const altura = [12,24,36,50,64][r.valor];
+                            const altura = [16,30,44,62,82][r.valor];
                             const col = colores[r.valor];
                             const dia = new Date(r.fecha + 'T12:00:00').toLocaleDateString('es-CO', { day:'numeric', month:'short' });
                             return (
@@ -5222,6 +5487,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
                 {btn(() => setModal("assign-task"), "📋 Asignar nueva tarea", { width:"100%", padding:9, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, color:"white", borderRadius:13, fontSize:13, fontWeight:800, marginBottom:10 })}
                 {mitem("💬", "Nota clínica privada", () => setModal("feedback"))}
+                {mitem("🌱", "Mis hábitos", () => { setScreenHabitos(true); })}
                 {mitem("📅", "Agendar cita", () => { setCitaPacienteId(pacienteSeleccionado?.id || ""); setModal("agendar-cita"); })}
                 {mitem("🔔", "Programar notificación", () => setModal("programar-notif"))}
                 {mitem("🔔", "Recordatorios recurrentes", () => setModal("crear-recordatorio"))}
@@ -5778,6 +6044,19 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   ))}
                 </div>
 
+                {/* MIS HÁBITOS */}
+                <div onClick={() => { if (pacienteSeleccionado) { cargarHabitos(pacienteSeleccionado.id); cargarRegistrosHabito(pacienteSeleccionado.id); setHabitosPacienteId(pacienteSeleccionado.id); setScreenHabitos(true); } else { showToast("Selecciona un paciente primero 👆"); showScreen("psi-dashboard"); } }}
+                  style={{ background:"#FEFAF5", borderRadius:16, padding:"14px 16px", marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer", display:"flex", alignItems:"center", gap:14 }}>
+                  <div style={{ width:44, height:44, borderRadius:13, background:"linear-gradient(135deg,#8B5A3A,#6A3E28)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:14, fontWeight:700, color:C.text }}>Mis hábitos</div>
+                    <div style={{ fontSize:11, color:C.light, marginTop:2 }}>Seguimiento de hábitos terapéuticos</div>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+
                 {/* INFO PROFESIONAL */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>ℹ️ Información profesional</div>
                 <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
@@ -5791,7 +6070,6 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     </div>
                   ))}
                 </div>
-
                 {/* CONFIGURACIÓN */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>⚙️ Configuración</div>
                 <div style={{ background:"#FEFAF5", borderRadius:14, overflow:"hidden", marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
