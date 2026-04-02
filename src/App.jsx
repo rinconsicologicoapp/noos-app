@@ -5640,7 +5640,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📤 Enviar material</div>
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Para: <strong>{pacienteSeleccionado?.nombre}</strong></div>
 
-                  {/* SELECTOR DE TIPOO */}
+                  {/* SELECTOR DE TIPOOGIT */}
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Tipo de material</div>
                   <div style={{ display:"flex", flexWrap:"wrap", gap:7, marginBottom:16 }}>
                     {[["🖼️","Imagen","Imagen"],["📄","PDF","PDF"],["🎵","Podcast","Podcast"],["🎬","YouTube","YouTube"],["🔗","Enlace","Enlace"]].map(([ic,lb,val]) => (
