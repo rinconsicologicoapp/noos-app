@@ -2,18 +2,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
 
-  "functions": {
-    "api/process-notifications.js": {
-      "maxDuration": 10
-    },
-    "api/schedule-notification.js": {
-      "maxDuration": 10
-    },
-    "api/send-notification.js": {
-      "maxDuration": 10
-    }
-  },
-
   "headers": [
     {
       "source": "/sw.js",
