@@ -912,7 +912,7 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
           cargarAutorregistros(uid);
           cargarTareasFirestore(uid);
           cargarNotificaciones(uid);
-          setTimeout(() => verificarCheckInHoy(), 800);
+          setTimeout(() => verificarCheckInHoy(uid), 800);
           if (docSnap.data().psicologoId) {
             getDoc(doc(db, "usuarios", docSnap.data().psicologoId)).then(snap => {
               if (snap.exists()) {
@@ -1839,7 +1839,7 @@ useEffect(() => {
           cargarNotas(user.uid);
           cargarAutorregistros(user.uid);
           cargarTareasFirestore(user.uid);
-          setTimeout(() => verificarCheckInHoy(uid), 800);
+          setTimeout(() => verificarCheckInHoy(user.uid), 800);
           if (data.psicologoId) {
             getDoc(doc(db, "usuarios", data.psicologoId)).then(snap => {
               if (snap.exists()) {
