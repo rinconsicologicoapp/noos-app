@@ -107,8 +107,23 @@ module.exports = async function handler(req, res) {
     for (const docSnap of snapCita.docs) {
       const rec = docSnap.data();
 
-      // Marcar enviado PRIMERO para evitar duplicados si el cron se solapa
-      await docSnap.ref.update({ enviado: true, enviadoEn: ahoraISO });
+      // Transacción atómica para recordatoriosCita
+      let debeEnviarCita = false;
+      try {
+        await db.runTransaction(async (t) => {
+          const freshDoc = await t.get(docSnap.ref);
+          if (!freshDoc.exists) return;
+          if (freshDoc.data().enviado === true) return;
+          t.update(docSnap.ref, { enviado: true, enviadoEn: ahoraISO });
+          debeEnviarCita = true;
+        });
+      } catch (txError) {
+        console.error('Transaction error cita:', txError.message);
+        stats.errores++;
+        continue;
+      }
+
+      if (!debeEnviarCita) continue;
 
       const token = await getTokenDeUsuario(db, rec.pacienteId);
       const ok = await enviarFCM(db, token, rec.titulo, rec.mensaje, {
