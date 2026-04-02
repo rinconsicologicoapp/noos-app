@@ -991,6 +991,7 @@ const crearCita = async () => {
   if (!citaFecha || !citaHora || !pacienteIdFinal) {
     showToast("Completa fecha, hora y paciente ❌"); return;
   }
+  if (loadingCitas) return; // Guard contra doble submit
   setLoadingCitas(true);
   try {
     const id = Date.now().toString();
@@ -1112,8 +1113,6 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
         }).catch(()=>{});
       }
     }
-    // Forzar re-render de la cita actualizada ANTES de cerrar el modal
-    setCitas(prev => prev.map(c => c.id === citaId ? { ...c, status: nuevoStatus } : c));
     setModal(null);
   } catch(e) { showToast("Error al actualizar cita ❌"); }
 };
@@ -3254,7 +3253,7 @@ const styles = `
         )}
       </div>
       <div style={{ display:"flex", borderBottom:"0.5px solid rgba(196,132,90,0.12)" }}>
-        {[["Notas","insights"],["Tareas","tareas"]].map(([lb,id]) => (
+        {[["Para no olvidar","insights"],["Tareas","tareas"]].map(([lb,id]) => (
           <button key={id} onClick={() => setNoteTab(id)} style={{ flex:1, padding:"10px 0", fontSize:12, fontWeight:600, color:noteTab===id?C.plum:C.light, border:"none", background:"transparent", borderBottom:`2px solid ${noteTab===id?C.plum:"transparent"}`, marginBottom:-1, cursor:"pointer", fontFamily:"inherit" }}>
             {lb}{id==="tareas" && pendientes > 0 && <span style={{ background:C.amber, color:"white", fontSize:10, fontWeight:800, padding:"2px 7px", borderRadius:20, marginLeft:6 }}>{pendientes}</span>}
           </button>
@@ -3729,19 +3728,14 @@ const styles = `
 
                   {/* Lista citas del mes */}
                   <div style={{ padding:"0 14px" }}>
+                    {citasDelMes.length > 0 && (
                     <div style={{ fontSize:12, fontWeight:700, color:C.text, marginBottom:10 }}>
                       Citas de {meses[mesVista]}
                     </div>
+                    )}
                     {loadingCitas ? (
                       <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>Cargando...</div>
-                    ) : citasDelMes.length === 0 ? (
-                      <div style={{ background:"#FEFAF5", borderRadius:14, padding:24, textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
-                        <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
-                          <LucideIcon name="inbox" color={C.light} size={32}/>
-                        </div>
-                        <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Sin citas este mes</div>
-                      </div>
-                    ) : citasDelMes
+                    ) : citasDelMes.length === 0 ? null : citasDelMes
                         .slice()
                         .sort((a,b) => fechaOrden(a) - fechaOrden(b))
                         .map(c => (
@@ -4303,7 +4297,7 @@ const styles = `
                   <div style={{ width:80, height:80, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, margin:"0 auto 14px", border:"3px solid rgba(255,255,255,0.2)" }}>👨‍⚕️</div>
                 )}
                 <div style={{ fontSize:22, fontWeight:900, color:"white", marginBottom:4 }}>{psicologoData?.nombre || usuarioActual?.psicologoNombre || "Mi psicólogo"}</div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginBottom:12 }}>Psicólogo Clínico</div>
+                {psicologoData?.especialidad && <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginBottom:12 }}>{psicologoData.especialidad}</div>}
                 <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
                   {psicologoData?.especialidad && <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"4px 12px", borderRadius:20 }}>🧠 {psicologoData.especialidad}</span>}
                 </div>
@@ -4580,10 +4574,7 @@ const styles = `
                       <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
                         style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
                     </>
-                  )}
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📝 Notas para el paciente</div>
-                  <textarea placeholder="Ej: Recuerda traer tu diario..." value={citaNotas} onChange={e => setCitaNotas(e.target.value)}
-                    style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  )}                  
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar ✓", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}

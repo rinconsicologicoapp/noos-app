@@ -215,11 +215,12 @@ module.exports = async function handler(req, res) {
       const rec = docSnap.data();
       const { titulo, mensaje, hora, diasSemana, pacienteTimezone, pacienteId } = rec;
 
-      if (!hora || !diasSemana || !pacienteTimezone || !pacienteId) continue;
+      if (!hora || !diasSemana || !pacienteId) continue;
+      const tz = pacienteTimezone || 'America/Bogota'; // fallback Colombia
 
       try {
         // Hora actual en el timezone del paciente
-        const fechaLocal = new Date(ahora.toLocaleString('en-US', { timeZone: pacienteTimezone }));
+        const fechaLocal = new Date(ahora.toLocaleString('en-US', { timeZone: tz }));
         const diaLocal   = fechaLocal.getDay();
         const horaLocal  = fechaLocal.getHours();
         const minLocal   = fechaLocal.getMinutes();
