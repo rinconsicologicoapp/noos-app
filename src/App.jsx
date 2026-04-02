@@ -5441,7 +5441,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                             <div style={{ fontSize:9, color:C.light }}>Score</div>
                           </div>
                         </div>
-                        {/* Gráfica últimos 30 día */}
+                        {/* Gráfica últimos 30 días */}
                         <div style={{ fontSize:10, color:C.light, fontWeight:700, marginBottom:6 }}>Últimos {ultimos30.length} registros</div>
                         <div style={{ display:"flex", alignItems:"flex-end", gap:2, height:90, overflowX:"auto", paddingBottom:4 }}>
                           {ultimos30.map((r) => {
@@ -5640,7 +5640,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📤 Enviar material</div>
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Para: <strong>{pacienteSeleccionado?.nombre}</strong></div>
 
-                  {/* SELECTOR DE TIPO */}
+                  {/* SELECTOR DE TIPOO */}
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Tipo de material</div>
                   <div style={{ display:"flex", flexWrap:"wrap", gap:7, marginBottom:16 }}>
                     {[["🖼️","Imagen","Imagen"],["📄","PDF","PDF"],["🎵","Podcast","Podcast"],["🎬","YouTube","YouTube"],["🔗","Enlace","Enlace"]].map(([ic,lb,val]) => (
