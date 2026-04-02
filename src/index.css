@@ -58,3 +58,9 @@ input, button, textarea, select {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+/* Altura de la nav bar — usada para paddingBottom en todos los scrolls */
+:root {
+  --nav-height: 70px;
+  --nav-safe-pb: max(env(safe-area-inset-bottom, 12px), 12px);
+  --scroll-pb: calc(var(--nav-height) + var(--nav-safe-pb) + 8px);
+}

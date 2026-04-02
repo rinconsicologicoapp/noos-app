@@ -1904,12 +1904,11 @@ useEffect(() => {
     const unsub = onMessage(messaging, payload => {
       const { title, body } = payload.notification || {};
       const data = payload.data || {};
-      // Solo mostrar en pantalla, NO guardar en Firestore
-      // (el cron ya guardó el doc al enviarlo)
-      const id = `notif_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
-      setNotifs(prev => [{ id, icon: "🔔", title: title || "Nueva notificación", msg: body || "", time: "Ahora", read: false }, ...prev]);
+      // Recargar notificaciones desde Firestore (el cron ya guardó el doc)
+      if (usuarioActual?.uid) cargarNotificaciones(usuarioActual.uid);
+      // Mostrar toast
       showToast(`🔔 ${title || "Nueva notificación"}`);
-      // Si es recordatorio de cita y la app está abierta → mostrar banner
+      // Si es recordatorio de cita → mostrar banner interactivo
       if (data.tipo === "recordatorio_cita" && data.citaId) {
         setNotifCitaActiva({ titulo: title, mensaje: body, link: data.link || "", citaId: data.citaId });
         if (notifCitaTimer) clearTimeout(notifCitaTimer);
@@ -1977,32 +1976,24 @@ useEffect(() => {
   }, 1000);
   return () => clearInterval(timer);
 }, []);
-  const showNotif = (title, msg, icon = "🔔") => {
+  const showNotif = (title, msg, icon = "🔔", guardarFirestore = true) => {
     const id = `notif_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
     const nueva = { id, icon, title, msg, time: "Ahora", read: false };
     setNotifs(prev => [nueva, ...prev]);
     showToast(`${icon} ${title}`);
-    // Guardar en Firestore si hay usuario activo
-    if (usuarioActual?.uid) {
+    // Solo guardar en Firestore para notifs locales (XP, avatar, etc.)
+    // Las notifs que van al otro usuario ya tienen su propio doc con pushEnviada:false
+    if (guardarFirestore && usuarioActual?.uid) {
       setDoc(doc(db, "notificaciones", id), {
         pacienteId: usuarioActual.uid,
         titulo: title,
         mensaje: msg,
         icon,
         leida: false,
+        pushEnviada: true, // local → no mandar push, ya la recibió el propio usuario
         creadoEn: new Date().toISOString(),
         tipo: "app",
       }).catch(() => {});
-      // Depurar notificaciones > 7 días
-      const hace7 = new Date();
-      hace7.setDate(hace7.getDate() - 7);
-      getDocs(query(
-        collection(db, "notificaciones"),
-        where("pacienteId", "==", usuarioActual.uid),
-        where("creadoEn", "<", hace7.toISOString())
-      )).then(snap => {
-        snap.docs.forEach(d => deleteDoc(doc(db, "notificaciones", d.id)).catch(()=>{}));
-      }).catch(()=>{});
     }
   };
 
@@ -2275,7 +2266,7 @@ const styles = `
   );
 };
 
-  const NAV_PB = "calc(80px + env(safe-area-inset-bottom, 16px))";
+  const NAV_PB = "calc(90px + env(safe-area-inset-bottom, 20px))";
 
   const bnav = (active) => {
   const tareasCount = tareasPsicologo.filter(t => !t.completada).length;
@@ -2286,7 +2277,7 @@ const styles = `
     { icon:"user", lb:"Perfil", id:"perfil" },
   ];
   return (
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.96)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"env(safe-area-inset-bottom, 10px)", paddingTop:8, paddingLeft:4, paddingRight:4 }}>
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.97)":"rgba(250,247,242,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)", paddingTop:8, paddingLeft:4, paddingRight:4 }}>
       {items.map(({ icon, lb, id, isTareas }) => {
         const isActive = active === id || (isTareas && active === "notas" && lb==="Tareas") || (!isTareas && active === id);
         const iconColor = isActive ? "#E8A87C" : darkMode ? "rgba(255,255,255,0.3)" : "#9A9AB0";
@@ -2316,7 +2307,7 @@ const styles = `
     : [{ icon:"user", lb:"Perfil", id:"admin-perfil" }, { icon:"users", lb:"Pacientes", id:"psi-dashboard" }, { icon:"calendar", lb:"Citas", id:"calendario" }];
   const accentColor = isAdmin ? C.amber : C.plum;
   return (
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.96)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"env(safe-area-inset-bottom, 10px)", paddingTop:8, paddingLeft:4, paddingRight:4 }}>
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.97)":"rgba(250,247,242,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)", paddingTop:8, paddingLeft:4, paddingRight:4 }}>
       {navItems.map(({ icon, lb, id }) => {
         const isActive = active === id;
         const iconColor = isActive ? "#E8A87C" : darkMode ? "rgba(255,255,255,0.3)" : "#9A9AB0";
@@ -2373,6 +2364,19 @@ const styles = `
           window._swipeStartX = t.clientX;
           window._swipeStartY = t.clientY;
           window._swipeStartTime = Date.now();
+          window._swipeMoved = false;
+        }}
+        onTouchMove={e => {
+          if (window._swipeStartX === undefined) return;
+          const t = e.touches[0];
+          const dx = t.clientX - window._swipeStartX;
+          const dy = Math.abs(t.clientY - window._swipeStartY);
+          // Si el gesto es claramente horizontal desde borde, marcar como swipe activo
+          if (window._swipeStartX < 44 && dx > 12 && dx > dy * 1.5) {
+            window._swipeMoved = true;
+            // Prevenir scroll vertical durante swipe horizontal
+            e.preventDefault && e.preventDefault();
+          }
         }}
         onTouchEnd={e => {
           if (window._swipeStartX === undefined) return;
@@ -2380,16 +2384,17 @@ const styles = `
           const dx = t.clientX - window._swipeStartX;
           const dy = Math.abs(t.clientY - window._swipeStartY);
           const dt = Date.now() - window._swipeStartTime;
-          // Swipe derecha: desde borde izquierdo (primeros 30px), rápido, más horizontal que vertical
-          const desdeElBorde = window._swipeStartX < 30;
-          const esRapido = dt < 400;
-          const esDerecha = dx > 60;
-          const esMasHorizontal = dx > dy;
-          if (desdeElBorde && esRapido && esDerecha && esMasHorizontal) {
+          const desdeElBorde   = window._swipeStartX < 44;   // área mayor → más fácil de activar
+          const esHorizontal   = dx > dy * 1.2;              // más horizontal que vertical
+          const distSuficiente = dx > 50;                    // al menos 50px de movimiento
+          const velocidad      = dx / Math.max(dt, 1);       // px/ms
+          const esGestoValido  = desdeElBorde && esHorizontal && distSuficiente && velocidad > 0.15;
+          if (esGestoValido) {
             if (navigator.vibrate) navigator.vibrate(8);
             goBack();
           }
           window._swipeStartX = undefined;
+          window._swipeMoved  = false;
         }}
       >
 
@@ -3473,50 +3478,43 @@ const styles = `
           </div>
         ) : tareasPsicologo.map(t => (
           <div key={t.id} onClick={() => { setNotaAbierta({ ...t, tipo:"tarea" }); setNotaTextoEdit(t.respuesta || ""); }}
-            style={{ background:"#FEFAF5", borderRadius:16, padding:"11px 14px", marginBottom:12, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${t.completada?C.green:C.amber}`, opacity:t.completada?0.75:1, cursor:"pointer" }}>
-            <div style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:9 }}>
-              <div onClick={async () => {
-                try {
-                  await updateDoc(doc(db, "tareas", t.id), { completada: !t.completada });
-                  setTareasPsicologo(prev => prev.map(x => x.id === t.id ? { ...x, completada: !t.completada } : x));
-                  if (!t.completada) {
-                    sumarXP(t.xp || 80, "Tarea completada ✅");
-                    if(navigator.vibrate) navigator.vibrate([10,50,10,50,30]);
-                    setCelebrando(true);
-                    setTimeout(() => setCelebrando(false), 1500);
-                    if (t.psicologoId) {
-                      setDoc(doc(db, "notificaciones", `tarea_check_${t.id}`), {
-                        pacienteId: t.psicologoId,
-                        titulo: "Tarea completada ✅",
-                        mensaje: `${usuarioActual.nombre} marcó como completada: "${t.titulo}"`,
-                        icon: "✅",
-                        tipo: "tarea_completada",
-                        leida: false,
-                        pushEnviada: false,
-                        creadoEn: new Date().toISOString(),
-                      }).catch(() => {});
-                    }
+            style={{ background:"#FEFAF5", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(196,132,90,0.10)", opacity:t.completada?0.6:1, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+            <div onClick={async e => {
+              e.stopPropagation();
+              try {
+                await updateDoc(doc(db, "tareas", t.id), { completada: !t.completada });
+                setTareasPsicologo(prev => prev.map(x => x.id === t.id ? { ...x, completada: !t.completada } : x));
+                if (!t.completada) {
+                  sumarXP(t.xp || 80, "Tarea completada ✅");
+                  if(navigator.vibrate) navigator.vibrate([10,50,10,50,30]);
+                  setCelebrando(true); setTimeout(() => setCelebrando(false), 1500);
+                  if (t.psicologoId) {
+                    setDoc(doc(db, "notificaciones", `tarea_check_${t.id}`), {
+                      pacienteId: t.psicologoId,
+                      titulo: "Tarea completada ✅",
+                      mensaje: `${usuarioActual.nombre} marcó como completada: "${t.titulo}"`,
+                      icon: "✅", tipo: "tarea_completada", leida: false,
+                      pushEnviada: false, creadoEn: new Date().toISOString(),
+                    }).catch(()=>{});
                   }
-                } catch(e) { showToast("Error ❌"); }
-              }} style={{ width:22, height:22, borderRadius:"50%", border:`2.5px solid ${t.completada?C.green:C.amber}`, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:11, color:"white", background:t.completada?C.green:"transparent", marginTop:1 }}>{t.completada?"✓":""}</div>
-              <div style={{ flex:1 }}>
-                <div style={{ fontSize:13, fontWeight:800, color:C.text, textDecoration:t.completada?"line-through":"none" }}>{t.titulo}</div>
-                {t.descripcion ? <div style={{ fontSize:11, color:C.light, marginTop:2, lineHeight:1.5 }}>{t.descripcion}</div> : null}
-                <div style={{ display:"inline-flex", background:"#FFF8E6", color:C.amberDark, fontSize:10, fontWeight:800, padding:"2px 8px", borderRadius:20, marginTop:5 }}>⭐ +{t.xp || 80} XP al completar</div>
-                {t.vence ? <div style={{ fontSize:10, color:C.light, marginTop:2 }}>📅 Vence: {t.vence}</div> : null}
+                }
+              } catch(e) { showToast("Error ❌"); }
+            }} style={{ width:22, height:22, borderRadius:"50%", border:`2px solid ${t.completada?C.green:C.amber}`, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", background:t.completada?C.green:"transparent", marginTop:2 }}>
+              {t.completada && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
+            </div>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:3 }}>
+                <div style={{ fontSize:13, fontWeight:600, color:C.text, textDecoration:t.completada?"line-through":"none", flex:1, paddingRight:8 }}>{t.titulo}</div>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+              {t.descripcion && <div style={{ fontSize:11, color:C.light, marginTop:2, lineHeight:1.5, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{t.descripcion}</div>}
+              <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:6, flexWrap:"wrap" }}>
+                <span style={{ background:"#FFF8E6", color:C.amberDark, fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:10 }}>+{t.xp||80} XP</span>
+                {t.vence && <span style={{ fontSize:10, color:C.light }}>Vence {t.vence}</span>}
+                {t.completada && <span style={{ background:`${C.green}18`, color:C.green, fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:10 }}>Completada</span>}
+                {!t.completada && t.respuesta && <span style={{ background:`${C.plum}15`, color:C.plum, fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:10 }}>Respondida</span>}
               </div>
             </div>
-            {!t.completada && (
-              <div style={{ display:"flex", gap:7 }}>
-                {btn(() => { setTareaRespondiendo(t); setRespuestaTarea(t.respuesta || ""); setModal("responder-tarea-" + t.id); }, "✏️ Responder", { padding:"6px 12px", borderRadius:9, background:C.warm, color:C.amberDark, fontSize:11, fontWeight:800 })}
-              </div>
-            )}
-            {t.respuesta ? (
-              <div style={{ marginTop:8, background:"#F5F0FF", borderRadius:10, padding:"8px 10px" }}>
-                <div style={{ fontSize:10, fontWeight:800, color:C.plum, marginBottom:3 }}>💬 Tu respuesta:</div>
-                <div style={{ fontSize:11, color:C.text, lineHeight:1.5 }}>{t.respuesta}</div>
-              </div>
-            ) : null}
           </div>
         ))}
       </>
@@ -4340,6 +4338,8 @@ const styles = `
                 )}
 
                 {btn(() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }, "⭐ Escribir reseña", { width:"100%", padding:10, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginTop:8, display:"block" })}
+                {/* Spacer para que la nav no tape el último elemento */}
+                <div style={{ height:16 }}/>
               </div>
               {mdl("nueva-resena", (
                 <div>
@@ -5847,6 +5847,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 </div>
               ))}
 
+              <div style={{ height:20 }}/>
               {anav("admin-perfil")}
             </div>
           )}
