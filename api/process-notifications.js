@@ -172,7 +172,7 @@ module.exports = async function handler(req, res) {
     //           cita_cancelada, demora, racha
     //    Campo clave: pushEnviada == false, creadoEn últimos 10 min
     // ════════════════════════════════════════════════════════════════════════
-    const hace10 = new Date(ahora.getTime() - 10 * 60 * 1000).toISOString();
+    const hace6 = new Date(ahora.getTime() - 6 * 60 * 1000).toISOString();
     const snapGeneral = await db.collection('notificaciones')
       .where('pushEnviada', '==', false)
       .limit(50)
@@ -180,7 +180,7 @@ module.exports = async function handler(req, res) {
     // Filtramos en memoria para evitar índice compuesto en Firestore
     const docsGenerales = snapGeneral.docs.filter(d => {
       const creadoEn = d.data().creadoEn || '';
-      return creadoEn >= hace10;
+      return creadoEn >= hace6;
     });
 
     for (const docSnap of docsGenerales) {

@@ -871,6 +871,9 @@ const [respuestaTarea, setRespuestaTarea] = useState("");
 const [tareaRespondiendo, setTareaRespondiendo] = useState(null);
 const [retrasoTexto, setRetrasoTexto] = useState("");
 const [retrasoMinutos, setRetrasoMinutos] = useState(10);
+const [metodosPago, setMetodosPago] = useState([]);
+const [editandoPagos, setEditandoPagos] = useState(false);
+const [pagoEditTemp, setPagoEditTemp] = useState([]);
 const [notaAbierta, setNotaAbierta] = useState(null);       // nota/tarea abierta en pantalla completa
 const [notaEditando, setNotaEditando] = useState(false);    // modo edición
 const [notaTextoEdit, setNotaTextoEdit] = useState("");     // texto en edición
@@ -991,7 +994,8 @@ const crearCita = async () => {
   if (!citaFecha || !citaHora || !pacienteIdFinal) {
     showToast("Completa fecha, hora y paciente ❌"); return;
   }
-  if (loadingCitas) return; // Guard contra doble submit
+  if (window._creandoCita) return; // Lock síncrono — previene double tap
+  window._creandoCita = true;
   setLoadingCitas(true);
   try {
     const id = Date.now().toString();
@@ -1076,6 +1080,7 @@ const crearCita = async () => {
     setCitaModalidad("virtual"); setCitaPacienteId("");
     setModal(null);
   } catch(e) { showToast("Error al crear cita ❌"); }
+  window._creandoCita = false;
   setLoadingCitas(false);
 };
 const actualizarStatusCita = async (citaId, nuevoStatus) => {
@@ -1889,6 +1894,9 @@ useEffect(() => {
     const rol = usuarioActual.rol === "paciente" ? "paciente" : "psicologo";
     cargarCitas(usuarioActual.uid, rol);
   }
+  if (screen === "home" && usuarioActual?.uid && usuarioActual.rol === "paciente") {
+    cargarCitas(usuarioActual.uid, "paciente");
+  }
 }, [screen]);
 useEffect(() => {
   if (usuarioActual?.uid && !xpCargado) {
@@ -2055,6 +2063,7 @@ const BACK_MAP = {
   "psi-dashboard":    "admin-perfil",
   "admin-paciente":   "psi-dashboard",
   "admin-pagos":      "admin-perfil",
+  "psi-pagos":        "admin-perfil",
   "admin-psicologo":  "admin-perfil",
   "admin-pacientes":  "admin-perfil",
 };
@@ -2317,7 +2326,7 @@ const styles = `
   const isAdmin = active === "admin-home" || active === "admin-psicologo" || active === "admin-pacientes" || active === "admin-pagos";
   const navItems = isAdmin
     ? [{ icon:"dashboard", lb:"Dashboard", id:"admin-home" }, { icon:"brain", lb:"Psicólogos", id:"admin-psicologo" }, { icon:"users", lb:"Pacientes", id:"admin-pacientes" }, { icon:"dollar", lb:"Pagos", id:"admin-pagos" }]
-    : [{ icon:"user", lb:"Perfil", id:"admin-perfil" }, { icon:"users", lb:"Pacientes", id:"psi-dashboard" }, { icon:"calendar", lb:"Citas", id:"calendario" }];
+    : [{ icon:"user", lb:"Perfil", id:"admin-perfil" }, { icon:"users", lb:"Pacientes", id:"psi-dashboard" }, { icon:"calendar", lb:"Citas", id:"calendario" }, { icon:"dollar", lb:"Pagos", id:"psi-pagos" }];
   const accentColor = isAdmin ? C.amber : C.plum;
   return (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.97)":"rgba(250,247,242,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)", paddingTop:8, paddingLeft:4, paddingRight:4 }}>
@@ -4043,7 +4052,6 @@ const styles = `
                   {[
                     { ic:"user", lb:"Cambiar avatar", fn:() => setModal("avatar") },
                     { ic:"edit", lb:"Editar perfil", fn:() => { setEditNombre(usuarioActual?.nombre || ""); setEditTel(usuarioActual?.telefono || ""); setModal("edit-perfil"); } },
-                    { ic:"bell", lb:"Notificaciones", fn:() => setNotifPanel(true) },
                   ].map(({ ic, lb, fn }, i, arr) => (
                     <div key={lb} onClick={fn}
                       style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:i<arr.length-1?"0.5px solid rgba(232,168,124,0.06)":"none", cursor:"pointer" }}>
@@ -4300,8 +4308,7 @@ const styles = `
                 {psicologoData?.especialidad && <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginBottom:12 }}>{psicologoData.especialidad}</div>}
                 <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
                   {psicologoData?.especialidad && <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"4px 12px", borderRadius:20 }}>🧠 {psicologoData.especialidad}</span>}
-                </div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginTop:6 }}>Psicólogo Clínico</div>
+                </div>                
               </div>
 
               <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))", marginTop:-24, position:"relative", zIndex:10 }}>
@@ -4346,7 +4353,42 @@ const styles = `
                 )}
 
                 {btn(() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }, "⭐ Escribir reseña", { width:"100%", padding:10, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginTop:8, display:"block" })}
-                {/* Spacer para que la nav no tape el último elemento */}
+
+                {/* MÉTODOS DE PAGO del psicólogo */}
+                {(() => {
+                  const [pagosPsi, setPagosPsi] = React.useState([]);
+                  const [cargandoPagos, setCargandoPagos] = React.useState(true);
+                  React.useEffect(() => {
+                    if (!usuarioActual?.psicologoId) return;
+                    getDoc(doc(db, "metodosPago", usuarioActual.psicologoId))
+                      .then(s => { if (s.exists()) setPagosPsi(s.data().metodos || []); })
+                      .finally(() => setCargandoPagos(false));
+                  }, [usuarioActual?.psicologoId]);
+                  const METODOS_INFO = { nequi:{nombre:"Nequi",color:"#7B2D8B",bg:"#F5E8FA"}, bancolombia:{nombre:"Bancolombia",color:"#F5A800",bg:"#FFF8E6"}, davivienda:{nombre:"Davivienda",color:"#E30613",bg:"#FDE8EA"}, daviplata:{nombre:"Daviplata",color:"#FF6B00",bg:"#FFF0E6"}, breve:{nombre:"Breve",color:"#00B4A0",bg:"#E6FAF8"}, transferencia:{nombre:"Transferencia",color:"#3A7BD5",bg:"#E8F0FB"} };
+                  if (cargandoPagos || pagosPsi.length === 0) return null;
+                  return (
+                    <div style={{ marginTop:20 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12 }}>💳 Métodos de pago</div>
+                      {pagosPsi.map((mp, i) => {
+                        const info = METODOS_INFO[mp.id] || { nombre:mp.id, color:C.plum, bg:`${C.plum}15` };
+                        return (
+                          <div key={i} style={{ background:"#FEFAF5", borderRadius:14, padding:"13px 16px", marginBottom:8, border:"0.5px solid rgba(196,132,90,0.10)", display:"flex", alignItems:"center", gap:12 }}>
+                            <div style={{ width:40, height:40, borderRadius:11, background:info.bg, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                              <span style={{ fontSize:11, fontWeight:800, color:info.color }}>{info.nombre.slice(0,2).toUpperCase()}</span>
+                            </div>
+                            <div style={{ flex:1 }}>
+                              <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{info.nombre}</div>
+                              <div style={{ fontSize:13, color:C.light, marginTop:1 }}>{mp.numero}</div>
+                            </div>
+                            <div onClick={() => { navigator.clipboard?.writeText(mp.numero); showToast(`✅ ${info.nombre} copiado`); }}
+                              style={{ padding:"7px 14px", background:info.bg, color:info.color, borderRadius:20, fontSize:11, fontWeight:700, cursor:"pointer", border:`1px solid ${info.color}30` }}>Copiar</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
                 <div style={{ height:16 }}/>
               </div>
               {mdl("nueva-resena", (
@@ -4810,6 +4852,105 @@ const styles = `
     </div>
   );
 })()}
+{!notifPanel && screen === "psi-pagos" && (() => {
+  const METODOS_DISPONIBLES = [
+    { id:"nequi",       nombre:"Nequi",        color:"#7B2D8B", bg:"#F5E8FA", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#7B2D8B"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">N</text></svg> },
+    { id:"bancolombia", nombre:"Bancolombia",  color:"#F5A800", bg:"#FFF8E6", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#F5A800"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">BC</text></svg> },
+    { id:"davivienda",  nombre:"Davivienda",   color:"#E30613", bg:"#FDE8EA", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#E30613"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">DV</text></svg> },
+    { id:"daviplata",   nombre:"Daviplata",    color:"#FF6B00", bg:"#FFF0E6", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#FF6B00"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">DP</text></svg> },
+    { id:"breve",       nombre:"Breve",        color:"#00B4A0", bg:"#E6FAF8", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#00B4A0"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Br</text></svg> },
+    { id:"transferencia",nombre:"Transferencia",color:"#3A7BD5", bg:"#E8F0FB", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#3A7BD5"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">TR</text></svg> },
+  ];
+  const cargarPagos = async () => {
+    try {
+      const snap = await getDoc(doc(db, "metodosPago", usuarioActual.uid));
+      if (snap.exists()) { setMetodosPago(snap.data().metodos || []); }
+    } catch(e) {}
+  };
+  if (metodosPago.length === 0 && !editandoPagos) cargarPagos();
+  const guardarPagos = async () => {
+    try {
+      await setDoc(doc(db, "metodosPago", usuarioActual.uid), { metodos: pagoEditTemp, actualizadoEn: new Date().toISOString() });
+      setMetodosPago(pagoEditTemp);
+      setEditandoPagos(false);
+      showToast("✅ Métodos de pago guardados");
+    } catch(e) { showToast("Error al guardar ❌"); }
+  };
+  return (
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5EDE0" }}>
+      <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
+        <div style={{ fontSize:17, fontWeight:700, color:"white" }}>💳 Métodos de pago</div>
+        <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>Configura cómo recibes pagos de tus pacientes</div>
+      </div>
+      <div style={{ flex:1, overflowY:"auto", padding:16, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
+        {!editandoPagos ? (<>
+          {metodosPago.length === 0 ? (
+            <div style={{ textAlign:"center", padding:"48px 24px" }}>
+              <div style={{ width:64, height:64, background:`${C.plum}15`, borderRadius:20, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.5" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              </div>
+              <div style={{ fontSize:15, fontWeight:700, color:C.text, marginBottom:6 }}>Sin métodos configurados</div>
+              <div style={{ fontSize:12, color:C.light, lineHeight:1.6, marginBottom:24 }}>Agrega tus métodos de pago para que tus pacientes puedan pagarte fácilmente</div>
+            </div>
+          ) : (
+            <div style={{ marginBottom:16 }}>
+              {metodosPago.map((mp, i) => {
+                const info = METODOS_DISPONIBLES.find(m => m.id === mp.id) || METODOS_DISPONIBLES[0];
+                return (
+                  <div key={i} style={{ background:"#FEFAF5", borderRadius:16, padding:"14px 16px", marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:12 }}>
+                    <div style={{ width:44, height:44, borderRadius:12, background:info.bg, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{info.svg}</div>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{info.nombre}</div>
+                      <div style={{ fontSize:12, color:C.light, marginTop:2 }}>{mp.numero}</div>
+                    </div>
+                    <div onClick={() => { navigator.clipboard?.writeText(mp.numero); showToast("✅ Número copiado"); }}
+                      style={{ padding:"6px 14px", background:`${info.color}15`, color:info.color, borderRadius:20, fontSize:11, fontWeight:700, cursor:"pointer", flexShrink:0 }}>Copiar</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {btn(() => { setPagoEditTemp([...metodosPago]); setEditandoPagos(true); }, metodosPago.length > 0 ? "✏️ Editar métodos" : "➕ Agregar método de pago", { width:"100%", padding:13, background:C.plum, color:"white", borderRadius:13, fontSize:13, fontWeight:700 })}
+        </>) : (<>
+          <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12 }}>Selecciona y configura tus métodos:</div>
+          {METODOS_DISPONIBLES.map(m => {
+            const activo = pagoEditTemp.find(p => p.id === m.id);
+            return (
+              <div key={m.id} style={{ background:"#FEFAF5", borderRadius:16, padding:"14px 16px", marginBottom:10, border:`1.5px solid ${activo ? m.color : "rgba(196,132,90,0.10)"}`, transition:"all 0.2s" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom: activo ? 10 : 0 }}>
+                  <div style={{ width:40, height:40, borderRadius:11, background:m.bg, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{m.svg}</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{m.nombre}</div>
+                    {activo && <div style={{ fontSize:10, color:m.color, fontWeight:600 }}>✓ Activo</div>}
+                  </div>
+                  <div onClick={() => {
+                    if (activo) setPagoEditTemp(prev => prev.filter(p => p.id !== m.id));
+                    else setPagoEditTemp(prev => [...prev, { id: m.id, numero:"" }]);
+                  }} style={{ width:26, height:26, borderRadius:"50%", background:activo ? m.color : "rgba(0,0,0,0.06)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+                    {activo
+                      ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    }
+                  </div>
+                </div>
+                {activo && (
+                  <input placeholder={`Número ${m.nombre}`} value={activo.numero} onChange={e => setPagoEditTemp(prev => prev.map(p => p.id === m.id ? { ...p, numero: e.target.value } : p))}
+                    style={{ width:"100%", padding:"10px 13px", border:`1.5px solid ${m.color}40`, borderRadius:10, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:m.bg, color:C.text }}/>
+                )}
+              </div>
+            );
+          })}
+          <div style={{ display:"flex", gap:10, marginTop:8 }}>
+            {btn(() => setEditandoPagos(false), "Cancelar", { flex:1, padding:12, background:C.warm, color:C.text, borderRadius:12, fontSize:13, fontWeight:700 })}
+            {btn(guardarPagos, "Guardar ✓", { flex:2, padding:12, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:700 })}
+          </div>
+        </>)}
+      </div>
+      {anav("psi-pagos")}
+    </div>
+  );
+})()}
+
 {!notifPanel && screen === "admin-home" && (
   <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB }}>
     <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
@@ -5577,10 +5718,6 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     </>
                   )}
 
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📝 Notas para el paciente</div>
-                  <textarea placeholder="Ej: Recuerda traer tu diario..." value={citaNotas} onChange={e => setCitaNotas(e.target.value)}
-                    style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box" }}/>
-
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar ✓", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -5639,7 +5776,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                 {/* ACCIONES RÁPIDAS */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
-                  {[["📅","Agendar cita",() => { showToast("Selecciona un paciente para agendar 👆"); showScreen("psi-dashboard"); }],["👥","Mis pacientes",() => showScreen("psi-dashboard")],["💬","Nota clínica",() => setModal("feedback")],["✨","Frase del mes",() => { setFraseDelMes(usuarioActual?.fraseDelMes||""); setModal("frase-mes"); }],["🔔","Notificaciones",() => setNotifPanel(true)]].map(([ic,lb,fn]) => (
+                  {[["📅","Agendar cita",() => { showToast("Selecciona un paciente para agendar 👆"); showScreen("psi-dashboard"); }],["👥","Mis pacientes",() => showScreen("psi-dashboard")],["🔔","Notificaciones",() => setNotifPanel(true)]].map(([ic,lb,fn]) => (
                     <div key={lb} onClick={fn} style={{ background:"#FEFAF5", borderRadius:14, padding:"11px 14px", textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer", transition:"all 0.2s" }}>
                       <div style={{ fontSize:28, marginBottom:6 }}>{ic}</div>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{lb}</div>
@@ -5841,10 +5978,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
                         style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
                     </>
-                  )}
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📝 Notas para el paciente</div>
-                  <textarea placeholder="Ej: Recuerda traer tu diario..." value={citaNotas} onChange={e => setCitaNotas(e.target.value)}
-                    style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  )}                  
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar ✓", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
