@@ -874,6 +874,7 @@ const [retrasoMinutos, setRetrasoMinutos] = useState(10);
 const [metodosPago, setMetodosPago] = useState([]);
 const [editandoPagos, setEditandoPagos] = useState(false);
 const [pagoEditTemp, setPagoEditTemp] = useState([]);
+const [pagosPsicologo, setPagosPsicologo] = useState([]);
 const [notaAbierta, setNotaAbierta] = useState(null);       // nota/tarea abierta en pantalla completa
 const [notaEditando, setNotaEditando] = useState(false);    // modo edición
 const [notaTextoEdit, setNotaTextoEdit] = useState("");     // texto en edición
@@ -1049,29 +1050,25 @@ const crearCita = async () => {
     const una_hora_antes = new Date(fechaHoraCitaUTC.getTime() - 60 * 60 * 1000);
     const cinco_min_antes = new Date(fechaHoraCitaUTC.getTime() - 5 * 60 * 1000);
 
-    await setDoc(doc(db, "recordatoriosCita", `${id}_1h`), {
-      citaId:      id,
-      pacienteId:  pacienteIdFinal,
-      psicologoId: usuarioActual.uid,
-      titulo:      `⏰ Tu cita es en 1 hora`,
-      mensaje:     `${titulo} — ${citaFecha} a las ${citaHora}`,
-      link:        citaLink,
-      enviarEn:    una_hora_antes.toISOString(),
-      enviado:     false,
-      tipo:        "1h",
-    });
-
-    await setDoc(doc(db, "recordatoriosCita", `${id}_5m`), {
-      citaId:      id,
-      pacienteId:  pacienteIdFinal,
-      psicologoId: usuarioActual.uid,
-      titulo:      `🔴 Tu cita empieza en 5 minutos`,
-      mensaje:     `${titulo} — Toca aquí para abrir el enlace`,
-      link:        citaLink,
-      enviarEn:    cinco_min_antes.toISOString(),
-      enviado:     false,
-      tipo:        "5m",
-    });
+    const ahora = new Date();
+    // Solo crear recordatorio 1h si la hora de envío es en el FUTURO
+    if (una_hora_antes > ahora) {
+      await setDoc(doc(db, "recordatoriosCita", `${id}_1h`), {
+        citaId: id, pacienteId: pacienteIdFinal, psicologoId: usuarioActual.uid,
+        titulo: `⏰ Tu cita es en 1 hora`,
+        mensaje: `${titulo} — ${citaFecha} a las ${citaHora}`,
+        link: citaLink, enviarEn: una_hora_antes.toISOString(), enviado: false, tipo: "1h",
+      });
+    }
+    // Solo crear recordatorio 5m si la hora de envío es en el FUTURO
+    if (cinco_min_antes > ahora) {
+      await setDoc(doc(db, "recordatoriosCita", `${id}_5m`), {
+        citaId: id, pacienteId: pacienteIdFinal, psicologoId: usuarioActual.uid,
+        titulo: `🔴 Tu cita empieza en 5 minutos`,
+        mensaje: `${titulo} — Toca aquí para abrir el enlace`,
+        link: citaLink, enviarEn: cinco_min_antes.toISOString(), enviado: false, tipo: "5m",
+      });
+    }
 
     showToast(`✅ Cita agendada para ${paciente?.nombre}`);
     showNotif("Cita agendada", `${paciente?.nombre} — ${citaFecha} a las ${citaHora}`, "📅");
@@ -1884,11 +1881,17 @@ useEffect(() => {
   return () => unsub();
 }, []);
 useEffect(() => {
-  if (screen === "perfil-psicologo" && usuarioActual?.psicologoId && !psicologoData) {
-    getDoc(doc(db, "usuarios", usuarioActual.psicologoId)).then(snap => {
-      if (snap.exists()) setPsicologoData({ id: snap.id, ...snap.data() });
-    });
-    cargarResenas(usuarioActual.psicologoId);
+  if (screen === "perfil-psicologo" && usuarioActual?.psicologoId) {
+    if (!psicologoData) {
+      getDoc(doc(db, "usuarios", usuarioActual.psicologoId)).then(snap => {
+        if (snap.exists()) setPsicologoData({ id: snap.id, ...snap.data() });
+      });
+      cargarResenas(usuarioActual.psicologoId);
+    }
+    // Cargar métodos de pago del psicólogo (siempre frescos)
+    getDoc(doc(db, "metodosPago", usuarioActual.psicologoId))
+      .then(s => { setPagosPsicologo(s.exists() ? (s.data().metodos || []) : []); })
+      .catch(() => setPagosPsicologo([]));
   }
   if (screen === "calendario" && usuarioActual?.uid) {
     const rol = usuarioActual.rol === "paciente" ? "paciente" : "psicologo";
@@ -4355,21 +4358,12 @@ const styles = `
                 {btn(() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }, "⭐ Escribir reseña", { width:"100%", padding:10, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginTop:8, display:"block" })}
 
                 {/* MÉTODOS DE PAGO del psicólogo */}
-                {(() => {
-                  const [pagosPsi, setPagosPsi] = React.useState([]);
-                  const [cargandoPagos, setCargandoPagos] = React.useState(true);
-                  React.useEffect(() => {
-                    if (!usuarioActual?.psicologoId) return;
-                    getDoc(doc(db, "metodosPago", usuarioActual.psicologoId))
-                      .then(s => { if (s.exists()) setPagosPsi(s.data().metodos || []); })
-                      .finally(() => setCargandoPagos(false));
-                  }, [usuarioActual?.psicologoId]);
+                {pagosPsicologo.length > 0 && (() => {
                   const METODOS_INFO = { nequi:{nombre:"Nequi",color:"#7B2D8B",bg:"#F5E8FA"}, bancolombia:{nombre:"Bancolombia",color:"#F5A800",bg:"#FFF8E6"}, davivienda:{nombre:"Davivienda",color:"#E30613",bg:"#FDE8EA"}, daviplata:{nombre:"Daviplata",color:"#FF6B00",bg:"#FFF0E6"}, breve:{nombre:"Breve",color:"#00B4A0",bg:"#E6FAF8"}, transferencia:{nombre:"Transferencia",color:"#3A7BD5",bg:"#E8F0FB"} };
-                  if (cargandoPagos || pagosPsi.length === 0) return null;
                   return (
                     <div style={{ marginTop:20 }}>
                       <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12 }}>💳 Métodos de pago</div>
-                      {pagosPsi.map((mp, i) => {
+                      {pagosPsicologo.map((mp, i) => {
                         const info = METODOS_INFO[mp.id] || { nombre:mp.id, color:C.plum, bg:`${C.plum}15` };
                         return (
                           <div key={i} style={{ background:"#FEFAF5", borderRadius:14, padding:"13px 16px", marginBottom:8, border:"0.5px solid rgba(196,132,90,0.10)", display:"flex", alignItems:"center", gap:12 }}>

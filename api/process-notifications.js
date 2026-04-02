@@ -186,8 +186,20 @@ module.exports = async function handler(req, res) {
     for (const docSnap of docsGenerales) {
       const notif = docSnap.data();
 
-      // Marcar antes de enviar
-      await docSnap.ref.update({ pushEnviada: true });
+      // Transacción atómica: marcar pushEnviada:true solo si aún es false
+      // Esto previene race condition entre 2 ejecuciones simultáneas del cron
+      let yaEnviada = false;
+      try {
+        await db.runTransaction(async (t) => {
+          const fresh = await t.get(docSnap.ref);
+          if (!fresh.exists || fresh.data().pushEnviada === true) {
+            yaEnviada = true;
+            return;
+          }
+          t.update(docSnap.ref, { pushEnviada: true });
+        });
+      } catch(e) { stats.errores++; continue; }
+      if (yaEnviada) continue;
 
       const token = await getTokenDeUsuario(db, notif.pacienteId);
       const ok = await enviarFCM(db, token, notif.titulo, notif.mensaje, {
