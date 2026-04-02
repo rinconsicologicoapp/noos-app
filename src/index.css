@@ -10,7 +10,7 @@ html, body {
   overflow: hidden;
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
-  touch-action: none;
+  touch-action: pan-y;
   position: fixed;
   font-family: system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;

@@ -1329,9 +1329,15 @@ const cargarTareasPaciente = async (pacienteId) => {
     setTareasPsicologo(lista);
   } catch(e) { showToast("Error al cargar tareas ❌"); }
 };
+// Fecha local del dispositivo — correcta para cualquier timezone del mundo
+const getFechaLocal = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+
 const guardarAnimo = async (valor) => {
   if (!usuarioActual?.uid) return;
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = getFechaLocal();
   const id = `${usuarioActual.uid}_${hoy}`;
   const psicologoId = usuarioActual.psicologoId || psicologoData?.id || "";
   const registro = {
@@ -1347,22 +1353,29 @@ const guardarAnimo = async (valor) => {
   } catch(e) { console.log("Error guardando ánimo:", e); }
 };
 
-const verificarCheckInHoy = async () => {
-  if (!usuarioActual?.uid) return;
-  const hoy = new Date().toISOString().split('T')[0];
-  const id = `${usuarioActual.uid}_${hoy}`;
+const verificarCheckInHoy = async (uidParam) => {
+  // Acepta uid como parámetro para evitar el bug de closure stale en React
+  const uid = uidParam || usuarioActual?.uid;
+  if (!uid) return;
+  const hoy = getFechaLocal();
+  const id = `${uid}_${hoy}`;
   try {
     const snap = await getDoc(doc(db, "registrosAnimo", id));
-    if (!snap.exists()) setMostrarCheckIn(true);
-  } catch(e) { 
-    // Fallback a localStorage si falla Firestore
-    const yaRegistro = localStorage.getItem(`checkin_${usuarioActual?.uid}_${hoy}`);
+    if (!snap.exists()) {
+      // Doble verificación con localStorage por si el doc fue guardado
+      // con fecha UTC incorrecta en versiones anteriores
+      const yaLocal = localStorage.getItem(`checkin_${uid}_${hoy}`);
+      if (!yaLocal) setMostrarCheckIn(true);
+    }
+  } catch(e) {
+    // Firestore falló (sin red, reglas, etc.) — usar localStorage como fuente de verdad
+    const yaRegistro = localStorage.getItem(`checkin_${uid}_${hoy}`);
     if (!yaRegistro) setMostrarCheckIn(true);
   }
 };
 
 const completarCheckIn = async (valor) => {
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = getFechaLocal();
   setCheckInMood(valor);
   await guardarAnimo(valor);
   try { localStorage.setItem(`checkin_${usuarioActual?.uid}_${hoy}`, '1'); } catch(e) {}
@@ -1387,8 +1400,8 @@ const calcularYGuardarRacha = async () => {
 
     // Calcular racha consecutiva desde hoy hacia atrás
     let racha = 0;
-    const hoy = new Date().toISOString().split('T')[0];
-    let diaActual = new Date(hoy);
+    const hoy = getFechaLocal();
+    let diaActual = new Date(hoy + 'T12:00:00'); // mediodía para evitar DST issues
 
     for (let i = 0; i < 365; i++) {
       const fechaStr = diaActual.toISOString().split('T')[0];
@@ -1826,7 +1839,7 @@ useEffect(() => {
           cargarNotas(user.uid);
           cargarAutorregistros(user.uid);
           cargarTareasFirestore(user.uid);
-          setTimeout(() => verificarCheckInHoy(), 800);
+          setTimeout(() => verificarCheckInHoy(uid), 800);
           if (data.psicologoId) {
             getDoc(doc(db, "usuarios", data.psicologoId)).then(snap => {
               if (snap.exists()) {
@@ -2266,7 +2279,8 @@ const styles = `
   );
 };
 
-  const NAV_PB = "calc(90px + env(safe-area-inset-bottom, 20px))";
+  const NAV_PB = "calc(100px + env(safe-area-inset-bottom, 24px))";
+  const NAV_SPACER = <div style={{ height:"calc(100px + env(safe-area-inset-bottom, 24px))" }} aria-hidden="true"/>;
 
   const bnav = (active) => {
   const tareasCount = tareasPsicologo.filter(t => !t.completada).length;
@@ -3939,7 +3953,7 @@ const styles = `
                 <div style={{ fontSize:14, color:"rgba(255,255,255,0.8)", fontWeight:600 }}>{usuarioActual?.nombre?.split(" ")[0] || "Tú"} · {xp} puntos acumulados</div>
               </div>
 
-              <div style={{ padding:"0 16px", marginTop:-24, position:"relative", zIndex:10 }}>
+              <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))", marginTop:-24, position:"relative", zIndex:10 }}>
                 {/* TARJETA XP */}
                 <div style={{ background:"#FEFAF5", borderRadius:14, padding:14, border:"0.5px solid rgba(196,132,90,0.15)", marginBottom:16 }}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
@@ -4296,7 +4310,7 @@ const styles = `
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginTop:6 }}>Psicólogo Clínico</div>
               </div>
 
-              <div style={{ padding:"0 16px", marginTop:-24, position:"relative", zIndex:10 }}>
+              <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))", marginTop:-24, position:"relative", zIndex:10 }}>
                 {/* INFO */}
                 <div style={{ background:"#FEFAF5", borderRadius:14, padding:18, marginBottom:14, boxShadow:"0 4px 20px rgba(0,0,0,0.07)" }}>
                   {[["📞","Teléfono", psicologoData?.telefono || "No registrado"],["📧","Correo", psicologoData?.email || ""],["🎓","Especialidad", psicologoData?.especialidad || "No registrado"],["🔬","Enfoque", psicologoData?.enfoque || "No registrado"]].map(([ic,lb,val],i,arr) => (
@@ -4387,7 +4401,7 @@ const styles = `
                 </div>
               </div>
 
-              <div style={{ padding:14 }}>
+              <div style={{ padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:9, marginBottom:18 }}>
                   {[[pacientes.length,"Pacientes"],[citas.filter(c=>c.status==="pendiente").length,"Pendientes"],[citas.filter(c=>c.status==="confirmada").length,"Confirmadas"]].map(([n,l]) => (
                     <div key={l} style={{ background:"#FEFAF5", borderRadius:14, padding:13, textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
@@ -4816,7 +4830,7 @@ const styles = `
         <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>Mipsicologo · Control total</div>
       </div>
     </div>
-    <div style={{ padding:14 }}>
+    <div style={{ padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
 
       {/* ESTADÍSTICAS */}
       <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📊 Estadísticas generales</div>
@@ -4996,7 +5010,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)" }}>{pacienteSeleccionado?.email || ""}</div>
                 </div>
               </div>
-              <div style={{ padding:14 }}>
+              <div style={{ padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:16 }}>
                   {[[autorregistros.length,"Registros"],[citas.filter(c=>c.pacienteId===pacienteSeleccionado?.id).length,"Sesiones"],[pacienteSeleccionado?.xp||0,"XP"]].map(([n,l]) => (
                     <div key={l} style={{ background:"#FEFAF5", borderRadius:13, padding:"12px 8px", textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
@@ -5630,7 +5644,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 ))}
               </div>
 
-              <div style={{ padding:"0 16px" }}>
+              <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
 
                 {/* ACCIONES RÁPIDAS */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
