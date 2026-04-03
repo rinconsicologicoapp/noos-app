@@ -5072,7 +5072,16 @@ const styles = `
       {/* HEADER */}
       <div style={{ background:"#1A1208", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", paddingBottom:0, flexShrink:0 }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 16px 0" }}>
-          <div onClick={() => { setScreenHabitos(false); setHabitosEditando(false); setHabitosTab("hoy"); }}
+          <div onClick={() => {
+            setScreenHabitos(false);
+            setHabitosEditando(false);
+            setHabitosTab("hoy");
+            setHabitosPacienteId(null);
+            setHabitos([{ id:1, activo:false, titulo:"", descripcion:"" },{ id:2, activo:false, titulo:"", descripcion:"" },{ id:3, activo:false, titulo:"", descripcion:"" }]);
+            setRegistrosHabito({});
+            setNotaPsicologo("");
+            setNotaPsicologoEdit("");
+          }}
             style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </div>
@@ -5845,7 +5854,18 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
                 {btn(() => setModal("assign-task"), "📋 Asignar nueva tarea", { width:"100%", padding:9, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, color:"white", borderRadius:13, fontSize:13, fontWeight:800, marginBottom:10 })}
                 {mitem("💬", "Nota clínica privada", () => setModal("feedback"))}
-                {mitem("🌱", "Mis hábitos", () => { setScreenHabitos(true); })}
+                {mitem("🌱", "Mis hábitos", () => {
+                  if (!pacienteSeleccionado) { showToast("Selecciona un paciente primero ❌"); return; }
+                  setHabitos([{ id:1, activo:false, titulo:"", descripcion:"" },{ id:2, activo:false, titulo:"", descripcion:"" },{ id:3, activo:false, titulo:"", descripcion:"" }]);
+                  setRegistrosHabito({});
+                  cargarHabitos(pacienteSeleccionado.id);
+                  cargarRegistrosHabito(pacienteSeleccionado.id);
+                  cargarNotaHabitos(pacienteSeleccionado.id);
+                  setHabitosPacienteId(pacienteSeleccionado.id);
+                  setHabitosTab("hoy");
+                  setHabitosEditando(false);
+                  setScreenHabitos(true);
+                })}
                 {mitem("📅", "Agendar cita", () => { setCitaPacienteId(pacienteSeleccionado?.id || ""); setModal("agendar-cita"); })}
                 {mitem("🔔", "Programar notificación", () => setModal("programar-notif"))}
                 {mitem("🔔", "Recordatorios recurrentes", () => setModal("crear-recordatorio"))}
@@ -6403,14 +6423,27 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 </div>
 
                 {/* MIS HÁBITOS */}
-                <div onClick={() => { if (pacienteSeleccionado) { cargarHabitos(pacienteSeleccionado.id); cargarRegistrosHabito(pacienteSeleccionado.id); setHabitosPacienteId(pacienteSeleccionado.id); setScreenHabitos(true); } else { showToast("Selecciona un paciente primero 👆"); showScreen("psi-dashboard"); } }}
+                <div onClick={() => {
+                    if (!pacienteSeleccionado) { showToast("Entra a un paciente primero 👆"); showScreen("psi-dashboard"); return; }
+                    setHabitos([{ id:1, activo:false, titulo:"", descripcion:"" },{ id:2, activo:false, titulo:"", descripcion:"" },{ id:3, activo:false, titulo:"", descripcion:"" }]);
+                    setRegistrosHabito({});
+                    cargarHabitos(pacienteSeleccionado.id);
+                    cargarRegistrosHabito(pacienteSeleccionado.id);
+                    cargarNotaHabitos(pacienteSeleccionado.id);
+                    setHabitosPacienteId(pacienteSeleccionado.id);
+                    setHabitosTab("hoy");
+                    setHabitosEditando(false);
+                    setScreenHabitos(true);
+                  }}
                   style={{ background:"#FEFAF5", borderRadius:16, padding:"14px 16px", marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer", display:"flex", alignItems:"center", gap:14 }}>
                   <div style={{ width:44, height:44, borderRadius:13, background:"linear-gradient(135deg,#8B5A3A,#6A3E28)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
                   </div>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:14, fontWeight:700, color:C.text }}>Mis hábitos</div>
-                    <div style={{ fontSize:11, color:C.light, marginTop:2 }}>Seguimiento de hábitos terapéuticos</div>
+                    <div style={{ fontSize:11, color:C.light, marginTop:2 }}>
+                      {pacienteSeleccionado ? pacienteSeleccionado.nombre : "Selecciona un paciente primero"}
+                    </div>
                   </div>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
