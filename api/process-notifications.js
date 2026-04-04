@@ -91,6 +91,31 @@ module.exports = async function handler(req, res) {
   const ahoraISO = ahora.toISOString();
   const stats = { recordatoriosCita: 0, programadas: 0, generales: 0, recurrentes: 0, errores: 0 };
 
+  // ── Lock global: evitar dos ejecuciones simultáneas del cron ──────────────
+  const lockRef = db.collection('_cronLock').doc('process-notifications');
+  try {
+    let lockAdquirido = false;
+    await db.runTransaction(async (t) => {
+      const lockDoc = await t.get(lockRef);
+      const ahora2 = Date.now();
+      if (lockDoc.exists) {
+        const ultimoLock = lockDoc.data().ts || 0;
+        // Si el lock tiene menos de 4 minutos, otra instancia está corriendo
+        if (ahora2 - ultimoLock < 4 * 60 * 1000) {
+          return; // no adquirir
+        }
+      }
+      t.set(lockRef, { ts: ahora2, iso: ahoraISO });
+      lockAdquirido = true;
+    });
+    if (!lockAdquirido) {
+      return res.status(200).json({ ok: true, skipped: true, reason: 'lock activo' });
+    }
+  } catch(lockErr) {
+    console.error('Lock error:', lockErr.message);
+    // Si falla el lock, continuar de todos modos
+  }
+
   try {
 
     // ════════════════════════════════════════════════════════════════════════
