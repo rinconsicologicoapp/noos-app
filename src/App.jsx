@@ -785,6 +785,10 @@ const [subiendoFoto, setSubiendoFoto] = useState(false);
 const [editEspecialidad, setEditEspecialidad] = useState("");
 const [editExperiencia, setEditExperiencia] = useState("");
 const [editEnfoque, setEditEnfoque] = useState("");
+const [editBio, setEditBio] = useState("");
+const [editContactoNombre, setEditContactoNombre] = useState("");
+const [editContactoTel, setEditContactoTel] = useState("");
+const [mostrarTooltipVerif, setMostrarTooltipVerif] = useState(false);
 const [darkMode, setDarkMode] = useState(() => {
   try { return localStorage.getItem('darkMode') === 'true'; } catch { return false; }
 });
@@ -3672,7 +3676,16 @@ const styles = `
             <div style={{ fontSize:12, marginTop:4 }}>Tu psicólogo aún no te ha asignado tareas</div>
           </div>
         ) : tareasPsicologo.map(t => (
-          <div key={t.id} onClick={() => { setNotaAbierta({ ...t, tipo:"tarea" }); setNotaTextoEdit(t.respuesta || ""); }}
+          <div key={t.id} onClick={async () => {
+            setNotaAbierta({ ...t, tipo:"tarea" });
+            setNotaTextoEdit(t.respuesta || "");
+            if (!t.visto) {
+              try {
+                await updateDoc(doc(db, "tareas", t.id), { visto: true, vistoEn: new Date().toISOString() });
+                setTareasPsicologo(prev => prev.map(x => x.id === t.id ? { ...x, visto: true } : x));
+              } catch(e) {}
+            }
+          }}
             style={{ background:"#FEFAF5", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(196,132,90,0.10)", opacity:t.completada?0.6:1, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
             <div onClick={async e => {
               e.stopPropagation();
@@ -4190,7 +4203,7 @@ const styles = `
 
               {/* HEADER */}
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"28px 20px 40px", textAlign:"center" }}>
-                <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setModal("edit-perfil"); }} style={{ position:"relative", display:"inline-block", marginBottom:10, cursor:"pointer" }}>
+                <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); }} style={{ position:"relative", display:"inline-block", marginBottom:10, cursor:"pointer" }}>
                   <div style={{ width:64, height:64, background:"rgba(196,132,90,0.2)", borderRadius:"50%", border:"2px solid rgba(232,168,124,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, overflow:"hidden" }}>
                     {usuarioActual?.foto
                       ? <img src={usuarioActual.foto} alt="foto" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
@@ -4227,7 +4240,7 @@ const styles = `
                 <div style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
                   {[
                     { ic:"user", lb:"Cambiar avatar", fn:() => setModal("avatar") },
-                    { ic:"edit", lb:"Editar perfil", fn:() => { setEditNombre(usuarioActual?.nombre || ""); setEditTel(usuarioActual?.telefono || ""); setModal("edit-perfil"); } },
+                    { ic:"edit", lb:"Editar perfil", fn:() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); } },
                   ].map(({ ic, lb, fn }, i, arr) => (
                     <div key={lb} onClick={fn}
                       style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:i<arr.length-1?"0.5px solid rgba(232,168,124,0.06)":"none", cursor:"pointer" }}>
@@ -4358,14 +4371,35 @@ const styles = `
                     style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Correo</div>
                   <input value={usuarioActual?.email || ""} disabled
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.04)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#F5F5F5", color:C.light }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.04)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#F5F5F5", color:C.light }}/>
+
+                  <div style={{ background:"rgba(196,132,90,0.06)", borderRadius:14, padding:"12px 14px", marginBottom:14, border:"1px solid rgba(196,132,90,0.15)" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:10 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      <div style={{ fontSize:11, fontWeight:800, color:"#8B5A3A" }}>Contacto de emergencia</div>
+                    </div>
+                    <div style={{ fontSize:11, fontWeight:700, color:C.text, marginBottom:5 }}>Nombre</div>
+                    <input value={editContactoNombre} onChange={e => setEditContactoNombre(e.target.value)}
+                      placeholder="Nombre del contacto"
+                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(196,132,90,0.2)", borderRadius:10, fontSize:13, marginBottom:8, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"white" }}/>
+                    <div style={{ fontSize:11, fontWeight:700, color:C.text, marginBottom:5 }}>Teléfono</div>
+                    <input value={editContactoTel} onChange={e => setEditContactoTel(e.target.value.replace(/\D/g,""))}
+                      placeholder="Ej: 3001234567"
+                      type="tel" inputMode="numeric" pattern="[0-9]*"
+                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(196,132,90,0.2)", borderRadius:10, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"white" }}/>
+                  </div>
+
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(async () => {
                       if (!editNombre.trim()) { showToast("El nombre no puede estar vacío ❌"); return; }
                       try {
-                        await updateDoc(doc(db, "usuarios", usuarioActual.uid), { nombre: editNombre, telefono: editTel });
-                        setUsuarioActual(prev => ({ ...prev, nombre: editNombre, telefono: editTel }));
+                        await updateDoc(doc(db, "usuarios", usuarioActual.uid), {
+                          nombre: editNombre, telefono: editTel,
+                          contactoEmergenciaNombre: editContactoNombre,
+                          contactoEmergenciaTel: editContactoTel,
+                        });
+                        setUsuarioActual(prev => ({ ...prev, nombre:editNombre, telefono:editTel, contactoEmergenciaNombre:editContactoNombre, contactoEmergenciaTel:editContactoTel }));
                         setModal(null);
                         showNotif("Perfil actualizado", "Tus datos fueron guardados ✅", "✏️");
                       } catch(e) { showToast("Error al guardar ❌"); }
@@ -4516,7 +4550,37 @@ const styles = `
                 ) : (
                   <div style={{ width:80, height:80, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, margin:"0 auto 14px", border:"3px solid rgba(255,255,255,0.2)" }}>👨‍⚕️</div>
                 )}
-                <div style={{ fontSize:22, fontWeight:900, color:"white", marginBottom:4 }}>{psicologoData?.nombre || usuarioActual?.psicologoNombre || "Mi psicólogo"}</div>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:7, marginBottom:4 }}>
+                  <div style={{ fontSize:22, fontWeight:900, color:"white" }}>{psicologoData?.nombre || usuarioActual?.psicologoNombre || "Mi psicólogo"}</div>
+                  {psicologoData?.verificado && (
+                    <div style={{ position:"relative", display:"inline-flex", alignItems:"center" }}
+                      onClick={() => { setMostrarTooltipVerif(true); setTimeout(() => setMostrarTooltipVerif(false), 2200); }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" style={{ cursor:"pointer", flexShrink:0 }}>
+                        <defs>
+                          <linearGradient id="vg2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#60A5FA"/>
+                            <stop offset="100%" stopColor="#1D4ED8"/>
+                          </linearGradient>
+                        </defs>
+                        <circle cx="12" cy="12" r="11" fill="url(#vg2)"/>
+                        <circle cx="12" cy="12" r="11" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5"/>
+                        <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                      </svg>
+                      {mostrarTooltipVerif && (
+                        <div style={{ position:"absolute", bottom:"calc(100% + 8px)", left:"50%", transform:"translateX(-50%)",
+                          background:"rgba(29,78,216,0.96)", color:"white", fontSize:10, fontWeight:700,
+                          padding:"6px 12px", borderRadius:20, whiteSpace:"nowrap", pointerEvents:"none",
+                          boxShadow:"0 4px 20px rgba(29,78,216,0.35)", animation:"fadeIn 0.15s ease",
+                          letterSpacing:0.3 }}>
+                          ✓ Psicólogo verificado
+                          <div style={{ position:"absolute", top:"100%", left:"50%", transform:"translateX(-50%)",
+                            width:0, height:0, borderLeft:"5px solid transparent",
+                            borderRight:"5px solid transparent", borderTop:"6px solid rgba(29,78,216,0.96)" }}/>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
                 {psicologoData?.especialidad && <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginBottom:12 }}>{psicologoData.especialidad}</div>}
                 <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
                   {psicologoData?.especialidad && <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"4px 12px", borderRadius:20 }}>🧠 {psicologoData.especialidad}</span>}
@@ -4902,8 +4966,27 @@ const styles = `
                   <div style={{ fontSize:14, fontWeight:800, color:C.text }}>{p.nombre}</div>
                   <div style={{ fontSize:11, color:C.light }}>{p.email}</div>
                 </div>
-                <div style={{ background:p.inactivo?"#FFE0E0":"rgba(125,170,146,0.2)", color:p.inactivo?C.red:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
-                  {p.inactivo ? "Inactivo" : "Activo"}
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:5 }}>
+                  <div style={{ background:p.inactivo?"#FFE0E0":"rgba(125,170,146,0.2)", color:p.inactivo?C.red:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
+                    {p.inactivo ? "Inactivo" : "Activo"}
+                  </div>
+                  <div onClick={async () => {
+                    try {
+                      await updateDoc(doc(db, "usuarios", p.id), { verificado: !p.verificado });
+                      showToast(p.verificado ? "Verificación removida" : "✅ Psicólogo verificado");
+                      await cargarTodosUsuarios();
+                    } catch(e) { showToast("Error ❌"); }
+                  }} style={{ display:"flex", alignItems:"center", gap:4, cursor:"pointer",
+                    background: p.verificado ? "linear-gradient(135deg,#3B82F6,#1D4ED8)" : "rgba(0,0,0,0.06)",
+                    borderRadius:20, padding:"4px 10px", transition:"all 0.2s" }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" fill={p.verificado ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.1)"}/>
+                      <path d="M9 12l2 2 4-4" stroke={p.verificado ? "white" : "rgba(0,0,0,0.3)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                    </svg>
+                    <span style={{ fontSize:9, fontWeight:800, color: p.verificado ? "white" : "rgba(0,0,0,0.4)" }}>
+                      {p.verificado ? "Verificado" : "Verificar"}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -5708,7 +5791,23 @@ const styles = `
       })}
 
       {/* ACCIONES */}
-      <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
+      {(pacienteSeleccionado?.contactoEmergenciaNombre || pacienteSeleccionado?.contactoEmergenciaTel) && (
+                  <div style={{ background:"rgba(196,132,90,0.06)", borderRadius:12, padding:"10px 14px", marginBottom:12, border:"1px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:10 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:"#8B5A3A", marginBottom:1 }}>Contacto de emergencia</div>
+                      <div style={{ fontSize:12, fontWeight:600, color:C.text }}>{pacienteSeleccionado.contactoEmergenciaNombre || "—"}</div>
+                      <div style={{ fontSize:11, color:C.light }}>{pacienteSeleccionado.contactoEmergenciaTel || "—"}</div>
+                    </div>
+                    {pacienteSeleccionado.contactoEmergenciaTel && (
+                      <a href={`tel:${pacienteSeleccionado.contactoEmergenciaTel}`}
+                        style={{ width:34, height:34, background:"#4A8A72", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", flexShrink:0 }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      </a>
+                    )}
+                  </div>
+                )}
+                <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
       {mitem("➕", "Agregar usuario", () => { cargarTodosUsuarios(); setModal("registro-admin"); })}
 {mitem("👥", "Ver y gestionar usuarios", () => { cargarTodosUsuarios(); setModal("gestionar-usuarios"); })}
 {mitem("💰", "Gestión de pagos", () => showNotif("Pagos", "Función disponible pronto", "💰"))}
@@ -6006,7 +6105,20 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
   <div key={t.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${t.completada ? C.green : C.sage}` }}>
     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
       <div style={{ fontSize:13, fontWeight:800, color:C.text, flex:1 }}>{t.titulo}</div>
-      <div style={{ fontSize:10, fontWeight:800, padding:"3px 8px", borderRadius:20, background:t.completada ? "#E8F5E9" : "#FFF3E0", color:t.completada ? C.green : C.amber }}>{t.completada ? "✅ Completada" : "⏳ Pendiente"}</div>
+      <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
+        <div style={{ fontSize:10, fontWeight:800, padding:"3px 8px", borderRadius:20, background:t.completada ? "#E8F5E9" : "#FFF3E0", color:t.completada ? C.green : C.amber }}>
+          {t.completada ? "✅ Completada" : "⏳ Pendiente"}
+        </div>
+        <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" stroke={t.visto ? "#3B82F6" : "rgba(0,0,0,0.2)"} strokeWidth="1.75" strokeLinecap="round"/>
+            <circle cx="12" cy="12" r="3" fill={t.visto ? "#3B82F6" : "rgba(0,0,0,0.15)"}/>
+          </svg>
+          <span style={{ fontSize:9, color:t.visto ? "#3B82F6" : "rgba(0,0,0,0.3)", fontWeight:600 }}>
+            {t.visto ? "Vista" : "Sin ver"}
+          </span>
+        </div>
+      </div>
     </div>
     {t.descripcion ? <div style={{ fontSize:11, color:C.light, marginBottom:6, lineHeight:1.5 }}>{t.descripcion}</div> : null}
     <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
@@ -6460,11 +6572,41 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     <LucideIcon name="doctor" color="white" size={44}/>
                   </div>
                   )}
-                  <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setModal("edit-psico"); }} style={{ position:"absolute", bottom:2, right:2, width:28, height:28, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", border:"2px solid white", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>
+                  <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setEditBio(usuarioActual?.bio||""); setModal("edit-psico"); }} style={{ position:"absolute", bottom:2, right:2, width:28, height:28, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", border:"2px solid white", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                   </div>
                 </div>
-                <div style={{ fontSize:22, fontWeight:900, color:"white", marginBottom:4 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:7, marginBottom:4 }}>
+                  <div style={{ fontSize:22, fontWeight:900, color:"white" }}>{usuarioActual?.nombre || "Mi perfil"}</div>
+                  {usuarioActual?.verificado && (
+                    <div style={{ position:"relative", display:"inline-flex", alignItems:"center" }}
+                      onClick={() => { setMostrarTooltipVerif(true); setTimeout(() => setMostrarTooltipVerif(false), 2200); }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" style={{ cursor:"pointer", flexShrink:0 }}>
+                        <defs>
+                          <linearGradient id="vg1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#60A5FA"/>
+                            <stop offset="100%" stopColor="#1D4ED8"/>
+                          </linearGradient>
+                        </defs>
+                        <circle cx="12" cy="12" r="11" fill="url(#vg1)"/>
+                        <circle cx="12" cy="12" r="11" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5"/>
+                        <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                      </svg>
+                      {mostrarTooltipVerif && (
+                        <div style={{ position:"absolute", bottom:"calc(100% + 8px)", left:"50%", transform:"translateX(-50%)",
+                          background:"rgba(29,78,216,0.96)", color:"white", fontSize:10, fontWeight:700,
+                          padding:"6px 12px", borderRadius:20, whiteSpace:"nowrap", pointerEvents:"none",
+                          boxShadow:"0 4px 20px rgba(29,78,216,0.35)", animation:"fadeIn 0.15s ease",
+                          letterSpacing:0.3 }}>
+                          ✓ Psicólogo verificado
+                          <div style={{ position:"absolute", top:"100%", left:"50%", transform:"translateX(-50%)",
+                            width:0, height:0, borderLeft:"5px solid transparent",
+                            borderRight:"5px solid transparent", borderTop:"6px solid rgba(29,78,216,0.96)" }}/>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:600, marginBottom:12 }}>{usuarioActual?.email || ""}</div>
                 <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
                   {usuarioActual?.especialidad && (
@@ -6475,7 +6617,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   )}
                   {!usuarioActual?.especialidad && !usuarioActual?.enfoque && (
                     <span style={{ background:"rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.45)", fontSize:11, fontWeight:600, padding:"5px 12px", borderRadius:20, cursor:"pointer" }}
-                      onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setModal("edit-psico"); }}>
+                      onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setEditBio(usuarioActual?.bio||""); setModal("edit-psico"); }}>
                       ✏️ Agregar especialidad y enfoque
                     </span>
                   )}
@@ -6529,6 +6671,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   </div>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
+
+                {usuarioActual?.bio && (
+                  <div style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", marginBottom:14, border:"0.5px solid rgba(196,132,90,0.1)" }}>
+                    <div style={{ fontSize:10, fontWeight:700, color:C.light, marginBottom:5, textTransform:"uppercase", letterSpacing:0.5 }}>Sobre mí</div>
+                    <div style={{ fontSize:12, color:C.text, lineHeight:1.7 }}>{usuarioActual.bio}</div>
+                  </div>
+                )}
 
                 {/* INFO PROFESIONAL */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>ℹ️ Información profesional</div>
@@ -6683,21 +6832,24 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Teléfono</div>
                   <input value={editTel} onChange={e => setEditTel(e.target.value)} placeholder="Tu teléfono"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción profesional</div>
+                  <textarea value={editBio} onChange={e => setEditBio(e.target.value)}
+                    placeholder="Cuéntale a tus pacientes sobre tu experiencia y cómo los puedes ayudar... (visible en tu perfil)"
+                    rows={3}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:12, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"none", lineHeight:1.6 }}/>
 
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(async () => {
                       try {
                         await updateDoc(doc(db, "usuarios", usuarioActual.uid), {
-                          nombre: editNombre,
-                          telefono: editTel,
-                          foto: editFoto,
-                          especialidad: editEspecialidad,
-                          experiencia: editExperiencia,
-                          enfoque: editEnfoque,
+                          nombre: editNombre, telefono: editTel, foto: editFoto,
+                          especialidad: editEspecialidad, experiencia: editExperiencia,
+                          enfoque: editEnfoque, bio: editBio,
                         });
-                        setUsuarioActual(prev => ({ ...prev, nombre:editNombre, telefono:editTel, foto:editFoto, especialidad:editEspecialidad, experiencia:editExperiencia, enfoque:editEnfoque }));
+                        setUsuarioActual(prev => ({ ...prev, nombre:editNombre, telefono:editTel, foto:editFoto, especialidad:editEspecialidad, experiencia:editExperiencia, enfoque:editEnfoque, bio:editBio }));
                         setModal(null);
                         showNotif("Perfil actualizado", "Los cambios fueron guardados ✅", "✏️");
                       } catch(e) { showToast("Error al guardar ❌"); }
