@@ -4590,9 +4590,18 @@ const styles = `
               <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))", marginTop:-24, position:"relative", zIndex:10 }}>
                 {/* INFO */}
                 <div style={{ background:"#FEFAF5", borderRadius:14, padding:18, marginBottom:14, boxShadow:"0 4px 20px rgba(0,0,0,0.07)" }}>
-                  {[["📞","Teléfono", psicologoData?.telefono || "No registrado"],["📧","Correo", psicologoData?.email || ""],["🎓","Especialidad", psicologoData?.especialidad || "No registrado"],["🔬","Enfoque", psicologoData?.enfoque || "No registrado"]].map(([ic,lb,val],i,arr) => (
+                  {[
+                  { lb:"Teléfono", val:psicologoData?.telefono || "No registrado",
+                    svg:<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> },
+                  { lb:"Correo", val:psicologoData?.email || "",
+                    svg:<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> },
+                  { lb:"Especialidad", val:psicologoData?.especialidad || "No registrado",
+                    svg:<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> },
+                  { lb:"Enfoque", val:psicologoData?.enfoque || "No registrado",
+                    svg:<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/></svg> },
+                ].map(({ lb, val, svg }, i, arr) => (
                     <div key={lb} style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 0", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none" }}>
-                      <div style={{ fontSize:18, width:32, textAlign:"center", flexShrink:0 }}>{ic}</div>
+                      <div style={{ width:32, height:32, background:"rgba(139,90,58,0.08)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{svg}</div>
                       <div>
                         <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", marginBottom:2 }}>{lb}</div>
                         <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{val}</div>
@@ -4711,8 +4720,8 @@ const styles = `
                   <div style={{ fontSize:16, fontWeight:700, color:"white" }}>👥 Mis pacientes</div>
                   <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>{pacientes.length} paciente{pacientes.length !== 1 ? "s" : ""} activo{pacientes.length !== 1 ? "s" : ""}</div>
                 </div>
-                <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer" }}>
-                  <div style={{ fontSize:24 }}>🔔</div>
+                <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(255,255,255,0.1)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                   {unread > 0 && <div style={{ position:"absolute", top:-4, right:-4, width:16, height:16, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:900, color:"white", border:`2px solid ${C.plum}` }}>{unread}</div>}
                 </div>
               </div>
@@ -4961,7 +4970,9 @@ const styles = `
             <div key={p.id} style={{ background:"#FEFAF5", borderRadius:16, padding:14, marginBottom:12, border:"0.5px solid rgba(196,132,90,0.12)" }}>
               {/* Info psicólogo */}
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-                <div style={{ width:44, height:44, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>🧠</div>
+                <div style={{ width:44, height:44, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.44-3.16z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.44-3.16z"/></svg>
+                </div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:14, fontWeight:800, color:C.text }}>{p.nombre}</div>
                   <div style={{ fontSize:11, color:C.light }}>{p.email}</div>
@@ -5086,7 +5097,9 @@ const styles = `
           return (
             <div key={pac.id} style={{ background:"#FEFAF5", borderRadius:16, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)" }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-                <div style={{ width:40, height:40, background:"rgba(196,132,90,0.15)", borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>👤</div>
+                <div style={{ width:40, height:40, background:"rgba(196,132,90,0.15)", borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{pac.nombre}</div>
                   <div style={{ fontSize:10, color:C.light }}>{pac.email}</div>
@@ -6032,8 +6045,8 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 ))}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
                 {btn(() => setModal("assign-task"), "📋 Asignar nueva tarea", { width:"100%", padding:9, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, color:"white", borderRadius:13, fontSize:13, fontWeight:800, marginBottom:10 })}
-                {mitem("💬", "Nota clínica privada", () => setModal("feedback"))}
-                {mitem("🌱", "Mis hábitos", () => {
+                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, "Nota clínica privada", () => setModal("feedback"))}
+                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>, "Mis hábitos", () => {
                   if (!pacienteSeleccionado) { showToast("Selecciona un paciente primero ❌"); return; }
                   setHabitos([{ id:1, activo:false, titulo:"", descripcion:"" },{ id:2, activo:false, titulo:"", descripcion:"" },{ id:3, activo:false, titulo:"", descripcion:"" }]);
                   setRegistrosHabito({});
@@ -6045,10 +6058,10 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   setHabitosEditando(false);
                   setScreenHabitos(true);
                 })}
-                {mitem("📅", "Agendar cita", () => { setCitaPacienteId(pacienteSeleccionado?.id || ""); setModal("agendar-cita"); })}
-                {mitem("🔔", "Programar notificación", () => setModal("programar-notif"))}
-                {mitem("🔔", "Recordatorios recurrentes", () => setModal("crear-recordatorio"))}
-                {mitem("📤", "Enviar material", () => setModal("enviar-material"))}
+                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>, "Agendar cita", () => { setCitaPacienteId(pacienteSeleccionado?.id || ""); setModal("agendar-cita"); })}
+                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>, "Programar notificación", () => setModal("programar-notif"))}
+                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><line x1="12" y1="2" x2="12" y2="2"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="8" y1="6" x2="8" y2="2"/><line x1="16" y1="6" x2="16" y2="2"/></svg>, "Recordatorios recurrentes", () => setModal("crear-recordatorio"))}
+                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>, "Enviar material", () => setModal("enviar-material"))}
                 {recordatorios.filter(r => r.pacienteId === pacienteSeleccionado?.id).length > 0 && (
   <div style={{ marginTop:4, marginBottom:4 }}>
     <div style={{ fontSize:12, fontWeight:800, color:C.light, margin:"12px 0 8px" }}>RECORDATORIOS ACTIVOS</div>
@@ -6638,10 +6651,17 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                 {/* ACCIONES RÁPIDAS */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
-                  {[["📅","Agendar cita",() => { showToast("Selecciona un paciente para agendar 👆"); showScreen("psi-dashboard"); }],["👥","Mis pacientes",() => showScreen("psi-dashboard")],["🔔","Notificaciones",() => setNotifPanel(true)]].map(([ic,lb,fn]) => (
-                    <div key={lb} onClick={fn} style={{ background:"#FEFAF5", borderRadius:14, padding:"11px 14px", textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer", transition:"all 0.2s" }}>
-                      <div style={{ fontSize:28, marginBottom:6 }}>{ic}</div>
-                      <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{lb}</div>
+                  {[
+                    { lb:"Agendar cita", fn:() => { showToast("Selecciona un paciente para agendar 👆"); showScreen("psi-dashboard"); },
+                      svg:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1" fill="#8B5A3A"/><circle cx="12" cy="15" r="1" fill="#8B5A3A"/></svg> },
+                    { lb:"Mis pacientes", fn:() => showScreen("psi-dashboard"),
+                      svg:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+                    { lb:"Notificaciones", fn:() => setNotifPanel(true),
+                      svg:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> },
+                  ].map(({ lb, fn, svg }) => (
+                    <div key={lb} onClick={fn} style={{ background:"#FEFAF5", borderRadius:14, padding:"14px 10px", textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer", transition:"all 0.2s" }}>
+                      <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>{svg}</div>
+                      <div style={{ fontSize:11, fontWeight:800, color:C.text }}>{lb}</div>
                     </div>
                   ))}
                 </div>
@@ -6682,9 +6702,16 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 {/* INFO PROFESIONAL */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>ℹ️ Información profesional</div>
                 <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
-                  {[["🎓","Especialidad", usuarioActual?.especialidad || "No registrado"],["🔬","Enfoque", usuarioActual?.enfoque || "No registrado"],["📞","Teléfono", usuarioActual?.telefono || "No registrado"]].map(([ic,lb,val]) => (
+                  {[
+                    { lb:"Especialidad", val:usuarioActual?.especialidad || "No registrado",
+                      svg:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> },
+                    { lb:"Enfoque", val:usuarioActual?.enfoque || "No registrado",
+                      svg:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/></svg> },
+                    { lb:"Teléfono", val:usuarioActual?.telefono || "No registrado",
+                      svg:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> },
+                  ].map(({ lb, val, svg }) => (
                     <div key={lb} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 0", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
-                      <div style={{ fontSize:18, width:32, textAlign:"center", flexShrink:0 }}>{ic}</div>
+                      <div style={{ width:32, height:32, background:"rgba(139,90,58,0.08)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{svg}</div>
                       <div>
                         <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", marginBottom:2 }}>{lb}</div>
                         <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{val}</div>
@@ -6697,13 +6724,20 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 <div style={{ background:"#FEFAF5", borderRadius:14, overflow:"hidden", marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
                   <div onClick={() => setNotifPanel(true)}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
-                    <div style={{ fontSize:18, width:32, textAlign:"center" }}>🔔</div>
+                    <div style={{ width:32, height:32, background:"rgba(139,90,58,0.08)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, flex:1 }}>Notificaciones</div>
-                    <div style={{ color:C.light, fontSize:16 }}>›</div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                   <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
-                    <div style={{ fontSize:18, width:32, textAlign:"center" }}>{darkMode?"☀️":"🌙"}</div>
+                    <div style={{ width:32, height:32, background:"rgba(139,90,58,0.08)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      {darkMode
+                        ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                      }
+                    </div>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, flex:1 }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
                     <div style={{ width:44, height:24, borderRadius:12, background:darkMode?C.plum:C.light, position:"relative", transition:"background 0.3s" }}>
                       <div style={{ width:18, height:18, borderRadius:"50%", background:"white", position:"absolute", top:3, left:darkMode?23:3, transition:"left 0.3s" }}/>
@@ -6711,9 +6745,11 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   </div>
                   <div onClick={cerrarSesion}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", cursor:"pointer" }}>
-                    <div style={{ fontSize:18, width:32, textAlign:"center" }}>🚪</div>
+                    <div style={{ width:32, height:32, background:"rgba(192,82,74,0.08)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="1.75" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    </div>
                     <div style={{ fontSize:13, fontWeight:700, color:C.red, flex:1 }}>Cerrar sesión</div>
-                    <div style={{ color:C.red, fontSize:16 }}>›</div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
                 {/* RESEÑAS */}
