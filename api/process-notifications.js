@@ -101,7 +101,7 @@ module.exports = async function handler(req, res) {
       if (lockDoc.exists) {
         const ultimoLock = lockDoc.data().ts || 0;
         // Si el lock tiene menos de 4 minutos, otra instancia está corriendo
-        if (ahora2 - ultimoLock < 4 * 60 * 1000) {
+        if (ahora2 - ultimoLock < 2 * 60 * 1000) {
           return; // no adquirir
         }
       }
@@ -212,7 +212,7 @@ module.exports = async function handler(req, res) {
     //           cita_cancelada, demora, racha
     //    Campo clave: pushEnviada == false, creadoEn últimos 10 min
     // ════════════════════════════════════════════════════════════════════════
-    const hace4 = new Date(ahora.getTime() - 4.5 * 60 * 1000).toISOString();
+    const hace2 = new Date(ahora.getTime() - 2.5 * 60 * 1000).toISOString();
     const snapGeneral = await db.collection('notificaciones')
       .where('pushEnviada', '==', false)
       .limit(50)
@@ -220,7 +220,7 @@ module.exports = async function handler(req, res) {
     // Filtramos en memoria para evitar índice compuesto en Firestore
     const docsGenerales = snapGeneral.docs.filter(d => {
       const creadoEn = d.data().creadoEn || '';
-      return creadoEn >= hace4;
+      return creadoEn >= hace2;
     });
 
     for (const docSnap of docsGenerales) {
