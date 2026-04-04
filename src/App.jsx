@@ -781,6 +781,7 @@ const [pinNuevo2, setPinNuevo2] = useState("");
 const [editTel, setEditTel] = useState("");
 const [psicologoData, setPsicologoData] = useState(null);
 const [editFoto, setEditFoto] = useState("");
+const [subiendoFoto, setSubiendoFoto] = useState(false);
 const [editEspecialidad, setEditEspecialidad] = useState("");
 const [editExperiencia, setEditExperiencia] = useState("");
 const [editEnfoque, setEditEnfoque] = useState("");
@@ -1356,6 +1357,34 @@ const cargarRecursosPsicologo = async (pacienteId, psicologoId) => {
     setRecursos(lista);
   } catch(e) { console.log("Error recursos psicologo:", e); }
 };
+const subirFotoPerfil = async (archivo) => {
+  if (!archivo) return null;
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  if (archivo.size > maxSize) { showToast("La foto debe pesar menos de 5MB ❌"); return null; }
+  setSubiendoFoto(true);
+  try {
+    const formData = new FormData();
+    formData.append("file", archivo);
+    formData.append("upload_preset", "mipsicologo");
+    formData.append("cloud_name", "dh0wutypb");
+    formData.append("folder", "fotos_perfil");
+    formData.append("transformation", "w_400,h_400,c_fill,g_face,q_auto,f_auto");
+    const res = await fetch("https://api.cloudinary.com/v1_1/dh0wutypb/image/upload", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    if (data.secure_url) return data.secure_url;
+    showToast("Error al subir la foto ❌");
+    return null;
+  } catch(e) {
+    showToast("Error de conexión ❌");
+    return null;
+  } finally {
+    setSubiendoFoto(false);
+  }
+};
+
 const subirArchivoCloudinary = async (archivo) => {
   setSubiendoArchivo(true);
   setProgresoSubida(0);
@@ -4159,9 +4188,12 @@ const styles = `
 
               {/* HEADER */}
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"28px 20px 40px", textAlign:"center" }}>
-                <div onClick={() => setModal("avatar")} style={{ position:"relative", display:"inline-block", marginBottom:10, cursor:"pointer" }}>
+                <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setModal("edit-perfil"); }} style={{ position:"relative", display:"inline-block", marginBottom:10, cursor:"pointer" }}>
                   <div style={{ width:64, height:64, background:"rgba(196,132,90,0.2)", borderRadius:"50%", border:"2px solid rgba(232,168,124,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, overflow:"hidden" }}>
-                    {avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar}
+                    {usuarioActual?.foto
+                      ? <img src={usuarioActual.foto} alt="foto" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
+                      : (avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar)
+                    }
                   </div>
                   <div style={{ position:"absolute", bottom:0, right:0, width:20, height:20, background:"#C4845A", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid #2A1E14" }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
@@ -4273,11 +4305,47 @@ const styles = `
               {mdl("edit-perfil", (
                 <div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>✏️ Editar perfil</div>
-                  <div style={{ display:"flex", justifyContent:"center", marginBottom:14 }}>
-                    <div style={{ width:64, height:64, background:"rgba(196,132,90,0.1)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
-                      {avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : <span style={{fontSize:40}}>{avatar}</span>}
+
+                  {/* FOTO DE PERFIL PACIENTE */}
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>📷 Foto de perfil</div>
+                  <label style={{ display:"block", cursor: subiendoFoto ? "wait" : "pointer", marginBottom:14 }}>
+                    <input type="file" accept="image/jpeg,image/png,image/webp,image/heic"
+                      style={{ display:"none" }}
+                      onChange={async (e) => {
+                        const archivo = e.target.files?.[0];
+                        if (!archivo) return;
+                        const url = await subirFotoPerfil(archivo);
+                        if (url) {
+                          try {
+                            await updateDoc(doc(db, "usuarios", usuarioActual.uid), { foto: url });
+                            setUsuarioActual(prev => ({ ...prev, foto: url }));
+                            showToast("✅ Foto actualizada");
+                          } catch(e) { showToast("Error al guardar ❌"); }
+                        }
+                      }}/>
+                    <div style={{ border:`2px dashed ${subiendoFoto ? C.sage : "rgba(196,132,90,0.3)"}`, borderRadius:14, padding:"12px 14px",
+                      background: subiendoFoto ? "rgba(125,170,146,0.06)" : "rgba(196,132,90,0.04)",
+                      display:"flex", alignItems:"center", gap:12 }}>
+                      <div style={{ width:52, height:52, borderRadius:"50%", overflow:"hidden", flexShrink:0,
+                        background:"rgba(196,132,90,0.1)", display:"flex", alignItems:"center", justifyContent:"center",
+                        border:`2px solid rgba(196,132,90,0.2)` }}>
+                        {usuarioActual?.foto
+                          ? <img src={usuarioActual.foto} alt="foto" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
+                          : (avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : <span style={{fontSize:28}}>{avatar}</span>)
+                        }
+                      </div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13, fontWeight:700, color: subiendoFoto ? "#7DAA92" : C.text }}>
+                          {subiendoFoto ? "Subiendo..." : usuarioActual?.foto ? "Cambiar foto" : "Subir foto"}
+                        </div>
+                        <div style={{ fontSize:10, color:C.light, marginTop:2 }}>
+                          {subiendoFoto ? "Espera un momento" : "Desde tu galería · Máx. 5MB"}
+                        </div>
+                      </div>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="1.75" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     </div>
-                  </div>
+                  </label>
+
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre</div>
                   <input value={editNombre} onChange={e => setEditNombre(e.target.value)}
                     placeholder="Tu nombre completo"
@@ -6560,10 +6628,41 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     )}
                   </div>
 
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🖼️ URL de foto de perfil</div>
-                  <input placeholder="https://ejemplo.com/mi-foto.jpg" value={editFoto} onChange={e => setEditFoto(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:12, marginBottom:4, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
-                  <div style={{ fontSize:10, color:C.light, marginBottom:12 }}>💡 Copia la URL de tu foto desde Google, LinkedIn u otra red</div>
+                  {/* SUBIR FOTO DESDE DISPOSITIVO */}
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>📷 Foto de perfil</div>
+                  <label style={{ display:"block", cursor: subiendoFoto ? "wait" : "pointer", marginBottom:12 }}>
+                    <input type="file" accept="image/jpeg,image/png,image/webp,image/heic"
+                      style={{ display:"none" }}
+                      onChange={async (e) => {
+                        const archivo = e.target.files?.[0];
+                        if (!archivo) return;
+                        const url = await subirFotoPerfil(archivo);
+                        if (url) setEditFoto(url);
+                      }}/>
+                    <div style={{ border:`2px dashed ${subiendoFoto ? C.sage : "rgba(196,132,90,0.3)"}`, borderRadius:14, padding:"14px 16px",
+                      background: subiendoFoto ? "rgba(125,170,146,0.06)" : "rgba(196,132,90,0.04)",
+                      display:"flex", alignItems:"center", gap:12, transition:"all 0.2s" }}>
+                      <div style={{ width:40, height:40, borderRadius:12, background: subiendoFoto ? "rgba(125,170,146,0.15)" : "rgba(196,132,90,0.1)",
+                        display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        {subiendoFoto
+                          ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7DAA92" strokeWidth="2" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                          : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        }
+                      </div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13, fontWeight:700, color: subiendoFoto ? "#7DAA92" : C.text }}>
+                          {subiendoFoto ? "Subiendo foto..." : editFoto ? "Cambiar foto" : "Subir foto desde galería"}
+                        </div>
+                        <div style={{ fontSize:10, color:C.light, marginTop:2 }}>
+                          {subiendoFoto ? "Espera un momento" : "JPG, PNG, WEBP · Máx. 5MB"}
+                        </div>
+                      </div>
+                      {editFoto && !subiendoFoto && (
+                        <img src={editFoto} alt="preview"
+                          style={{ width:40, height:40, borderRadius:10, objectFit:"cover", border:`2px solid rgba(196,132,90,0.2)`, flexShrink:0 }}/>
+                      )}
+                    </div>
+                  </label>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre completo</div>
                   <input value={editNombre} onChange={e => setEditNombre(e.target.value)} placeholder="Tu nombre"
