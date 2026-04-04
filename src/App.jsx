@@ -1057,8 +1057,7 @@ const crearCita = async () => {
     // Programar recordatorio 1h antes en Firestore
     // Usamos fechaUTC (ya calculado arriba) para evitar errores de timezone
     const fechaHoraCitaUTC = new Date(fechaUTC);
-    const una_hora_antes = new Date(fechaHoraCitaUTC.getTime() - 60 * 60 * 1000);
-    const cinco_min_antes = new Date(fechaHoraCitaUTC.getTime() - 5 * 60 * 1000);
+    const una_hora_antes = new Date(fechaHoraCitaUTC.getTime() - 60 * 60 * 1000);   
 
     const ahora = new Date();
     // Solo crear recordatorio 1h si la hora de envío es en el FUTURO
@@ -1069,16 +1068,7 @@ const crearCita = async () => {
         mensaje: `${titulo} — ${citaFecha} a las ${citaHora}`,
         link: citaLink, enviarEn: una_hora_antes.toISOString(), enviado: false, tipo: "1h",
       });
-    }
-    // Solo crear recordatorio 5m si la hora de envío es en el FUTURO
-    if (cinco_min_antes > ahora) {
-      await setDoc(doc(db, "recordatoriosCita", `${id}_5m`), {
-        citaId: id, pacienteId: pacienteIdFinal, psicologoId: usuarioActual.uid,
-        titulo: `🔴 Tu cita empieza en 5 minutos`,
-        mensaje: `${titulo} — Toca aquí para abrir el enlace`,
-        link: citaLink, enviarEn: cinco_min_antes.toISOString(), enviado: false, tipo: "5m",
-      });
-    }
+    }  
 
     showToast(`✅ Cita agendada para ${paciente?.nombre}`);
     showNotif("Cita agendada", `${paciente?.nombre} — ${citaFecha} a las ${citaHora}`, "📅");
@@ -1367,9 +1357,7 @@ const subirFotoPerfil = async (archivo) => {
     formData.append("file", archivo);
     formData.append("upload_preset", "mipsicologo");
     formData.append("cloud_name", "dh0wutypb");
-    formData.append("folder", "fotos_perfil");
-    formData.append("transformation", "w_400,h_400,c_fill,g_face,q_auto,f_auto");
-    const res = await fetch("https://api.cloudinary.com/v1_1/dh0wutypb/image/upload", {
+    const res = await fetch("https://api.cloudinary.com/v1_1/dh0wutypb/raw/upload", {
       method: "POST",
       body: formData,
     });
