@@ -1038,8 +1038,22 @@ const crearCita = async () => {
     await setDoc(doc(db, "citas", id), nuevaCita);
     setCitas(prev => [...prev, nuevaCita].sort((a,b) => fechaOrden(a) - fechaOrden(b)));
 
-    // Notificación inmediata en Firestore al paciente
+    // Notificación inmediata via notificaciones_programadas (evita race condition del cron)
     const notifId = `cita_nueva_${id}`;
+    const scheduledAt = new Date(Date.now() + 5000).toISOString(); // 5 segundos desde ahora
+    await setDoc(doc(db, "notificaciones_programadas", notifId), {
+      pacienteId:  pacienteIdFinal,
+      psicologoId: usuarioActual.uid,
+      title:       `📅 Nueva cita: ${titulo}`,
+      body:        `${citaFecha} a las ${citaHora} — ${citaModalidad === "virtual" ? "Virtual 💻" : "Presencial 🏥"}`,
+      scheduledAt,
+      enviada:     false,
+      creadaEn:    new Date().toISOString(),
+      tipo:        "cita_nueva",
+      citaId:      id,
+      link:        citaLink,
+    });
+    // También guardar en notificaciones para el panel (sin push)
     await setDoc(doc(db, "notificaciones", notifId), {
       pacienteId:  pacienteIdFinal,
       psicologoId: usuarioActual.uid,
@@ -1048,7 +1062,7 @@ const crearCita = async () => {
       mensaje:     `${citaFecha} a las ${citaHora} — ${citaModalidad === "virtual" ? "Virtual 💻" : "Presencial 🏥"}`,
       creadoEn:    new Date().toISOString(),
       leida:       false,
-      pushEnviada: false,
+      pushEnviada: true,
       tipo:        "cita_nueva",
       citaId:      id,
       link:        citaLink,
@@ -4183,8 +4197,8 @@ const styles = `
                       : (avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar)
                     }
                   </div>
-                  <div style={{ position:"absolute", bottom:0, right:0, width:20, height:20, background:"#C4845A", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid #2A1E14" }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+                  <div style={{ position:"absolute", bottom:0, right:0, width:22, height:22, background:"#C4845A", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid #2A1E14" }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                   </div>
                 </div>
                 <div style={{ fontSize:17, fontWeight:700, color:"#F5E6D0", marginBottom:3 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
@@ -6446,7 +6460,9 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     <LucideIcon name="doctor" color="white" size={44}/>
                   </div>
                   )}
-                  <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setModal("edit-psico"); }} style={{ position:"absolute", bottom:2, right:2, width:26, height:26, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, cursor:"pointer", border:"2px solid white", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>✏️</div>
+                  <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setModal("edit-psico"); }} style={{ position:"absolute", bottom:2, right:2, width:28, height:28, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", border:"2px solid white", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </div>
                 </div>
                 <div style={{ fontSize:22, fontWeight:900, color:"white", marginBottom:4 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:600, marginBottom:12 }}>{usuarioActual?.email || ""}</div>
