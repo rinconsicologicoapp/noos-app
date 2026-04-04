@@ -1369,7 +1369,7 @@ const subirFotoPerfil = async (archivo) => {
     formData.append("cloud_name", "dh0wutypb");
     formData.append("folder", "fotos_perfil");
     formData.append("transformation", "w_400,h_400,c_fill,g_face,q_auto,f_auto");
-    const res = await fetch("https://api.cloudinary.com/v1_1/dh0wutypb/image/upload", {
+    const res = await fetch("https://api.cloudinary.com/v1_1/dh0wutypb/auto/upload", {
       method: "POST",
       body: formData,
     });
