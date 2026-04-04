@@ -1,8 +1,8 @@
 // ─── Service Worker — Mi Psicólogo PWA ────────────────────────────────────────
 // Carga Firebase messaging para recibir push en background (app cerrada)
 
-importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/11.6.0/firebase-messaging-compat.js');
 
 // La config se inyecta desde el build de Vite vía import.meta.env
 // Como el SW no tiene acceso a env, usamos un archivo generado o variables inline
@@ -90,13 +90,13 @@ messaging.onBackgroundMessage((payload) => {
   const options = {
     body:               notification.body || '',
     icon:               icono,
-    badge:              '/icon-192.png',        // ícono pequeño en barra Android    
+    badge:              '/icon-192.png',
     tag:                data.tag || data.citaId || tipo + '_' + Date.now(),
-    renotify:           true,                    // vibra aunque el tag sea igual
+    renotify:           true,
     data,
     vibrate:            vibracion,
     requireInteraction: persistente,
-    silent:             false,                   // siempre con sonido
+    silent:             false,
     timestamp:          Date.now(),
     dir:                'ltr',
     lang:               'es',
@@ -106,6 +106,22 @@ messaging.onBackgroundMessage((payload) => {
   return self.registration.showNotification(
     notification.title || 'Mi Psicólogo',
     options
+  );
+});
+
+// ─── Prevenir notificación OS cuando la app está en primer plano ──────────────
+// Cuando la app está visible, el onMessage del cliente ya la maneja con toast.
+// Esto evita la doble notificación (una del SW y otra del onMessage de la app).
+self.addEventListener('push', (event) => {
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      const appVisible = clientList.some(c => c.visibilityState === 'visible');
+      if (appVisible) {
+        // App en primer plano → NO mostrar notificación OS
+        return Promise.resolve();
+      }
+      // App en background → onBackgroundMessage la maneja normalmente
+    })
   );
 });
 

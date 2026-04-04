@@ -187,7 +187,7 @@ module.exports = async function handler(req, res) {
     //           cita_cancelada, demora, racha
     //    Campo clave: pushEnviada == false, creadoEn últimos 10 min
     // ════════════════════════════════════════════════════════════════════════
-    const hace6 = new Date(ahora.getTime() - 6 * 60 * 1000).toISOString();
+    const hace4 = new Date(ahora.getTime() - 4.5 * 60 * 1000).toISOString();
     const snapGeneral = await db.collection('notificaciones')
       .where('pushEnviada', '==', false)
       .limit(50)
@@ -195,7 +195,7 @@ module.exports = async function handler(req, res) {
     // Filtramos en memoria para evitar índice compuesto en Firestore
     const docsGenerales = snapGeneral.docs.filter(d => {
       const creadoEn = d.data().creadoEn || '';
-      return creadoEn >= hace6;
+      return creadoEn >= hace4;
     });
 
     for (const docSnap of docsGenerales) {
@@ -207,11 +207,15 @@ module.exports = async function handler(req, res) {
       try {
         await db.runTransaction(async (t) => {
           const fresh = await t.get(docSnap.ref);
-          if (!fresh.exists || fresh.data().pushEnviada === true) {
-            yaEnviada = true;
-            return;
+          if (!fresh.exists) { yaEnviada = true; return; }
+          const data = fresh.data();
+          if (data.pushEnviada === true) { yaEnviada = true; return; }
+          // Doble check: si tiene cronEnviadoEn reciente (< 10s), skip
+          if (data.cronEnviadoEn) {
+            const diff = Date.now() - new Date(data.cronEnviadoEn).getTime();
+            if (diff < 10000) { yaEnviada = true; return; }
           }
-          t.update(docSnap.ref, { pushEnviada: true });
+          t.update(docSnap.ref, { pushEnviada: true, cronEnviadoEn: ahoraISO });
         });
       } catch(e) { stats.errores++; continue; }
       if (yaEnviada) continue;

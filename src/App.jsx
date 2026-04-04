@@ -1232,9 +1232,19 @@ const guardarNotaHabitos = async (pacienteId) => {
 const registrarHabito = async (habitoId, fecha, estado) => {
   try {
     const id = `${habitoId}_${fecha}`;
-    await setDoc(doc(db, "registrosHabito", id), { habitoId, pacienteId: usuarioActual.uid, fecha, estado, creadoEn: new Date().toISOString() });
+    await setDoc(doc(db, "registrosHabito", id), {
+      habitoId, pacienteId: usuarioActual.uid, fecha, estado,
+      creadoEn: new Date().toISOString()
+    });
     setRegistrosHabito(prev => ({ ...prev, [habitoId]: { ...(prev[habitoId]||{}), [fecha]: estado } }));
-    if (navigator.vibrate) navigator.vibrate(10);
+    if (navigator.vibrate) navigator.vibrate([30, 20, 30]);
+    const mensajes = {
+      si:      ["¡Excelente! Sigue así 💪", "¡Lo lograste hoy! 🌟", "¡Hábito cumplido! 🎯", "¡Así se hace! 🔥"],
+      parcial: ["Algo es mejor que nada 🌱", "Un paso a la vez 👣", "Cada esfuerzo cuenta 💛"],
+      no:      ["Mañana es otra oportunidad 🌅", "No pasa nada, sigue adelante 💙", "El progreso no es lineal 🤍"],
+    };
+    const lista = mensajes[estado] || mensajes.si;
+    showToast(lista[Math.floor(Math.random() * lista.length)]);
   } catch(e) { showToast("Error ❌"); }
 };
 
