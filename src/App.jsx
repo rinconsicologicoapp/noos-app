@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { messaging, getToken, onMessage } from "./firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "./firebase";
-import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc, query, where } from "firebase/firestore";
+import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 // ─────────────────────────────────────────
 // BANCO DE 100 FRASES MOTIVADORAS
@@ -1640,15 +1640,15 @@ const cargarTareasFirestore = async (pacienteId) => {
     setTareasPsicologo(lista);
   } catch(e) { console.log("Error tareas paciente:", e); }
 };
-const cargarTareasPsicologo = async (pacienteId, psicologoId) => {
-  try {
-    const q = query(collection(db, "tareas"), where("pacienteId", "==", pacienteId), where("psicologoId", "==", psicologoId));
-    const snap = await getDocs(q);
+const cargarTareasPsicologo = (pacienteId, psicologoId) => {
+  const q = query(collection(db, "tareas"), where("pacienteId", "==", pacienteId), where("psicologoId", "==", psicologoId));
+  const unsub = onSnapshot(q, (snap) => {
     const lista = snap.docs
       .map(d => ({ id: d.id, ...d.data() }))
       .sort((a,b) => new Date(b.creadaEn) - new Date(a.creadaEn));
     setTareasPsicologo(lista);
-  } catch(e) { showToast("Error al cargar tareas ❌"); }
+  }, () => {});
+  return unsub;
 };
 
 const crearTarea = async () => {
@@ -4797,7 +4797,24 @@ const styles = `
                   </div>
                 ) : (
                   pacientes.map(p => (
-                    <div key={p.id} onClick={() => { setPacienteSeleccionado(p); cargarTareasPsicologo(p.id, usuarioActual.uid); cargarRecursosPsicologo(p.id, usuarioActual.uid); cargarAutorregistros(p.id); cargarNotasClinicas(p.id); cargarRegistrosAnimo(p.id); cargarHabitos(p.id); cargarRegistrosHabito(p.id); cargarNotaHabitos(p.id); setHabitosPacienteId(p.id); showScreen("admin-paciente"); }}
+                    <div key={p.id} onClick={async () => {
+                      let pacienteFresh = p;
+                      try {
+                        const snap = await getDoc(doc(db, "usuarios", p.id));
+                        if (snap.exists()) pacienteFresh = { id: p.id, ...snap.data() };
+                      } catch(e) {}
+                      setPacienteSeleccionado(pacienteFresh);
+                      cargarTareasPsicologo(p.id, usuarioActual.uid);
+                      cargarRecursosPsicologo(p.id, usuarioActual.uid);
+                      cargarAutorregistros(p.id);
+                      cargarNotasClinicas(p.id);
+                      cargarRegistrosAnimo(p.id);
+                      cargarHabitos(p.id);
+                      cargarRegistrosHabito(p.id);
+                      cargarNotaHabitos(p.id);
+                      setHabitosPacienteId(p.id);
+                      showScreen("admin-paciente");
+                    }}
                       style={{ background:"#FEFAF5", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer" }}>
                       <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum},${C.sage})`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, color:"white", fontWeight:700 }}>
                         {p.nombre?.charAt(0).toUpperCase()}
@@ -6649,47 +6666,52 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
               <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
 
-                {/* ACCIONES RÁPIDAS */}
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
-                  {[
-                    { lb:"Agendar cita", fn:() => { showToast("Selecciona un paciente para agendar 👆"); showScreen("psi-dashboard"); },
-                      svg:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1" fill="#8B5A3A"/><circle cx="12" cy="15" r="1" fill="#8B5A3A"/></svg> },
-                    { lb:"Mis pacientes", fn:() => showScreen("psi-dashboard"),
-                      svg:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
-                    { lb:"Notificaciones", fn:() => setNotifPanel(true),
-                      svg:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> },
-                  ].map(({ lb, fn, svg }) => (
-                    <div key={lb} onClick={fn} style={{ background:"#FEFAF5", borderRadius:14, padding:"14px 10px", textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer", transition:"all 0.2s" }}>
-                      <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>{svg}</div>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text }}>{lb}</div>
+                {/* ACCIONES RÁPIDAS — 4 cards con color */}
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9, marginBottom:16 }}>
+                  <div onClick={() => { showToast("Selecciona un paciente para agendar 👆"); showScreen("psi-dashboard"); }}
+                    style={{ background:"#F5EDE0", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"0.5px solid rgba(196,132,90,0.2)", cursor:"pointer" }}>
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1" fill="#8B5A3A"/><circle cx="12" cy="15" r="1" fill="#8B5A3A"/></svg>
                     </div>
-                  ))}
-                </div>
+                    <div style={{ fontSize:11, fontWeight:800, color:"#6A3E28" }}>Agendar cita</div>
+                  </div>
 
-                {/* MIS HÁBITOS */}
-                <div onClick={() => {
-                    if (!pacienteSeleccionado) { showToast("Entra a un paciente primero 👆"); showScreen("psi-dashboard"); return; }
-                    setHabitos([{ id:1, activo:false, titulo:"", descripcion:"" },{ id:2, activo:false, titulo:"", descripcion:"" },{ id:3, activo:false, titulo:"", descripcion:"" }]);
-                    setRegistrosHabito({});
-                    cargarHabitos(pacienteSeleccionado.id);
-                    cargarRegistrosHabito(pacienteSeleccionado.id);
-                    cargarNotaHabitos(pacienteSeleccionado.id);
-                    setHabitosPacienteId(pacienteSeleccionado.id);
-                    setHabitosTab("hoy");
-                    setHabitosEditando(false);
-                    setScreenHabitos(true);
-                  }}
-                  style={{ background:"#FEFAF5", borderRadius:16, padding:"14px 16px", marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer", display:"flex", alignItems:"center", gap:14 }}>
-                  <div style={{ width:44, height:44, borderRadius:13, background:"linear-gradient(135deg,#8B5A3A,#6A3E28)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+                  <div onClick={() => showScreen("psi-dashboard")}
+                    style={{ background:"#E1F5EE", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"0.5px solid rgba(15,110,86,0.15)", cursor:"pointer" }}>
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F6E56" strokeWidth="1.75" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div style={{ fontSize:11, fontWeight:800, color:"#085041" }}>Mis pacientes</div>
                   </div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:14, fontWeight:700, color:C.text }}>Mis hábitos</div>
-                    <div style={{ fontSize:11, color:C.light, marginTop:2 }}>
-                      {pacienteSeleccionado ? pacienteSeleccionado.nombre : "Selecciona un paciente primero"}
+
+                  <div onClick={() => setNotifPanel(true)}
+                    style={{ background:"#E6F1FB", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"0.5px solid rgba(24,95,165,0.15)", cursor:"pointer" }}>
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
+                    <div style={{ fontSize:11, fontWeight:800, color:"#0C447C" }}>Notificaciones</div>
+                  </div>
+
+                  <div onClick={() => {
+                      if (!pacienteSeleccionado) { showToast("Entra a un paciente primero 👆"); showScreen("psi-dashboard"); return; }
+                      setHabitos([{ id:1,activo:false,titulo:"",descripcion:"" },{ id:2,activo:false,titulo:"",descripcion:"" },{ id:3,activo:false,titulo:"",descripcion:"" }]);
+                      setRegistrosHabito({});
+                      cargarHabitos(pacienteSeleccionado.id);
+                      cargarRegistrosHabito(pacienteSeleccionado.id);
+                      cargarNotaHabitos(pacienteSeleccionado.id);
+                      setHabitosPacienteId(pacienteSeleccionado.id);
+                      setHabitosTab("hoy");
+                      setHabitosEditando(false);
+                      setScreenHabitos(true);
+                    }}
+                    style={{ background:"#FAEEDA", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"0.5px solid rgba(186,117,23,0.2)", cursor:"pointer" }}>
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#BA7517" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div style={{ fontSize:11, fontWeight:800, color:"#633806", lineHeight:1.3 }}>
+                      {pacienteSeleccionado ? `Hábitos · ${pacienteSeleccionado.nombre.split(" ")[0]}` : "Hábitos del paciente"}
                     </div>
                   </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
 
                 {usuarioActual?.bio && (
