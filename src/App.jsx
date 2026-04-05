@@ -2636,7 +2636,7 @@ const styles = `
   ];
   return (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200,
-      background:"#080604",
+      background:"#2A1E14",
       backdropFilter:"blur(28px)", WebkitBackdropFilter:"blur(28px)",
       borderTop:`0.5px solid ${AMB_BORDER}`,
       paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)",
