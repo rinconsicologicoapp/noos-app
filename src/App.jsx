@@ -2445,29 +2445,107 @@ const styles = `
 
   const bnav = (active) => {
   const tareasCount = tareasPsicologo.filter(t => !t.completada).length;
+  const MENTA = "#1D9E75";
+  const MENTA_LIGHT = "#5DCAA5";
+  const MENTA_DIM = "rgba(29,158,117,0.32)";
   const items = [
-    { icon:"home", lb:"Inicio", id:"home" },
-    { icon:"notes", lb:"Notas", id:"notas" },
-    { icon:"calendar", lb:"Citas", id:"calendario" },
-    { icon:"user", lb:"Perfil", id:"perfil" },
+    { lb:"Inicio", id:"home",
+      svg:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+    { lb:"Notas", id:"notas",
+      svg:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> },
+    { lb:"Citas", id:"calendario",
+      svg:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+    { lb:"Hábitos", id:"habitos",
+      svg:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+      isHabitos:true },
+    { lb:"Perfil", id:"perfil",
+      svg:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
   ];
   return (
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.97)":"rgba(250,247,242,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)", paddingTop:8, paddingLeft:4, paddingRight:4 }}>
-      {items.map(({ icon, lb, id, isTareas }) => {
-        const isActive = active === id || (isTareas && active === "notas" && lb==="Tareas") || (!isTareas && active === id);
-        const iconColor = isActive ? "#E8A87C" : darkMode ? "rgba(255,255,255,0.3)" : "#9A9AB0";
+    <div style={{
+      position:"absolute", bottom:0, left:0, right:0, zIndex:200,
+      background:"rgba(10,7,4,0.97)",
+      backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)",
+      borderTop:`1.5px solid ${MENTA_DIM}`,
+      paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)",
+      paddingTop:10, paddingLeft:4, paddingRight:4,
+      display:"flex", alignItems:"flex-end",
+    }}>
+      {items.map(({ lb, id, svg, isHabitos }) => {
+        const isActive = active === id;
+        const inactiveColor = `rgba(93,202,165,0.32)`;
+        const activeColor = isHabitos ? MENTA_LIGHT : MENTA_LIGHT;
         return (
-          <div key={lb} onClick={() => { if(navigator.vibrate) navigator.vibrate([6,0,6]); isTareas ? (showScreen("notas"), setTimeout(()=>setNoteTab("tareas"),50)) : showScreen(id); }}
+          <div key={id} onClick={() => {
+            if(navigator.vibrate) navigator.vibrate([6,0,6]);
+            if (isHabitos) {
+              if (!pacienteSeleccionado && usuarioActual?.uid) {
+                setHabitos([{id:1,activo:false,titulo:"",descripcion:""},{id:2,activo:false,titulo:"",descripcion:""},{id:3,activo:false,titulo:"",descripcion:""}]);
+                setRegistrosHabito({});
+                cargarHabitos(usuarioActual.uid);
+                cargarRegistrosHabito(usuarioActual.uid);
+                cargarNotaHabitos(usuarioActual.uid);
+                setHabitosPacienteId(usuarioActual.uid);
+                setHabitosTab("hoy");
+                setHabitosEditando(false);
+                setScreenHabitos(true);
+              }
+            } else {
+              showScreen(id);
+            }
+          }}
             style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3, paddingBottom:4, cursor:"pointer", position:"relative" }}>
+
+            {/* Línea acento arriba del activo */}
+            {isActive && (
+              <div style={{
+                position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)",
+                width: isHabitos ? 36 : 28, height:2,
+                background: MENTA,
+                borderRadius:1,
+                boxShadow:`0 0 10px ${MENTA}, 0 0 20px rgba(29,158,117,0.5)`,
+              }}/>
+            )}
+
             <div style={{ position:"relative" }}>
-              <div style={{ width:38, height:34, borderRadius:11, background:isActive?(darkMode?"#2A1E10":"rgba(196,132,90,0.15)"):"transparent", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.25s" }}>
-                <LucideIcon name={icon} color={isActive?(darkMode?"#E8A87C":"#A06040"):iconColor} size={20}/>
-              </div>
-              {isTareas && tareasCount > 0 && (
-                <div style={{ position:"absolute", top:-3, right:-4, width:13, height:13, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:7, fontWeight:700, color:"white", border:`1.5px solid ${darkMode?"rgba(18,16,30,0.94)":"rgba(250,247,242,0.96)"}` }}>{tareasCount}</div>
+              {isHabitos ? (
+                /* Hábitos — pill especial */
+                <div style={{
+                  width:44, height:32, borderRadius:12,
+                  background: isActive ? "rgba(29,158,117,0.22)" : "transparent",
+                  border: isActive ? `1px solid rgba(29,158,117,0.5)` : "1px solid transparent",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  transition:"all 0.25s",
+                  boxShadow: isActive ? `0 0 16px rgba(29,158,117,0.35)` : "none",
+                }}>
+                  {svg && <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke={isActive ? MENTA_LIGHT : inactiveColor}
+                    strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>}
+                </div>
+              ) : (
+                <div style={{
+                  width:38, height:30, borderRadius:10,
+                  background: isActive ? "rgba(29,158,117,0.14)" : "transparent",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  transition:"all 0.25s",
+                }}>
+                  { id==="home" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isActive?MENTA_LIGHT:inactiveColor} strokeWidth="1.75" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> }
+                  { id==="notas" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isActive?MENTA_LIGHT:inactiveColor} strokeWidth="1.75" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> }
+                  { id==="calendario" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isActive?MENTA_LIGHT:inactiveColor} strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
+                  { id==="perfil" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isActive?MENTA_LIGHT:inactiveColor} strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> }
+                </div>
               )}
             </div>
-            <div style={{ fontSize:9.5, fontWeight:isActive?600:400, color:iconColor, transition:"all 0.2s" }}>{lb}</div>
+
+            <div style={{
+              fontSize: isHabitos ? 8.5 : 8.5,
+              fontWeight: isActive ? 700 : 400,
+              color: isActive ? MENTA_LIGHT : inactiveColor,
+              letterSpacing: isActive ? 0.2 : 0,
+              transition:"all 0.2s",
+            }}>{lb}</div>
           </div>
         );
       })}
@@ -5820,24 +5898,7 @@ const styles = `
         );
       })}
 
-      {/* ACCIONES */}
-      {(pacienteSeleccionado?.contactoEmergenciaNombre || pacienteSeleccionado?.contactoEmergenciaTel) && (
-                  <div style={{ background:"rgba(196,132,90,0.06)", borderRadius:12, padding:"10px 14px", marginBottom:12, border:"1px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:10 }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:10, fontWeight:700, color:"#8B5A3A", marginBottom:1 }}>Contacto de emergencia</div>
-                      <div style={{ fontSize:12, fontWeight:600, color:C.text }}>{pacienteSeleccionado.contactoEmergenciaNombre || "—"}</div>
-                      <div style={{ fontSize:11, color:C.light }}>{pacienteSeleccionado.contactoEmergenciaTel || "—"}</div>
-                    </div>
-                    {pacienteSeleccionado.contactoEmergenciaTel && (
-                      <a href={`tel:${pacienteSeleccionado.contactoEmergenciaTel}`}
-                        style={{ width:34, height:34, background:"#4A8A72", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", flexShrink:0 }}>
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                      </a>
-                    )}
-                  </div>
-                )}
-                <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
+      <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
       {mitem("➕", "Agregar usuario", () => { cargarTodosUsuarios(); setModal("registro-admin"); })}
 {mitem("👥", "Ver y gestionar usuarios", () => { cargarTodosUsuarios(); setModal("gestionar-usuarios"); })}
 {mitem("💰", "Gestión de pagos", () => showNotif("Pagos", "Función disponible pronto", "💰"))}
@@ -6060,6 +6121,22 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>{ar.sucedio}</div>
                   </div>
                 ))}
+                {(pacienteSeleccionado?.contactoEmergenciaNombre || pacienteSeleccionado?.contactoEmergenciaTel) && (
+                  <div style={{ background:"rgba(196,132,90,0.06)", borderRadius:12, padding:"10px 14px", marginBottom:12, border:"1px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:10 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:"#8B5A3A", marginBottom:1 }}>Contacto de emergencia</div>
+                      <div style={{ fontSize:12, fontWeight:600, color:C.text }}>{pacienteSeleccionado?.contactoEmergenciaNombre || "—"}</div>
+                      <div style={{ fontSize:11, color:C.light }}>{pacienteSeleccionado?.contactoEmergenciaTel || "—"}</div>
+                    </div>
+                    {pacienteSeleccionado?.contactoEmergenciaTel && (
+                      <a href={`tel:${pacienteSeleccionado.contactoEmergenciaTel}`}
+                        style={{ width:34, height:34, background:"#4A8A72", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", flexShrink:0 }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      </a>
+                    )}
+                  </div>
+                )}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
                 {btn(() => setModal("assign-task"), "📋 Asignar nueva tarea", { width:"100%", padding:9, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, color:"white", borderRadius:13, fontSize:13, fontWeight:800, marginBottom:10 })}
                 {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, "Nota clínica privada", () => setModal("feedback"))}
