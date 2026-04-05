@@ -2213,6 +2213,7 @@ const BACK_MAP = {
   "notas":            "home",
   "logros":           "home",
   "perfil-psicologo": "home",
+  "habitos":          "home",
   "psi-dashboard":    "admin-perfil",
   "admin-paciente":   "psi-dashboard",
   "admin-pagos":      "admin-perfil",
@@ -2297,6 +2298,21 @@ const styles = `
   @keyframes pullSpin {
     to { transform: rotate(360deg); }
   }
+  @keyframes navScan {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(500%); }
+  }
+  @keyframes navPulse {
+    0%,100% { opacity:1; box-shadow: 0 0 6px #E8A87C, 0 0 14px rgba(232,168,124,0.4); }
+    50% { opacity:0.7; box-shadow: 0 0 10px #E8A87C, 0 0 24px rgba(232,168,124,0.6); }
+  }
+  @keyframes navPulseAmber {
+    0%,100% { opacity:1; }
+    50% { opacity:0.5; }
+  }
+  .nav-scan { animation: navScan 2.8s linear infinite; }
+  .nav-dot-pulse { animation: navPulse 2.2s ease-in-out infinite; }
+  .nav-dot-pulse-2 { animation: navPulse 2.2s ease-in-out infinite 0.4s; }
   .confetti-piece {
     position:absolute; border-radius:2px;
     animation: confettiFall 1.2s ease-in forwards;
@@ -2445,107 +2461,93 @@ const styles = `
 
   const bnav = (active) => {
   const tareasCount = tareasPsicologo.filter(t => !t.completada).length;
-  const MENTA = "#1D9E75";
-  const MENTA_LIGHT = "#5DCAA5";
-  const MENTA_DIM = "rgba(29,158,117,0.32)";
-  const items = [
-    { lb:"Inicio", id:"home",
-      svg:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
-    { lb:"Notas", id:"notas",
-      svg:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> },
-    { lb:"Citas", id:"calendario",
-      svg:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
-    { lb:"Hábitos", id:"habitos",
-      svg:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-      isHabitos:true },
-    { lb:"Perfil", id:"perfil",
-      svg:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+  const AMB = "#E8A87C";
+  const AMB_DIM = "rgba(232,168,124,0.22)";
+  const AMB_BORDER = "rgba(232,168,124,0.18)";
+  const isAct = (id) => active === id;
+  const navItems = [
+    { id:"home", lb:"Inicio",
+      ico:(c) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+    { id:"notas", lb:"Notas",
+      ico:(c) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> },
+    { id:"calendario", lb:"Citas",
+      ico:(c) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+    { id:"habitos", lb:"Hábitos",
+      ico:(c) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="3"/><line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="3"/></svg> },
+    { id:"perfil", lb:"Perfil",
+      ico:(c) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
   ];
   return (
-    <div style={{
-      position:"absolute", bottom:0, left:0, right:0, zIndex:200,
-      background:"rgba(10,7,4,0.97)",
-      backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)",
-      borderTop:`1.5px solid ${MENTA_DIM}`,
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200,
+      background:"#080604",
+      backdropFilter:"blur(28px)", WebkitBackdropFilter:"blur(28px)",
+      borderTop:`0.5px solid ${AMB_BORDER}`,
       paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)",
-      paddingTop:10, paddingLeft:4, paddingRight:4,
+      paddingTop:10, paddingLeft:2, paddingRight:2,
       display:"flex", alignItems:"flex-end",
+      overflow:"hidden",
     }}>
-      {items.map(({ lb, id, svg, isHabitos }) => {
-        const isActive = active === id;
-        const inactiveColor = `rgba(93,202,165,0.32)`;
-        const activeColor = isHabitos ? MENTA_LIGHT : MENTA_LIGHT;
+      {/* Línea superior con barrido */}
+      <div style={{ position:"absolute", top:0, left:0, right:0, height:"0.5px", background:`linear-gradient(90deg,transparent,${AMB_BORDER},transparent)`, pointerEvents:"none" }}/>
+      <div className="nav-scan" style={{ position:"absolute", top:0, width:40, height:"0.5px", background:`linear-gradient(90deg,transparent,${AMB},transparent)`, pointerEvents:"none" }}/>
+
+      {navItems.map(({ id, lb, ico }) => {
+        const act = isAct(id);
+        const color = act ? AMB : "rgba(196,132,90,0.28)";
         return (
           <div key={id} onClick={() => {
             if(navigator.vibrate) navigator.vibrate([6,0,6]);
-            if (isHabitos) {
-              if (!pacienteSeleccionado && usuarioActual?.uid) {
-                setHabitos([{id:1,activo:false,titulo:"",descripcion:""},{id:2,activo:false,titulo:"",descripcion:""},{id:3,activo:false,titulo:"",descripcion:""}]);
-                setRegistrosHabito({});
-                cargarHabitos(usuarioActual.uid);
-                cargarRegistrosHabito(usuarioActual.uid);
-                cargarNotaHabitos(usuarioActual.uid);
-                setHabitosPacienteId(usuarioActual.uid);
-                setHabitosTab("hoy");
-                setHabitosEditando(false);
-                setScreenHabitos(true);
-              }
+            if (id === "habitos") {
+              setHabitos([{id:1,activo:false,titulo:"",descripcion:""},{id:2,activo:false,titulo:"",descripcion:""},{id:3,activo:false,titulo:"",descripcion:""}]);
+              setRegistrosHabito({});
+              cargarHabitos(usuarioActual.uid);
+              cargarRegistrosHabito(usuarioActual.uid);
+              cargarNotaHabitos(usuarioActual.uid);
+              setHabitosPacienteId(usuarioActual.uid);
+              setHabitosTab("hoy");
+              setHabitosEditando(false);
+              showScreen("habitos");
             } else {
               showScreen(id);
             }
           }}
             style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3, paddingBottom:4, cursor:"pointer", position:"relative" }}>
 
-            {/* Línea acento arriba del activo */}
-            {isActive && (
-              <div style={{
-                position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)",
-                width: isHabitos ? 36 : 28, height:2,
-                background: MENTA,
-                borderRadius:1,
-                boxShadow:`0 0 10px ${MENTA}, 0 0 20px rgba(29,158,117,0.5)`,
-              }}/>
-            )}
+            {/* Línea vertical + halo activo */}
+            {act && <>
+              <div style={{ position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)", width:1, height:8, background:`linear-gradient(to bottom,transparent,${AMB})`, borderRadius:1 }}/>
+            </>}
 
             <div style={{ position:"relative" }}>
-              {isHabitos ? (
-                /* Hábitos — pill especial */
-                <div style={{
-                  width:44, height:32, borderRadius:12,
-                  background: isActive ? "rgba(29,158,117,0.22)" : "transparent",
-                  border: isActive ? `1px solid rgba(29,158,117,0.5)` : "1px solid transparent",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  transition:"all 0.25s",
-                  boxShadow: isActive ? `0 0 16px rgba(29,158,117,0.35)` : "none",
-                }}>
-                  {svg && <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke={isActive ? MENTA_LIGHT : inactiveColor}
-                    strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                  </svg>}
-                </div>
-              ) : (
-                <div style={{
-                  width:38, height:30, borderRadius:10,
-                  background: isActive ? "rgba(29,158,117,0.14)" : "transparent",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  transition:"all 0.25s",
-                }}>
-                  { id==="home" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isActive?MENTA_LIGHT:inactiveColor} strokeWidth="1.75" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> }
-                  { id==="notas" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isActive?MENTA_LIGHT:inactiveColor} strokeWidth="1.75" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> }
-                  { id==="calendario" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isActive?MENTA_LIGHT:inactiveColor} strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
-                  { id==="perfil" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isActive?MENTA_LIGHT:inactiveColor} strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> }
-                </div>
+              <div style={{
+                width: id==="habitos" ? 44 : 38,
+                height: id==="habitos" ? 32 : 30,
+                borderRadius: id==="habitos" ? 12 : 10,
+                background: act ? "rgba(232,168,124,0.13)" : "transparent",
+                border: act ? `1px solid rgba(232,168,124,0.32)` : "1px solid transparent",
+                display:"flex", alignItems:"center", justifyContent:"center",
+                transition:"all 0.25s",
+                overflow:"hidden", position:"relative",
+              }}>
+                {/* Scan interno solo en activo */}
+                {act && <div className="nav-scan" style={{ position:"absolute", top:0, bottom:0, width:16, background:"linear-gradient(90deg,transparent,rgba(232,168,124,0.22),transparent)", pointerEvents:"none" }}/>}
+                {ico(color)}
+              </div>
+              {/* Badge tareas */}
+              {id==="notas" && tareasCount > 0 && (
+                <div style={{ position:"absolute", top:-3, right:-4, width:13, height:13, background:"#C0524A", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:7, fontWeight:700, color:"white", border:"1.5px solid #080604" }}>{tareasCount}</div>
               )}
             </div>
 
-            <div style={{
-              fontSize: isHabitos ? 8.5 : 8.5,
-              fontWeight: isActive ? 700 : 400,
-              color: isActive ? MENTA_LIGHT : inactiveColor,
-              letterSpacing: isActive ? 0.2 : 0,
-              transition:"all 0.2s",
-            }}>{lb}</div>
+            {act ? (
+              <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+                <div className="nav-dot-pulse" style={{ width:3, height:3, borderRadius:"50%", background:AMB, flexShrink:0 }}/>
+                <span style={{ fontSize:8, fontWeight:700, color:AMB, letterSpacing:"0.5px", textTransform:"uppercase" }}>{lb}</span>
+                <div className="nav-dot-pulse-2" style={{ width:3, height:3, borderRadius:"50%", background:AMB, flexShrink:0 }}/>
+              </div>
+            ) : (
+              <span style={{ fontSize:8.5, fontWeight:400, color:"rgba(196,132,90,0.28)", transition:"all 0.2s" }}>{lb}</span>
+            )}
           </div>
         );
       })}
@@ -2554,23 +2556,66 @@ const styles = `
 };
 
   const anav = (active) => {
-  const isAdmin = active === "admin-home" || active === "admin-psicologo" || active === "admin-pacientes" || active === "admin-pagos";
-  const navItems = isAdmin
-    ? [{ icon:"dashboard", lb:"Dashboard", id:"admin-home" }, { icon:"brain", lb:"Psicólogos", id:"admin-psicologo" }, { icon:"users", lb:"Pacientes", id:"admin-pacientes" }, { icon:"dollar", lb:"Pagos", id:"admin-pagos" }]
-    : [{ icon:"user", lb:"Perfil", id:"admin-perfil" }, { icon:"users", lb:"Pacientes", id:"psi-dashboard" }, { icon:"calendar", lb:"Citas", id:"calendario" }, { icon:"dollar", lb:"Pagos", id:"psi-pagos" }];
-  const accentColor = isAdmin ? C.amber : C.plum;
+  const isAdminNav = active === "admin-home" || active === "admin-psicologo" || active === "admin-pacientes" || active === "admin-pagos";
+  const AMB = "#E8A87C";
+  const AMB_DIM = "rgba(196,132,90,0.28)";
+  const navItems = isAdminNav
+    ? [
+        { id:"admin-home",      lb:"Dashboard",
+          ico:(c)=><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> },
+        { id:"admin-psicologo", lb:"Psicólogos",
+          ico:(c)=><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24A2.5 2.5 0 0 1 6.5 3.16z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24A2.5 2.5 0 0 0 17.5 3.16z"/></svg> },
+        { id:"admin-pacientes", lb:"Pacientes",
+          ico:(c)=><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+        { id:"admin-pagos",     lb:"Pagos",
+          ico:(c)=><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
+      ]
+    : [
+        { id:"admin-perfil",  lb:"Perfil",
+          ico:(c)=><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+        { id:"psi-dashboard", lb:"Pacientes",
+          ico:(c)=><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+        { id:"calendario",    lb:"Citas",
+          ico:(c)=><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+        { id:"psi-pagos",     lb:"Pagos",
+          ico:(c)=><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.75" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
+      ];
   return (
-    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200, background:darkMode?"rgba(18,16,30,0.97)":"rgba(250,247,242,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderTop:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}`, display:"flex", alignItems:"flex-end", paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)", paddingTop:8, paddingLeft:4, paddingRight:4 }}>
-      {navItems.map(({ icon, lb, id }) => {
-        const isActive = active === id;
-        const iconColor = isActive ? "#E8A87C" : darkMode ? "rgba(255,255,255,0.3)" : "#9A9AB0";
+    <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200,
+      background:"#080604",
+      backdropFilter:"blur(28px)", WebkitBackdropFilter:"blur(28px)",
+      borderTop:"0.5px solid rgba(196,132,90,0.18)",
+      paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)",
+      paddingTop:10, paddingLeft:2, paddingRight:2,
+      display:"flex", alignItems:"flex-end", overflow:"hidden",
+    }}>
+      <div style={{ position:"absolute", top:0, left:0, right:0, height:"0.5px", background:"linear-gradient(90deg,transparent,rgba(196,132,90,0.18),transparent)" }}/>
+      <div className="nav-scan" style={{ position:"absolute", top:0, width:40, height:"0.5px", background:"linear-gradient(90deg,transparent,#E8A87C,transparent)", pointerEvents:"none" }}/>
+      {navItems.map(({ id, lb, ico }) => {
+        const act = active === id;
+        const c = act ? AMB : AMB_DIM;
         return (
           <div key={id} onClick={() => { if(navigator.vibrate) navigator.vibrate([6,0,6]); showScreen(id); }}
             style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3, paddingBottom:4, cursor:"pointer", position:"relative" }}>
-            <div style={{ width:38, height:34, borderRadius:11, background:isActive?(darkMode?"#2A1E10":"#3A2A1C"):"transparent", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.25s", boxShadow:isActive?`0 0 14px rgba(196,132,90,${darkMode?0.5:0.35}),0 0 28px rgba(196,132,90,${darkMode?0.2:0.12})`:"none" }}>
-              <LucideIcon name={icon} color={iconColor} size={20}/>
+            {act && <div style={{ position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)", width:1, height:8, background:`linear-gradient(to bottom,transparent,${AMB})`, borderRadius:1 }}/>}
+            <div style={{ width:38, height:30, borderRadius:10,
+              background: act ? "rgba(232,168,124,0.13)" : "transparent",
+              border: act ? "1px solid rgba(232,168,124,0.32)" : "1px solid transparent",
+              display:"flex", alignItems:"center", justifyContent:"center",
+              transition:"all 0.25s", overflow:"hidden", position:"relative",
+            }}>
+              {act && <div className="nav-scan" style={{ position:"absolute", top:0, bottom:0, width:16, background:"linear-gradient(90deg,transparent,rgba(232,168,124,0.22),transparent)", pointerEvents:"none" }}/>}
+              {ico(c)}
             </div>
-            <div style={{ fontSize:9.5, fontWeight:isActive?600:400, color:iconColor, transition:"all 0.2s" }}>{lb}</div>
+            {act ? (
+              <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+                <div className="nav-dot-pulse" style={{ width:3, height:3, borderRadius:"50%", background:AMB, flexShrink:0 }}/>
+                <span style={{ fontSize:7.5, fontWeight:700, color:AMB, letterSpacing:"0.5px", textTransform:"uppercase" }}>{lb}</span>
+                <div className="nav-dot-pulse-2" style={{ width:3, height:3, borderRadius:"50%", background:AMB, flexShrink:0 }}/>
+              </div>
+            ) : (
+              <span style={{ fontSize:8.5, fontWeight:400, color:AMB_DIM }}>{lb}</span>
+            )}
           </div>
         );
       })}
@@ -5252,7 +5297,7 @@ const styles = `
     </div>
   );
 })()}
-{screenHabitos && (() => {
+{(screenHabitos || (!notifPanel && screen === "habitos" && usuarioActual?.rol === "paciente")) && (() => {
   const getFechaLocal = () => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -5338,7 +5383,8 @@ const styles = `
   const RING_COLORS = ["#4A8A72", "#C4845A", "#8B5A3A"];
 
   return (
-    <div style={{ position:"absolute", inset:0, zIndex:900, display:"flex", flexDirection:"column", background:"#F5EDE0" }}>
+    <div style={{ position:"absolute", inset:0, zIndex: screenHabitos ? 900 : 50, display:"flex", flexDirection:"column", background:"#F5EDE0",
+      paddingBottom: screen === "habitos" ? "calc(72px + env(safe-area-inset-bottom, 10px))" : 0 }}>
 
       {/* HEADER */}
       <div style={{ background:"#1A1208", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", paddingBottom:0, flexShrink:0 }}>
@@ -5352,6 +5398,7 @@ const styles = `
             setRegistrosHabito({});
             setNotaPsicologo("");
             setNotaPsicologoEdit("");
+            if (screen === "habitos") showScreen("home");
           }}
             style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -5745,6 +5792,7 @@ const styles = `
         )}
 
       </div>
+    {screen === "habitos" && usuarioActual?.rol === "paciente" && bnav("habitos")}
     </div>
   );
 })()}
