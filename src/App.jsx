@@ -2619,7 +2619,7 @@ const styles = `
   const bnav = (active) => {
   const tareasCount = tareasPsicologo.filter(t => !t.completada).length;
   const AMB = "#E8A87C";
-  const AMB_DIM = "rgba(232,168,124,0.22)";
+  const AMB_DIM = "rgba(232,168,124,0.6)";
   const AMB_BORDER = "rgba(232,168,124,0.18)";
   const isAct = (id) => active === id;
   const navItems = [
@@ -2636,7 +2636,7 @@ const styles = `
   ];
   return (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200,
-      background:"#2A1E14",
+      background:"#3D2E20",
       backdropFilter:"blur(28px)", WebkitBackdropFilter:"blur(28px)",
       borderTop:`0.5px solid ${AMB_BORDER}`,
       paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)",
@@ -2715,7 +2715,7 @@ const styles = `
   const anav = (active) => {
   const isAdminNav = active === "admin-home" || active === "admin-psicologo" || active === "admin-pacientes" || active === "admin-pagos";
   const AMB = "#E8A87C";
-  const AMB_DIM = "rgba(196,132,90,0.28)";
+  const AMB_DIM = "rgba(232,168,124,0.6)";
   const navItems = isAdminNav
     ? [
         { id:"admin-home",      lb:"Dashboard",
@@ -2739,9 +2739,9 @@ const styles = `
       ];
   return (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200,
-      background:"#2A1E14",
+      background:"#3D2E20",
       backdropFilter:"blur(28px)", WebkitBackdropFilter:"blur(28px)",
-      borderTop:"0.5px solid rgba(232,168,124,0.15)",
+      borderTop:"0.5px solid rgba(232,168,124,0.2)",
       paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)",
       paddingTop:10, paddingLeft:2, paddingRight:2,
       display:"flex", alignItems:"flex-end", overflow:"hidden",
@@ -3209,15 +3209,15 @@ const styles = `
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:darkMode?"#0F0E17":"#F5F0EB" }}>
 
               {/* HEADER */}
-              <div style={{ background:"#2A1E14", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative" }}>
-                <div style={{ position:"absolute", top:0, left:0, right:0, height:"0.5px", background:"linear-gradient(90deg,transparent,rgba(232,168,124,0.25),transparent)" }}/>
+              <div style={{ background:"#3D2E20", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative" }}>
+                <div style={{ position:"absolute", top:0, left:0, right:0, height:"0.5px", background:"linear-gradient(90deg,transparent,rgba(232,168,124,0.35),transparent)" }}/>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <div>
-                    <div style={{ fontSize:9, color:"rgba(232,168,124,0.4)", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:7 }}>
+                    <div style={{ fontSize:9, color:"rgba(232,168,124,0.75)", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:7 }}>
                       {new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}
                     </div>
-                    <div style={{ fontSize:12, color:"rgba(245,230,208,0.45)", fontWeight:400, lineHeight:1 }}>{(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días," : h < 18 ? "Buenas tardes," : "Buenas noches,"; })()}</div>
-                    <div style={{ fontSize:26, color:"#F5E6D0", fontWeight:700, marginTop:2, letterSpacing:"-0.5px", lineHeight:1.1 }}>
+                    <div style={{ fontSize:12, color:"rgba(245,230,208,0.8)", fontWeight:400, lineHeight:1 }}>{(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días," : h < 18 ? "Buenas tardes," : "Buenas noches,"; })()}</div>
+                    <div style={{ fontSize:26, color:"#FFF8EE", fontWeight:700, marginTop:2, letterSpacing:"-0.5px", lineHeight:1.1 }}>
                       {usuarioActual?.nombre?.split(" ")[0] || "Bienvenido"}
                     </div>
                     {(usuarioActual?.racha || 0) > 0 && (
@@ -3229,7 +3229,7 @@ const styles = `
                   </div>
                   <div style={{ display:"flex", gap:8, alignItems:"center", marginTop:4 }}>
                     <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:34, height:34, background:"rgba(232,168,124,0.08)", borderRadius:10, border:"0.5px solid rgba(232,168,124,0.15)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.5)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.75)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                       {unread > 0 && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"white" }}>{unread}</div>}
                     </div>
                     <div onClick={() => showScreen("perfil")} style={{ width:34, height:34, background:"rgba(196,132,90,0.2)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, border:"0.5px solid rgba(232,168,124,0.25)", cursor:"pointer", overflow:"hidden" }}>
@@ -3243,7 +3243,7 @@ const styles = `
                   <div style={{ flex:1, height:2.5, background:"rgba(255,255,255,0.07)", borderRadius:2, overflow:"hidden" }}>
                     <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:"linear-gradient(90deg,#8B5A3A,#C4845A,#E8A87C)", borderRadius:2, transition:"width 0.5s ease" }}/>
                   </div>
-                  <span style={{ fontSize:9, color:"rgba(232,168,124,0.5)", whiteSpace:"nowrap", letterSpacing:"0.5px" }}>◆ {xp} XP</span>
+                  <span style={{ fontSize:9, color:"rgba(232,168,124,0.72)", whiteSpace:"nowrap", letterSpacing:"0.5px" }}>◆ {xp} XP</span>
                 </div>
               </div>
 
