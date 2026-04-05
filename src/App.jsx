@@ -2739,15 +2739,14 @@ const styles = `
       ];
   return (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200,
-      background:"#080604",
+      background:"#2A1E14",
       backdropFilter:"blur(28px)", WebkitBackdropFilter:"blur(28px)",
-      borderTop:"0.5px solid rgba(196,132,90,0.18)",
+      borderTop:"0.5px solid rgba(232,168,124,0.15)",
       paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)",
       paddingTop:10, paddingLeft:2, paddingRight:2,
       display:"flex", alignItems:"flex-end", overflow:"hidden",
     }}>
-      <div style={{ position:"absolute", top:0, left:0, right:0, height:"0.5px", background:"linear-gradient(90deg,transparent,rgba(196,132,90,0.18),transparent)" }}/>
-      <div className="nav-scan" style={{ position:"absolute", top:0, width:40, height:"0.5px", background:"linear-gradient(90deg,transparent,#E8A87C,transparent)", pointerEvents:"none" }}/>
+      <div style={{ position:"absolute", top:0, left:0, right:0, height:"0.5px", background:"linear-gradient(90deg,transparent,rgba(232,168,124,0.2),transparent)" }}/>
       {navItems.map(({ id, lb, ico }) => {
         const act = active === id;
         const c = act ? AMB : AMB_DIM;
@@ -3210,40 +3209,41 @@ const styles = `
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:darkMode?"#0F0E17":"#F5F0EB" }}>
 
               {/* HEADER */}
-              <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative" }}>
+              <div style={{ background:"#2A1E14", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative" }}>
+                <div style={{ position:"absolute", top:0, left:0, right:0, height:"0.5px", background:"linear-gradient(90deg,transparent,rgba(232,168,124,0.25),transparent)" }}/>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <div>
-                    <div style={{ display:"inline-flex", background:"rgba(232,168,124,0.12)", border:"0.5px solid rgba(232,168,124,0.2)", borderRadius:20, padding:"3px 10px", marginBottom:8 }}>
-                      <span style={{ fontSize:10, color:"rgba(232,168,124,0.65)" }}>{new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}</span>
+                    <div style={{ fontSize:9, color:"rgba(232,168,124,0.4)", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:7 }}>
+                      {new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}
                     </div>
-                    <div style={{ fontSize:13, color:"rgba(245,230,208,0.55)", fontWeight:400, lineHeight:1 }}>{(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días," : h < 18 ? "Buenas tardes," : "Buenas noches,"; })()}</div>
-                    <div style={{ fontSize:20, color:"#E8A87C", fontWeight:700, marginTop:1 }}>
+                    <div style={{ fontSize:12, color:"rgba(245,230,208,0.45)", fontWeight:400, lineHeight:1 }}>{(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días," : h < 18 ? "Buenas tardes," : "Buenas noches,"; })()}</div>
+                    <div style={{ fontSize:26, color:"#F5E6D0", fontWeight:700, marginTop:2, letterSpacing:"-0.5px", lineHeight:1.1 }}>
                       {usuarioActual?.nombre?.split(" ")[0] || "Bienvenido"}
                     </div>
                     {(usuarioActual?.racha || 0) > 0 && (
-                      <div style={{ display:"inline-flex", alignItems:"center", gap:4, background:"rgba(232,168,124,0.15)", border:"0.5px solid rgba(232,168,124,0.3)", borderRadius:20, padding:"2px 8px", marginTop:4 }}>
-                        <span style={{ fontSize:11 }}>🔥</span>
-                        <span style={{ fontSize:10, color:"#E8A87C", fontWeight:700 }}>{usuarioActual.racha} día{usuarioActual.racha !== 1 ? "s" : ""} de racha</span>
+                      <div style={{ display:"inline-flex", alignItems:"center", gap:4, background:"rgba(232,168,124,0.1)", border:"0.5px solid rgba(232,168,124,0.2)", borderRadius:20, padding:"3px 9px", marginTop:6 }}>
+                        <div style={{ width:5, height:5, borderRadius:"50%", background:"#E8A87C" }}/>
+                        <span style={{ fontSize:9, color:"#E8A87C", fontWeight:700 }}>{usuarioActual.racha} día{usuarioActual.racha !== 1 ? "s" : ""} de racha</span>
                       </div>
                     )}
                   </div>
-                  <div style={{ display:"flex", gap:10, alignItems:"center" }}>
-                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(232,168,124,0.1)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.7)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                  <div style={{ display:"flex", gap:8, alignItems:"center", marginTop:4 }}>
+                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:34, height:34, background:"rgba(232,168,124,0.08)", borderRadius:10, border:"0.5px solid rgba(232,168,124,0.15)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.5)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                       {unread > 0 && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"white" }}>{unread}</div>}
                     </div>
-                    <div onClick={() => showScreen("perfil")} style={{ width:36, height:36, background:"rgba(196,132,90,0.25)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, border:"1px solid rgba(232,168,124,0.3)", cursor:"pointer", overflow:"hidden" }}>
+                    <div onClick={() => showScreen("perfil")} style={{ width:34, height:34, background:"rgba(196,132,90,0.2)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, border:"0.5px solid rgba(232,168,124,0.25)", cursor:"pointer", overflow:"hidden" }}>
                       {avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar}
                     </div>
                   </div>
                 </div>
 
-                {/* BARRA XP — clickeable → logros */}
+                {/* BARRA XP */}
                 <div onClick={() => showScreen("logros")} style={{ display:"flex", alignItems:"center", gap:10, marginTop:14, cursor:"pointer" }}>
-                  <div style={{ flex:1, height:3, background:"rgba(255,255,255,0.08)", borderRadius:2, overflow:"hidden" }}>
-                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:"linear-gradient(90deg,#C4845A,#E8A87C)", borderRadius:2, transition:"width 0.5s ease" }}/>
+                  <div style={{ flex:1, height:2.5, background:"rgba(255,255,255,0.07)", borderRadius:2, overflow:"hidden" }}>
+                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:"linear-gradient(90deg,#8B5A3A,#C4845A,#E8A87C)", borderRadius:2, transition:"width 0.5s ease" }}/>
                   </div>
-                  <span style={{ fontSize:10, color:"#E8A87C", fontWeight:600, whiteSpace:"nowrap" }}>{getRango(xp).icono} {xp} XP ›</span>
+                  <span style={{ fontSize:9, color:"rgba(232,168,124,0.5)", whiteSpace:"nowrap", letterSpacing:"0.5px" }}>◆ {xp} XP</span>
                 </div>
               </div>
 
@@ -6875,7 +6875,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5EDE0" }}>
 
               {/* HEADER */}
-              <div style={{ background:`linear-gradient(160deg,${C.dark},${C.plum})`, padding:"32px 24px 48px", textAlign:"center", position:"relative" }}>
+              <div style={{ background:"#2A1E14", padding:"32px 24px 48px", textAlign:"center", position:"relative", borderBottom:"0.5px solid rgba(232,168,124,0.12)" }}>
                 <div style={{ position:"relative", display:"inline-block", marginBottom:14 }}>
                   {usuarioActual?.foto ? (
                     <img src={usuarioActual.foto} alt="foto" style={{ width:90, height:90, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,0.25)", margin:"0 auto", display:"block" }}/>
