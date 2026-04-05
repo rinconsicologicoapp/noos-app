@@ -704,7 +704,7 @@ function CompaneroHome({ id }) {
       <div
         ref={containerRef}
         onClick={fireEffect}
-        style={{position:"relative",display:"flex",justifyContent:"center",alignItems:"flex-end",minHeight:240,width:"100%",marginTop:8,cursor:"pointer",userSelect:"none"}}
+        style={{position:"relative",display:"flex",justifyContent:"center",alignItems:"flex-end",minHeight:240,width:"100%",marginTop:8,cursor:"pointer",userSelect:"none",WebkitUserSelect:"none",WebkitTapHighlightColor:"transparent",outline:"none"}}
       >
         <BaseFlotante color={color}/>
         <div ref={animRef} style={{position:"relative",zIndex:2,marginBottom:16}}>
