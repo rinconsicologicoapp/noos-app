@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { messaging, getToken, onMessage } from "./firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "./firebase";
@@ -585,12 +585,129 @@ function CompaneroHome({ id }) {
   if (!data) return null;
   const { Componente, color } = data;
   const frase = getFraseHoy();
+  const containerRef = React.useRef(null);
+  const animRef = React.useRef(null);
+
+  const EFFECT_COLORS = {
+    "frailejón":  ["#D0F070","#A8C840","#F0E080","#C8D880","#E8F8A0","#78B030"],
+    "charman":    ["#FF6020","#F8C040","#E04808","#FFE080","#C04000","#FF8840"],
+    "cacaito":    ["#C89060","#E8B870","#8B5230","#D4A870","#F0C880","#A07040"],
+    "abstractis": ["#E88020","#7890A8","#6840A0","#90E060","#CC2020","#F8C040","#506078","#A8C840"],
+    "robi":       ["#4080FF","#40C0FF","#8040FF","#40FFC0","#80C0FF","#C080FF"],
+  };
+
+  const fireEffect = React.useCallback(() => {
+    const wrap = containerRef.current;
+    if (!wrap) return;
+    const anim = animRef.current;
+    if (!anim) return;
+    const colors = EFFECT_COLORS[id] || ["#E8A87C","#C4845A"];
+
+    // Remove previous animation class then re-add
+    const CLASS_MAP = {
+      "frailejón":  "cmp-bounce",
+      "charman":    "cmp-flip",
+      "cacaito":    "cmp-wobble",
+      "abstractis": "cmp-bounce",
+      "robi":       "cmp-glitch",
+    };
+    const cls = CLASS_MAP[id] || "cmp-bounce";
+    anim.classList.remove(cls);
+    void anim.offsetWidth;
+    anim.classList.add(cls);
+    anim.addEventListener("animationend", () => anim.classList.remove(cls), { once:true });
+
+    // Particles
+    const pCount = id === "abstractis" ? 14 : id === "robi" ? 0 : 8;
+    for (let i = 0; i < pCount; i++) {
+      const p = document.createElement("div");
+      const angle = (i / pCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+      const dist = 30 + Math.random() * 20;
+      const sz = 3 + Math.random() * (id === "abstractis" ? 7 : 4);
+      const col = colors[i % colors.length];
+      const isRect = id === "abstractis" && Math.random() > 0.4;
+      p.style.cssText = `
+        position:absolute;
+        width:${sz}px;height:${sz}px;
+        border-radius:${isRect ? "1px" : "50%"};
+        top:40%;left:50%;
+        pointer-events:none;z-index:99;
+        background:${col};
+        --px:${-sz/2}px;--py:${-sz/2}px;
+        --ex:${Math.cos(angle)*dist - sz/2}px;
+        --ey:${Math.sin(angle)*dist - sz/2}px;
+        animation:cmpPartFly ${0.55 + i*0.02}s cubic-bezier(0.25,0.46,0.45,0.94) ${id==="abstractis"?i*0.025:0}s forwards;
+      `;
+      wrap.appendChild(p);
+      setTimeout(() => p.remove(), 700 + i * 25);
+    }
+
+    // Cacaito: ripple en la base
+    if (id === "cacaito") {
+      const r = document.createElement("div");
+      r.style.cssText = `
+        position:absolute;bottom:16px;left:50%;
+        width:80px;height:14px;
+        border-radius:50%;
+        border:2px solid ${color};
+        opacity:0.85;pointer-events:none;z-index:99;
+        animation:cmpRipple 0.65s ease forwards;
+      `;
+      wrap.appendChild(r);
+      setTimeout(() => r.remove(), 700);
+    }
+
+    // Robi: scanlines + glitch pixels
+    if (id === "robi") {
+      // 2 scan lines
+      [0, 0.12].forEach((delay, i) => {
+        const sl = document.createElement("div");
+        sl.style.cssText = `
+          position:absolute;left:0;right:0;height:${i===0?2:1}px;top:10%;
+          background:${i===0?"rgba(64,192,255,0.8)":"rgba(128,64,255,0.6)"};
+          pointer-events:none;z-index:99;
+          animation:cmpScanLine 0.45s ease ${delay}s forwards;
+        `;
+        wrap.appendChild(sl);
+        setTimeout(() => sl.remove(), 550);
+      });
+      // glitch blocks
+      for (let i = 0; i < 6; i++) {
+        const blk = document.createElement("div");
+        const col = colors[i % colors.length];
+        blk.style.cssText = `
+          position:absolute;
+          width:${4 + Math.random()*8}px;height:${2 + Math.random()*6}px;
+          border-radius:0;
+          top:${10 + Math.random()*70}%;left:${5 + Math.random()*80}%;
+          background:${col};opacity:0.75;
+          pointer-events:none;z-index:99;
+          --px:0px;--py:0px;
+          --ex:${(Math.random()-0.5)*18}px;--ey:${(Math.random()-0.5)*12}px;
+          animation:cmpPartFly 0.38s ease ${i*0.04}s forwards;
+        `;
+        wrap.appendChild(blk);
+        setTimeout(() => blk.remove(), 480);
+      }
+    }
+  }, [id, color]);
+
+  // Auto-trigger every 15s
+  React.useEffect(() => {
+    const interval = setInterval(fireEffect, 15000);
+    return () => clearInterval(interval);
+  }, [fireEffect]);
+
   return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"12px 0 0"}}>
       <NubeFrase frase={frase} color={color}/>
-      <div style={{position:"relative",display:"flex",justifyContent:"center",alignItems:"flex-end",minHeight:240,width:"100%",marginTop:8}}>
+      <div
+        ref={containerRef}
+        onClick={fireEffect}
+        style={{position:"relative",display:"flex",justifyContent:"center",alignItems:"flex-end",minHeight:240,width:"100%",marginTop:8,cursor:"pointer",userSelect:"none"}}
+      >
         <BaseFlotante color={color}/>
-        <div style={{position:"relative",zIndex:2,marginBottom:16}}>
+        <div ref={animRef} style={{position:"relative",zIndex:2,marginBottom:16}}>
           <Componente/>
         </div>
       </div>
@@ -2334,6 +2451,46 @@ const styles = `
   .dark-mode div[style*="color:C.text"] {
     color: #F2EEF9 !important;
   }
+  @keyframes cmpBounce {
+    0%,100%{transform:translateY(0) scale(1)}
+    30%{transform:translateY(-22px) scale(1.08)}
+    65%{transform:translateY(-7px) scale(1.02)}
+  }
+  @keyframes cmpFlip {
+    0%{transform:scaleX(1)}
+    45%{transform:scaleX(-1)}
+    100%{transform:scaleX(1)}
+  }
+  @keyframes cmpWobble {
+    0%,100%{transform:rotate(0deg) translateX(0)}
+    15%{transform:rotate(-14deg) translateX(-4px)}
+    35%{transform:rotate(12deg) translateX(4px)}
+    55%{transform:rotate(-8deg) translateX(-2px)}
+    75%{transform:rotate(5deg) translateX(2px)}
+  }
+  @keyframes cmpGlitch {
+    0%,100%{transform:translate(0,0);filter:none;clip-path:none}
+    18%{transform:translate(-4px,0);filter:hue-rotate(90deg) brightness(1.3);clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%)}
+    36%{transform:translate(4px,0);filter:hue-rotate(200deg) brightness(0.8);clip-path:polygon(0 55%,100% 55%,100% 75%,0 75%)}
+    54%{transform:translate(-2px,1px);filter:hue-rotate(320deg) saturate(2);clip-path:none}
+    72%{transform:translate(3px,-1px);filter:hue-rotate(0deg) brightness(1.2);clip-path:polygon(0 5%,100% 5%,100% 15%,0 15%)}
+  }
+  @keyframes cmpPartFly {
+    0%{opacity:1;transform:translate(var(--px),var(--py)) scale(1)}
+    100%{opacity:0;transform:translate(var(--ex),var(--ey)) scale(0.2)}
+  }
+  @keyframes cmpRipple {
+    0%{transform:translateX(-50%) scale(0.2);opacity:0.9}
+    100%{transform:translateX(-50%) scale(2.8);opacity:0}
+  }
+  @keyframes cmpScanLine {
+    0%{top:0%;opacity:0.8}
+    100%{top:100%;opacity:0}
+  }
+  .cmp-bounce { animation: cmpBounce 0.7s cubic-bezier(0.36,0.07,0.19,0.97); }
+  .cmp-flip   { animation: cmpFlip 0.45s ease; }
+  .cmp-wobble { animation: cmpWobble 0.55s ease; }
+  .cmp-glitch { animation: cmpGlitch 0.5s steps(1,end); }
 `;
   const C = darkMode ? {
   plum:"#E8A87C", sage:"#7DAA92", sageDark:"#4A8A72",
