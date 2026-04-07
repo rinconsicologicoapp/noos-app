@@ -2192,15 +2192,20 @@ useEffect(() => {
     }
 
     const unsub = onMessage(messaging, payload => {
-      const { title, body } = payload.notification || {};
+      // App en PRIMER PLANO: avisamos al SW que no muestre notificación push
+      // porque el usuario ya está viendo la app — evita el duplicado.
       const data = payload.data || {};
-      // Recargar notificaciones desde Firestore (el cron ya guardó el doc)
+      const titulo = data.titulo || payload.notification?.title || "Nueva notificación";
       if (usuarioActual?.uid) cargarNotificaciones(usuarioActual.uid);
-      // Mostrar toast
-      showToast(`🔔 ${title || "Nueva notificación"}`);
-      // Si es recordatorio de cita → mostrar banner interactivo
+      showToast(`🔔 ${titulo}`);
+      if (navigator.serviceWorker?.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: "FCM_FOREGROUND",
+          tag: data.tag || data.citaId || data.tipo || "",
+        });
+      }
       if (data.tipo === "recordatorio_cita" && data.citaId) {
-        setNotifCitaActiva({ titulo: title, mensaje: body, link: data.link || "", citaId: data.citaId });
+        setNotifCitaActiva({ titulo: data.titulo, mensaje: data.mensaje, link: data.link || "", citaId: data.citaId });
         if (notifCitaTimer) clearTimeout(notifCitaTimer);
         setNotifCitaTimer(setTimeout(() => setNotifCitaActiva(null), 30000));
       }
