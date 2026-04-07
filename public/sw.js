@@ -37,10 +37,12 @@ messaging.onBackgroundMessage((payload) => {
 
   // Si la app está en primer plano y ya avisó → no duplicar
   // También verificamos si hay cliente visible directamente
+  const TIPOS_CRITICOS = ['cita_nueva', 'recordatorio_cita', 'demora', 'cita_cancelada', 'notif_programada'];
+
   return clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
     const appVisible = list.some(c => c.visibilityState === 'visible');
-    if (appVisible || foregroundTags.has(tag) || foregroundTags.has('__foreground__')) {
-      return; // App abierta → el onMessage del app ya maneja el toast
+    if (!TIPOS_CRITICOS.includes(tipo) && (appVisible || foregroundTags.has(tag) || foregroundTags.has('__foreground__'))) {
+      return;
     }
 
     const vibracion = {
