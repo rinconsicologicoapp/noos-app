@@ -81,7 +81,12 @@ self.addEventListener('push', (event) => {
   if (!event.data) return;
 
   let data = {};
-  try { data = event.data.json()?.data || {}; } catch {}
+  try {
+    const raw = event.data.json();
+    // FCM Web Push pone los campos en el root, NO en un sub-objeto .data
+    // onBackgroundMessage sí los envuelve en .data, pero el push event no
+    data = raw.data || raw;
+  } catch {}
 
   const tipo = data.tipo || 'general';
 
