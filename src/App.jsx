@@ -2965,7 +2965,7 @@ const styles = `
               {/* HEADER */}
               <div style={{ background:darkMode?"#1A1208":"#FEFAF5", padding:"16px 18px", borderBottom:`0.5px solid rgba(196,132,90,0.12)`, display:"flex", alignItems:"center", gap:10, paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
                 <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(196,132,90,0.08)", flexShrink:0 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:17, fontWeight:900, color:C.text }}>Notificaciones</div>
@@ -3317,7 +3317,14 @@ const styles = `
                             {btn(() => { setCitaSeleccionada(proxima); setModal("confirmar-cita"); }, "✓ Confirmar asistencia", { flex:1, padding:"9px 0", borderRadius:10, background:C.green, color:"white", fontWeight:800, fontSize:12 })}
                           </div>
                         )}
-                        {btn(() => showScreen("calendario"), "Ver todas mis citas →", { width:"100%", padding:"9px 0", borderRadius:10, background:C.warm, color:C.plum, fontWeight:800, fontSize:12, marginTop:proxima.status==="pendiente"?8:0 })}
+                        {proxima.status === "confirmada" && (
+                          <div onClick={() => { setCitaSeleccionada(proxima); setRetrasoTexto(""); setRetrasoMinutos(10); setModal("demora-aviso"); }}
+                            style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"9px 0", borderRadius:10, background:"#FFE5E5", border:"1px solid rgba(192,82,74,0.2)", cursor:"pointer", marginBottom:8 }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C0524A" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span style={{ fontSize:12, fontWeight:800, color:"#C0524A" }}>🔴 Voy tarde</span>
+                          </div>
+                        )}
+                        {btn(() => showScreen("calendario"), "Ver todas mis citas →", { width:"100%", padding:"9px 0", borderRadius:10, background:C.warm, color:C.plum, fontWeight:800, fontSize:12 })}
                       </div>
                     );
                   })()
