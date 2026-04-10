@@ -1816,10 +1816,13 @@ const crearTarea = async () => {
 
 const eliminarRecordatorio = async (recId) => {
   try {
-    await deleteDoc(doc(db, "recordatorios", recId));
+    await updateDoc(doc(db, "recordatorios", recId), { activo: false, eliminado: true });
     setRecordatorios(prev => prev.filter(r => r.id !== recId));
     showToast("🗑️ Recordatorio eliminado");
-  } catch(e) { showToast("Error al eliminar ❌"); }
+  } catch(e) {
+    console.error("Error eliminar recordatorio:", e);
+    showToast("Error al eliminar ❌");
+  }
 };
 
 const toggleRecordatorio = async (recId, estadoActual) => {
@@ -2214,6 +2217,9 @@ useEffect(() => {
       // App en PRIMER PLANO: avisamos al SW que no muestre notificación push
       // porque el usuario ya está viendo la app — evita el duplicado.
       const data = payload.data || {};
+      // Si la push trae destinatarioId y no coincide con el usuario actual → ignorar
+      // Esto evita que en pruebas (mismo dispositivo) le aparezca al usuario equivocado
+      if (data.destinatarioId && data.destinatarioId !== usuarioActual?.uid) return;
       const titulo = data.titulo || payload.notification?.title || "Nueva notificación";
       if (usuarioActual?.uid) cargarNotificaciones(usuarioActual.uid);
       showToast(`🔔 ${titulo}`);
@@ -3403,6 +3409,52 @@ const styles = `
                   </div>
                 </div>
               ))}
+              {mdl("demora-aviso", citaSeleccionada && (
+                <div>
+                  <div style={{ display:"flex", justifyContent:"center", marginBottom:14 }}>
+                    <div style={{ width:60, height:60, borderRadius:18, background:"rgba(196,132,90,0.1)", border:"1.5px solid rgba(196,132,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style={{ fontSize:19, fontWeight:900, color:C.text, textAlign:"center", marginBottom:4 }}>Me demoraré un momento</div>
+                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:18, lineHeight:1.5 }}>Tu psicólogo recibirá un aviso discreto</div>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Tiempo estimado de demora</div>
+                  <div style={{ display:"flex", gap:6, marginBottom:16 }}>
+                    {[5, 10, 15, 20, 30].map(m => (
+                      <div key={m} onClick={() => setRetrasoMinutos(m)}
+                        style={{ flex:1, padding:"10px 0", borderRadius:11, textAlign:"center", cursor:"pointer",
+                          border:`1.5px solid ${retrasoMinutos===m ? C.amber : "rgba(0,0,0,0.08)"}`,
+                          background: retrasoMinutos===m ? "#FFF8EE" : "white", transition:"all 0.15s" }}>
+                        <div style={{ fontSize:13, fontWeight:800, color:retrasoMinutos===m ? C.amberDark : C.text }}>{m}'</div>
+                        <div style={{ fontSize:8, color:retrasoMinutos===m ? C.amber : C.light, fontWeight:600 }}>min</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nota adicional <span style={{ fontWeight:400, color:C.light }}>(opcional)</span></div>
+                  <textarea placeholder="Ej: Estoy saliendo del trabajo..." value={retrasoTexto} onChange={e => setRetrasoTexto(e.target.value)}
+                    style={{ width:"100%", minHeight:64, padding:"10px 12px", border:"1.5px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, color:C.text }}/>
+                  <div style={{ display:"flex", gap:8 }}>
+                    {btn(()=>setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(async () => {
+                      if (!citaSeleccionada) return;
+                      try {
+                        const msg = `${usuarioActual.nombre} llegará aproximadamente ${retrasoMinutos} minutos tarde a la sesión del ${citaSeleccionada.fecha} a las ${citaSeleccionada.hora}${retrasoTexto.trim() ? `. "${retrasoTexto.trim()}"` : "."}`;
+                        await setDoc(doc(db, "notificaciones", `demora_${citaSeleccionada.id}_${Date.now()}`), {
+                          pacienteId: citaSeleccionada.psicologoId,
+                          titulo: `Aviso de demora — ${retrasoMinutos} min`,
+                          mensaje: msg,
+                          icon: "⏱", tipo: "demora", leida: false, pushEnviada: false,
+                          creadoEn: new Date().toISOString(),
+                        });
+                        showToast("Aviso enviado a tu psicólogo");
+                        setModal(null);
+                      } catch(e) { showToast("Error al enviar el aviso"); }
+                    }, "Enviar aviso", { flex:2, padding:11, background:`linear-gradient(135deg,${C.amber},${C.amberDark})`, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                  </div>
+                </div>
+              ))}
               {bnav("home")}
             </div>
           )}
@@ -4106,8 +4158,10 @@ const styles = `
               const f = c.fechaUTC
                 ? new Date(c.fechaUTC)
                 : new Date(`${c.fecha}T12:00:00`);
-              const mesLocal = parseInt(f.toLocaleDateString('en-CA', { month:"2-digit", timeZone: tz }).split("-")[1]) - 1;
-              const anioLocal = parseInt(f.toLocaleDateString('en-CA', { year:"numeric", timeZone: tz }));
+              // toLocaleDateString con en-CA da "YYYY-MM-DD" completo — split correcto
+              const partes = f.toLocaleDateString('en-CA', { timeZone: tz }).split("-").map(Number);
+              const anioLocal = partes[0];
+              const mesLocal  = partes[1] - 1; // 0-indexed
               return mesLocal === mesVista && anioLocal === anioVista;
             });
 
@@ -4115,7 +4169,8 @@ const styles = `
             citasDelMes.forEach(c => {
               const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
               const f = c.fechaUTC ? new Date(c.fechaUTC) : new Date(`${c.fecha}T12:00:00`);
-              const d = parseInt(f.toLocaleDateString('en-CA', { day:"2-digit", timeZone: tz }).split("-")[2]);
+              const partes = f.toLocaleDateString('en-CA', { timeZone: tz }).split("-").map(Number);
+              const d = partes[2]; // día del mes
               if (!citasPorDia[d]) citasPorDia[d] = [];
               citasPorDia[d].push(c);
             });

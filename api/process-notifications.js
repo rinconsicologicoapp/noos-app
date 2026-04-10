@@ -128,6 +128,7 @@ module.exports = async function handler(req, res) {
         link: rec.link || '',
         tag: rec.citaId || docSnap.id,
         requireInteraction: rec.tipo === '5m' ? 'true' : 'false',
+        destinatarioId: rec.pacienteId || '',
       });
       if (ok) {
         stats.recordatoriosCita++;
@@ -164,6 +165,7 @@ module.exports = async function handler(req, res) {
         citaId: notif.citaId || '',
         link: notif.link || '',
         tag: `prog_${docSnap.id}`,
+        destinatarioId: notif.pacienteId || '',
       });
       if (ok) stats.programadas++;
       else stats.errores++;
@@ -198,6 +200,7 @@ module.exports = async function handler(req, res) {
         link: notif.link || '',
         tag: docSnap.id,
         requireInteraction: notif.tipo === 'demora' ? 'true' : 'false',
+        destinatarioId: notif.pacienteId || '',
       });
       if (ok) stats.generales++;
       else stats.errores++;
