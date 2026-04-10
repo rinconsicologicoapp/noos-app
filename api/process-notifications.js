@@ -216,14 +216,21 @@ module.exports = async function handler(req, res) {
         if (!diasSemana.includes(fechaLocal.getDay())) continue;
         if (fechaLocal.getHours() !== horaRec) continue;
         if (Math.abs(fechaLocal.getMinutes() - minRec) > 4) continue;
-        const hoyKey = fechaLocal.toISOString().split('T')[0];
+        const hoyKey = ahora.toLocaleDateString('en-CA', { timeZone: tz });
         if (rec.ultimoEnvio === hoyKey) continue;
-        const token = await getTokenDeUsuario(db, pacienteId);
-        const ok = await enviarFCM(db, token, titulo, mensaje, {
-          tipo: 'recordatorio_recurrente', tag: `rec_${docSnap.id}_${hoyKey}`,
+        const notifId = `rec_recurrente_${docSnap.id}_${hoyKey}`;
+        await db.collection('notificaciones_programadas').doc(notifId).set({
+          pacienteId,
+          title:       titulo,
+          body:        mensaje,
+          scheduledAt: new Date(Date.now() + 5000).toISOString(),
+          enviada:     false,
+          creadaEn:    ahoraISO,
+          tipo:        'recordatorio_recurrente',
+          tag:         `rec_${docSnap.id}_${hoyKey}`,
         });
-        if (ok) { stats.recurrentes++; await docSnap.ref.update({ ultimoEnvio: hoyKey }); }
-        else stats.errores++;
+        await docSnap.ref.update({ ultimoEnvio: hoyKey });
+        stats.recurrentes++;
       } catch(e) { console.error('Error recurrente:', e.message); stats.errores++; }
     }
  

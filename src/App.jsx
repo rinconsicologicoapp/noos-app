@@ -1165,7 +1165,7 @@ const crearCita = async () => {
     await setDoc(doc(db, "notificaciones_programadas", notifId), {
       pacienteId:  pacienteIdFinal,
       psicologoId: usuarioActual.uid,
-      title:       `📅 Nueva cita: ${titulo}`,
+      title:       `🧠 Sesión psicológica agendada`,
       body:        `${citaFecha} a las ${citaHora} — ${citaModalidad === "virtual" ? "Virtual 💻" : "Presencial 🏥"}`,
       scheduledAt,
       enviada:     false,
@@ -1179,7 +1179,7 @@ const crearCita = async () => {
       pacienteId:  pacienteIdFinal,
       psicologoId: usuarioActual.uid,
       icon:        "📅",
-      titulo:      `Nueva cita: ${titulo}`,
+      titulo:      `🧠 Sesión psicológica agendada`,
       mensaje:     `${citaFecha} a las ${citaHora} — ${citaModalidad === "virtual" ? "Virtual 💻" : "Presencial 🏥"}`,
       creadoEn:    new Date().toISOString(),
       leida:       false,
@@ -1792,6 +1792,17 @@ const crearTarea = async () => {
     };
     await setDoc(doc(db, "tareas", id), nuevaTarea);
     setTareasPsicologo(prev => [nuevaTarea, ...prev]);
+    // Notificación push al paciente
+    setDoc(doc(db, "notificaciones", `tarea_nueva_${id}`), {
+      pacienteId:  pacienteSeleccionado.id,
+      titulo:      "📋 Nueva tarea de tu psicólogo",
+      mensaje:     `"${tareaTitulo}" — revísala en tu app`,
+      icon:        "📋",
+      tipo:        "tarea_nueva",
+      leida:       false,
+      pushEnviada: false,
+      creadoEn:    new Date().toISOString(),
+    }).catch(()=>{});
     setTareaTitulo("");
     setTareaDescripcion("");
     setTareaXP(80);
@@ -2227,6 +2238,7 @@ useEffect(() => {
         else if (data.tipo === "cita_confirmada") showScreen("calendario");
         else if (data.tipo === "cita_cancelada") showScreen("calendario");
         else if (data.tipo === "tarea_completada") showScreen(usuarioActual?.rol === "psicologo" ? "admin-paciente" : "notas");
+        else if (data.tipo === "tarea_nueva") showScreen("notas");
         else if (data.tipo === "demora") showScreen("calendario");
         else if (data.tipo === "nueva_resena") showScreen("admin-perfil");
       }
@@ -4310,13 +4322,34 @@ const styles = `
                           📝 {citaDetalle.notas}
                         </div>
                       )}
-                      {citaDetalle.modalidad==="virtual" && citaDetalle.link && (
+                      {usuarioActual?.rol === "psicologo" && citaDetalle.modalidad === "virtual" && citaDetalle.link && (
+                        <div style={{ display:"flex", gap:8, marginBottom:8 }}>
+                          {btn(() => {
+                            navigator.clipboard.writeText(citaDetalle.link);
+                            showToast("🔗 Link copiado");
+                          }, "📋 Copiar URL", { flex:1, padding:10, borderRadius:11, background:C.warm, color:C.text, fontWeight:800, fontSize:12 })}
+                          <a href={citaDetalle.link} target="_blank" rel="noreferrer"
+                            style={{ flex:1, padding:"10px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:11, fontSize:12, fontWeight:800, textAlign:"center", textDecoration:"none", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                            🔗 Conectar
+                          </a>
+                        </div>
+                      )}
+                      {usuarioActual?.rol === "psicologo" && (
+                        <div style={{ marginBottom:8 }}>
+                          {btn(() => {
+                            setCitaDetalle(null);
+                            setCitaPacienteId(citaDetalle.pacienteId || "");
+                            setModal("agendar-cita");
+                          }, "📅 Reagendar sesión", { width:"100%", padding:10, borderRadius:11, background:`${C.sage}20`, color:C.sageDark, fontWeight:800, fontSize:12 })}
+                        </div>
+                      )}
+                      {citaDetalle.modalidad === "virtual" && citaDetalle.link && usuarioActual?.rol === "paciente" && (
                         <a href={citaDetalle.link} target="_blank" rel="noreferrer"
                           style={{ display:"block", width:"100%", padding:"12px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:12, fontSize:13, fontWeight:800, textAlign:"center", textDecoration:"none", marginBottom:8 }}>
                           🔗 Abrir sesión virtual
                         </a>
                       )}
-                      {citaDetalle.status==="pendiente" && usuarioActual?.rol==="paciente" && (
+                      {citaDetalle.status === "pendiente" && usuarioActual?.rol === "paciente" && (
                         <div style={{ display:"flex", gap:8 }}>
                           {btn(()=>{ setCitaSeleccionada(citaDetalle); setModal("confirmar-cita"); setCitaDetalle(null); }, "✓ Confirmar asistencia", { flex:1, padding:10, borderRadius:11, background:C.green, color:"white", fontWeight:800, fontSize:12 })}
                           {btn(()=>{ setCitaSeleccionada(citaDetalle); setModal("cancelar-cita"); setCitaDetalle(null); }, "Cancelar", { padding:10, borderRadius:11, background:"#FFE5E5", color:C.red, fontWeight:800, fontSize:12 })}
