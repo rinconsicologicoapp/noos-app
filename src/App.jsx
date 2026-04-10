@@ -1262,8 +1262,10 @@ const activarNotificaciones = async () => {
     }
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
+      const swReg = await navigator.serviceWorker.ready;      
       const token = await getToken(messaging, {
         vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+        serviceWorkerRegistration: swReg,
       });
       if (token) {
         await updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: token });
@@ -2182,13 +2184,19 @@ useEffect(() => {
   if (usuarioActual?.uid) {
     // Solo refrescar token si ya tenía permiso concedido antes — sin pedir en silencio
     if (Notification.permission === "granted") {
-      getToken(messaging, { vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY })
-        .then(token => {
-          if (token) {
-            updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: token }).catch(()=>{});
-          }
+      navigator.serviceWorker.ready.then(swReg => {
+        // Enviar config Firebase al SW para que no esté hardcodeada        
+        getToken(messaging, {
+          vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+          serviceWorkerRegistration: swReg,
         })
-        .catch(e => console.log("Error FCM refresh:", e));
+          .then(token => {
+            if (token) {
+              updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: token }).catch(()=>{});
+            }
+          })
+          .catch(e => console.log("Error FCM refresh:", e));
+      });
     }
 
     const unsub = onMessage(messaging, payload => {
