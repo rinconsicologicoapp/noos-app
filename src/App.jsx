@@ -997,6 +997,14 @@ const [metodosPago, setMetodosPago] = useState([]);
 const [editandoPagos, setEditandoPagos] = useState(false);
 const [pagoEditTemp, setPagoEditTemp] = useState([]);
 const [pagosPsicologo, setPagosPsicologo] = useState([]);
+const [sesionesFinanzas, setSesionesFinanzas] = useState([]);
+const [loadingFinanzas, setLoadingFinanzas] = useState(false);
+const [finanzasTab, setFinanzasTab] = useState("resumen");
+const [pagosMainTab, setPagosMainTab] = useState("finanzas");
+const [finanzasMes, setFinanzasMes] = useState(new Date().getMonth());
+const [finanzasAnio, setFinanzasAnio] = useState(new Date().getFullYear());
+const [tarifaEditPaciente, setTarifaEditPaciente] = useState(null);
+const [tarifaEditValor, setTarifaEditValor] = useState("");
 const [habitos, setHabitos] = useState([{ id:1, activo:false, titulo:"", descripcion:"" }, { id:2, activo:false, titulo:"", descripcion:"" }, { id:3, activo:false, titulo:"", descripcion:"" }]);
 const [registrosHabito, setRegistrosHabito] = useState({});
 const [habitosEditando, setHabitosEditando] = useState(false);
@@ -3443,6 +3451,7 @@ const styles = `
                         const msg = `${usuarioActual.nombre} llegará aproximadamente ${retrasoMinutos} minutos tarde a la sesión del ${citaSeleccionada.fecha} a las ${citaSeleccionada.hora}${retrasoTexto.trim() ? `. "${retrasoTexto.trim()}"` : "."}`;
                         await setDoc(doc(db, "notificaciones", `demora_${citaSeleccionada.id}_${Date.now()}`), {
                           pacienteId: citaSeleccionada.psicologoId,
+                          destinatarioId: citaSeleccionada.psicologoId,
                           titulo: `Aviso de demora — ${retrasoMinutos} min`,
                           mensaje: msg,
                           icon: "⏱", tipo: "demora", leida: false, pushEnviada: false,
@@ -4303,14 +4312,9 @@ const styles = `
                         .map(c => (
                       <div key={c.id} style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`3px solid ${colStatus(c.status)}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                          {/* Fecha bloque */}
                           <div style={{ background:colStatus(c.status)+"20", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:46, flexShrink:0 }}>
-                            <div style={{ fontSize:18, fontWeight:900, color:colStatus(c.status), lineHeight:1 }}>
-                              {mostrarFechaLocal(c, "dia")}
-                            </div>
-                            <div style={{ fontSize:9, fontWeight:700, color:colStatus(c.status), textTransform:"uppercase" }}>
-                              {mostrarFechaLocal(c, "mes")}
-                            </div>
+                            <div style={{ fontSize:18, fontWeight:900, color:colStatus(c.status), lineHeight:1 }}>{mostrarFechaLocal(c, "dia")}</div>
+                            <div style={{ fontSize:9, fontWeight:700, color:colStatus(c.status), textTransform:"uppercase" }}>{mostrarFechaLocal(c, "mes")}</div>
                           </div>
                           <div style={{ flex:1, minWidth:0 }}>
                             <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>
@@ -4318,15 +4322,26 @@ const styles = `
                             </div>
                             <div style={{ fontSize:11, color:C.light }}>⏰ {mostrarFechaLocal(c, "hora")} · {c.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
                           </div>
-                          {/* Botón abrir link */}
                           {c.modalidad==="virtual" && c.link && (
                             <a href={c.link} target="_blank" rel="noreferrer"
                               style={{ flexShrink:0, background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:10, padding:"8px 12px", fontSize:11, fontWeight:800, textDecoration:"none", display:"flex", alignItems:"center", gap:4 }}>
                               🔗 Abrir
                             </a>
                           )}
+                          {usuarioActual?.rol === "psicologo" && (
+                            <div onClick={async () => {
+                              if (!window.confirm("¿Eliminar esta cita?")) return;
+                              try {
+                                const { deleteDoc: dd, doc: dc } = await import("firebase/firestore");
+                                await dd(dc(db, "citas", c.id));
+                                setCitas(prev => prev.filter(x => x.id !== c.id));
+                                showToast("🗑️ Cita eliminada");
+                              } catch(e) { showToast("Error al eliminar ❌"); }
+                            }} style={{ flexShrink:0, width:32, height:32, borderRadius:9, background:"#FFE5E5", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                            </div>
+                          )}
                         </div>
-                        {/* Estado y acciones */}
                         <div style={{ display:"flex", gap:6, marginTop:10 }}>
                           <div style={{ fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20, background:colStatus(c.status)+"20", color:colStatus(c.status) }}>
                             {c.status==="confirmada"?"✅ Confirmada":c.status==="cancelada"?"❌ Cancelada":"⏳ Pendiente"}
@@ -4392,9 +4407,17 @@ const styles = `
                       {usuarioActual?.rol === "psicologo" && (
                         <div style={{ marginBottom:8 }}>
                           {btn(() => {
+                            const pacId = citaDetalle.pacienteId || "";
+                            const pacNom = citaDetalle.pacienteNombre || "";
                             setCitaDetalle(null);
-                            setCitaPacienteId(citaDetalle.pacienteId || "");
-                            setModal("agendar-cita");
+                            setCalCitaDetalle(null);
+                            setTimeout(() => {
+                              setCitaPacienteId(pacId);
+                              if (!pacienteSeleccionado || pacienteSeleccionado.id !== pacId) {
+                                setPacienteSeleccionado({ id: pacId, nombre: pacNom });
+                              }
+                              setModal("agendar-cita");
+                            }, 50);
                           }, "📅 Reagendar sesión", { width:"100%", padding:10, borderRadius:11, background:`${C.sage}20`, color:C.sageDark, fontWeight:800, fontSize:12 })}
                         </div>
                       )}
@@ -4501,6 +4524,7 @@ const styles = `
                           const msg = `${usuarioActual.nombre} llegará aproximadamente ${retrasoMinutos} minutos tarde a la sesión del ${citaSeleccionada.fecha} a las ${citaSeleccionada.hora}${retrasoTexto.trim() ? `. "${retrasoTexto.trim()}"` : "."}`;
                           await setDoc(doc(db, "notificaciones", `demora_${citaSeleccionada.id}_${Date.now()}`), {
                             pacienteId: citaSeleccionada.psicologoId,
+                            destinatarioId: citaSeleccionada.psicologoId,
                             titulo: `Aviso de demora — ${retrasoMinutos} min`,
                             mensaje: msg,
                             icon: "⏱",
@@ -4998,6 +5022,14 @@ const styles = `
                   ))}
                 </div>
 
+                {/* SOBRE MÍ */}
+                {psicologoData?.bio && (
+                  <div style={{ background:"#FEFAF5", borderRadius:14, padding:18, marginBottom:14, boxShadow:"0 4px 20px rgba(0,0,0,0.04)", border:"0.5px solid rgba(196,132,90,0.1)" }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Sobre mí</div>
+                    <div style={{ fontSize:13, color:C.text, lineHeight:1.7 }}>{psicologoData.bio}</div>
+                  </div>
+                )}
+
                 {/* RESEÑAS */}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12 }}>⭐ Reseñas</div>
                 {loadingResenas ? (
@@ -5147,8 +5179,8 @@ const styles = `
                   );
                 })()}
 
-                {/* CITAS HOY */}
-                {citas.filter(c => esCitaHoy(c)).length > 0 && (
+                {/* CITAS HOY - eliminado, redundante con pantalla Citas */}
+                {false && citas.filter(c => esCitaHoy(c)).length > 0 && (
                   <>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📅 Citas de hoy</div>
                     {citas.filter(c => esCitaHoy(c)).map(c => (
@@ -6063,98 +6095,455 @@ const styles = `
 })()}
 
 {!notifPanel && screen === "psi-pagos" && (() => {
+
+  // ── MÉTODOS DE PAGO ────────────────────────────────────────────────────
   const METODOS_DISPONIBLES = [
-    { id:"nequi",       nombre:"Nequi",        color:"#7B2D8B", bg:"#F5E8FA", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#7B2D8B"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">N</text></svg> },
-    { id:"bancolombia", nombre:"Bancolombia",  color:"#F5A800", bg:"#FFF8E6", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#F5A800"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">BC</text></svg> },
-    { id:"davivienda",  nombre:"Davivienda",   color:"#E30613", bg:"#FDE8EA", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#E30613"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">DV</text></svg> },
-    { id:"daviplata",   nombre:"Daviplata",    color:"#FF6B00", bg:"#FFF0E6", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#FF6B00"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">DP</text></svg> },
-    { id:"breve",       nombre:"Breve",        color:"#00B4A0", bg:"#E6FAF8", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#00B4A0"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Br</text></svg> },
-    { id:"transferencia",nombre:"Transferencia",color:"#3A7BD5", bg:"#E8F0FB", svg:<svg width="22" height="22" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#3A7BD5"/><text x="20" y="26" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">TR</text></svg> },
+    { id:"nequi",        nombre:"Nequi",         color:"#7B2D8B", bg:"#F5E8FA" },
+    { id:"bancolombia",  nombre:"Bancolombia",   color:"#F5A800", bg:"#FFF8E6" },
+    { id:"davivienda",   nombre:"Davivienda",    color:"#E30613", bg:"#FDE8EA" },
+    { id:"daviplata",    nombre:"Daviplata",     color:"#FF6B00", bg:"#FFF0E6" },
+    { id:"transferencia",nombre:"Transferencia", color:"#3A7BD5", bg:"#E8F0FB" },
+    { id:"efectivo",     nombre:"Efectivo",      color:"#5A8A62", bg:"#E8F5EA" },
   ];
-  const cargarPagos = async () => {
+  const cargarMetodos = async () => {
     try {
       const snap = await getDoc(doc(db, "metodosPago", usuarioActual.uid));
-      if (snap.exists()) { setMetodosPago(snap.data().metodos || []); }
+      if (snap.exists()) setMetodosPago(snap.data().metodos || []);
     } catch(e) {}
   };
-  if (metodosPago.length === 0 && !editandoPagos) cargarPagos();
-  const guardarPagos = async () => {
+  if (metodosPago.length === 0 && !editandoPagos) cargarMetodos();
+  const guardarMetodos = async () => {
     try {
       await setDoc(doc(db, "metodosPago", usuarioActual.uid), { metodos: pagoEditTemp, actualizadoEn: new Date().toISOString() });
-      setMetodosPago(pagoEditTemp);
-      setEditandoPagos(false);
-      showToast("✅ Métodos de pago guardados");
-    } catch(e) { showToast("Error al guardar ❌"); }
+      setMetodosPago(pagoEditTemp); setEditandoPagos(false);
+      showToast("✅ Métodos guardados");
+    } catch(e) { showToast("Error ❌"); }
   };
+
+  // ── FINANZAS ────────────────────────────────────────────────────────────
+  const cargarSesiones = async () => {
+    if (loadingFinanzas) return;
+    setLoadingFinanzas(true);
+    try {
+      const snap = await getDocs(query(collection(db, "sesionesFinanzas"), where("psicologoId", "==", usuarioActual.uid)));
+      setSesionesFinanzas(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.fecha) - new Date(a.fecha)));
+    } catch(e) {}
+    setLoadingFinanzas(false);
+  };
+  if (pagosMainTab === "finanzas" && sesionesFinanzas.length === 0 && !loadingFinanzas) cargarSesiones();
+
+  const fmt = (n) => n ? "$" + Number(n).toLocaleString("es-CO") : "$0";
+  const mesesFull = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  const mesesShort = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+  const sesDelMes = sesionesFinanzas.filter(s => {
+    const f = new Date(s.fecha);
+    return f.getMonth() === finanzasMes && f.getFullYear() === finanzasAnio;
+  });
+  const totalMes    = sesDelMes.reduce((a,s) => a + (s.valor||0), 0);
+  const cobradoMes  = sesDelMes.filter(s => s.pagado).reduce((a,s) => a + (s.valor||0), 0);
+  const pendienteMes= totalMes - cobradoMes;
+  const pctCobrado  = totalMes > 0 ? Math.round((cobradoMes/totalMes)*100) : 0;
+
+  // Últimos 6 meses para tendencia
+  const trend = Array.from({length:6}, (_,i) => {
+    const d = new Date(finanzasAnio, finanzasMes - (5-i), 1);
+    const m = d.getMonth(); const y = d.getFullYear();
+    const total = sesionesFinanzas.filter(s => { const f=new Date(s.fecha); return f.getMonth()===m && f.getFullYear()===y; }).reduce((a,s)=>a+(s.valor||0),0);
+    return { lb: mesesShort[m], total, m, y };
+  });
+  const maxTrend = Math.max(...trend.map(t => t.total), 1);
+
+  // Barras semanales del mes actual
+  const semanas = [0,0,0,0];
+  sesDelMes.forEach(s => { const d = new Date(s.fecha).getDate(); semanas[Math.min(Math.floor((d-1)/7),3)] += s.valor||0; });
+  const maxSem = Math.max(...semanas, 1);
+
+  // Por paciente del mes
+  const porPac = {};
+  sesDelMes.forEach(s => {
+    if (!porPac[s.pacienteId]) porPac[s.pacienteId] = { nombre:s.pacienteNombre, total:0, cobrado:0, n:0 };
+    porPac[s.pacienteId].total   += s.valor||0;
+    porPac[s.pacienteId].cobrado += s.pagado ? (s.valor||0) : 0;
+    porPac[s.pacienteId].n++;
+  });
+
+  const marcarPagado = async (id, actual) => {
+    try {
+      await updateDoc(doc(db, "sesionesFinanzas", id), { pagado: !actual });
+      setSesionesFinanzas(prev => prev.map(s => s.id===id ? {...s, pagado:!actual} : s));
+    } catch(e) { showToast("Error ❌"); }
+  };
+  const eliminarSesion = async (id) => {
+    if (!window.confirm("¿Eliminar esta sesión?")) return;
+    try {
+      await deleteDoc(doc(db, "sesionesFinanzas", id));
+      setSesionesFinanzas(prev => prev.filter(s => s.id!==id));
+      showToast("🗑️ Eliminada");
+    } catch(e) { showToast("Error ❌"); }
+  };
+  const guardarTarifa = async () => {
+    if (!tarifaEditPaciente) return;
+    const val = parseInt(tarifaEditValor.replace(/\D/g,""))||0;
+    try {
+      await updateDoc(doc(db, "usuarios", tarifaEditPaciente.id), { tarifaSesion: val });
+      setPacientes(prev => prev.map(p => p.id===tarifaEditPaciente.id ? {...p,tarifaSesion:val} : p));
+      showToast(`✅ Tarifa: ${fmt(val)}`);
+      setTarifaEditPaciente(null); setTarifaEditValor("");
+    } catch(e) { showToast("Error ❌"); }
+  };
+
+  // Donut SVG
+  const DonutChart = ({ pct, color, size=110 }) => {
+    const r = 40; const circ = 2*Math.PI*r;
+    const dash = (pct/100)*circ;
+    return (
+      <svg width={size} height={size} viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="12"/>
+        <circle cx="50" cy="50" r={r} fill="none" stroke={color} strokeWidth="12"
+          strokeDasharray={`${dash} ${circ}`} strokeDashoffset={circ*0.25}
+          strokeLinecap="round" style={{transition:"stroke-dasharray 0.6s ease"}}/>
+        <text x="50" y="46" textAnchor="middle" fontSize="16" fontWeight="800" fill={color}>{pct}%</text>
+        <text x="50" y="60" textAnchor="middle" fontSize="8" fill="#888" fontWeight="600">cobrado</text>
+      </svg>
+    );
+  };
+
   return (
     <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5EDE0" }}>
-      <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
-        <div style={{ fontSize:17, fontWeight:700, color:"white" }}>💳 Métodos de pago</div>
-        <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>Configura cómo recibes pagos de tus pacientes</div>
-      </div>
-      <div style={{ flex:1, overflowY:"auto", padding:16, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
-        {!editandoPagos ? (<>
-          {metodosPago.length === 0 ? (
-            <div style={{ textAlign:"center", padding:"48px 24px" }}>
-              <div style={{ width:64, height:64, background:`${C.plum}15`, borderRadius:20, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.5" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-              </div>
-              <div style={{ fontSize:15, fontWeight:700, color:C.text, marginBottom:6 }}>Sin métodos configurados</div>
-              <div style={{ fontSize:12, color:C.light, lineHeight:1.6, marginBottom:24 }}>Agrega tus métodos de pago para que tus pacientes puedan pagarte fácilmente</div>
+
+      {/* Header con 2 tabs principales */}
+      <div style={{ background:`linear-gradient(145deg,${C.dark},#3A1E4A)`, padding:"16px 18px 0", paddingTop:"max(16px, env(safe-area-inset-top,16px))", flexShrink:0 }}>
+        <div style={{ fontSize:17, fontWeight:700, color:"white", marginBottom:12 }}>
+          {pagosMainTab==="finanzas" ? "💰 Finanzas" : "💳 Métodos de pago"}
+        </div>
+        <div style={{ display:"flex", borderBottom:"1px solid rgba(255,255,255,0.1)" }}>
+          {[["finanzas","💰 Finanzas"],["metodos","💳 Métodos pago"]].map(([id,lb]) => (
+            <div key={id} onClick={() => setPagosMainTab(id)}
+              style={{ flex:1, textAlign:"center", padding:"9px 0", fontSize:12, fontWeight:700,
+                color: pagosMainTab===id ? "#E8A87C" : "rgba(255,255,255,0.4)",
+                borderBottom: pagosMainTab===id ? "2.5px solid #E8A87C" : "2.5px solid transparent",
+                cursor:"pointer", transition:"all 0.15s" }}>
+              {lb}
             </div>
-          ) : (
-            <div style={{ marginBottom:16 }}>
-              {metodosPago.map((mp, i) => {
-                const info = METODOS_DISPONIBLES.find(m => m.id === mp.id) || METODOS_DISPONIBLES[0];
+          ))}
+        </div>
+      </div>
+
+      <div style={{ flex:1, overflowY:"auto", paddingBottom:"calc(100px + env(safe-area-inset-bottom,24px))" }}>
+
+        {/* ══════════════ MÉTODOS DE PAGO (pestaña existente) ══════════════ */}
+        {pagosMainTab === "metodos" && (
+          <div style={{ padding:16 }}>
+            {!editandoPagos ? (<>
+              {metodosPago.length === 0 ? (
+                <div style={{ textAlign:"center", padding:"48px 24px" }}>
+                  <div style={{ fontSize:40, marginBottom:10 }}>💳</div>
+                  <div style={{ fontSize:15, fontWeight:700, color:C.text, marginBottom:6 }}>Sin métodos configurados</div>
+                  <div style={{ fontSize:12, color:C.light, lineHeight:1.6, marginBottom:24 }}>Agrega tus métodos de pago para que tus pacientes sepan cómo pagarte</div>
+                </div>
+              ) : (
+                <div style={{ marginBottom:16 }}>
+                  {metodosPago.map((mp,i) => {
+                    const info = METODOS_DISPONIBLES.find(m => m.id===mp.id) || METODOS_DISPONIBLES[0];
+                    return (
+                      <div key={i} style={{ background:"#FEFAF5", borderRadius:16, padding:"14px 16px", marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:12 }}>
+                        <div style={{ width:44, height:44, borderRadius:12, background:info.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, fontWeight:800, color:info.color, flexShrink:0 }}>
+                          {info.nombre[0]}
+                        </div>
+                        <div style={{ flex:1 }}>
+                          <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{info.nombre}</div>
+                          <div style={{ fontSize:12, color:C.light, marginTop:2 }}>{mp.numero}</div>
+                        </div>
+                        <div onClick={() => { navigator.clipboard?.writeText(mp.numero); showToast("✅ Copiado"); }}
+                          style={{ padding:"6px 14px", background:`${info.color}15`, color:info.color, borderRadius:20, fontSize:11, fontWeight:700, cursor:"pointer" }}>Copiar</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {btn(() => { setPagoEditTemp([...metodosPago]); setEditandoPagos(true); }, metodosPago.length>0?"✏️ Editar métodos":"➕ Agregar métodos de pago", { width:"100%", padding:12, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:800 })}
+            </>) : (<>
+              <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12 }}>Selecciona tus métodos:</div>
+              {METODOS_DISPONIBLES.map(m => {
+                const activo = pagoEditTemp.find(p => p.id===m.id);
                 return (
-                  <div key={i} style={{ background:"#FEFAF5", borderRadius:16, padding:"14px 16px", marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:12 }}>
-                    <div style={{ width:44, height:44, borderRadius:12, background:info.bg, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{info.svg}</div>
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{info.nombre}</div>
-                      <div style={{ fontSize:12, color:C.light, marginTop:2 }}>{mp.numero}</div>
+                  <div key={m.id} style={{ background:"#FEFAF5", borderRadius:16, padding:"14px 16px", marginBottom:10, border:`1.5px solid ${activo?m.color:"rgba(0,0,0,0.07)"}` }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:activo?10:0 }}>
+                      <div style={{ width:40, height:40, borderRadius:11, background:m.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, fontWeight:800, color:m.color }}>{m.nombre[0]}</div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{m.nombre}</div>
+                        {activo && <div style={{ fontSize:10, color:m.color, fontWeight:600 }}>✓ Activo</div>}
+                      </div>
+                      <div onClick={() => { if(activo) setPagoEditTemp(prev=>prev.filter(p=>p.id!==m.id)); else setPagoEditTemp(prev=>[...prev,{id:m.id,numero:""}]); }}
+                        style={{ width:26, height:26, borderRadius:"50%", background:activo?m.color:"rgba(0,0,0,0.06)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+                        {activo ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>}
+                      </div>
                     </div>
-                    <div onClick={() => { navigator.clipboard?.writeText(mp.numero); showToast("✅ Número copiado"); }}
-                      style={{ padding:"6px 14px", background:`${info.color}15`, color:info.color, borderRadius:20, fontSize:11, fontWeight:700, cursor:"pointer", flexShrink:0 }}>Copiar</div>
+                    {activo && <input placeholder={`Número ${m.nombre}`} value={activo.numero}
+                      onChange={e => setPagoEditTemp(prev => prev.map(p => p.id===m.id ? {...p,numero:e.target.value} : p))}
+                      style={{ width:"100%", padding:"10px 13px", border:`1.5px solid ${m.color}40`, borderRadius:10, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>}
                   </div>
                 );
               })}
+              <div style={{ display:"flex", gap:10, marginTop:8 }}>
+                {btn(()=>setEditandoPagos(false), "Cancelar", { flex:1, padding:12, background:C.warm, color:C.text, borderRadius:12, fontSize:12, fontWeight:800 })}
+                {btn(guardarMetodos, "Guardar ✓", { flex:2, padding:12, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:800 })}
+              </div>
+            </>)}
+          </div>
+        )}
+
+        {/* ══════════════ FINANZAS ══════════════ */}
+        {pagosMainTab === "finanzas" && (
+          <div>
+            {/* Sub-tabs finanzas */}
+            <div style={{ display:"flex", background:"#FEFAF5", borderBottom:"1px solid rgba(196,132,90,0.12)", padding:"0 16px" }}>
+              {[["resumen","📊 Resumen"],["sesiones","📋 Sesiones"],["tarifas","💲 Tarifas"]].map(([id,lb]) => (
+                <div key={id} onClick={() => setFinanzasTab(id)}
+                  style={{ flex:1, textAlign:"center", padding:"11px 0", fontSize:11, fontWeight:700,
+                    color: finanzasTab===id ? C.plum : C.light,
+                    borderBottom: finanzasTab===id ? `2.5px solid ${C.plum}` : "2.5px solid transparent",
+                    cursor:"pointer" }}>
+                  {lb}
+                </div>
+              ))}
             </div>
-          )}
-          {btn(() => { setPagoEditTemp([...metodosPago]); setEditandoPagos(true); }, metodosPago.length > 0 ? "✏️ Editar métodos" : "➕ Agregar método de pago", { width:"100%", padding:13, background:C.plum, color:"white", borderRadius:13, fontSize:13, fontWeight:700 })}
-        </>) : (<>
-          <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12 }}>Selecciona y configura tus métodos:</div>
-          {METODOS_DISPONIBLES.map(m => {
-            const activo = pagoEditTemp.find(p => p.id === m.id);
-            return (
-              <div key={m.id} style={{ background:"#FEFAF5", borderRadius:16, padding:"14px 16px", marginBottom:10, border:`1.5px solid ${activo ? m.color : "rgba(196,132,90,0.10)"}`, transition:"all 0.2s" }}>
-                <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom: activo ? 10 : 0 }}>
-                  <div style={{ width:40, height:40, borderRadius:11, background:m.bg, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{m.svg}</div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{m.nombre}</div>
-                    {activo && <div style={{ fontSize:10, color:m.color, fontWeight:600 }}>✓ Activo</div>}
+
+            {/* ── RESUMEN ── */}
+            {finanzasTab === "resumen" && (
+              <div style={{ padding:16 }}>
+
+                {/* Navegador mes */}
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
+                  <div onClick={() => { if(finanzasMes===0){setFinanzasMes(11);setFinanzasAnio(a=>a-1);}else setFinanzasMes(m=>m-1); }}
+                    style={{ width:34,height:34,borderRadius:10,background:"#FEFAF5",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>‹</div>
+                  <div style={{ fontSize:15, fontWeight:800, color:C.text }}>{mesesFull[finanzasMes]} {finanzasAnio}</div>
+                  <div onClick={() => { if(finanzasMes===11){setFinanzasMes(0);setFinanzasAnio(a=>a+1);}else setFinanzasMes(m=>m+1); }}
+                    style={{ width:34,height:34,borderRadius:10,background:"#FEFAF5",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>›</div>
+                </div>
+
+                {loadingFinanzas ? (
+                  <div style={{ textAlign:"center", padding:40, color:C.light }}>Cargando...</div>
+                ) : (<>
+
+                  {/* Cards + Donut */}
+                  <div style={{ display:"flex", gap:12, marginBottom:16, alignItems:"center" }}>
+                    {/* Donut */}
+                    <div style={{ background:"#FEFAF5", borderRadius:16, padding:14, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", border:"0.5px solid rgba(196,132,90,0.12)", flexShrink:0 }}>
+                      {(() => {
+                        const r=38; const circ=2*Math.PI*r; const dash=(pctCobrado/100)*circ;
+                        return (
+                          <svg width="100" height="100" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="13"/>
+                            <circle cx="50" cy="50" r={r} fill="none" stroke={C.green} strokeWidth="13"
+                              strokeDasharray={`${dash} ${circ}`} strokeDashoffset={circ*0.25} strokeLinecap="round"/>
+                            {pendienteMes>0 && <circle cx="50" cy="50" r={r} fill="none" stroke={C.amber} strokeWidth="13"
+                              strokeDasharray={`${circ-dash} ${circ}`} strokeDashoffset={circ*0.25-dash} strokeLinecap="round" opacity="0.5"/>}
+                            <text x="50" y="45" textAnchor="middle" fontSize="17" fontWeight="800" fill={C.plum}>{pctCobrado}%</text>
+                            <text x="50" y="59" textAnchor="middle" fontSize="8" fill="#888" fontWeight="600">cobrado</text>
+                          </svg>
+                        );
+                      })()}
+                      <div style={{ display:"flex", gap:8, marginTop:4 }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:3 }}><div style={{ width:7,height:7,borderRadius:"50%",background:C.green }}/><span style={{ fontSize:9,color:C.light }}>Cobrado</span></div>
+                        <div style={{ display:"flex", alignItems:"center", gap:3 }}><div style={{ width:7,height:7,borderRadius:"50%",background:C.amber,opacity:0.6 }}/><span style={{ fontSize:9,color:C.light }}>Pendiente</span></div>
+                      </div>
+                    </div>
+                    {/* Stats verticales */}
+                    <div style={{ flex:1, display:"flex", flexDirection:"column", gap:8 }}>
+                      {[
+                        { lb:"Total mes", val:fmt(totalMes), color:C.plum, icon:"📈" },
+                        { lb:"Cobrado", val:fmt(cobradoMes), color:C.green, icon:"✅" },
+                        { lb:"Pendiente", val:fmt(pendienteMes), color:C.amber, icon:"⏳" },
+                        { lb:"Sesiones", val:sesDelMes.length+" sesión"+(sesDelMes.length!==1?"es":""), color:C.blue, icon:"🗓️" },
+                      ].map(({lb,val,color,icon}) => (
+                        <div key={lb} style={{ background:"#FEFAF5", borderRadius:11, padding:"8px 12px", border:`1px solid ${color}20`, display:"flex", alignItems:"center", gap:8 }}>
+                          <span style={{ fontSize:14 }}>{icon}</span>
+                          <div>
+                            <div style={{ fontSize:12, fontWeight:800, color }}>{val}</div>
+                            <div style={{ fontSize:9, color:C.light, fontWeight:600 }}>{lb}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div onClick={() => {
-                    if (activo) setPagoEditTemp(prev => prev.filter(p => p.id !== m.id));
-                    else setPagoEditTemp(prev => [...prev, { id: m.id, numero:"" }]);
-                  }} style={{ width:26, height:26, borderRadius:"50%", background:activo ? m.color : "rgba(0,0,0,0.06)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
-                    {activo
-                      ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    }
+
+                  {/* Barras semanales */}
+                  <div style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                    <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:14 }}>Semanas de {mesesFull[finanzasMes]}</div>
+                    <div style={{ display:"flex", gap:8, alignItems:"flex-end", height:90 }}>
+                      {semanas.map((val,i) => (
+                        <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
+                          <div style={{ fontSize:8, color:C.light, fontWeight:600, textAlign:"center" }}>{val>0?fmt(val):""}</div>
+                          <div style={{ width:"100%", background:val>0?`linear-gradient(180deg,${C.plum},${C.amberDark})`:"rgba(0,0,0,0.06)", borderRadius:"6px 6px 0 0",
+                            height:Math.max((val/maxSem)*66, val>0?8:3), transition:"height 0.4s ease" }}/>
+                          <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>S{i+1}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tendencia 6 meses */}
+                  <div style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                    <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:14 }}>Tendencia 6 meses</div>
+                    <div style={{ display:"flex", gap:6, alignItems:"flex-end", height:80 }}>
+                      {trend.map((t,i) => (
+                        <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3 }}>
+                          <div style={{ width:"100%", background:t.m===finanzasMes&&t.y===finanzasAnio?`linear-gradient(180deg,${C.plum},${C.amberDark})`:"rgba(139,90,58,0.2)", borderRadius:"5px 5px 0 0",
+                            height:Math.max((t.total/maxTrend)*60, t.total>0?5:2), transition:"height 0.4s ease" }}/>
+                          <div style={{ fontSize:8, color:t.m===finanzasMes&&t.y===finanzasAnio?C.plum:C.light, fontWeight:t.m===finanzasMes?800:500 }}>{t.lb}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Por paciente */}
+                  {Object.keys(porPac).length > 0 && (
+                    <div style={{ background:"#FEFAF5", borderRadius:16, padding:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:12 }}>Por paciente</div>
+                      {Object.values(porPac).sort((a,b)=>b.total-a.total).map((p,i,arr) => (
+                        <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:i<arr.length-1?"0.5px solid rgba(0,0,0,0.06)":"none" }}>
+                          <div style={{ width:36,height:36,borderRadius:10,background:`${C.plum}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:C.plum,flexShrink:0 }}>
+                            {p.nombre?.[0]?.toUpperCase()||"?"}
+                          </div>
+                          <div style={{ flex:1, minWidth:0 }}>
+                            <div style={{ fontSize:13,fontWeight:700,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{p.nombre}</div>
+                            <div style={{ fontSize:10,color:C.light }}>{p.n} sesión{p.n!==1?"es":""}</div>
+                          </div>
+                          <div style={{ textAlign:"right" }}>
+                            <div style={{ fontSize:13,fontWeight:800,color:C.plum }}>{fmt(p.total)}</div>
+                            {p.cobrado<p.total && <div style={{ fontSize:10,color:C.amber }}>Debe {fmt(p.total-p.cobrado)}</div>}
+                            {p.cobrado===p.total && p.total>0 && <div style={{ fontSize:10,color:C.green }}>✅ Al día</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {sesDelMes.length === 0 && (
+                    <div style={{ textAlign:"center", padding:"32px 20px", color:C.light }}>
+                      <div style={{ fontSize:36, marginBottom:8 }}>📊</div>
+                      <div style={{ fontSize:14,fontWeight:700,color:C.text }}>Sin sesiones este mes</div>
+                      <div style={{ fontSize:12,marginTop:4,lineHeight:1.5 }}>Cuando finalices sesiones aparecerán aquí automáticamente</div>
+                    </div>
+                  )}
+                </>)}
+              </div>
+            )}
+
+            {/* ── SESIONES ── */}
+            {finanzasTab === "sesiones" && (
+              <div style={{ padding:16 }}>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+                  <div onClick={() => { if(finanzasMes===0){setFinanzasMes(11);setFinanzasAnio(a=>a-1);}else setFinanzasMes(m=>m-1); }}
+                    style={{ width:32,height:32,borderRadius:9,background:"#FEFAF5",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>‹</div>
+                  <div style={{ fontSize:14,fontWeight:800,color:C.text }}>{mesesFull[finanzasMes]} {finanzasAnio}</div>
+                  <div onClick={() => { if(finanzasMes===11){setFinanzasMes(0);setFinanzasAnio(a=>a+1);}else setFinanzasMes(m=>m+1); }}
+                    style={{ width:32,height:32,borderRadius:9,background:"#FEFAF5",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>›</div>
+                </div>
+
+                {/* Registrar sesión manual */}
+                <div style={{ background:`${C.plum}12`, borderRadius:14, padding:14, marginBottom:16, border:`1px solid ${C.plum}25` }}>
+                  <div style={{ fontSize:12,fontWeight:800,color:C.plum,marginBottom:10 }}>➕ Registrar sesión finalizada</div>
+                  <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                    {pacientes.map(p => (
+                      <div key={p.id} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background:"#FEFAF5", borderRadius:11, padding:"10px 12px" }}>
+                        <div>
+                          <div style={{ fontSize:13,fontWeight:700,color:C.text }}>{p.nombre}</div>
+                          <div style={{ fontSize:10,color:p.tarifaSesion?C.green:C.amber }}>{p.tarifaSesion ? fmt(p.tarifaSesion)+" / sesión" : "Sin tarifa — configúrala en Tarifas"}</div>
+                        </div>
+                        {btn(async () => {
+                          if (!p.tarifaSesion) { showToast("Configura la tarifa primero en la pestaña Tarifas"); return; }
+                          const id = `ses_${Date.now()}_${p.id}`;
+                          const nueva = { id, psicologoId:usuarioActual.uid, pacienteId:p.id, pacienteNombre:p.nombre, valor:p.tarifaSesion, pagado:false, fecha:new Date().toISOString(), creadaEn:new Date().toISOString() };
+                          try {
+                            await setDoc(doc(db,"sesionesFinanzas",id), nueva);
+                            setSesionesFinanzas(prev => [nueva,...prev]);
+                            showToast(`✅ Sesión registrada — ${fmt(p.tarifaSesion)}`);
+                          } catch(e) { showToast("Error ❌"); }
+                        }, "✓ Finalizada", { padding:"6px 12px", background:C.green, color:"white", borderRadius:9, fontSize:11, fontWeight:800, flexShrink:0 })}
+                      </div>
+                    ))}
                   </div>
                 </div>
-                {activo && (
-                  <input placeholder={`Número ${m.nombre}`} value={activo.numero} onChange={e => setPagoEditTemp(prev => prev.map(p => p.id === m.id ? { ...p, numero: e.target.value } : p))}
-                    style={{ width:"100%", padding:"10px 13px", border:`1.5px solid ${m.color}40`, borderRadius:10, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:m.bg, color:C.text }}/>
-                )}
+
+                {/* Lista sesiones del mes */}
+                {sesDelMes.length === 0 ? (
+                  <div style={{ textAlign:"center",padding:"24px 0",color:C.light,fontSize:13 }}>Sin sesiones este mes</div>
+                ) : sesDelMes.map(s => (
+                  <div key={s.id} style={{ background:"#FEFAF5", borderRadius:13, padding:"12px 14px", marginBottom:9, border:`1px solid ${s.pagado?C.green:C.amber}30`, borderLeft:`3px solid ${s.pagado?C.green:C.amber}` }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontSize:13,fontWeight:800,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{s.pacienteNombre}</div>
+                        <div style={{ fontSize:10,color:C.light,marginTop:2 }}>{new Date(s.fecha).toLocaleDateString("es-CO",{day:"2-digit",month:"short",year:"numeric"})}</div>
+                      </div>
+                      <div style={{ fontSize:14,fontWeight:900,color:C.plum,flexShrink:0 }}>{fmt(s.valor)}</div>
+                      <div onClick={() => marcarPagado(s.id, s.pagado)}
+                        style={{ padding:"5px 10px", borderRadius:20, fontSize:10, fontWeight:800, cursor:"pointer", flexShrink:0,
+                          background:s.pagado?"rgba(90,138,98,0.12)":"rgba(196,132,90,0.12)",
+                          color:s.pagado?C.green:C.amber, border:`1px solid ${s.pagado?C.green:C.amber}40` }}>
+                        {s.pagado?"✅ Cobrado":"⏳ Pendiente"}
+                      </div>
+                      <div onClick={() => eliminarSesion(s.id)}
+                        style={{ width:28,height:28,borderRadius:8,background:"#FFE5E5",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0 }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2.5" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            );
-          })}
-          <div style={{ display:"flex", gap:10, marginTop:8 }}>
-            {btn(() => setEditandoPagos(false), "Cancelar", { flex:1, padding:12, background:C.warm, color:C.text, borderRadius:12, fontSize:13, fontWeight:700 })}
-            {btn(guardarPagos, "Guardar ✓", { flex:2, padding:12, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:700 })}
+            )}
+
+            {/* ── TARIFAS ── */}
+            {finanzasTab === "tarifas" && (
+              <div style={{ padding:16 }}>
+                <div style={{ background:`${C.amber}12`, borderRadius:13, padding:12, marginBottom:16, border:`1px solid ${C.amber}25` }}>
+                  <div style={{ fontSize:11,color:C.amberDark,lineHeight:1.6 }}>💡 Define el valor de cada sesión por paciente. Al registrar una sesión finalizada, se usará este valor automáticamente.</div>
+                </div>
+                {pacientes.length === 0 ? (
+                  <div style={{ textAlign:"center",padding:32,color:C.light }}>Sin pacientes asignados</div>
+                ) : pacientes.map(p => (
+                  <div key={p.id} style={{ background:"#FEFAF5", borderRadius:13, padding:"12px 14px", marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ width:38,height:38,borderRadius:10,background:`${C.plum}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800,color:C.plum,flexShrink:0 }}>
+                        {p.nombre?.[0]?.toUpperCase()||"?"}
+                      </div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13,fontWeight:700,color:C.text }}>{p.nombre}</div>
+                        <div style={{ fontSize:11,color:p.tarifaSesion?C.green:C.light,fontWeight:600,marginTop:2 }}>
+                          {p.tarifaSesion ? `💰 ${fmt(p.tarifaSesion)} / sesión` : "Sin tarifa configurada"}
+                        </div>
+                      </div>
+                      {btn(() => { setTarifaEditPaciente(p); setTarifaEditValor(p.tarifaSesion?String(p.tarifaSesion):""); setModal("editar-tarifa"); },
+                        p.tarifaSesion?"✏️ Editar":"+ Tarifa",
+                        { padding:"6px 12px", background:p.tarifaSesion?`${C.plum}15`:C.plum, color:p.tarifaSesion?C.plum:"white", borderRadius:9, fontSize:11, fontWeight:800 })}
+                    </div>
+                  </div>
+                ))}
+                {mdl("editar-tarifa", tarifaEditPaciente && (
+                  <div>
+                    <div style={{ fontSize:18,fontWeight:900,color:C.text,marginBottom:4,textAlign:"center" }}>💲 Tarifa de sesión</div>
+                    <div style={{ fontSize:13,color:C.light,textAlign:"center",marginBottom:18 }}>{tarifaEditPaciente.nombre}</div>
+                    <div style={{ fontSize:11,fontWeight:800,color:C.text,marginBottom:8 }}>Valor por sesión</div>
+                    <input
+                      type="tel" inputMode="numeric" placeholder="Ej: 80000"
+                      value={tarifaEditValor}
+                      onChange={e => setTarifaEditValor(e.target.value.replace(/\D/g,""))}
+                      style={{ width:"100%",padding:"13px 14px",border:`2px solid ${C.plum}40`,borderRadius:12,fontSize:16,fontWeight:700,outline:"none",fontFamily:"inherit",boxSizing:"border-box",marginBottom:6,color:C.text,textAlign:"center" }}/>
+                    {tarifaEditValor && <div style={{ textAlign:"center",fontSize:13,color:C.green,fontWeight:700,marginBottom:14 }}>{fmt(parseInt(tarifaEditValor)||0)} por sesión</div>}
+                    <div style={{ display:"flex",gap:8,marginTop:8 }}>
+                      {btn(()=>{setModal(null);setTarifaEditPaciente(null);},"Cancelar",{flex:1,padding:11,background:C.warm,color:C.text,borderRadius:11,fontSize:12,fontWeight:800})}
+                      {btn(guardarTarifa,"Guardar ✓",{flex:2,padding:11,background:C.plum,color:"white",borderRadius:11,fontSize:12,fontWeight:800})}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
           </div>
-        </>)}
+        )}
       </div>
       {anav("psi-pagos")}
     </div>
