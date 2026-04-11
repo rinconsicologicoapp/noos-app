@@ -4230,7 +4230,7 @@ const styles = `
                         const esHoy = dia === hoy.getDate() && mesVista === hoy.getMonth() && anioVista === hoy.getFullYear();
                         const tieneCitas = citasPorDia[dia];
                         return (
-                          <div key={dia} onClick={() => tieneCitas && setCitaDetalle(tieneCitas[0])}
+                          <div key={dia} onClick={() => tieneCitas && (tieneCitas.length === 1 ? setCitaDetalle(tieneCitas[0]) : setCitaDetalle({ _esDia: true, _citas: tieneCitas, _dia: dia }))}
                             style={{ aspectRatio:"1", borderRadius:10, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:tieneCitas?"pointer":"default", background:esHoy?"#3A2A1C":tieneCitas?"rgba(196,132,90,0.1)":"transparent", border:esHoy?"2px solid #E8A87C":tieneCitas?"1.5px solid rgba(196,132,90,0.25)":"1.5px solid transparent", position:"relative", transition:"all 0.15s" }}>
                             <div style={{ fontSize:13, fontWeight:esHoy||tieneCitas?700:400, color:esHoy?"#E8A87C":tieneCitas?C.text:C.light }}>
                               {dia}
@@ -4330,15 +4330,34 @@ const styles = `
                           )}
                           {usuarioActual?.rol === "psicologo" && (
                             <div onClick={async () => {
-                              if (!window.confirm("¿Eliminar esta cita?")) return;
+                              if (!window.confirm(`¿Marcar sesión con ${c.pacienteNombre} como finalizada?\n\nEsto la registrará en finanzas y la eliminará de la lista.`)) return;
                               try {
-                                const { deleteDoc: dd, doc: dc } = await import("firebase/firestore");
-                                await dd(dc(db, "citas", c.id));
+                                // 1. Buscar tarifa del paciente
+                                const tarifasSnap = await getDoc(doc(db, "metodosPago", usuarioActual.uid));
+                                const tarifas = tarifasSnap.exists() ? (tarifasSnap.data().tarifas || {}) : {};
+                                const valor = tarifas[c.pacienteId] || pacientes.find(p => p.id === c.pacienteId)?.tarifaSesion || 0;
+                                // 2. Registrar en sesionesFinanzas
+                                const sesId = `ses_${Date.now()}_${c.pacienteId}`;
+                                await setDoc(doc(db, "sesionesFinanzas", sesId), {
+                                  id: sesId,
+                                  psicologoId:    usuarioActual.uid,
+                                  pacienteId:     c.pacienteId,
+                                  pacienteNombre: c.pacienteNombre,
+                                  valor,
+                                  pagado:   false,
+                                  fecha:    c.fechaUTC || new Date().toISOString(),
+                                  citaId:   c.id,
+                                  creadaEn: new Date().toISOString(),
+                                });
+                                // 3. Eliminar la cita
+                                await deleteDoc(doc(db, "citas", c.id));
                                 setCitas(prev => prev.filter(x => x.id !== c.id));
-                                showToast("🗑️ Cita eliminada");
-                              } catch(e) { showToast("Error al eliminar ❌"); }
-                            }} style={{ flexShrink:0, width:32, height:32, borderRadius:9, background:"#FFE5E5", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                                setSesionesFinanzas(prev => [{ id:sesId, psicologoId:usuarioActual.uid, pacienteId:c.pacienteId, pacienteNombre:c.pacienteNombre, valor, pagado:false, fecha:c.fechaUTC||new Date().toISOString(), citaId:c.id, creadaEn:new Date().toISOString() }, ...prev]);
+                                showToast(valor > 0 ? `✅ Sesión finalizada — ${valor > 0 ? "$"+Number(valor).toLocaleString("es-CO") : "sin tarifa"}` : "✅ Sesión finalizada — configura tarifa en Finanzas");
+                              } catch(e) { console.error(e); showToast("Error ❌"); }
+                            }} style={{ flexShrink:0, padding:"6px 10px", borderRadius:9, background:`${C.green}15`, border:`1px solid ${C.green}40`, display:"flex", alignItems:"center", gap:4, cursor:"pointer" }}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                              <span style={{ fontSize:10, fontWeight:800, color:C.green }}>Finalizada</span>
                             </div>
                           )}
                         </div>
@@ -4371,8 +4390,34 @@ const styles = `
                 {/* Modal detalle cita desde calendario */}
                 {citaDetalle && (
                   <div onClick={()=>setCitaDetalle(null)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.45)", zIndex:500, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
-                    <div onClick={e=>e.stopPropagation()} style={{ background:"#FEFAF5", borderRadius:"20px 20px 0 0", padding:"20px 18px 32px", width:"100%", maxWidth:430 }}>
+                    <div onClick={e=>e.stopPropagation()} style={{ background:"#FEFAF5", borderRadius:"20px 20px 0 0", padding:"20px 18px 32px", width:"100%", maxWidth:430, maxHeight:"85%", overflowY:"auto" }}>
                       <div style={{ width:36, height:4, background:"rgba(0,0,0,0.12)", borderRadius:2, margin:"0 auto 16px" }}/>
+                      {/* LISTA de citas del día */}
+                      {citaDetalle._esDia ? (
+                        <>
+                          <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:14 }}>
+                            📅 Citas del día {citaDetalle._dia}
+                            <span style={{ fontSize:12, color:C.light, fontWeight:500, marginLeft:6 }}>{citaDetalle._citas.length} sesiones</span>
+                          </div>
+                          {citaDetalle._citas.sort((a,b) => fechaOrden(a) - fechaOrden(b)).map(c => (
+                            <div key={c.id} onClick={() => setCitaDetalle(c)}
+                              style={{ background:"white", borderRadius:12, padding:"12px 14px", marginBottom:9, border:`1.5px solid ${colStatus(c.status)}30`, borderLeft:`3px solid ${colStatus(c.status)}`, cursor:"pointer" }}>
+                              <div style={{ fontSize:13, fontWeight:800, color:C.text }}>
+                                {usuarioActual?.rol==="psicologo" ? c.pacienteNombre : `Sesión con ${c.psicologoNombre}`}
+                              </div>
+                              <div style={{ fontSize:11, color:C.light, marginTop:3 }}>⏰ {mostrarFechaLocal(c,"hora")} · {c.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
+                              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:6 }}>
+                                <span style={{ fontSize:9, fontWeight:800, padding:"2px 8px", borderRadius:20, background:colStatus(c.status)+"20", color:colStatus(c.status) }}>
+                                  {c.status==="confirmada"?"✅ Confirmada":c.status==="cancelada"?"❌ Cancelada":"⏳ Pendiente"}
+                                </span>
+                                <span style={{ fontSize:10, color:C.plum, fontWeight:700 }}>Ver detalle →</span>
+                              </div>
+                            </div>
+                          ))}
+                          {btn(()=>setCitaDetalle(null), "Cerrar", { width:"100%", padding:10, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:700, marginTop:4 })}
+                        </>
+                      ) : (
+                      <>
                       <div style={{ fontSize:15, fontWeight:800, color:C.text, marginBottom:4 }}>
                         {usuarioActual?.rol==="psicologo" ? citaDetalle.pacienteNombre : `Sesión con ${citaDetalle.psicologoNombre}`}
                       </div>
@@ -4434,6 +4479,8 @@ const styles = `
                         </div>
                       )}
                       {btn(()=>setCitaDetalle(null), "Cerrar", { width:"100%", padding:10, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:700, marginTop:8 })}
+                      </>
+                      )}
                     </div>
                   </div>
                 )}
@@ -6108,7 +6155,14 @@ const styles = `
   const cargarMetodos = async () => {
     try {
       const snap = await getDoc(doc(db, "metodosPago", usuarioActual.uid));
-      if (snap.exists()) setMetodosPago(snap.data().metodos || []);
+      if (snap.exists()) {
+        setMetodosPago(snap.data().metodos || []);
+        // Cargar tarifas por paciente y aplicarlas al estado
+        const tarifas = snap.data().tarifas || {};
+        if (Object.keys(tarifas).length > 0) {
+          setPacientes(prev => prev.map(p => tarifas[p.id] ? { ...p, tarifaSesion: tarifas[p.id] } : p));
+        }
+      }
     } catch(e) {}
   };
   if (metodosPago.length === 0 && !editandoPagos) cargarMetodos();
@@ -6186,11 +6240,17 @@ const styles = `
     if (!tarifaEditPaciente) return;
     const val = parseInt(tarifaEditValor.replace(/\D/g,""))||0;
     try {
-      await updateDoc(doc(db, "usuarios", tarifaEditPaciente.id), { tarifaSesion: val });
+      // Guardamos en metodosPago/{psicologoId}/tarifas en vez de usuarios
+      // porque el psicólogo no tiene permiso de escribir en el doc del paciente
+      const tarifasRef = doc(db, "metodosPago", usuarioActual.uid);
+      const snap = await getDoc(tarifasRef);
+      const tarifasActuales = snap.exists() ? (snap.data().tarifas || {}) : {};
+      tarifasActuales[tarifaEditPaciente.id] = val;
+      await setDoc(tarifasRef, { tarifas: tarifasActuales }, { merge: true });
       setPacientes(prev => prev.map(p => p.id===tarifaEditPaciente.id ? {...p,tarifaSesion:val} : p));
-      showToast(`✅ Tarifa: ${fmt(val)}`);
+      showToast(`✅ Tarifa guardada: ${fmt(val)}`);
       setTarifaEditPaciente(null); setTarifaEditValor("");
-    } catch(e) { showToast("Error ❌"); }
+    } catch(e) { console.error(e); showToast("Error ❌"); }
   };
 
   // Donut SVG
