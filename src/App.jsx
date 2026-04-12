@@ -1168,7 +1168,8 @@ const crearCita = async () => {
     setCitas(prev => [...prev, nuevaCita].sort((a,b) => fechaOrden(a) - fechaOrden(b)));
 
     // Notificación inmediata via notificaciones_programadas (evita race condition del cron)
-    const notifId = `cita_nueva_${id}`;
+    // ID incluye timestamp para que no se sobreescriba si hay doble ejecución
+    const notifId = `cita_nueva_${id}_${Date.now()}`;
     const scheduledAt = new Date(Date.now() + 5000).toISOString(); // 5 segundos desde ahora
     await setDoc(doc(db, "notificaciones_programadas", notifId), {
       pacienteId:  pacienteIdFinal,
@@ -3667,15 +3668,36 @@ const styles = `
 
       <div style={{ padding:"20px 20px 20px 56px", minHeight:"100%" }}>
         {/* Si es tarea — mostrar descripción + área de respuesta */}
-        {notaAbierta.tipo === "tarea" && (
+        {(notaAbierta.tipo === "tarea" || notaAbierta.tipo === "tarea_psi") && (
           <>
             {notaAbierta.descripcion && (
               <div style={{ fontSize:13, color:C.light, lineHeight:1.8, marginBottom:24,
                 fontStyle:"italic", paddingBottom:16, borderBottom:"0.5px solid rgba(196,132,90,0.15)" }}>
-                {notaAbierta.descripcion}
+                {notaAbierta.descripcion.split('\n').map((ln, i, arr) => (
+                  <span key={i}>{ln}{i < arr.length - 1 && <br/>}</span>
+                ))}
               </div>
             )}
-            {notaAbierta.completada ? (
+            {/* Vista psicólogo: solo lectura de respuesta */}
+            {notaAbierta.tipo === "tarea_psi" ? (
+              <div>
+                <div style={{ fontSize:11, fontWeight:700, color:C.plum, marginBottom:10,
+                  textTransform:"uppercase", letterSpacing:0.5 }}>
+                  {notaAbierta.completada ? "✅ Respondida por el paciente" : "⏳ Sin respuesta aún"}
+                </div>
+                {notaAbierta.respuesta ? (
+                  <div style={{ fontSize:14, color:C.text, lineHeight:1.9 }}>
+                    {notaAbierta.respuesta.split('\n').map((ln, i, arr) => (
+                      <span key={i}>{ln}{i < arr.length - 1 && <br/>}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ fontSize:13, color:C.light, fontStyle:"italic" }}>
+                    El paciente aún no ha respondido esta tarea.
+                  </div>
+                )}
+              </div>
+            ) : notaAbierta.completada ? (
               <div>
                 <div style={{ fontSize:11, fontWeight:700, color:C.green, marginBottom:10,
                   textTransform:"uppercase", letterSpacing:0.5 }}>✓ Tu respuesta</div>
@@ -3962,11 +3984,11 @@ const styles = `
                 <input placeholder="Ej: 19 de marzo, 2026" value={arFecha} onChange={e => setArFecha(e.target.value)}
                   style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
 
-                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué estaba haciendo?</div>
+                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué estaba haciendo antes del 'evento' problema?</div>
                 <textarea placeholder="Describe lo que hacías en ese momento..." value={arHaciendo} onChange={e => setArHaciendo(e.target.value)}
                   style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5 }}/>
 
-                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué sucedió?</div>
+                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué evento sucedió?</div>
                 <textarea placeholder="¿Qué pasó? ¿Cómo te sentiste?" value={arSucedio} onChange={e => setArSucedio(e.target.value)}
                   style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5 }}/>
 
@@ -4163,25 +4185,26 @@ const styles = `
             const dias  = ["Lu","Ma","Mi","Ju","Vi","Sa","Do"];
 
             const citasDelMes = citas.filter(c => {
-              const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-              const f = c.fechaUTC
-                ? new Date(c.fechaUTC)
-                : new Date(`${c.fecha}T12:00:00`);
-              // toLocaleDateString con en-CA da "YYYY-MM-DD" completo — split correcto
-              const partes = f.toLocaleDateString('en-CA', { timeZone: tz }).split("-").map(Number);
-              const anioLocal = partes[0];
-              const mesLocal  = partes[1] - 1; // 0-indexed
-              return mesLocal === mesVista && anioLocal === anioVista;
+              try {
+                const f = c.fechaUTC ? new Date(c.fechaUTC) : new Date(`${c.fecha}T12:00:00`);
+                if (isNaN(f.getTime())) return false;
+                const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const str = f.toLocaleDateString('en-CA', { timeZone: tz }); // "YYYY-MM-DD"
+                const [y, m] = str.split('-').map(Number);
+                return (m - 1) === mesVista && y === anioVista;
+              } catch { return false; }
             });
 
             const citasPorDia = {};
             citasDelMes.forEach(c => {
-              const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-              const f = c.fechaUTC ? new Date(c.fechaUTC) : new Date(`${c.fecha}T12:00:00`);
-              const partes = f.toLocaleDateString('en-CA', { timeZone: tz }).split("-").map(Number);
-              const d = partes[2]; // día del mes
-              if (!citasPorDia[d]) citasPorDia[d] = [];
-              citasPorDia[d].push(c);
+              try {
+                const f = c.fechaUTC ? new Date(c.fechaUTC) : new Date(`${c.fecha}T12:00:00`);
+                const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const str = f.toLocaleDateString('en-CA', { timeZone: tz }); // "YYYY-MM-DD"
+                const d = parseInt(str.split('-')[2], 10);
+                if (!citasPorDia[d]) citasPorDia[d] = [];
+                citasPorDia[d].push(c);
+              } catch {}
             });
 
             const colStatus = (s) => s === "confirmada" ? "#5A8A62" : s === "cancelada" ? C.red : C.amber;
@@ -5039,8 +5062,7 @@ const styles = `
                       )}
                     </div>
                   )}
-                </div>
-                {psicologoData?.especialidad && <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", marginBottom:12 }}>{psicologoData.especialidad}</div>}
+                </div>                
                 <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
                   {psicologoData?.especialidad && <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"4px 12px", borderRadius:20 }}>🧠 {psicologoData.especialidad}</span>}
                 </div>                
@@ -5073,7 +5095,11 @@ const styles = `
                 {psicologoData?.bio && (
                   <div style={{ background:"#FEFAF5", borderRadius:14, padding:18, marginBottom:14, boxShadow:"0 4px 20px rgba(0,0,0,0.04)", border:"0.5px solid rgba(196,132,90,0.1)" }}>
                     <div style={{ fontSize:11, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Sobre mí</div>
-                    <div style={{ fontSize:13, color:C.text, lineHeight:1.7 }}>{psicologoData.bio}</div>
+                    <div style={{ fontSize:13, color:C.text, lineHeight:1.7 }}>
+                      {psicologoData.bio.split('\n').map((linea, i) => (
+                        <span key={i}>{linea}{i < psicologoData.bio.split('\n').length - 1 && <br/>}</span>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -6502,33 +6528,7 @@ const styles = `
                   <div style={{ fontSize:14,fontWeight:800,color:C.text }}>{mesesFull[finanzasMes]} {finanzasAnio}</div>
                   <div onClick={() => { if(finanzasMes===11){setFinanzasMes(0);setFinanzasAnio(a=>a+1);}else setFinanzasMes(m=>m+1); }}
                     style={{ width:32,height:32,borderRadius:9,background:"#FEFAF5",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>›</div>
-                </div>
-
-                {/* Registrar sesión manual */}
-                <div style={{ background:`${C.plum}12`, borderRadius:14, padding:14, marginBottom:16, border:`1px solid ${C.plum}25` }}>
-                  <div style={{ fontSize:12,fontWeight:800,color:C.plum,marginBottom:10 }}>➕ Registrar sesión finalizada</div>
-                  <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-                    {pacientes.map(p => (
-                      <div key={p.id} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background:"#FEFAF5", borderRadius:11, padding:"10px 12px" }}>
-                        <div>
-                          <div style={{ fontSize:13,fontWeight:700,color:C.text }}>{p.nombre}</div>
-                          <div style={{ fontSize:10,color:p.tarifaSesion?C.green:C.amber }}>{p.tarifaSesion ? fmt(p.tarifaSesion)+" / sesión" : "Sin tarifa — configúrala en Tarifas"}</div>
-                        </div>
-                        {btn(async () => {
-                          if (!p.tarifaSesion) { showToast("Configura la tarifa primero en la pestaña Tarifas"); return; }
-                          const id = `ses_${Date.now()}_${p.id}`;
-                          const nueva = { id, psicologoId:usuarioActual.uid, pacienteId:p.id, pacienteNombre:p.nombre, valor:p.tarifaSesion, pagado:false, fecha:new Date().toISOString(), creadaEn:new Date().toISOString() };
-                          try {
-                            await setDoc(doc(db,"sesionesFinanzas",id), nueva);
-                            setSesionesFinanzas(prev => [nueva,...prev]);
-                            showToast(`✅ Sesión registrada — ${fmt(p.tarifaSesion)}`);
-                          } catch(e) { showToast("Error ❌"); }
-                        }, "✓ Finalizada", { padding:"6px 12px", background:C.green, color:"white", borderRadius:9, fontSize:11, fontWeight:800, flexShrink:0 })}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
+                </div>                
                 {/* Lista sesiones del mes */}
                 {sesDelMes.length === 0 ? (
                   <div style={{ textAlign:"center",padding:"24px 0",color:C.light,fontSize:13 }}>Sin sesiones este mes</div>
@@ -6971,7 +6971,8 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 {tareasPsicologo.length === 0 ? (
   <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay tareas asignadas aún</div>
 ) : tareasPsicologo.map(t => (
-  <div key={t.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${t.completada ? C.green : C.sage}` }}>
+  <div key={t.id} onClick={() => setNotaAbierta({ ...t, tipo:"tarea_psi" })}
+    style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer", borderLeft:`3px solid ${t.completada ? "#5A8A62" : "#C4845A"}` }}>
     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
       <div style={{ fontSize:13, fontWeight:800, color:C.text, flex:1 }}>{t.titulo}</div>
       <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
