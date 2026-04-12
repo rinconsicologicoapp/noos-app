@@ -5428,6 +5428,7 @@ const styles = `
         </div>
       </div>
     )}
+
     {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:10, background:"#FEFAF5", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
     {btn(() => setModal(null), "Cerrar", { width:"100%", padding:9, background:C.warm, color:C.text, borderRadius:12, fontSize:13, fontWeight:800 })}
   </div>
