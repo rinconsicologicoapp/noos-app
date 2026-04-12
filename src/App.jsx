@@ -823,6 +823,9 @@ export default function NOOS() {
   const [screen, setScreen] = useState("login");
   const [screenDir, setScreenDir] = useState("enter"); // "enter" | "forward" | "back"
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [appLocked, setAppLocked] = useState(false);
+  const [biometriaFallos, setBiometriaFallos] = useState(0);
+  const [biometriaDisponible, setBiometriaDisponible] = useState(false);
   const [formNombre, setFormNombre] = useState("");
 const [formEmail, setFormEmail] = useState("");
 const [formPin, setFormPin] = useState("");
@@ -2121,6 +2124,12 @@ useEffect(() => {
         setUsuarioActual({ uid: user.uid, ...data });
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         await updateDoc(doc(db, "usuarios", user.uid), { timezone });
+        // Bloquear con biometría si el usuario la tiene activada
+        const webauthnSoportado = window.PublicKeyCredential !== undefined;
+        setBiometriaDisponible(webauthnSoportado);
+        if (data.webauthnCredentialId && webauthnSoportado) {
+          setAppLocked(true);
+        }
         if (data.rol === "paciente") {
           cargarCitas(user.uid, "paciente");
           cargarRecursosPaciente(user.uid);
@@ -2827,6 +2836,77 @@ const styles = `
       </div>
     </div>
   ) : null;
+  if (appLocked && usuarioActual) {
+    const desbloquear = async () => {
+      try {
+        const credId = usuarioActual.webauthnCredentialId;
+        if (!credId) { setAppLocked(false); return; }
+        const credIdBuffer = Uint8Array.from(atob(credId), c => c.charCodeAt(0));
+        const assertion = await navigator.credentials.get({
+          publicKey: {
+            challenge: crypto.getRandomValues(new Uint8Array(32)),
+            allowCredentials: [{ type: "public-key", id: credIdBuffer }],
+            userVerification: "required",
+            timeout: 60000,
+          }
+        });
+        if (assertion) { setAppLocked(false); setBiometriaFallos(0); }
+      } catch(e) {
+        const f = biometriaFallos + 1;
+        setBiometriaFallos(f);
+        if (f >= 3) {
+          await signOut(auth);
+          setUsuarioActual(null); setAppLocked(false); setBiometriaFallos(0);
+          showScreen("login");
+          showToast("Demasiados intentos. Inicia sesión de nuevo.");
+        } else {
+          showToast(`Huella no reconocida — ${3 - f} intento${3 - f !== 1 ? "s" : ""} restante${3 - f !== 1 ? "s" : ""}`);
+        }
+      }
+    };
+    setTimeout(() => desbloquear(), 300);
+    return (
+      <div style={{ height:"100vh", display:"flex", flexDirection:"column", alignItems:"center",
+        justifyContent:"center", background:"linear-gradient(160deg,#2A2018 0%,#1E1610 60%,#181210 100%)",
+        fontFamily:"system-ui", paddingTop:"env(safe-area-inset-top,0)", paddingBottom:"env(safe-area-inset-bottom,0)" }}>
+        <div style={{ marginBottom:36, textAlign:"center" }}>
+          <div style={{ fontSize:52, marginBottom:10 }}>🧠</div>
+          <div style={{ fontSize:22, fontWeight:900, color:"#F5EDE0", letterSpacing:-0.5 }}>Mi Psicólogo</div>
+          <div style={{ fontSize:13, color:"rgba(245,237,224,0.45)", marginTop:6 }}>
+            Hola de nuevo, {usuarioActual.nombre?.split(" ")[0] || ""}
+          </div>
+        </div>
+        <div onClick={desbloquear} style={{ width:92, height:92, borderRadius:28,
+          background:"rgba(196,132,90,0.1)", border:"1.5px solid rgba(196,132,90,0.3)",
+          display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer",
+          marginBottom:20, boxShadow:"0 0 40px rgba(196,132,90,0.1)", WebkitTapHighlightColor:"transparent" }}>
+          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.5" strokeLinecap="round">
+            <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/>
+            <path d="M14 13.12c0 2.38 0 6.38-1 8.88"/>
+            <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/>
+            <path d="M2 12a10 10 0 0 1 18-6"/>
+            <path d="M2 17.5A14.5 14.5 0 0 0 4.08 21"/>
+            <path d="M5 19.5A15.5 15.5 0 0 1 5 12a7 7 0 0 1 14 0c0 1.25-.16 2.48-.46 3.65"/>
+            <path d="M8.65 22c.21-.66.45-1.32.57-2"/>
+            <path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
+          </svg>
+        </div>
+        <div style={{ fontSize:14, color:"rgba(245,237,224,0.55)", marginBottom:6 }}>Toca para desbloquear</div>
+        {biometriaFallos > 0 && (
+          <div style={{ fontSize:12, color:"#C0524A", marginTop:4 }}>
+            {3 - biometriaFallos} intento{3 - biometriaFallos !== 1 ? "s" : ""} restante{3 - biometriaFallos !== 1 ? "s" : ""}
+          </div>
+        )}
+        <div onClick={async () => {
+          await signOut(auth); setUsuarioActual(null);
+          setAppLocked(false); setBiometriaFallos(0); showScreen("login");
+        }} style={{ marginTop:32, fontSize:11, color:"rgba(245,237,224,0.25)", cursor:"pointer", textDecoration:"underline" }}>
+          Usar otra cuenta
+        </div>
+      </div>
+    );
+  }
+
   if (checkingAuth) return (
   <div style={{ height:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:"linear-gradient(160deg,#2A2018 0%,#1E1610 60%,#181210 100%)", fontFamily:"system-ui", paddingTop:"env(safe-area-inset-top, 0px)", paddingBottom:"env(safe-area-inset-bottom, 0px)" }}>
     <style>{`
@@ -3672,7 +3752,8 @@ const styles = `
           <>
             {notaAbierta.descripcion && (
               <div style={{ fontSize:13, color:C.light, lineHeight:1.8, marginBottom:24,
-                fontStyle:"italic", paddingBottom:16, borderBottom:"0.5px solid rgba(196,132,90,0.15)" }}>
+                fontStyle:"italic", paddingBottom:16, borderBottom:"0.5px solid rgba(196,132,90,0.15)",
+                whiteSpace:"pre-wrap" }}>
                 {notaAbierta.descripcion.split('\n').map((ln, i, arr) => (
                   <span key={i}>{ln}{i < arr.length - 1 && <br/>}</span>
                 ))}
@@ -3701,7 +3782,7 @@ const styles = `
               <div>
                 <div style={{ fontSize:11, fontWeight:700, color:C.green, marginBottom:10,
                   textTransform:"uppercase", letterSpacing:0.5 }}>✓ Tu respuesta</div>
-                <div style={{ fontSize:14, color:C.text, lineHeight:1.9 }}>
+                <div style={{ fontSize:14, color:C.text, lineHeight:1.9, whiteSpace:"pre-wrap" }}>
                   {notaAbierta.respuesta}
                 </div>
               </div>
@@ -4937,6 +5018,58 @@ const styles = `
       </div>
     </div>
 
+    {/* Biometría */}
+    {window.PublicKeyCredential !== undefined && (
+      <div style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>🔐 Desbloqueo biométrico</div>
+        <div style={{ fontSize:11, color:C.light, marginBottom:12, lineHeight:1.5 }}>
+          {usuarioActual?.webauthnCredentialId
+            ? "Activo — la app pedirá huella o Face ID al abrir"
+            : "Protege la app con tu huella, Face ID o PIN del dispositivo"}
+        </div>
+        {btn(async () => {
+          if (usuarioActual?.webauthnCredentialId) {
+            await updateDoc(doc(db, "usuarios", usuarioActual.uid), { webauthnCredentialId: "" });
+            setUsuarioActual(prev => ({ ...prev, webauthnCredentialId: "" }));
+            showToast("🔓 Biometría desactivada");
+          } else {
+            try {
+              const challenge = crypto.getRandomValues(new Uint8Array(32));
+              const cred = await navigator.credentials.create({
+                publicKey: {
+                  challenge,
+                  rp: { name: "Mi Psicólogo", id: window.location.hostname },
+                  user: {
+                    id: new TextEncoder().encode(usuarioActual.uid),
+                    name: usuarioActual.email || usuarioActual.uid,
+                    displayName: usuarioActual.nombre || "Usuario",
+                  },
+                  pubKeyCredParams: [
+                    { type:"public-key", alg:-7 },
+                    { type:"public-key", alg:-257 },
+                  ],
+                  authenticatorSelection: { userVerification:"required", residentKey:"preferred" },
+                  timeout: 60000,
+                }
+              });
+              if (cred) {
+                const credId = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+                await updateDoc(doc(db, "usuarios", usuarioActual.uid), { webauthnCredentialId: credId });
+                setUsuarioActual(prev => ({ ...prev, webauthnCredentialId: credId }));
+                showToast("✅ Biometría activada — se pedirá al abrir la app");
+              }
+            } catch(e) {
+              showToast("No se pudo activar: " + (e.message || "intenta de nuevo"));
+            }
+          }
+        }, usuarioActual?.webauthnCredentialId ? "🔓 Desactivar biometría" : "🔐 Activar huella / Face ID",
+          { width:"100%", padding:11, borderRadius:11,
+            background: usuarioActual?.webauthnCredentialId ? "#FFE5E5" : C.plum,
+            color: usuarioActual?.webauthnCredentialId ? C.red : "white",
+            fontSize:12, fontWeight:800 })}
+      </div>
+    )}
+
     {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:10, background:"#FEFAF5", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
     {btn(() => setModal(null), "Cerrar", { width:"100%", padding:9, background:C.warm, color:C.text, borderRadius:12, fontSize:13, fontWeight:800 })}
   </div>
@@ -5095,11 +5228,7 @@ const styles = `
                 {psicologoData?.bio && (
                   <div style={{ background:"#FEFAF5", borderRadius:14, padding:18, marginBottom:14, boxShadow:"0 4px 20px rgba(0,0,0,0.04)", border:"0.5px solid rgba(196,132,90,0.1)" }}>
                     <div style={{ fontSize:11, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Sobre mí</div>
-                    <div style={{ fontSize:13, color:C.text, lineHeight:1.7 }}>
-                      {psicologoData.bio.split('\n').map((linea, i) => (
-                        <span key={i}>{linea}{i < psicologoData.bio.split('\n').length - 1 && <br/>}</span>
-                      ))}
-                    </div>
+                    <div style={{ fontSize:13, color:C.text, lineHeight:1.7, whiteSpace:"pre-wrap" }}>{psicologoData.bio}</div>
                   </div>
                 )}
 
@@ -6990,7 +7119,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
         </div>
       </div>
     </div>
-    {t.descripcion ? <div style={{ fontSize:11, color:C.light, marginBottom:6, lineHeight:1.5 }}>{t.descripcion}</div> : null}
+    {t.descripcion ? <div style={{ fontSize:11, color:C.light, marginBottom:6, lineHeight:1.5, whiteSpace:"pre-wrap" }}>{t.descripcion}</div> : null}
     <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
       <div style={{ fontSize:10, color:C.amber, fontWeight:700 }}>⭐ +{t.xp} XP</div>
       {t.vence ? <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>📅 Vence: {t.vence}</div> : null}
@@ -6998,7 +7127,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
     {t.respuesta ? (
       <div style={{ marginTop:8, background:"#F5F0FF", borderRadius:10, padding:"8px 10px" }}>
         <div style={{ fontSize:10, fontWeight:800, color:C.plum, marginBottom:3 }}>💬 Respuesta del paciente:</div>
-        <div style={{ fontSize:11, color:C.text, lineHeight:1.5 }}>{t.respuesta}</div>
+        <div style={{ fontSize:11, color:C.text, lineHeight:1.5, whiteSpace:"pre-wrap" }}>{t.respuesta}</div>
       </div>
     ) : null}
     <div style={{ display:"flex", justifyContent:"flex-end", marginTop:8 }}>
@@ -7557,7 +7686,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 {usuarioActual?.bio && (
                   <div style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", marginBottom:14, border:"0.5px solid rgba(196,132,90,0.1)" }}>
                     <div style={{ fontSize:10, fontWeight:700, color:C.light, marginBottom:5, textTransform:"uppercase", letterSpacing:0.5 }}>Sobre mí</div>
-                    <div style={{ fontSize:12, color:C.text, lineHeight:1.7 }}>{usuarioActual.bio}</div>
+                    <div style={{ fontSize:12, color:C.text, lineHeight:1.7, whiteSpace:"pre-wrap" }}>{usuarioActual.bio}</div>
                   </div>
                 )}
 
