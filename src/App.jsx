@@ -1030,6 +1030,13 @@ const [checkInMood, setCheckInMood] = useState(null);
 const [mostrarCheckIn, setMostrarCheckIn] = useState(false);
 const [registrosAnimo, setRegistrosAnimo] = useState([]);
 const [pullRefreshing, setPullRefreshing] = useState(false);
+const [diarioEntradas, setDiarioEntradas] = useState([]);
+const [diarioEntradaActual, setDiarioEntradaActual] = useState(null);
+const [diarioModo, setDiarioModo] = useState("lista");
+const [diarioTexto, setDiarioTexto] = useState("");
+const [diarioMood, setDiarioMood] = useState("Tranquilo");
+const [diarioLoading, setDiarioLoading] = useState(false);
+const [diarioPaginaDir, setDiarioPaginaDir] = useState("right");
 const [pullStartY, setPullStartY] = useState(null);
 const [celebrando, setCelebrando] = useState(false);
 const confettiItems = Array.from({length:20}, (_,i) => ({
@@ -2380,6 +2387,7 @@ const BACK_MAP = {
   "logros":           "home",
   "perfil-psicologo": "home",
   "habitos":          "home",
+  "diario":           "home",
   "psi-dashboard":    "admin-perfil",
   "admin-paciente":   "psi-dashboard",
   "admin-pagos":      "admin-perfil",
@@ -3446,14 +3454,36 @@ const styles = `
                 )}
                 {/* ACCESOS RÁPIDOS GRID */}
                 <div style={{ display:"flex", gap:8, marginBottom:8 }}>
-                  <div onClick={() => { showScreen("notas"); setTimeout(()=>{ setNoteTab("tareas"); setTareasTab("autorregistros"); }, 50); }}
-                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:12, padding:"9px 10px", cursor:"pointer" }}>
+                  <div onClick={async () => {
+                    if (usuarioActual?.diarioBiometria && usuarioActual?.webauthnCredentialId) {
+                      try {
+                        const credIdBuffer = Uint8Array.from(atob(usuarioActual.webauthnCredentialId), c => c.charCodeAt(0));
+                        const assertion = await navigator.credentials.get({
+                          publicKey: {
+                            challenge: crypto.getRandomValues(new Uint8Array(32)),
+                            allowCredentials: [{ type:"public-key", id:credIdBuffer }],
+                            userVerification: "required", timeout: 60000,
+                          }
+                        });
+                        if (assertion) showScreen("diario");
+                      } catch(e) { showToast("Huella no reconocida — intenta de nuevo"); }
+                    } else {
+                      showScreen("diario");
+                    }
+                  }}
+                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:12, padding:"9px 10px", cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
                     <div style={{ width:26, height:26, background:"rgba(196,132,90,0.15)", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        <line x1="9" y1="7" x2="15" y2="7"/>
+                        <line x1="9" y1="11" x2="15" y2="11"/>
+                        <line x1="9" y1="15" x2="12" y2="15"/>
+                      </svg>
                     </div>
                     <div>
-                      <div style={{ fontSize:11, fontWeight:700, color:"#F5E6D0", lineHeight:1.2 }}>Autorregistro</div>
-                      <div style={{ fontSize:9, color:"rgba(245,230,208,0.4)" }}>Registra hoy</div>
+                      <div style={{ fontSize:11, fontWeight:700, color:"#F5E6D0", lineHeight:1.2 }}>Mi diario</div>
+                      <div style={{ fontSize:9, color:"rgba(245,230,208,0.4)" }}>Solo para ti</div>
                     </div>
                   </div>
                   <div onClick={() => { showScreen("notas"); setTimeout(()=>setNoteTab("insights"), 50); }}
@@ -4760,6 +4790,305 @@ const styles = `
             </div>
           )}
 
+          {/* ── DIARIO PERSONAL ─────────────────────────────────── */}
+          {!notifPanel && screen === "diario" && (() => {
+            const MOODS = [
+              { label:"Tranquilo",  color:"#5A8A72" },
+              { label:"Reflexivo",  color:"#5A6A8A" },
+              { label:"Alegre",     color:"#C4845A" },
+              { label:"Ansioso",    color:"#A06040" },
+              { label:"Triste",     color:"#7A6A8A" },
+              { label:"Agradecido", color:"#7A9A5A" },
+            ];
+            const MESES   = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+            const DIAS    = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+
+            const cargarDiario = async () => {
+              if (diarioLoading) return;
+              setDiarioLoading(true);
+              try {
+                const snap = await getDocs(collection(db, "diario", usuarioActual.uid, "entradas"));
+                const lista = snap.docs.map(d => ({ id:d.id, ...d.data() }))
+                  .sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+                setDiarioEntradas(lista);
+              } catch(e) {}
+              setDiarioLoading(false);
+            };
+
+            if (!diarioLoading && diarioEntradas.length === 0) cargarDiario();
+
+            const guardarEntrada = async () => {
+              if (!diarioTexto.trim()) { showToast("Escribe algo primero"); return; }
+              const ahora = new Date().toISOString();
+              const isEdit = diarioEntradaActual?.id && !diarioEntradaActual._nueva;
+              try {
+                if (isEdit) {
+                  await updateDoc(doc(db,"diario",usuarioActual.uid,"entradas",diarioEntradaActual.id), {
+                    texto:diarioTexto, mood:diarioMood, editadaEn:ahora,
+                  });
+                  setDiarioEntradas(prev => prev.map(e => e.id===diarioEntradaActual.id
+                    ? {...e, texto:diarioTexto, mood:diarioMood} : e));
+                } else {
+                  const newId = `e_${Date.now()}`;
+                  const nueva = { id:newId, texto:diarioTexto, mood:diarioMood, fecha:ahora };
+                  await setDoc(doc(db,"diario",usuarioActual.uid,"entradas",newId), nueva);
+                  setDiarioEntradas(prev => [nueva,...prev]);
+                  setDiarioEntradaActual(nueva);
+                }
+                setDiarioModo("lectura");
+                // Sonido de página
+                try { const ctx=new AudioContext(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.setValueAtTime(800,ctx.currentTime); o.frequency.exponentialRampToValueAtTime(400,ctx.currentTime+0.15); g.gain.setValueAtTime(0.08,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.15); o.start(); o.stop(ctx.currentTime+0.15); } catch(e){}
+                showToast("✅ Guardado");
+              } catch(e) { showToast("Error al guardar ❌"); }
+            };
+
+            const eliminarEntrada = async (id) => {
+              if (!window.confirm("¿Eliminar esta entrada?")) return;
+              await deleteDoc(doc(db,"diario",usuarioActual.uid,"entradas",id));
+              setDiarioEntradas(prev => prev.filter(e => e.id!==id));
+              setDiarioModo("lista"); setDiarioEntradaActual(null);
+              showToast("🗑️ Entrada eliminada");
+            };
+
+            const abrirEntrada = (entrada) => {
+              // Sonido de vuelta de página
+              try { const ctx=new AudioContext(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.type="sine"; o.frequency.setValueAtTime(600,ctx.currentTime); o.frequency.exponentialRampToValueAtTime(300,ctx.currentTime+0.12); g.gain.setValueAtTime(0.06,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.12); o.start(); o.stop(ctx.currentTime+0.12); } catch(e){}
+              setDiarioEntradaActual(entrada);
+              setDiarioTexto(entrada.texto||"");
+              setDiarioMood(entrada.mood||"Tranquilo");
+              setDiarioPaginaDir("right");
+              setDiarioModo("lectura");
+            };
+
+            const nuevaEntrada = () => {
+              setDiarioEntradaActual({ _nueva:true, fecha:new Date().toISOString() });
+              setDiarioTexto(""); setDiarioMood("Tranquilo");
+              setDiarioPaginaDir("right");
+              setDiarioModo("escritura");
+            };
+
+            const fmtFecha = (iso) => {
+              const d = new Date(iso);
+              return {
+                dia: d.getDate(), mes: MESES[d.getMonth()], anio: d.getFullYear(),
+                diaSemana: DIAS[d.getDay()],
+                hora: d.toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"}),
+                corta: `${d.getDate()} ${MESES[d.getMonth()].slice(0,3)}`
+              };
+            };
+
+            const moodColor = (m) => (MOODS.find(x=>x.label===m)||{color:"#888"}).color;
+
+            const entradaActiva = diarioEntradaActual
+              ? diarioEntradas.find(e=>e.id===diarioEntradaActual.id) || diarioEntradaActual
+              : null;
+
+            return (
+              <div style={{ height:"100%", display:"flex", flexDirection:"column",
+                background:"linear-gradient(160deg,#1C1208 0%,#2A1C0E 50%,#1C1208 100%)" }}>
+
+                {/* Header */}
+                <div style={{ background:"transparent", padding:"16px 18px 12px",
+                  paddingTop:"max(16px,env(safe-area-inset-top,16px))", flexShrink:0 }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                    <div onClick={() => { setDiarioModo("lista"); showScreen("home"); }}
+                      style={{ width:34,height:34,borderRadius:10,background:"rgba(255,255,255,0.06)",
+                        display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(245,237,224,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </div>
+                    <div style={{ textAlign:"center" }}>
+                      <div style={{ fontSize:14, fontWeight:700, color:"#F5EDE0", letterSpacing:0.5 }}>Mi Diario</div>
+                      <div style={{ fontSize:10, color:"rgba(245,237,224,0.35)", marginTop:1 }}>Solo visible para ti</div>
+                    </div>
+                    <div onClick={nuevaEntrada}
+                      style={{ width:34,height:34,borderRadius:10,background:"rgba(196,132,90,0.2)",
+                        display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer" }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── LISTA DE ENTRADAS ── */}
+                {diarioModo === "lista" && (
+                  <div style={{ flex:1, overflowY:"auto", padding:"8px 16px",
+                    paddingBottom:"calc(40px + env(safe-area-inset-bottom,20px))" }}>
+                    {diarioLoading ? (
+                      <div style={{ textAlign:"center",padding:40,color:"rgba(245,237,224,0.4)",fontSize:13 }}>Cargando...</div>
+                    ) : diarioEntradas.length === 0 ? (
+                      <div style={{ textAlign:"center",padding:"60px 20px" }}>
+                        <div style={{ marginBottom:16 }}>
+                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(196,132,90,0.4)" strokeWidth="1.25" strokeLinecap="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                          </svg>
+                        </div>
+                        <div style={{ fontSize:15,fontWeight:700,color:"#F5EDE0",marginBottom:6 }}>Tu diario está vacío</div>
+                        <div style={{ fontSize:12,color:"rgba(245,237,224,0.4)",lineHeight:1.6,marginBottom:24 }}>
+                          Este es tu espacio privado. Nadie más puede verlo.
+                        </div>
+                        {btn(nuevaEntrada, "Escribir primera entrada", { padding:"11px 24px", background:"rgba(196,132,90,0.2)", color:"#C4845A", borderRadius:12, fontSize:13, fontWeight:800, border:"1px solid rgba(196,132,90,0.3)" })}
+                      </div>
+                    ) : (<>
+                      {diarioEntradas.map((e, idx) => {
+                        const f = fmtFecha(e.fecha);
+                        const mc = moodColor(e.mood);
+                        return (
+                          <div key={e.id} onClick={() => abrirEntrada(e)}
+                            style={{ background:"rgba(255,255,255,0.04)", borderRadius:14, padding:"14px 16px",
+                              marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)",
+                              borderLeft:`3px solid ${mc}`, cursor:"pointer",
+                              transition:"background 0.15s", WebkitTapHighlightColor:"transparent" }}>
+                            <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:5 }}>
+                              <div style={{ display:"flex",alignItems:"center",gap:7 }}>
+                                <div style={{ width:7,height:7,borderRadius:"50%",background:mc,flexShrink:0 }}/>
+                                <span style={{ fontSize:11,color:"rgba(245,237,224,0.5)",fontWeight:600 }}>{e.mood||"Sin estado"}</span>
+                              </div>
+                              <span style={{ fontSize:10,color:"rgba(245,237,224,0.35)" }}>{f.corta} · {f.hora}</span>
+                            </div>
+                            <div style={{ fontSize:13,color:"#F5EDE0",lineHeight:1.5,
+                              overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical" }}>
+                              {e.texto || "Entrada vacía"}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </>)}
+                  </div>
+                )}
+
+                {/* ── LECTURA / ESCRITURA — estilo página de libro ── */}
+                {(diarioModo === "lectura" || diarioModo === "escritura") && entradaActiva && (() => {
+                  const f = fmtFecha(entradaActiva.fecha);
+                  const mc = moodColor(diarioMood);
+                  return (
+                    <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden",
+                      animation:`slideInRight 0.25s ease` }}>
+
+                      {/* Página — fondo crema parchment */}
+                      <div style={{ flex:1, overflowY:"auto", position:"relative",
+                        background:"#FDF8F0",
+                        paddingBottom:"calc(80px + env(safe-area-inset-bottom,20px))" }}>
+
+                        {/* Líneas del cuaderno */}
+                        <div style={{ position:"absolute",top:0,left:0,right:0,bottom:0,
+                          backgroundImage:"repeating-linear-gradient(to bottom, transparent, transparent 31px, rgba(139,90,58,0.1) 31px, rgba(139,90,58,0.1) 32px)",
+                          backgroundPosition:"0 52px", pointerEvents:"none", zIndex:0 }}/>
+                        {/* Línea roja margen */}
+                        <div style={{ position:"absolute",left:44,top:0,bottom:0,
+                          width:1,background:"rgba(180,60,40,0.14)",pointerEvents:"none",zIndex:0 }}/>
+                        {/* Espiral lateral */}
+                        <div style={{ position:"absolute",left:0,top:0,bottom:0,width:20,
+                          background:"linear-gradient(to right,#D4B896,#F0E8D8)",pointerEvents:"none",zIndex:1 }}>
+                          {Array.from({length:12},(_,i)=>(
+                            <div key={i} style={{ position:"absolute",top:`${i*8+4}%`,left:3,
+                              width:14,height:14,borderRadius:"50%",
+                              border:"1.5px solid rgba(139,90,58,0.35)",background:"#FDF8F0" }}/>
+                          ))}
+                        </div>
+
+                        <div style={{ padding:"20px 16px 20px 54px", position:"relative", zIndex:2 }}>
+                          {/* Fecha y mood */}
+                          <div style={{ display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:16 }}>
+                            <div>
+                              <div style={{ fontSize:22,fontWeight:900,color:"#2C1A0E",fontFamily:"Georgia,serif",lineHeight:1.1 }}>
+                                {f.dia} de {f.mes}
+                              </div>
+                              <div style={{ fontSize:10,color:"#8B5A3A",textTransform:"uppercase",letterSpacing:1.2,marginTop:3,fontWeight:600 }}>
+                                {f.diaSemana}, {f.anio}
+                              </div>
+                            </div>
+                            <div>
+                              {/* Selector mood */}
+                              {diarioModo === "escritura" ? (
+                                <div style={{ display:"flex",flexWrap:"wrap",gap:5,justifyContent:"flex-end",maxWidth:160 }}>
+                                  {MOODS.map(m => (
+                                    <div key={m.label} onClick={() => setDiarioMood(m.label)}
+                                      style={{ fontSize:10,padding:"3px 9px",borderRadius:20,cursor:"pointer",fontWeight:600,
+                                        background: diarioMood===m.label ? m.color+"25" : "transparent",
+                                        color: diarioMood===m.label ? m.color : "#8B5A3A",
+                                        border:`1px solid ${diarioMood===m.label ? m.color+"60" : "rgba(139,90,58,0.2)"}` }}>
+                                      {m.label}
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div style={{ fontSize:11,padding:"4px 11px",borderRadius:20,fontWeight:700,
+                                  background:mc+"20",color:mc,border:`1px solid ${mc}40` }}>
+                                  {entradaActiva.mood||"Sin estado"}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ height:1,background:"rgba(139,90,58,0.15)",marginBottom:16 }}/>
+
+                          {/* Contenido */}
+                          {diarioModo === "lectura" ? (
+                            <div style={{ fontSize:15,color:"#2C1A0E",lineHeight:"32px",
+                              fontFamily:"Georgia,serif",whiteSpace:"pre-wrap",minHeight:200,letterSpacing:"0.01em" }}>
+                              {entradaActiva.texto || <span style={{ color:"#C4A882",fontStyle:"italic" }}>Página en blanco...</span>}
+                            </div>
+                          ) : (
+                            <textarea
+                              value={diarioTexto}
+                              onChange={e => setDiarioTexto(e.target.value)}
+                              placeholder="Escribe lo que sientes, lo que piensas, lo que necesitas soltar..."
+                              autoFocus
+                              style={{ width:"100%",minHeight:280,background:"transparent",border:"none",
+                                outline:"none",fontSize:15,color:"#2C1A0E",lineHeight:"32px",
+                                resize:"none",fontFamily:"Georgia,serif",boxSizing:"border-box",
+                                letterSpacing:"0.01em",caretColor:"#8B5A3A" }}/>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Footer acciones */}
+                      <div style={{ position:"absolute",bottom:0,left:0,right:0,zIndex:10,
+                        background:"rgba(253,248,240,0.96)",backdropFilter:"blur(8px)",
+                        borderTop:"0.5px solid rgba(139,90,58,0.15)",
+                        padding:"10px 16px",paddingBottom:"max(10px,env(safe-area-inset-bottom,10px))",
+                        display:"flex",gap:8,alignItems:"center" }}>
+                        {diarioModo === "lectura" ? (<>
+                          <div onClick={() => { setDiarioModo("lista"); setDiarioEntradaActual(null); }}
+                            style={{ width:36,height:36,borderRadius:10,background:"rgba(139,90,58,0.1)",
+                              display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer" }}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                          </div>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:10,color:"#8B5A3A",fontWeight:600 }}>
+                              {f.diaSemana} · {f.hora}
+                            </div>
+                          </div>
+                          <div onClick={() => { setDiarioTexto(entradaActiva.texto||""); setDiarioMood(entradaActiva.mood||"Tranquilo"); setDiarioModo("escritura"); }}
+                            style={{ padding:"8px 14px",borderRadius:10,background:"rgba(139,90,58,0.1)",
+                              color:"#8B5A3A",fontSize:12,fontWeight:700,cursor:"pointer" }}>
+                            Editar
+                          </div>
+                          <div onClick={() => eliminarEntrada(entradaActiva.id)}
+                            style={{ width:36,height:36,borderRadius:10,background:"#FFE5E5",
+                              display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer" }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C0524A" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                          </div>
+                        </>) : (<>
+                          <div onClick={() => setDiarioModo(diarioEntradaActual?._nueva ? "lista" : "lectura")}
+                            style={{ flex:1,padding:"10px 0",borderRadius:11,background:"rgba(139,90,58,0.1)",
+                              color:"#8B5A3A",fontSize:13,fontWeight:700,textAlign:"center",cursor:"pointer" }}>
+                            Cancelar
+                          </div>
+                          <div onClick={guardarEntrada}
+                            style={{ flex:2,padding:"10px 0",borderRadius:11,
+                              background:"linear-gradient(135deg,#8B5A3A,#5C2E0A)",
+                              color:"#FDF8F0",fontSize:13,fontWeight:800,textAlign:"center",cursor:"pointer" }}>
+                            Guardar entrada
+                          </div>
+                        </>)}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            );
+          })()}
+
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:darkMode?"#0F0E17":"#F5EDE0" }}>
@@ -5067,6 +5396,36 @@ const styles = `
             background: usuarioActual?.webauthnCredentialId ? "#FFE5E5" : C.plum,
             color: usuarioActual?.webauthnCredentialId ? C.red : "white",
             fontSize:12, fontWeight:800 })}
+      </div>
+    )}
+
+    {/* Bloquear diario con biometría */}
+    {usuarioActual?.webauthnCredentialId && (
+      <div style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>📔 Bloqueo del diario</div>
+        <div style={{ fontSize:11, color:C.light, marginBottom:12, lineHeight:1.5 }}>
+          {usuarioActual?.diarioBiometria
+            ? "El diario pide huella o Face ID al abrirse"
+            : "Protege tu diario con huella o Face ID"}
+        </div>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <span style={{ fontSize:12, color:usuarioActual?.diarioBiometria ? C.green : C.light, fontWeight:700 }}>
+            {usuarioActual?.diarioBiometria ? "Activo" : "Inactivo"}
+          </span>
+          <div onClick={async () => {
+            const nuevo = !usuarioActual?.diarioBiometria;
+            await updateDoc(doc(db,"usuarios",usuarioActual.uid), { diarioBiometria: nuevo });
+            setUsuarioActual(prev => ({ ...prev, diarioBiometria: nuevo }));
+            showToast(nuevo ? "🔒 Diario bloqueado con biometría" : "🔓 Bloqueo del diario desactivado");
+          }} style={{ width:48,height:26,borderRadius:13,
+            background:usuarioActual?.diarioBiometria ? C.plum : C.light,
+            position:"relative",cursor:"pointer",transition:"background 0.3s" }}>
+            <div style={{ width:20,height:20,borderRadius:"50%",background:"white",
+              position:"absolute",top:3,
+              left:usuarioActual?.diarioBiometria ? 25 : 3,
+              transition:"left 0.3s",boxShadow:"0 2px 4px rgba(0,0,0,0.2)" }}/>
+          </div>
+        </div>
       </div>
     )}
 
