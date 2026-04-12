@@ -2850,6 +2850,7 @@ const styles = `
       try {
         const credId = usuarioActual.webauthnCredentialId;
         if (!credId) { setAppLocked(false); return; }
+        // Decodificación segura
         const credIdBuffer = Uint8Array.from(atob(credId), c => c.charCodeAt(0));
         const assertion = await navigator.credentials.get({
           publicKey: {
@@ -2859,8 +2860,14 @@ const styles = `
             timeout: 60000,
           }
         });
-        if (assertion) { setAppLocked(false); setBiometriaFallos(0); }
+        // assertion siempre es truthy si WebAuthn tuvo éxito
+        if (assertion) {
+          setAppLocked(false);
+          setBiometriaFallos(0);
+        }
       } catch(e) {
+        // NotAllowedError = usuario canceló — no contar como fallo
+        if (e.name === "NotAllowedError") return;
         const f = biometriaFallos + 1;
         setBiometriaFallos(f);
         if (f >= 3) {
@@ -2873,23 +2880,37 @@ const styles = `
         }
       }
     };
-    setTimeout(() => desbloquear(), 300);
+    // SIN setTimeout — Android Chrome requiere gesto directo del usuario
     return (
       <div style={{ height:"100vh", display:"flex", flexDirection:"column", alignItems:"center",
         justifyContent:"center", background:"linear-gradient(160deg,#2A2018 0%,#1E1610 60%,#181210 100%)",
         fontFamily:"system-ui", paddingTop:"env(safe-area-inset-top,0)", paddingBottom:"env(safe-area-inset-bottom,0)" }}>
-        <div style={{ marginBottom:36, textAlign:"center" }}>
-          <div style={{ fontSize:52, marginBottom:10 }}>🧠</div>
-          <div style={{ fontSize:22, fontWeight:900, color:"#F5EDE0", letterSpacing:-0.5 }}>Mi Psicólogo</div>
-          <div style={{ fontSize:13, color:"rgba(245,237,224,0.45)", marginTop:6 }}>
-            Hola de nuevo, {usuarioActual.nombre?.split(" ")[0] || ""}
+        {/* Logo */}
+        <div style={{ marginBottom:40, textAlign:"center" }}>
+          <div style={{ width:64,height:64,borderRadius:20,background:"rgba(196,132,90,0.12)",
+            border:"1px solid rgba(196,132,90,0.2)",display:"flex",alignItems:"center",
+            justifyContent:"center",margin:"0 auto 14px" }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/>
+            </svg>
+          </div>
+          <div style={{ fontSize:20, fontWeight:900, color:"#F5EDE0", letterSpacing:-0.3 }}>Mi Psicólogo</div>
+          <div style={{ fontSize:12, color:"rgba(245,237,224,0.4)", marginTop:5 }}>
+            Hola, {usuarioActual.nombre?.split(" ")[0] || "de nuevo"}
           </div>
         </div>
-        <div onClick={desbloquear} style={{ width:92, height:92, borderRadius:28,
-          background:"rgba(196,132,90,0.1)", border:"1.5px solid rgba(196,132,90,0.3)",
-          display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer",
-          marginBottom:20, boxShadow:"0 0 40px rgba(196,132,90,0.1)", WebkitTapHighlightColor:"transparent" }}>
-          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.5" strokeLinecap="round">
+
+        {/* Botón huella — el toque directo activa WebAuthn */}
+        <div onClick={desbloquear}
+          style={{ width:96,height:96,borderRadius:32,
+            background:"rgba(196,132,90,0.08)",
+            border:"1.5px solid rgba(196,132,90,0.25)",
+            display:"flex",flexDirection:"column",alignItems:"center",
+            justifyContent:"center",gap:6,cursor:"pointer",
+            marginBottom:14,WebkitTapHighlightColor:"transparent",
+            transition:"all 0.15s",
+            boxShadow:"0 8px 32px rgba(0,0,0,0.3)" }}>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.4" strokeLinecap="round">
             <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/>
             <path d="M14 13.12c0 2.38 0 6.38-1 8.88"/>
             <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/>
@@ -2900,16 +2921,25 @@ const styles = `
             <path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
           </svg>
         </div>
-        <div style={{ fontSize:14, color:"rgba(245,237,224,0.55)", marginBottom:6 }}>Toca para desbloquear</div>
+
+        <div style={{ fontSize:13, color:"rgba(245,237,224,0.5)", marginBottom:4, letterSpacing:0.2 }}>
+          Toca para desbloquear
+        </div>
+        <div style={{ fontSize:11, color:"rgba(245,237,224,0.25)", marginBottom:20 }}>
+          Usa tu huella o Face ID
+        </div>
+
         {biometriaFallos > 0 && (
-          <div style={{ fontSize:12, color:"#C0524A", marginTop:4 }}>
+          <div style={{ fontSize:12, color:"#C0524A", marginBottom:16, fontWeight:600 }}>
             {3 - biometriaFallos} intento{3 - biometriaFallos !== 1 ? "s" : ""} restante{3 - biometriaFallos !== 1 ? "s" : ""}
           </div>
         )}
+
         <div onClick={async () => {
           await signOut(auth); setUsuarioActual(null);
           setAppLocked(false); setBiometriaFallos(0); showScreen("login");
-        }} style={{ marginTop:32, fontSize:11, color:"rgba(245,237,224,0.25)", cursor:"pointer", textDecoration:"underline" }}>
+        }} style={{ marginTop:24, fontSize:11, color:"rgba(245,237,224,0.22)",
+          cursor:"pointer", textDecoration:"underline" }}>
           Usar otra cuenta
         </div>
       </div>
@@ -3472,20 +3502,79 @@ const styles = `
                       showScreen("diario");
                     }
                   }}
-                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:12, padding:"9px 10px", cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
-                    <div style={{ width:26, height:26, background:"rgba(196,132,90,0.15)", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                        <line x1="9" y1="7" x2="15" y2="7"/>
-                        <line x1="9" y1="11" x2="15" y2="11"/>
-                        <line x1="9" y1="15" x2="12" y2="15"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <div style={{ fontSize:11, fontWeight:700, color:"#F5E6D0", lineHeight:1.2 }}>Mi diario</div>
-                      <div style={{ fontSize:9, color:"rgba(245,230,208,0.4)" }}>Solo para ti</div>
-                    </div>
+                    style={{ position:"relative", width:72, height:62,
+                      cursor:"pointer", WebkitTapHighlightColor:"transparent",
+                      flexShrink:0 }}>
+                    {/* Libro 3D SVG */}
+                    <svg width="72" height="62" viewBox="0 0 72 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      {/* Sombra base */}
+                      <ellipse cx="36" cy="57" rx="22" ry="4" fill="rgba(0,0,0,0.35)"/>
+                      {/* Lomo del libro */}
+                      <rect x="10" y="8" width="11" height="44" rx="2"
+                        fill="url(#lomoGrad)"/>
+                      {/* Cara frontal */}
+                      <rect x="20" y="6" width="38" height="46" rx="2"
+                        fill="url(#portadaGrad)"/>
+                      {/* Borde superior (perspectiva 3D) */}
+                      <path d="M20 6 L10 8 L10 11 L20 9 Z"
+                        fill="#4A2008"/>
+                      {/* Cara superior (tapa) */}
+                      <path d="M20 6 L58 6 L58 9 L20 9 Z"
+                        fill="#C8762A"/>
+                      {/* Páginas — lateral derecho */}
+                      <rect x="56" y="8" width="4" height="42" rx="1"
+                        fill="#F0E8D4"/>
+                      {/* Líneas de páginas */}
+                      {[14,19,24,29,34,39,44].map((y,i) => (
+                        <line key={i} x1="57" y1={y} x2="59" y2={y}
+                          stroke="rgba(180,150,100,0.4)" strokeWidth="0.5"/>
+                      ))}
+                      {/* Brillo portada */}
+                      <rect x="21" y="7" width="12" height="44"
+                        fill="url(#brilloGrad)" rx="1" opacity="0.25"/>
+                      {/* Renglones decorativos */}
+                      {[18,24,30,36,42].map((y,i) => (
+                        <line key={i} x1="26" y1={y} x2="52" y2={y}
+                          stroke="rgba(255,255,255,0.12)" strokeWidth="1"/>
+                      ))}
+                      {/* Marcador de página */}
+                      <rect x="46" y="5" width="4" height="14" rx="1"
+                        fill="#E8A87C" opacity="0.85"/>
+                      <path d="M46 18 L48 22 L50 18 Z" fill="#E8A87C" opacity="0.85"/>
+                      {/* Texto "Mi Diario" simulado */}
+                      <rect x="26" y="12" width="24" height="2.5" rx="1"
+                        fill="rgba(255,255,255,0.2)"/>
+                      <rect x="29" y="17" width="18" height="1.5" rx="0.75"
+                        fill="rgba(255,255,255,0.12)"/>
+                      {/* Degradados */}
+                      <defs>
+                        <linearGradient id="lomoGrad" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#3A1A06"/>
+                          <stop offset="100%" stopColor="#6B3010"/>
+                        </linearGradient>
+                        <linearGradient id="portadaGrad" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor="#8B4A14"/>
+                          <stop offset="50%" stopColor="#7A3D10"/>
+                          <stop offset="100%" stopColor="#5C2E08"/>
+                        </linearGradient>
+                        <linearGradient id="brilloGrad" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="white" stopOpacity="1"/>
+                          <stop offset="100%" stopColor="white" stopOpacity="0"/>
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    {/* Badge privacidad si tiene biometría */}
+                    {usuarioActual?.diarioBiometria && (
+                      <div style={{ position:"absolute", top:0, right:0,
+                        width:14, height:14, borderRadius:"50%",
+                        background:"#3D2E20", border:"1px solid rgba(196,132,90,0.4)",
+                        display:"flex", alignItems:"center", justifyContent:"center" }}>
+                        <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="3" strokeLinecap="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2"/>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                      </div>
+                    )}
                   </div>
                   <div onClick={() => { showScreen("notas"); setTimeout(()=>setNoteTab("insights"), 50); }}
                     style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:12, padding:"9px 10px", cursor:"pointer" }}>
@@ -5533,7 +5622,9 @@ const styles = `
                 }
               });
               if (cred) {
-                const credId = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+                // Encoding seguro — btoa con spread falla en bytes > 127
+                const bytes = new Uint8Array(cred.rawId);
+                const credId = btoa(Array.from(bytes).map(b => String.fromCharCode(b)).join(''));
                 await updateDoc(doc(db, "usuarios", usuarioActual.uid), { webauthnCredentialId: credId });
                 setUsuarioActual(prev => ({ ...prev, webauthnCredentialId: credId }));
                 showToast("✅ Biometría activada — se pedirá al abrir la app");
