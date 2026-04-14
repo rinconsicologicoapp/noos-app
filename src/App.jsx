@@ -5806,75 +5806,60 @@ const styles = `
               </div>
 
               <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))", marginTop:-24, position:"relative", zIndex:10 }}>
-                {/* INFO */}
-                <div style={{ background:"#FEFAF5", borderRadius:14, padding:18, marginBottom:14, boxShadow:"0 4px 20px rgba(0,0,0,0.07)" }}>
-                  {[
-                  { lb:"Teléfono", val:psicologoData?.telefono || "No registrado",
-                    svg:<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> },
-                  { lb:"Correo", val:psicologoData?.email || "",
-                    svg:<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> },
-                  { lb:"Especialidad", val:psicologoData?.especialidad || "No registrado",
-                    svg:<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> },
-                  { lb:"Enfoque", val:psicologoData?.enfoque || "No registrado",
-                    svg:<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/></svg> },
-                ].map(({ lb, val, svg }, i, arr) => (
-                    <div key={lb} style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 0", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none" }}>
-                      <div style={{ width:32, height:32, background:"rgba(139,90,58,0.08)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{svg}</div>
+                {/* CARD UNIFICADA — Perfil profesional */}
+                <div style={{ borderRadius:16, overflow:"hidden", marginBottom:16, border:"0.5px solid rgba(139,90,58,0.15)" }}>
+                  <div style={{ background:"linear-gradient(135deg,#8B5A3A,#5C2E0A)", padding:"12px 14px 10px", position:"relative", overflow:"hidden" }}>
+                    <div style={{ position:"absolute", top:-8, right:-8, width:60, height:60, borderRadius:"50%", background:"rgba(255,255,255,0.06)" }}/>
+                    <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.45)", letterSpacing:1.4, textTransform:"uppercase", marginBottom:8 }}>Perfil profesional</div>
+                    <div style={{ display:"flex", alignItems:"center", gap:9 }}>
+                      <div style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, overflow:"hidden" }}>
+                        {psicologoData?.foto
+                          ? <img src={psicologoData.foto} alt="" style={{ width:36, height:36, objectFit:"cover" }}/>
+                          : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        }
+                      </div>
                       <div>
-                        <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", marginBottom:2 }}>{lb}</div>
-                        <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{val}</div>
+                        <div style={{ fontSize:13, fontWeight:700, color:"white", lineHeight:1.2 }}>{psicologoData?.nombre || "Mi psicólogo"}</div>
+                        <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)", marginTop:2 }}>{psicologoData?.email || ""}</div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* SOBRE MÍ */}
-                {(psicologoData?.bio || psicologoData?.especialidad || psicologoData?.enfoque) && (
-                  <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"0.5px solid rgba(139,90,58,0.15)" }}>
-                    {/* Header oscuro */}
-                    <div style={{ background:"linear-gradient(135deg,#8B5A3A,#5C2E0A)", padding:"14px 16px 12px", position:"relative", overflow:"hidden" }}>
-                      <div style={{ position:"absolute", top:-10, right:-10, width:70, height:70, borderRadius:"50%", background:"rgba(255,255,255,0.06)" }}/>
-                      <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.5)", letterSpacing:1.4, textTransform:"uppercase", marginBottom:8 }}>Sobre mí</div>
-                      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                        <div style={{ width:38, height:38, borderRadius:11, background:"rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, overflow:"hidden" }}>
-                          {psicologoData?.foto
-                            ? <img src={psicologoData.foto} alt="" style={{ width:38, height:38, objectFit:"cover" }}/>
-                            : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                          }
-                        </div>
-                        <div>
-                          <div style={{ fontSize:14, fontWeight:700, color:"white", lineHeight:1.2 }}>{psicologoData?.nombre || "Mi psicólogo"}</div>
-                          {psicologoData?.especialidad && <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)", marginTop:2 }}>{psicologoData.especialidad}</div>}
-                        </div>
-                      </div>
-                    </div>
-                    {/* Cuerpo */}
-                    <div style={{ background:"#FDF8F2", padding:"14px 16px" }}>
-                      {psicologoData?.bio && (
-                        <div style={{ fontSize:13, color:"#5C3A1E", lineHeight:1.75, whiteSpace:"pre-wrap",
-                          marginBottom: (psicologoData?.especialidad || psicologoData?.enfoque) ? 14 : 0 }}>
-                          {psicologoData.bio}
-                        </div>
-                      )}
-                      {(psicologoData?.especialidad || psicologoData?.enfoque) && (
-                        <>
-                          {psicologoData?.bio && <div style={{ height:1, background:"rgba(139,90,58,0.1)", marginBottom:12 }}/>}
-                          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-                            {[
-                              { lb:"Especialidad", val:psicologoData?.especialidad },
-                              { lb:"Enfoque",      val:psicologoData?.enfoque },
-                            ].filter(x => x.val).map(({ lb, val }) => (
-                              <div key={lb} style={{ background:"rgba(139,90,58,0.06)", borderRadius:10, padding:"9px 11px" }}>
-                                <div style={{ fontSize:9, fontWeight:700, color:"#8B5A3A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>{lb}</div>
-                                <div style={{ fontSize:12, fontWeight:600, color:"#3A1A06" }}>{val}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
                     </div>
                   </div>
-                )}
+                  <div style={{ background:"#FDF8F2" }}>
+                    {psicologoData?.telefono && (
+                      <div style={{ display:"flex", alignItems:"center", gap:11, padding:"10px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
+                        <div style={{ width:30, height:30, borderRadius:9, background:"rgba(139,90,58,0.08)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        </div>
+                        <div>
+                          <div style={{ fontSize:9, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:2 }}>Teléfono</div>
+                          <div style={{ fontSize:13, fontWeight:700, color:"#2C1A0E" }}>{psicologoData.telefono}</div>
+                        </div>
+                      </div>
+                    )}
+                    {(psicologoData?.especialidad || psicologoData?.enfoque) && (
+                      <div style={{ padding:"12px 14px", borderBottom: psicologoData?.bio ? "1px solid rgba(0,0,0,0.04)" : "none" }}>
+                        <div style={{ fontSize:9, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Especialización</div>
+                        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:7 }}>
+                          {[
+                            { lb:"Especialidad", val:psicologoData?.especialidad },
+                            { lb:"Enfoque",      val:psicologoData?.enfoque },
+                          ].filter(x => x.val).map(({ lb, val }) => (
+                            <div key={lb} style={{ background:"rgba(139,90,58,0.06)", borderRadius:10, padding:"9px 11px" }}>
+                              <div style={{ fontSize:9, fontWeight:700, color:"#8B5A3A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>{lb}</div>
+                              <div style={{ fontSize:12, fontWeight:600, color:"#3A1A06" }}>{val}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {psicologoData?.bio && (
+                      <div style={{ padding:"12px 14px" }}>
+                        <div style={{ fontSize:9, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Sobre mí</div>
+                        <div style={{ fontSize:13, color:"#5C3A1E", lineHeight:1.75, whiteSpace:"pre-wrap" }}>{psicologoData.bio}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
                 {/* RESEÑAS */}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12 }}>⭐ Reseñas</div>
@@ -6973,7 +6958,11 @@ const styles = `
   if (metodosPago.length === 0 && !editandoPagos) cargarMetodos();
   const guardarMetodos = async () => {
     try {
-      await setDoc(doc(db, "metodosPago", usuarioActual.uid), { metodos: pagoEditTemp, actualizadoEn: new Date().toISOString() });
+      // merge:true conserva las tarifas y otros campos que no son métodos
+      await setDoc(doc(db, "metodosPago", usuarioActual.uid),
+        { metodos: pagoEditTemp, actualizadoEn: new Date().toISOString() },
+        { merge: true }
+      );
       setMetodosPago(pagoEditTemp); setEditandoPagos(false);
       showToast("✅ Métodos guardados");
     } catch(e) { showToast("Error ❌"); }
@@ -7122,6 +7111,14 @@ const styles = `
                         </div>
                         <div onClick={() => { navigator.clipboard?.writeText(mp.numero); showToast("✅ Copiado"); }}
                           style={{ padding:"6px 14px", background:`${info.color}15`, color:info.color, borderRadius:20, fontSize:11, fontWeight:700, cursor:"pointer" }}>Copiar</div>
+                        <div onClick={async () => {
+                          const nuevos = metodosPago.filter((_,idx) => idx !== i);
+                          await setDoc(doc(db,"metodosPago",usuarioActual.uid), { metodos: nuevos, actualizadoEn: new Date().toISOString() }, { merge:true });
+                          setMetodosPago(nuevos);
+                          showToast("🗑️ Método eliminado");
+                        }} style={{ width:32, height:32, borderRadius:9, background:"#FFE5E5", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C0524A" strokeWidth="2.5" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                        </div>
                       </div>
                     );
                   })}
@@ -8339,33 +8336,66 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   </div>
                 </div>
 
-                {usuarioActual?.bio && (
-                  <div style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", marginBottom:14, border:"0.5px solid rgba(196,132,90,0.1)" }}>
-                    <div style={{ fontSize:10, fontWeight:700, color:C.light, marginBottom:5, textTransform:"uppercase", letterSpacing:0.5 }}>Sobre mí</div>
-                    <div style={{ fontSize:12, color:C.text, lineHeight:1.7, whiteSpace:"pre-wrap" }}>{usuarioActual.bio}</div>
-                  </div>
-                )}
-
-                {/* INFO PROFESIONAL */}
-                <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>ℹ️ Información profesional</div>
-                <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
-                  {[
-                    { lb:"Especialidad", val:usuarioActual?.especialidad || "No registrado",
-                      svg:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> },
-                    { lb:"Enfoque", val:usuarioActual?.enfoque || "No registrado",
-                      svg:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/></svg> },
-                    { lb:"Teléfono", val:usuarioActual?.telefono || "No registrado",
-                      svg:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> },
-                  ].map(({ lb, val, svg }) => (
-                    <div key={lb} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 0", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
-                      <div style={{ width:32, height:32, background:"rgba(139,90,58,0.08)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{svg}</div>
-                      <div>
-                        <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", marginBottom:2 }}>{lb}</div>
-                        <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{val}</div>
+                {/* CARD UNIFICADA — vista propia psicólogo */}
+                {(usuarioActual?.bio || usuarioActual?.especialidad || usuarioActual?.enfoque || usuarioActual?.telefono) && (
+                  <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"0.5px solid rgba(139,90,58,0.15)" }}>
+                    <div style={{ background:"linear-gradient(135deg,#8B5A3A,#5C2E0A)", padding:"12px 14px 10px", position:"relative", overflow:"hidden" }}>
+                      <div style={{ position:"absolute", top:-8, right:-8, width:60, height:60, borderRadius:"50%", background:"rgba(255,255,255,0.06)" }}/>
+                      <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.45)", letterSpacing:1.4, textTransform:"uppercase", marginBottom:8 }}>Mi perfil profesional</div>
+                      <div style={{ display:"flex", alignItems:"center", gap:9 }}>
+                        <div style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, overflow:"hidden" }}>
+                          {usuarioActual?.foto
+                            ? <img src={usuarioActual.foto} alt="" style={{ width:36, height:36, objectFit:"cover" }}/>
+                            : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                          }
+                        </div>
+                        <div>
+                          <div style={{ fontSize:13, fontWeight:700, color:"white", lineHeight:1.2 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
+                          <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)", marginTop:2 }}>{usuarioActual?.email || ""}</div>
+                        </div>
+                        <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setEditBio(usuarioActual?.bio||""); setModal("edit-psico"); }}
+                          style={{ marginLeft:"auto", width:30, height:30, borderRadius:9, background:"rgba(255,255,255,0.12)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                    <div style={{ background:"#FDF8F2" }}>
+                      {usuarioActual?.telefono && (
+                        <div style={{ display:"flex", alignItems:"center", gap:11, padding:"10px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
+                          <div style={{ width:30, height:30, borderRadius:9, background:"rgba(139,90,58,0.08)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                          </div>
+                          <div>
+                            <div style={{ fontSize:9, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:2 }}>Teléfono</div>
+                            <div style={{ fontSize:13, fontWeight:700, color:"#2C1A0E" }}>{usuarioActual.telefono}</div>
+                          </div>
+                        </div>
+                      )}
+                      {(usuarioActual?.especialidad || usuarioActual?.enfoque) && (
+                        <div style={{ padding:"12px 14px", borderBottom: usuarioActual?.bio ? "1px solid rgba(0,0,0,0.04)" : "none" }}>
+                          <div style={{ fontSize:9, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Especialización</div>
+                          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:7 }}>
+                            {[
+                              { lb:"Especialidad", val:usuarioActual?.especialidad },
+                              { lb:"Enfoque",      val:usuarioActual?.enfoque },
+                            ].filter(x => x.val).map(({ lb, val }) => (
+                              <div key={lb} style={{ background:"rgba(139,90,58,0.06)", borderRadius:10, padding:"9px 11px" }}>
+                                <div style={{ fontSize:9, fontWeight:700, color:"#8B5A3A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>{lb}</div>
+                                <div style={{ fontSize:12, fontWeight:600, color:"#3A1A06" }}>{val}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {usuarioActual?.bio && (
+                        <div style={{ padding:"12px 14px" }}>
+                          <div style={{ fontSize:9, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Sobre mí</div>
+                          <div style={{ fontSize:13, color:"#5C3A1E", lineHeight:1.75, whiteSpace:"pre-wrap" }}>{usuarioActual.bio}</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 {/* CONFIGURACIÓN */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>⚙️ Configuración</div>
                 <div style={{ background:"#FEFAF5", borderRadius:14, overflow:"hidden", marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
