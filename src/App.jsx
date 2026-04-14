@@ -1989,6 +1989,9 @@ const cerrarSesion = async () => {
     setNotifCitaActiva(null); setCalCitaDetalle(null);
     setMostrarCheckIn(false); setCheckInMood(null);
     setAdminBusqueda("");
+    // Pagos — limpiar para que no se filtren entre cuentas
+    setMetodosPago([]); setPagoEditTemp([]); setEditandoPagos(false);
+    setSesionesFinanzas([]); setDiarioCargado(false); setDiarioEntradas([]);
     // Formularios
     setEmailValue(""); setPinValue("");
     // Ir al login
@@ -5826,10 +5829,50 @@ const styles = `
                 </div>
 
                 {/* SOBRE MÍ */}
-                {psicologoData?.bio && (
-                  <div style={{ background:"#FEFAF5", borderRadius:14, padding:18, marginBottom:14, boxShadow:"0 4px 20px rgba(0,0,0,0.04)", border:"0.5px solid rgba(196,132,90,0.1)" }}>
-                    <div style={{ fontSize:11, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Sobre mí</div>
-                    <div style={{ fontSize:13, color:C.text, lineHeight:1.7, whiteSpace:"pre-wrap" }}>{psicologoData.bio}</div>
+                {(psicologoData?.bio || psicologoData?.especialidad || psicologoData?.enfoque) && (
+                  <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"0.5px solid rgba(139,90,58,0.15)" }}>
+                    {/* Header oscuro */}
+                    <div style={{ background:"linear-gradient(135deg,#8B5A3A,#5C2E0A)", padding:"14px 16px 12px", position:"relative", overflow:"hidden" }}>
+                      <div style={{ position:"absolute", top:-10, right:-10, width:70, height:70, borderRadius:"50%", background:"rgba(255,255,255,0.06)" }}/>
+                      <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.5)", letterSpacing:1.4, textTransform:"uppercase", marginBottom:8 }}>Sobre mí</div>
+                      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                        <div style={{ width:38, height:38, borderRadius:11, background:"rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, overflow:"hidden" }}>
+                          {psicologoData?.foto
+                            ? <img src={psicologoData.foto} alt="" style={{ width:38, height:38, objectFit:"cover" }}/>
+                            : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                          }
+                        </div>
+                        <div>
+                          <div style={{ fontSize:14, fontWeight:700, color:"white", lineHeight:1.2 }}>{psicologoData?.nombre || "Mi psicólogo"}</div>
+                          {psicologoData?.especialidad && <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)", marginTop:2 }}>{psicologoData.especialidad}</div>}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Cuerpo */}
+                    <div style={{ background:"#FDF8F2", padding:"14px 16px" }}>
+                      {psicologoData?.bio && (
+                        <div style={{ fontSize:13, color:"#5C3A1E", lineHeight:1.75, whiteSpace:"pre-wrap",
+                          marginBottom: (psicologoData?.especialidad || psicologoData?.enfoque) ? 14 : 0 }}>
+                          {psicologoData.bio}
+                        </div>
+                      )}
+                      {(psicologoData?.especialidad || psicologoData?.enfoque) && (
+                        <>
+                          {psicologoData?.bio && <div style={{ height:1, background:"rgba(139,90,58,0.1)", marginBottom:12 }}/>}
+                          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+                            {[
+                              { lb:"Especialidad", val:psicologoData?.especialidad },
+                              { lb:"Enfoque",      val:psicologoData?.enfoque },
+                            ].filter(x => x.val).map(({ lb, val }) => (
+                              <div key={lb} style={{ background:"rgba(139,90,58,0.06)", borderRadius:10, padding:"9px 11px" }}>
+                                <div style={{ fontSize:9, fontWeight:700, color:"#8B5A3A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>{lb}</div>
+                                <div style={{ fontSize:12, fontWeight:600, color:"#3A1A06" }}>{val}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -6107,8 +6150,14 @@ const styles = `
                     style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
-                  <input placeholder="Ej: Continuaremos con técnicas de respiración" value={citaDescripcion} onChange={e => setCitaDescripcion(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <textarea
+                    placeholder="Ej: Continuaremos con técnicas de respiración..."
+                    value={citaDescripcion}
+                    onChange={e => setCitaDescripcion(e.target.value)}
+                    rows={3}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12,
+                      outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
+                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap" }}/>
 
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     <div style={{ flex:1 }}>
@@ -8113,8 +8162,14 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
-                  <input placeholder="Ej: Continuaremos con técnicas de respiración" value={citaDescripcion} onChange={e => setCitaDescripcion(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <textarea
+                    placeholder="Ej: Continuaremos con técnicas de respiración..."
+                    value={citaDescripcion}
+                    onChange={e => setCitaDescripcion(e.target.value)}
+                    rows={3}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12,
+                      outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
+                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap" }}/>
 
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     <div style={{ flex:1 }}>
@@ -8503,8 +8558,14 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
-                  <input placeholder="Ej: Continuaremos con técnicas de respiración" value={citaDescripcion} onChange={e => setCitaDescripcion(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                  <textarea
+                    placeholder="Ej: Continuaremos con técnicas de respiración..."
+                    value={citaDescripcion}
+                    onChange={e => setCitaDescripcion(e.target.value)}
+                    rows={3}
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12,
+                      outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
+                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap" }}/>
 
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     <div style={{ flex:1 }}>
