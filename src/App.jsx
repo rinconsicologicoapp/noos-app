@@ -3521,7 +3521,8 @@ const styles = `
                   })()
                 )}
                 {/* ACCESOS RÁPIDOS GRID */}
-                <div style={{ display:"flex", gap:8, marginBottom:8 }}>
+                <div style={{ display:"flex", gap:8, marginBottom:8, alignItems:"center" }}>
+                  {/* Libro diario */}
                   <div onClick={async () => {
                     if (usuarioActual?.diarioBiometria && usuarioActual?.webauthnCredentialId) {
                       try {
@@ -3539,83 +3540,56 @@ const styles = `
                       showScreen("diario");
                     }
                   }}
-                    style={{ position:"relative", width:72, height:62,
-                      cursor:"pointer", WebkitTapHighlightColor:"transparent",
-                      flexShrink:0 }}>
-                    {/* Libro 3D SVG */}
+                    style={{ position:"relative", width:72, height:62, flexShrink:0,
+                      cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
                     <svg width="72" height="62" viewBox="0 0 72 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      {/* Sombra base */}
                       <ellipse cx="36" cy="57" rx="22" ry="4" fill="rgba(0,0,0,0.35)"/>
-                      {/* Lomo del libro */}
-                      <rect x="10" y="8" width="11" height="44" rx="2"
-                        fill="url(#lomoGrad)"/>
-                      {/* Cara frontal */}
-                      <rect x="20" y="6" width="38" height="46" rx="2"
-                        fill="url(#portadaGrad)"/>
-                      {/* Borde superior (perspectiva 3D) */}
-                      <path d="M20 6 L10 8 L10 11 L20 9 Z"
-                        fill="#4A2008"/>
-                      {/* Cara superior (tapa) */}
-                      <path d="M20 6 L58 6 L58 9 L20 9 Z"
-                        fill="#C8762A"/>
-                      {/* Páginas — lateral derecho */}
-                      <rect x="56" y="8" width="4" height="42" rx="1"
-                        fill="#F0E8D4"/>
-                      {/* Líneas de páginas */}
+                      <rect x="10" y="8" width="11" height="44" rx="2" fill="url(#lomoGrad)"/>
+                      <rect x="20" y="6" width="38" height="46" rx="2" fill="url(#portadaGrad)"/>
+                      <path d="M20 6 L10 8 L10 11 L20 9 Z" fill="#4A2008"/>
+                      <path d="M20 6 L58 6 L58 9 L20 9 Z" fill="#C8762A"/>
+                      <rect x="56" y="8" width="4" height="42" rx="1" fill="#F0E8D4"/>
                       {[14,19,24,29,34,39,44].map((y,i) => (
-                        <line key={i} x1="57" y1={y} x2="59" y2={y}
-                          stroke="rgba(180,150,100,0.4)" strokeWidth="0.5"/>
+                        <line key={i} x1="57" y1={y} x2="59" y2={y} stroke="rgba(180,150,100,0.4)" strokeWidth="0.5"/>
                       ))}
-                      {/* Brillo portada */}
-                      <rect x="21" y="7" width="12" height="44"
-                        fill="url(#brilloGrad)" rx="1" opacity="0.25"/>
-                      {/* Renglones decorativos */}
+                      <rect x="21" y="7" width="12" height="44" fill="url(#brilloGrad)" rx="1" opacity="0.25"/>
                       {[18,24,30,36,42].map((y,i) => (
-                        <line key={i} x1="26" y1={y} x2="52" y2={y}
-                          stroke="rgba(255,255,255,0.12)" strokeWidth="1"/>
+                        <line key={i} x1="26" y1={y} x2="52" y2={y} stroke="rgba(255,255,255,0.12)" strokeWidth="1"/>
                       ))}
-                      {/* Marcador de página */}
-                      <rect x="46" y="5" width="4" height="14" rx="1"
-                        fill="#E8A87C" opacity="0.85"/>
+                      <rect x="46" y="5" width="4" height="14" rx="1" fill="#E8A87C" opacity="0.85"/>
                       <path d="M46 18 L48 22 L50 18 Z" fill="#E8A87C" opacity="0.85"/>
-                      {/* Texto "Mi Diario" simulado */}
-                      <rect x="26" y="12" width="24" height="2.5" rx="1"
-                        fill="rgba(255,255,255,0.2)"/>
-                      <rect x="29" y="17" width="18" height="1.5" rx="0.75"
-                        fill="rgba(255,255,255,0.12)"/>
-                      {/* Degradados */}
+                      <rect x="26" y="12" width="24" height="2.5" rx="1" fill="rgba(255,255,255,0.2)"/>
+                      <rect x="29" y="17" width="18" height="1.5" rx="0.75" fill="rgba(255,255,255,0.12)"/>
                       <defs>
                         <linearGradient id="lomoGrad" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#3A1A06"/>
-                          <stop offset="100%" stopColor="#6B3010"/>
+                          <stop offset="0%" stopColor="#3A1A06"/><stop offset="100%" stopColor="#6B3010"/>
                         </linearGradient>
                         <linearGradient id="portadaGrad" x1="0" y1="0" x2="1" y2="1">
-                          <stop offset="0%" stopColor="#8B4A14"/>
-                          <stop offset="50%" stopColor="#7A3D10"/>
-                          <stop offset="100%" stopColor="#5C2E08"/>
+                          <stop offset="0%" stopColor="#8B4A14"/><stop offset="50%" stopColor="#7A3D10"/><stop offset="100%" stopColor="#5C2E08"/>
                         </linearGradient>
                         <linearGradient id="brilloGrad" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="white" stopOpacity="1"/>
-                          <stop offset="100%" stopColor="white" stopOpacity="0"/>
+                          <stop offset="0%" stopColor="white" stopOpacity="1"/><stop offset="100%" stopColor="white" stopOpacity="0"/>
                         </linearGradient>
                       </defs>
                     </svg>
-                    {/* Badge privacidad si tiene biometría */}
                     {usuarioActual?.diarioBiometria && (
-                      <div style={{ position:"absolute", top:0, right:0,
-                        width:14, height:14, borderRadius:"50%",
+                      <div style={{ position:"absolute", top:0, right:0, width:14, height:14, borderRadius:"50%",
                         background:"#3D2E20", border:"1px solid rgba(196,132,90,0.4)",
                         display:"flex", alignItems:"center", justifyContent:"center" }}>
                         <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="3" strokeLinecap="round">
-                          <rect x="3" y="11" width="18" height="11" rx="2"/>
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                         </svg>
                       </div>
                     )}
                   </div>
+
+                  {/* Para no olvidar */}
                   <div onClick={() => { showScreen("notas"); setTimeout(()=>setNoteTab("insights"), 50); }}
-                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:12, padding:"9px 10px", cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
-                    <div style={{ width:26, height:26, background:"rgba(196,132,90,0.15)", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#2A2018",
+                      border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:12, padding:"9px 10px",
+                      cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
+                    <div style={{ width:26, height:26, background:"rgba(196,132,90,0.15)", borderRadius:8,
+                      display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </div>
                     <div>
@@ -3623,96 +3597,50 @@ const styles = `
                       <div style={{ fontSize:9, color:"rgba(245,230,208,0.4)" }}>Nueva nota</div>
                     </div>
                   </div>
-                </div>
 
-                {/* MINI JUEGO card */}
-                <div onClick={() => showScreen("juego")}
-                  style={{ display:"flex", alignItems:"center", gap:10, background:"#1A1028",
-                    border:"0.5px solid rgba(139,92,246,0.25)", borderRadius:14, padding:"10px 12px",
-                    marginBottom:8, cursor:"pointer", WebkitTapHighlightColor:"transparent",
-                    position:"relative", overflow:"hidden" }}>
-                  {/* Glow RGB detrás del mando */}
-                  <div style={{ position:"absolute", left:-10, top:-10, width:70, height:70,
-                    borderRadius:"50%", background:"radial-gradient(circle,rgba(139,92,246,0.3) 0%,transparent 70%)", pointerEvents:"none" }}/>
-                  <div style={{ position:"absolute", right:20, bottom:-8, width:50, height:50,
-                    borderRadius:"50%", background:"radial-gradient(circle,rgba(16,185,129,0.2) 0%,transparent 70%)", pointerEvents:"none" }}/>
-                  <div style={{ position:"absolute", left:"35%", bottom:-5, width:40, height:40,
-                    borderRadius:"50%", background:"radial-gradient(circle,rgba(239,68,68,0.15) 0%,transparent 70%)", pointerEvents:"none" }}/>
-                  {/* SVG Mando 3D */}
-                  <div style={{ flexShrink:0, position:"relative", zIndex:2 }}>
-                    <svg width="58" height="44" viewBox="0 0 58 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Mando mini juego */}
+                  <div onClick={() => showScreen("juego")}
+                    style={{ position:"relative", width:72, height:62, flexShrink:0,
+                      cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
+                    <div style={{ position:"absolute", inset:0, borderRadius:14, overflow:"hidden",
+                      background:"#1A1028", border:"0.5px solid rgba(139,92,246,0.3)" }}>
+                      <div style={{ position:"absolute", left:-8, top:-8, width:44, height:44, borderRadius:"50%",
+                        background:"radial-gradient(circle,rgba(139,92,246,0.45) 0%,transparent 70%)" }}/>
+                      <div style={{ position:"absolute", right:-4, bottom:-4, width:32, height:32, borderRadius:"50%",
+                        background:"radial-gradient(circle,rgba(16,185,129,0.35) 0%,transparent 70%)" }}/>
+                      <div style={{ position:"absolute", left:"40%", top:-4, width:24, height:24, borderRadius:"50%",
+                        background:"radial-gradient(circle,rgba(239,68,68,0.2) 0%,transparent 70%)" }}/>
+                    </div>
+                    <svg width="72" height="62" viewBox="0 0 72 62" fill="none" xmlns="http://www.w3.org/2000/svg"
+                      style={{ position:"relative", zIndex:1 }}>
                       <defs>
-                        <linearGradient id="mandoCuerpo" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#3D2A5C"/>
-                          <stop offset="100%" stopColor="#1E1035"/>
-                        </linearGradient>
-                        <linearGradient id="mandoBrillo" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="white" stopOpacity="0.18"/>
-                          <stop offset="100%" stopColor="white" stopOpacity="0"/>
-                        </linearGradient>
-                        <linearGradient id="mandobtn1" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#C084FC"/>
-                          <stop offset="100%" stopColor="#7C3AED"/>
-                        </linearGradient>
-                        <linearGradient id="mandobtn2" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#34D399"/>
-                          <stop offset="100%" stopColor="#059669"/>
-                        </linearGradient>
-                        <linearGradient id="mandobtn3" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#FCA5A5"/>
-                          <stop offset="100%" stopColor="#DC2626"/>
-                        </linearGradient>
-                        <linearGradient id="mandobtn4" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#93C5FD"/>
-                          <stop offset="100%" stopColor="#2563EB"/>
+                        <linearGradient id="mcS" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#3D2A5C"/><stop offset="100%" stopColor="#1E1035"/>
                         </linearGradient>
                       </defs>
-                      {/* Sombra base */}
-                      <ellipse cx="29" cy="41" rx="20" ry="3" fill="rgba(0,0,0,0.4)"/>
-                      {/* Cuerpo principal */}
-                      <path d="M8 18 C6 12 8 6 14 5 L22 4 C25 4 27 6 29 8 C31 6 33 4 36 4 L44 5 C50 6 52 12 50 18 L46 32 C44 38 40 40 35 39 L31 38 C30 37 28 37 27 38 L23 39 C18 40 14 38 12 32 Z" fill="url(#mandoCuerpo)"/>
-                      {/* Brillo superior */}
-                      <path d="M14 5 C20 3 38 3 44 5 C50 7 52 13 50 18 L48 18 C48 13 46 8 42 6 C36 4 22 4 16 6 C12 8 10 13 10 18 L8 18 C6 13 8 7 14 5 Z" fill="url(#mandoBrillo)"/>
-                      {/* Grieta/detalle central */}
-                      <path d="M22 18 C24 16 26 15 29 15 C32 15 34 16 36 18" stroke="rgba(255,255,255,0.08)" strokeWidth="1" fill="none"/>
-                      {/* D-pad izquierdo */}
-                      <rect x="10" y="16" width="4" height="10" rx="1.5" fill="rgba(255,255,255,0.15)"/>
-                      <rect x="8" y="18" width="8" height="6" rx="1.5" fill="rgba(255,255,255,0.15)"/>
-                      {/* Botones derecha ABXY */}
-                      <circle cx="42" cy="17" r="3.2" fill="url(#mandobtn1)"/>
-                      <circle cx="36" cy="16" r="3.2" fill="url(#mandobtn3)"/>
-                      <circle cx="42" cy="23" r="3.2" fill="url(#mandobtn4)"/>
-                      <circle cx="48" cy="17" r="3.2" fill="url(#mandobtn2)"/>
-                      {/* Letras botones */}
-                      <text x="42" y="18.5" textAnchor="middle" fontSize="3.5" fill="white" fontWeight="800">▲</text>
-                      <text x="36" y="17.5" textAnchor="middle" fontSize="3" fill="white" fontWeight="800">■</text>
-                      <text x="42" y="24.5" textAnchor="middle" fontSize="3" fill="white" fontWeight="800">✕</text>
-                      <text x="48" y="18.5" textAnchor="middle" fontSize="3.5" fill="white" fontWeight="800">●</text>
-                      {/* Joystick izquierdo */}
-                      <circle cx="20" cy="27" r="5" fill="#120A24"/>
-                      <circle cx="20" cy="27" r="4" fill="#1E1035"/>
-                      <circle cx="20" cy="26.5" r="2" fill="rgba(255,255,255,0.12)"/>
-                      {/* Joystick derecho */}
-                      <circle cx="34" cy="27" r="5" fill="#120A24"/>
-                      <circle cx="34" cy="27" r="4" fill="#1E1035"/>
-                      <circle cx="34" cy="26.5" r="2" fill="rgba(255,255,255,0.12)"/>
-                      {/* Botón start/options central */}
-                      <rect x="27" y="19" width="4" height="2.5" rx="1.25" fill="rgba(255,255,255,0.2)"/>
-                      {/* RGB glow reflejado en cuerpo */}
-                      <ellipse cx="14" cy="32" rx="5" ry="2" fill="rgba(139,92,246,0.2)"/>
-                      <ellipse cx="44" cy="32" rx="5" ry="2" fill="rgba(16,185,129,0.2)"/>
+                      <ellipse cx="36" cy="57" rx="20" ry="3" fill="rgba(0,0,0,0.3)"/>
+                      <path d="M16 28 C13 20 15 11 21 10 L30 9 C33 9 35 11 36 13 C37 11 39 9 42 9 L51 10 C57 11 59 20 56 28 L52 40 C50 45 46 47 41 46 L38 45 C37 44 35 44 34 45 L31 46 C26 47 22 45 20 40 Z" fill="url(#mcS)"/>
+                      <path d="M21 10 C28 8 44 8 51 10 C57 12 59 21 56 28 L54 28 C54 21 52 13 47 11 C41 9 31 9 25 11 C20 13 18 21 18 28 L16 28 C13 21 15 12 21 10 Z" fill="rgba(255,255,255,0.1)"/>
+                      <rect x="19" y="25" width="4" height="9" rx="1.5" fill="rgba(255,255,255,0.18)"/>
+                      <rect x="17" y="27" width="8" height="5" rx="1.5" fill="rgba(255,255,255,0.18)"/>
+                      <circle cx="49" cy="24" r="3" fill="#7C3AED"/>
+                      <circle cx="43" cy="23" r="3" fill="#DC2626"/>
+                      <circle cx="49" cy="29" r="3" fill="#2563EB"/>
+                      <circle cx="55" cy="24" r="3" fill="#059669"/>
+                      <circle cx="29" cy="35" r="4" fill="#120A24"/>
+                      <circle cx="29" cy="35" r="3" fill="#1E1035"/>
+                      <circle cx="29" cy="34.5" r="1.5" fill="rgba(255,255,255,0.1)"/>
+                      <circle cx="41" cy="35" r="4" fill="#120A24"/>
+                      <circle cx="41" cy="35" r="3" fill="#1E1035"/>
+                      <circle cx="41" cy="34.5" r="1.5" fill="rgba(255,255,255,0.1)"/>
+                      <rect x="34" y="27" width="4" height="2" rx="1" fill="rgba(255,255,255,0.2)"/>
                     </svg>
+                    {juegoData?.turnoActual === "pac" && (
+                      <div style={{ position:"absolute", top:4, right:4, width:7, height:7,
+                        borderRadius:"50%", background:"#A78BFA",
+                        animation:"pulseXP 1.5s ease infinite", zIndex:2 }}/>
+                    )}
                   </div>
-                  <div style={{ zIndex:2, flex:1 }}>
-                    <div style={{ fontSize:11, fontWeight:800, color:"#E0D7FF", lineHeight:1.2 }}>Mini juego</div>
-                    <div style={{ fontSize:9, color:"rgba(167,139,250,0.6)", marginTop:1 }}>
-                      {juegoData ? (juegoData.turnoActual === (usuarioActual?.rol === "paciente" ? "pac" : "psi") ? "¡Es tu turno hoy!" : "Esperando al otro...") : "Juega con tu psicólogo"}
-                    </div>
-                  </div>
-                  {juegoData?.turnoActual === (usuarioActual?.rol === "paciente" ? "pac" : "psi") && (
-                    <div style={{ width:7, height:7, borderRadius:"50%", background:"#A78BFA",
-                      animation:"pulseXP 1.5s ease infinite", zIndex:2, flexShrink:0 }}/>
-                  )}
                 </div>
 
                 {/* FRASE MES */}
@@ -5515,6 +5443,23 @@ const styles = `
 
             const hacerMovimiento = async (idx) => {
               if (!esMiTurno || !juegoData || juegoData.tablero[idx]) return;
+              // Doble verificación: releer desde Firestore para evitar movimientos dobles
+              try {
+                const snapVerif = await getDoc(doc(db, "juegoTerapia", juegoId));
+                if (snapVerif.exists()) {
+                  const dataActual = snapVerif.data();
+                  const fechaVerif = dataActual[miRol === "pac" ? "fechaMovPac" : "fechaMovPsi"] || "";
+                  if (fechaVerif && new Date(fechaVerif).toDateString() === new Date().toDateString()) {
+                    showToast("Ya jugaste hoy — vuelve mañana"); return;
+                  }
+                  if (dataActual.turnoActual !== miRol) {
+                    showToast("No es tu turno"); return;
+                  }
+                  if (dataActual.tablero[idx]) {
+                    showToast("Esa casilla ya está ocupada"); return;
+                  }
+                }
+              } catch(e) {}
               const nuevoTablero = [...juegoData.tablero];
               nuevoTablero[idx] = miRol;
               const win = checkWin(nuevoTablero, miRol);
@@ -5548,6 +5493,8 @@ const styles = `
                 tablero: Array(9).fill(null),
                 turnoActual: "pac",
                 fechaUltimoMovimiento: "",
+                fechaMovPac: "",
+                fechaMovPsi: "",
                 estado: "activo",
                 ganador: null,
               };
