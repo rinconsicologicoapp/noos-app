@@ -1002,6 +1002,12 @@ const [editandoPagos, setEditandoPagos] = useState(false);
 const [pagoEditTemp, setPagoEditTemp] = useState([]);
 const [pagosPsicologo, setPagosPsicologo] = useState([]);
 const [sesionesFinanzas, setSesionesFinanzas] = useState([]);
+const [modalIngreso, setModalIngreso] = useState(false);
+const [ingresoMotivo, setIngresoMotivo] = useState("");
+const [ingresoValor, setIngresoValor] = useState("");
+const [ingresoPaciente, setIngresoPaciente] = useState(null);
+const [ingresoPagado, setIngresoPagado] = useState(true);
+const [ingresoFecha, setIngresoFecha] = useState("");
 const [loadingFinanzas, setLoadingFinanzas] = useState(false);
 const [finanzasTab, setFinanzasTab] = useState("resumen");
 const [pagosMainTab, setPagosMainTab] = useState("finanzas");
@@ -7115,6 +7121,142 @@ const styles = `
           ))}
         </div>
       </div>
+
+      {/* ── BOTÓN FLOTANTE + ─────────────────────── */}
+      {pagosMainTab === "finanzas" && (
+        <div onClick={() => {
+          setIngresoMotivo(""); setIngresoValor("");
+          setIngresoPaciente(pacientes[0] || null);
+          setIngresoPagado(true);
+          setIngresoFecha(new Date().toISOString().slice(0,10));
+          setModalIngreso(true);
+        }}
+          style={{ position:"absolute", bottom:"calc(90px + env(safe-area-inset-bottom,20px))",
+            right:20, zIndex:50, width:52, height:52, borderRadius:18,
+            background:"linear-gradient(135deg,#8B5A3A,#5C2E0A)",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            cursor:"pointer", WebkitTapHighlightColor:"transparent",
+            boxShadow:"0 6px 20px rgba(91,46,10,0.45)" }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </div>
+      )}
+
+      {/* ── MODAL INGRESO MANUAL ─────────────────── */}
+      {modalIngreso && (
+        <div onClick={() => setModalIngreso(false)}
+          style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.5)", zIndex:200,
+            display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background:"#FDF8F2", borderRadius:"22px 22px 0 0", padding:"20px 20px 36px",
+              width:"100%", maxWidth:480, paddingBottom:"max(36px,env(safe-area-inset-bottom,36px))" }}>
+            <div style={{ width:36,height:4,borderRadius:2,background:"rgba(0,0,0,0.12)",margin:"0 auto 18px" }}/>
+            <div style={{ fontSize:16, fontWeight:800, color:"#2C1A0E", marginBottom:4 }}>Nuevo ingreso</div>
+            <div style={{ fontSize:11, color:"#A08060", marginBottom:18 }}>Agrega cualquier cobro manualmente</div>
+
+            {/* Paciente */}
+            <div style={{ fontSize:10, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Paciente</div>
+            <div style={{ display:"flex", gap:6, marginBottom:14, flexWrap:"wrap" }}>
+              {[{ id:"ninguno", nombre:"Sin paciente" }, ...pacientes].map(p => (
+                <div key={p.id} onClick={() => setIngresoPaciente(p.id==="ninguno" ? null : p)}
+                  style={{ padding:"5px 12px", borderRadius:20, fontSize:11, fontWeight:700, cursor:"pointer",
+                    background: (ingresoPaciente?.id === p.id || (p.id==="ninguno" && !ingresoPaciente))
+                      ? "#8B5A3A" : "rgba(139,90,58,0.08)",
+                    color: (ingresoPaciente?.id === p.id || (p.id==="ninguno" && !ingresoPaciente))
+                      ? "white" : "#8B5A3A" }}>
+                  {p.nombre}
+                </div>
+              ))}
+            </div>
+
+            {/* Motivo */}
+            <div style={{ fontSize:10, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Motivo</div>
+            <input
+              value={ingresoMotivo}
+              onChange={e => setIngresoMotivo(e.target.value)}
+              placeholder="Ej: Sesión extra, material de trabajo, consulta virtual..."
+              style={{ width:"100%", padding:"10px 13px", border:"1.5px solid rgba(139,90,58,0.18)",
+                borderRadius:12, fontSize:13, outline:"none", marginBottom:14,
+                background:"white", boxSizing:"border-box", fontFamily:"inherit", color:"#2C1A0E" }}/>
+
+            {/* Valor */}
+            <div style={{ fontSize:10, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Valor</div>
+            <div style={{ position:"relative", marginBottom:14 }}>
+              <span style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)",
+                fontSize:14, fontWeight:700, color:"#8B5A3A" }}>$</span>
+              <input
+                value={ingresoValor}
+                onChange={e => setIngresoValor(e.target.value.replace(/\D/g,""))}
+                placeholder="0"
+                inputMode="numeric"
+                style={{ width:"100%", padding:"10px 13px 10px 26px", border:"1.5px solid rgba(139,90,58,0.18)",
+                  borderRadius:12, fontSize:15, fontWeight:700, outline:"none",
+                  background:"white", boxSizing:"border-box", color:"#2C1A0E" }}/>
+            </div>
+
+            {/* Fecha y estado */}
+            <div style={{ display:"flex", gap:10, marginBottom:20 }}>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:10, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Fecha</div>
+                <input type="date" value={ingresoFecha} onChange={e => setIngresoFecha(e.target.value)}
+                  style={{ width:"100%", padding:"9px 11px", border:"1.5px solid rgba(139,90,58,0.18)",
+                    borderRadius:12, fontSize:13, outline:"none", background:"white", boxSizing:"border-box", color:"#2C1A0E" }}/>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:10, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Estado</div>
+                <div style={{ display:"flex", gap:6 }}>
+                  {[{v:true,lb:"Cobrado"},{v:false,lb:"Pendiente"}].map(({v,lb}) => (
+                    <div key={lb} onClick={() => setIngresoPagado(v)}
+                      style={{ flex:1, padding:"9px 0", borderRadius:12, textAlign:"center",
+                        fontSize:11, fontWeight:700, cursor:"pointer",
+                        background: ingresoPagado===v ? (v?"#E8F5EA":"#FFF0E6") : "rgba(139,90,58,0.06)",
+                        color: ingresoPagado===v ? (v?"#2A6A32":"#C05A00") : "#A08060",
+                        border: ingresoPagado===v ? `1.5px solid ${v?"#5A8A62":"#E8903A"}` : "1.5px solid transparent" }}>
+                      {lb}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Botones */}
+            <div style={{ display:"flex", gap:10 }}>
+              <div onClick={() => setModalIngreso(false)}
+                style={{ flex:1, padding:"12px 0", borderRadius:14, textAlign:"center",
+                  background:"rgba(139,90,58,0.08)", color:"#8B5A3A", fontSize:13, fontWeight:700, cursor:"pointer" }}>
+                Cancelar
+              </div>
+              <div onClick={async () => {
+                const val = parseInt(ingresoValor)||0;
+                if (!val) { showToast("Ingresa un valor"); return; }
+                if (!ingresoMotivo.trim()) { showToast("Ingresa un motivo"); return; }
+                const id = `manual_${Date.now()}`;
+                const nueva = {
+                  id, psicologoId: usuarioActual.uid,
+                  pacienteId: ingresoPaciente?.id || "manual",
+                  pacienteNombre: ingresoPaciente?.nombre || "Ingreso manual",
+                  titulo: ingresoMotivo.trim(),
+                  valor: val, pagado: ingresoPagado,
+                  fecha: new Date(ingresoFecha + "T12:00:00").toISOString(),
+                  tipo: "manual", creadoEn: new Date().toISOString(),
+                };
+                try {
+                  await setDoc(doc(db,"sesionesFinanzas",id), nueva);
+                  setSesionesFinanzas(prev => [nueva,...prev]);
+                  setModalIngreso(false);
+                  showToast("✅ Ingreso registrado");
+                } catch(e) { showToast("Error ❌"); }
+              }}
+                style={{ flex:2, padding:"12px 0", borderRadius:14, textAlign:"center",
+                  background:"linear-gradient(135deg,#8B5A3A,#5C2E0A)",
+                  color:"white", fontSize:13, fontWeight:800, cursor:"pointer" }}>
+                Guardar ingreso
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{ flex:1, overflowY:"auto", paddingBottom:"calc(100px + env(safe-area-inset-bottom,24px))" }}>
 
