@@ -5504,8 +5504,9 @@ const styles = `
             if (!juegoCargado && !juegoLoading) cargarJuego();
 
             const hoy = new Date().toDateString();
-            const yaJugueHoy = juegoData?.fechaUltimoMovimiento
-              ? new Date(juegoData.fechaUltimoMovimiento).toDateString() === hoy
+            const misFechaKey = miRol === "pac" ? "fechaMovPac" : "fechaMovPsi";
+            const yaJugueHoy = juegoData?.[misFechaKey]
+              ? new Date(juegoData[misFechaKey]).toDateString() === hoy
               : false;
             const esMiTurno = juegoData?.turnoActual === miRol && !yaJugueHoy && juegoData?.estado === "activo";
 
@@ -5523,10 +5524,12 @@ const styles = `
               const nuevoTurno = miRol === "pac" ? "psi" : "pac";
               const nuevosScores = { ...juegoData.scores };
               if (win) nuevosScores[miRol] = (nuevosScores[miRol] || 0) + 1;
+              const ahora = new Date().toISOString();
               const update = {
                 tablero: nuevoTablero,
                 turnoActual: win || empate ? juegoData.turnoActual : nuevoTurno,
-                fechaUltimoMovimiento: new Date().toISOString(),
+                fechaUltimoMovimiento: ahora,
+                [miRol === "pac" ? "fechaMovPac" : "fechaMovPsi"]: ahora,
                 estado: nuevoEstado,
                 ganador,
                 scores: nuevosScores,
@@ -5589,7 +5592,26 @@ const styles = `
                     <div style={{ fontSize:13, fontWeight:800, color:"white", letterSpacing:0.3 }}>Mini juego</div>
                     <div style={{ fontSize:9, color:"rgba(167,139,250,0.5)", marginTop:1 }}>1 movimiento por día</div>
                   </div>
-                  <div style={{ width:34 }}/>
+                  {usuarioActual?.rol === "psicologo" ? (
+                    <div onClick={() => {
+                      setJuegoCargado(false);
+                      setJuegoData(null);
+                      setJuegoLoading(false);
+                      setPacienteSeleccionado(null);
+                    }}
+                      style={{ width:34, height:34, borderRadius:10, background:"rgba(139,92,246,0.15)",
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" strokeWidth="2" strokeLinecap="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      </svg>
+                    </div>
+                  ) : (
+                    <div style={{ width:34 }}/>
+                  )}
                 </div>
 
                 {juegoLoading ? (
@@ -5762,7 +5784,9 @@ const styles = `
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ fontSize:20 }}>⏳</div>
                           <div>
-                            <div style={{ fontSize:13, fontWeight:700, color:"white" }}>Jugada enviada — esperando a {nombreOponente}</div>
+                            <div style={{ fontSize:13, fontWeight:700, color:"white" }}>
+                              {usuarioActual?.rol === "paciente" ? "Jugada enviada — esperando a tu psicólogo" : `Jugada enviada — esperando a ${nombreOponente}`}
+                            </div>
                             <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Vuelve mañana para tu próximo turno</div>
                           </div>
                         </div>
