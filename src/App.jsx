@@ -3149,10 +3149,22 @@ const styles = `
                   <div key={n.id} onClick={() => {
                     markRead(n.id);
                     const tipo = n.tipo || "";
-                    if (tipo === "tarea_nueva" || tipo === "tarea_completada") {
+                    if (tipo === "tarea_nueva") {
                       setNotifPanel(false);
-                      showScreen("notas");
-                      setTimeout(() => { setNoteTab("tareas"); setTareasTab("pendientes"); }, 50);
+                      if (usuarioActual?.rol === "paciente") {
+                        showScreen("notas");
+                        setTimeout(() => { setNoteTab("tareas"); setTareasTab("tareas"); }, 50);
+                      } else {
+                        showScreen("psi-dashboard");
+                      }
+                    } else if (tipo === "tarea_completada") {
+                      setNotifPanel(false);
+                      if (usuarioActual?.rol === "psicologo") {
+                        showScreen("psi-dashboard");
+                      } else {
+                        showScreen("notas");
+                        setTimeout(() => { setNoteTab("tareas"); setTareasTab("tareas"); }, 50);
+                      }
                     } else if (tipo === "cita_nueva" || tipo === "cita_confirmada" || tipo === "cita_cancelada" || tipo === "recordatorio_cita") {
                       setNotifPanel(false);
                       showScreen("calendario");
@@ -6079,8 +6091,16 @@ const styles = `
                       showScreen("admin-paciente");
                     }}
                       style={{ background:"#FEFAF5", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer" }}>
-                      <div style={{ width:46, height:46, background:`linear-gradient(135deg,${C.plum},${C.sage})`, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, color:"white", fontWeight:700 }}>
-                        {p.nombre?.charAt(0).toUpperCase()}
+                      <div style={{ width:46, height:46, borderRadius:14, overflow:"hidden",
+                        background:`linear-gradient(135deg,${C.plum},${C.sage})`,
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        fontSize:18, fontWeight:700, color:"white", flexShrink:0 }}>
+                        {p.foto
+                          ? <img src={p.foto} alt="" style={{ width:46, height:46, objectFit:"cover" }}/>
+                          : (p.avatar && typeof p.avatar === "string" && !p.avatar.startsWith("http"))
+                            ? <span style={{ fontSize:22 }}>{p.avatar}</span>
+                            : <span>{p.nombre?.charAt(0).toUpperCase()}</span>
+                        }
                       </div>
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{p.nombre}</div>
