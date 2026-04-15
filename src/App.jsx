@@ -2402,7 +2402,7 @@ const BACK_MAP = {
   "perfil-psicologo": "home",
   "habitos":          "home",
   "diario":           "home",
-  "juego":            "home",
+  "juego":            "admin-perfil",
   "psi-dashboard":    "admin-perfil",
   "admin-paciente":   "psi-dashboard",
   "admin-pagos":      "admin-perfil",
@@ -5580,7 +5580,7 @@ const styles = `
                   paddingTop:"max(12px,env(safe-area-inset-top,12px))",
                   flexShrink:0, position:"relative", zIndex:2,
                   display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                  <div onClick={() => { setJuegoCargado(false); setJuegoData(null); showScreen("home"); }}
+                  <div onClick={() => { setJuegoCargado(false); setJuegoData(null); showScreen(usuarioActual?.rol === "psicologo" ? "admin-perfil" : "home"); }}
                     style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.06)",
                       display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -5596,13 +5596,52 @@ const styles = `
                   <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center" }}>
                     <div style={{ fontSize:12, color:"rgba(167,139,250,0.5)" }}>Cargando partida...</div>
                   </div>
+                ) : usuarioActual?.rol === "psicologo" && !pacienteSeleccionado ? (
+                  <div style={{ flex:1, overflowY:"auto", padding:"16px", position:"relative", zIndex:2 }}>
+                    <div style={{ textAlign:"center", marginBottom:20 }}>
+                      <div style={{ fontSize:32, marginBottom:8 }}>🎮</div>
+                      <div style={{ fontSize:15, fontWeight:800, color:"white", marginBottom:6 }}>¿Con quién juegas?</div>
+                      <div style={{ fontSize:11, color:"rgba(167,139,250,0.5)" }}>Elige un paciente para iniciar o continuar la partida</div>
+                    </div>
+                    {pacientes.length === 0 ? (
+                      <div style={{ textAlign:"center", color:"rgba(167,139,250,0.4)", fontSize:12, padding:20 }}>Aún no tienes pacientes asignados</div>
+                    ) : (
+                      pacientes.map(p => (
+                        <div key={p.id} onClick={() => {
+                          setPacienteSeleccionado(p);
+                          setJuegoCargado(false);
+                          setJuegoData(null);
+                          setJuegoLoading(false);
+                        }}
+                          style={{ display:"flex", alignItems:"center", gap:12,
+                            background:"rgba(255,255,255,0.04)", borderRadius:14,
+                            padding:"12px 14px", marginBottom:9,
+                            border:"1px solid rgba(139,92,246,0.15)",
+                            cursor:"pointer", WebkitTapHighlightColor:"transparent",
+                            transition:"border .15s" }}>
+                          <div style={{ width:42, height:42, borderRadius:13, overflow:"hidden",
+                            background:"linear-gradient(135deg,#5B21B6,#7C3AED)",
+                            display:"flex", alignItems:"center", justifyContent:"center",
+                            fontSize:18, fontWeight:700, color:"white", flexShrink:0 }}>
+                            {p.foto
+                              ? <img src={p.foto} alt="" style={{ width:42, height:42, objectFit:"cover" }}/>
+                              : (p.avatar && !p.avatar.startsWith("http"))
+                                ? <span style={{ fontSize:22 }}>{p.avatar}</span>
+                                : <span>{p.nombre?.charAt(0).toUpperCase()}</span>
+                            }
+                          </div>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:13, fontWeight:700, color:"white" }}>{p.nombre}</div>
+                            <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Toca para jugar con {p.nombre?.split(" ")[0]}</div>
+                          </div>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(167,139,250,0.4)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 ) : !juegoData ? (
                   <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
-                    <div style={{ textAlign:"center", color:"rgba(167,139,250,0.5)", fontSize:13 }}>
-                      {usuarioActual?.rol === "psicologo" && !pacienteSeleccionado
-                        ? "Primero selecciona un paciente desde tu panel"
-                        : "No se pudo cargar el juego"}
-                    </div>
+                    <div style={{ textAlign:"center", color:"rgba(167,139,250,0.5)", fontSize:13 }}>No se pudo cargar el juego</div>
                   </div>
                 ) : (
                   <div style={{ flex:1, overflowY:"auto", padding:"0 16px 32px", position:"relative", zIndex:2 }}>
