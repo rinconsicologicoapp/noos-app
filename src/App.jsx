@@ -7146,11 +7146,15 @@ const styles = `
       {/* ── MODAL INGRESO MANUAL ─────────────────── */}
       {modalIngreso && (
         <div onClick={() => setModalIngreso(false)}
-          style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.5)", zIndex:200,
+          style={{ position:"fixed", top:0, left:0, right:0, bottom:0,
+            background:"rgba(0,0,0,0.55)", zIndex:9999,
             display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
           <div onClick={e => e.stopPropagation()}
-            style={{ background:"#FDF8F2", borderRadius:"22px 22px 0 0", padding:"20px 20px 36px",
-              width:"100%", maxWidth:480, paddingBottom:"max(36px,env(safe-area-inset-bottom,36px))" }}>
+            style={{ background:"#FDF8F2", borderRadius:"22px 22px 0 0",
+              width:"100%", maxWidth:480,
+              maxHeight:"85vh", overflowY:"auto",
+              padding:"20px 20px 0",
+              paddingBottom:"max(24px,env(safe-area-inset-bottom,24px))" }}>
             <div style={{ width:36,height:4,borderRadius:2,background:"rgba(0,0,0,0.12)",margin:"0 auto 18px" }}/>
             <div style={{ fontSize:16, fontWeight:800, color:"#2C1A0E", marginBottom:4 }}>Nuevo ingreso</div>
             <div style={{ fontSize:11, color:"#A08060", marginBottom:18 }}>Agrega cualquier cobro manualmente</div>
@@ -7243,7 +7247,9 @@ const styles = `
                 };
                 try {
                   await setDoc(doc(db,"sesionesFinanzas",id), nueva);
-                  setSesionesFinanzas(prev => [nueva,...prev]);
+                  // Recargar desde Firestore para evitar duplicados
+                  const snap = await getDocs(query(collection(db,"sesionesFinanzas"), where("psicologoId","==",usuarioActual.uid)));
+                  setSesionesFinanzas(snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b) => new Date(b.fecha)-new Date(a.fecha)));
                   setModalIngreso(false);
                   showToast("✅ Ingreso registrado");
                 } catch(e) { showToast("Error ❌"); }
