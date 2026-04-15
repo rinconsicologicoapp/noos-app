@@ -951,6 +951,7 @@ const handleInstall = async () => {
       icon: n.icon || "🔔",
       title: n.titulo || "Notificación",
       msg: n.mensaje || "",
+      tipo: n.tipo || "",
       time: (() => {
         const diff = Date.now() - new Date(n.creadoEn).getTime();
         const m = Math.floor(diff / 60000);
@@ -3145,7 +3146,18 @@ const styles = `
                     <div style={{ fontSize:12, color:C.light, textAlign:"center", maxWidth:200, lineHeight:1.5 }}>Aquí aparecerán tus citas, tareas y mensajes importantes</div>
                   </div>
                 ) : notifs.map((n, i) => (
-                  <div key={n.id} onClick={() => markRead(n.id)}
+                  <div key={n.id} onClick={() => {
+                    markRead(n.id);
+                    const tipo = n.tipo || "";
+                    if (tipo === "tarea_nueva" || tipo === "tarea_completada") {
+                      setNotifPanel(false);
+                      showScreen("notas");
+                      setTimeout(() => { setNoteTab("tareas"); setTareasTab("pendientes"); }, 50);
+                    } else if (tipo === "cita_nueva" || tipo === "cita_confirmada" || tipo === "cita_cancelada" || tipo === "recordatorio_cita") {
+                      setNotifPanel(false);
+                      showScreen("calendario");
+                    }
+                  }}
                     style={{ background:n.read?(darkMode?"#1A1208":"white"):(darkMode?"#2A1848":"#F5F0FB"), borderRadius:16, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.read?"rgba(196,132,90,0.08)":"rgba(139,90,58,0.15)"}`, display:"flex", gap:12, alignItems:"flex-start", cursor:"pointer", position:"relative", overflow:"hidden", transition:"all 0.15s", animation:`fadeIn 0.2s ease ${i * 0.03}s both` }}>
                     {/* Barra lateral de color según tipo */}
                     <div style={{ position:"absolute", left:0, top:0, bottom:0, width:3, borderRadius:"16px 0 0 16px", background:n.read?"transparent": n.tipo==="demora"?C.amber : n.tipo==="cita_nueva"||n.tipo==="recordatorio_cita"?"#5A7A9A" : n.tipo==="tarea_completada"?C.green : C.plum }}/>
@@ -8339,25 +8351,9 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 {/* CARD UNIFICADA — vista propia psicólogo */}
                 {(usuarioActual?.bio || usuarioActual?.especialidad || usuarioActual?.enfoque || usuarioActual?.telefono) && (
                   <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"0.5px solid rgba(139,90,58,0.15)" }}>
-                    <div style={{ background:"linear-gradient(135deg,#8B5A3A,#5C2E0A)", padding:"12px 14px 10px", position:"relative", overflow:"hidden" }}>
+                    <div style={{ background:"linear-gradient(135deg,#8B5A3A,#5C2E0A)", padding:"10px 14px 10px", position:"relative", overflow:"hidden" }}>
                       <div style={{ position:"absolute", top:-8, right:-8, width:60, height:60, borderRadius:"50%", background:"rgba(255,255,255,0.06)" }}/>
-                      <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.45)", letterSpacing:1.4, textTransform:"uppercase", marginBottom:8 }}>Mi perfil profesional</div>
-                      <div style={{ display:"flex", alignItems:"center", gap:9 }}>
-                        <div style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, overflow:"hidden" }}>
-                          {usuarioActual?.foto
-                            ? <img src={usuarioActual.foto} alt="" style={{ width:36, height:36, objectFit:"cover" }}/>
-                            : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                          }
-                        </div>
-                        <div>
-                          <div style={{ fontSize:13, fontWeight:700, color:"white", lineHeight:1.2 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
-                          <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)", marginTop:2 }}>{usuarioActual?.email || ""}</div>
-                        </div>
-                        <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setEditBio(usuarioActual?.bio||""); setModal("edit-psico"); }}
-                          style={{ marginLeft:"auto", width:30, height:30, borderRadius:9, background:"rgba(255,255,255,0.12)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        </div>
-                      </div>
+                      <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.45)", letterSpacing:1.4, textTransform:"uppercase" }}>Mi perfil profesional</div>
                     </div>
                     <div style={{ background:"#FDF8F2" }}>
                       {usuarioActual?.telefono && (
