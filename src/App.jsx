@@ -5431,12 +5431,37 @@ const styles = `
 
             if (!juegoCargado && !juegoLoading) cargarJuego();
 
+            // Función para refrescar manualmente desde Firestore
+            const refrescarJuego = async () => {
+              if (!juegoId) return;
+              try {
+                const snap = await getDoc(doc(db, "juegoTerapia", juegoId));
+                if (snap.exists()) setJuegoData({ id: snap.id, ...snap.data() });
+              } catch(e) {}
+            };
+
             const hoy = new Date().toDateString();
-            const misFechaKey = miRol === "pac" ? "fechaMovPac" : "fechaMovPsi";
+            const misFechaKey    = miRol === "pac" ? "fechaMovPac" : "fechaMovPsi";
+            const oponenteFechaKey = miRol === "pac" ? "fechaMovPsi" : "fechaMovPac";
+
+            // ¿Yo ya jugué hoy?
             const yaJugueHoy = juegoData?.[misFechaKey]
               ? new Date(juegoData[misFechaKey]).toDateString() === hoy
               : false;
-            const esMiTurno = juegoData?.turnoActual === miRol && !yaJugueHoy && juegoData?.estado === "activo";
+
+            // ¿El oponente jugó hoy? Si es así, debo esperar al día siguiente
+            const oponenteJugoHoy = juegoData?.[oponenteFechaKey]
+              ? new Date(juegoData[oponenteFechaKey]).toDateString() === hoy
+              : false;
+
+            // Mi turno solo si:
+            // 1. El juego dice que es mi turno
+            // 2. No he jugado hoy
+            // 3. El oponente NO jugó hoy (debo esperar un día entero después de su movimiento)
+            const esMiTurno = juegoData?.turnoActual === miRol
+              && !yaJugueHoy
+              && !oponenteJugoHoy
+              && juegoData?.estado === "activo";
 
             const checkWin = (tablero, jugador) =>
               WINS.find(c => c.every(i => tablero[i] === jugador)) || null;
@@ -5449,8 +5474,13 @@ const styles = `
                 if (snapVerif.exists()) {
                   const dataActual = snapVerif.data();
                   const fechaVerif = dataActual[miRol === "pac" ? "fechaMovPac" : "fechaMovPsi"] || "";
-                  if (fechaVerif && new Date(fechaVerif).toDateString() === new Date().toDateString()) {
+                  const fechaOponente = dataActual[miRol === "pac" ? "fechaMovPsi" : "fechaMovPac"] || "";
+                  const hoyVerif = new Date().toDateString();
+                  if (fechaVerif && new Date(fechaVerif).toDateString() === hoyVerif) {
                     showToast("Ya jugaste hoy — vuelve mañana"); return;
+                  }
+                  if (fechaOponente && new Date(fechaOponente).toDateString() === hoyVerif) {
+                    showToast("El oponente jugó hoy — tu turno es mañana"); return;
                   }
                   if (dataActual.turnoActual !== miRol) {
                     showToast("No es tu turno"); return;
@@ -5730,19 +5760,47 @@ const styles = `
                       ) : yaJugueHoy ? (
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ fontSize:20 }}>⏳</div>
-                          <div>
+                          <div style={{ flex:1 }}>
                             <div style={{ fontSize:13, fontWeight:700, color:"white" }}>
                               {usuarioActual?.rol === "paciente" ? "Jugada enviada — esperando a tu psicólogo" : `Jugada enviada — esperando a ${nombreOponente}`}
                             </div>
-                            <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Vuelve mañana para tu próximo turno</div>
+                            <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Turno del oponente mañana</div>
+                          </div>
+                          <div onClick={refrescarJuego}
+                            style={{ padding:"5px 10px", borderRadius:8, background:"rgba(139,92,246,0.2)",
+                              color:"#A78BFA", fontSize:10, fontWeight:700, cursor:"pointer",
+                              WebkitTapHighlightColor:"transparent" }}>
+                            Actualizar
+                          </div>
+                        </div>
+                      ) : oponenteJugoHoy ? (
+                        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                          <div style={{ fontSize:20 }}>📅</div>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:13, fontWeight:700, color:"white" }}>
+                              {nombreOponente} ya jugó hoy
+                            </div>
+                            <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Tu turno se habilita mañana</div>
+                          </div>
+                          <div onClick={refrescarJuego}
+                            style={{ padding:"5px 10px", borderRadius:8, background:"rgba(139,92,246,0.2)",
+                              color:"#A78BFA", fontSize:10, fontWeight:700, cursor:"pointer",
+                              WebkitTapHighlightColor:"transparent" }}>
+                            Actualizar
                           </div>
                         </div>
                       ) : (
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ fontSize:20 }}>😴</div>
-                          <div>
-                            <div style={{ fontSize:13, fontWeight:700, color:"white" }}>Turno de {nombreOponente}</div>
-                            <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Ellos juegan hoy — vuelve mañana</div>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:13, fontWeight:700, color:"white" }}>Esperando a {nombreOponente}</div>
+                            <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Es su turno — vuelve cuando jueguen</div>
+                          </div>
+                          <div onClick={refrescarJuego}
+                            style={{ padding:"5px 10px", borderRadius:8, background:"rgba(139,92,246,0.2)",
+                              color:"#A78BFA", fontSize:10, fontWeight:700, cursor:"pointer",
+                              WebkitTapHighlightColor:"transparent" }}>
+                            Actualizar
                           </div>
                         </div>
                       )}
