@@ -5607,11 +5607,35 @@ const styles = `
                       <div style={{ textAlign:"center", color:"rgba(167,139,250,0.4)", fontSize:12, padding:20 }}>Aún no tienes pacientes asignados</div>
                     ) : (
                       pacientes.map(p => (
-                        <div key={p.id} onClick={() => {
+                        <div key={p.id} onClick={async () => {
+                          // Primero actualizar paciente, luego cargar directamente
                           setPacienteSeleccionado(p);
-                          setJuegoCargado(false);
                           setJuegoData(null);
+                          setJuegoCargado(false);
+                          setJuegoLoading(true);
+                          try {
+                            const gId = `${usuarioActual.uid}_${p.id}`;
+                            const snap = await getDoc(doc(db, "juegoTerapia", gId));
+                            if (snap.exists()) {
+                              setJuegoData({ id: snap.id, ...snap.data() });
+                            } else {
+                              const nueva = {
+                                psicologoId: usuarioActual.uid,
+                                pacienteId: p.id,
+                                tablero: Array(9).fill(null),
+                                turnoActual: "pac",
+                                fechaUltimoMovimiento: "",
+                                scores: { psi: 0, pac: 0 },
+                                estado: "activo",
+                                ganador: null,
+                                creadoEn: new Date().toISOString(),
+                              };
+                              await setDoc(doc(db, "juegoTerapia", gId), nueva);
+                              setJuegoData({ id: gId, ...nueva });
+                            }
+                          } catch(e) { showToast("Error al cargar el juego ❌"); }
                           setJuegoLoading(false);
+                          setJuegoCargado(true);
                         }}
                           style={{ display:"flex", alignItems:"center", gap:12,
                             background:"rgba(255,255,255,0.04)", borderRadius:14,
