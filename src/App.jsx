@@ -4608,35 +4608,45 @@ const styles = `
                             </a>
                           )}
                           {usuarioActual?.rol === "psicologo" && (
-                            <div onClick={async () => {
-                              if (!window.confirm(`¿Marcar sesión con ${c.pacienteNombre} como finalizada?\n\nEsto la registrará en finanzas y la eliminará de la lista.`)) return;
-                              try {
-                                // 1. Buscar tarifa del paciente
-                                const tarifasSnap = await getDoc(doc(db, "metodosPago", usuarioActual.uid));
-                                const tarifas = tarifasSnap.exists() ? (tarifasSnap.data().tarifas || {}) : {};
-                                const valor = tarifas[c.pacienteId] || pacientes.find(p => p.id === c.pacienteId)?.tarifaSesion || 0;
-                                // 2. Registrar en sesionesFinanzas
-                                const sesId = `ses_${Date.now()}_${c.pacienteId}`;
-                                await setDoc(doc(db, "sesionesFinanzas", sesId), {
-                                  id: sesId,
-                                  psicologoId:    usuarioActual.uid,
-                                  pacienteId:     c.pacienteId,
-                                  pacienteNombre: c.pacienteNombre,
-                                  valor,
-                                  pagado:   false,
-                                  fecha:    c.fechaUTC || new Date().toISOString(),
-                                  citaId:   c.id,
-                                  creadaEn: new Date().toISOString(),
-                                });
-                                // 3. Eliminar la cita
-                                await deleteDoc(doc(db, "citas", c.id));
-                                setCitas(prev => prev.filter(x => x.id !== c.id));
-                                setSesionesFinanzas(prev => [{ id:sesId, psicologoId:usuarioActual.uid, pacienteId:c.pacienteId, pacienteNombre:c.pacienteNombre, valor, pagado:false, fecha:c.fechaUTC||new Date().toISOString(), citaId:c.id, creadaEn:new Date().toISOString() }, ...prev]);
-                                showToast(valor > 0 ? `✅ Sesión finalizada — ${valor > 0 ? "$"+Number(valor).toLocaleString("es-CO") : "sin tarifa"}` : "✅ Sesión finalizada — configura tarifa en Finanzas");
-                              } catch(e) { console.error(e); showToast("Error ❌"); }
-                            }} style={{ flexShrink:0, padding:"6px 10px", borderRadius:9, background:`${C.green}15`, border:`1px solid ${C.green}40`, display:"flex", alignItems:"center", gap:4, cursor:"pointer" }}>
-                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                              <span style={{ fontSize:10, fontWeight:800, color:C.green }}>Finalizada</span>
+                            <div style={{ display:"flex", gap:6, flexShrink:0 }}>
+                              {/* Botón Finalizada */}
+                              <div onClick={async () => {
+                                if (!window.confirm(`¿Marcar sesión con ${c.pacienteNombre} como finalizada?\n\nEsto la registrará en finanzas y eliminará la cita.`)) return;
+                                try {
+                                  const tarifasSnap = await getDoc(doc(db, "metodosPago", usuarioActual.uid));
+                                  const tarifas = tarifasSnap.exists() ? (tarifasSnap.data().tarifas || {}) : {};
+                                  const valor = tarifas[c.pacienteId] || pacientes.find(p => p.id === c.pacienteId)?.tarifaSesion || 0;
+                                  const sesId = `ses_${Date.now()}_${c.pacienteId}`;
+                                  await setDoc(doc(db, "sesionesFinanzas", sesId), {
+                                    id: sesId, psicologoId: usuarioActual.uid,
+                                    pacienteId: c.pacienteId, pacienteNombre: c.pacienteNombre,
+                                    valor, pagado: false,
+                                    fecha: c.fechaUTC || new Date().toISOString(),
+                                    citaId: c.id, creadaEn: new Date().toISOString(),
+                                  });
+                                  await deleteDoc(doc(db, "citas", c.id));
+                                  setCitas(prev => prev.filter(x => x.id !== c.id));
+                                  setSesionesFinanzas(prev => [{ id:sesId, psicologoId:usuarioActual.uid, pacienteId:c.pacienteId, pacienteNombre:c.pacienteNombre, valor, pagado:false, fecha:c.fechaUTC||new Date().toISOString(), citaId:c.id, creadaEn:new Date().toISOString() }, ...prev]);
+                                  showToast(valor > 0 ? `✅ Sesión finalizada — $${Number(valor).toLocaleString("es-CO")}` : "✅ Sesión finalizada");
+                                } catch(e) { console.error(e); showToast("Error ❌"); }
+                              }} style={{ flexShrink:0, padding:"6px 10px", borderRadius:9, background:`${C.green}15`, border:`1px solid ${C.green}40`, display:"flex", alignItems:"center", gap:5, cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span style={{ fontSize:10, fontWeight:800, color:C.green }}>Finalizada</span>
+                              </div>
+                              {/* Caneca eliminar */}
+                              <div onClick={async () => {
+                                if (!window.confirm(`¿Eliminar la cita con ${c.pacienteNombre}?\n\nEsto NO se registrará en finanzas.`)) return;
+                                try {
+                                  await deleteDoc(doc(db, "citas", c.id));
+                                  setCitas(prev => prev.filter(x => x.id !== c.id));
+                                  showToast("🗑️ Cita eliminada");
+                                } catch(e) { showToast("Error ❌"); }
+                              }} style={{ flexShrink:0, width:32, height:32, borderRadius:9, background:"#FFE5E5", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C0524A" strokeWidth="2.5" strokeLinecap="round">
+                                  <polyline points="3 6 5 6 21 6"/>
+                                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                </svg>
+                              </div>
                             </div>
                           )}
                         </div>
