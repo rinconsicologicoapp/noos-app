@@ -1045,6 +1045,9 @@ const [diarioMood, setDiarioMood] = useState("Tranquilo");
 const [diarioLoading, setDiarioLoading] = useState(false);
 const [diarioCargado, setDiarioCargado] = useState(false);
 const [diarioPaginaDir, setDiarioPaginaDir] = useState("right");
+const [juegoData, setJuegoData] = useState(null);
+const [juegoLoading, setJuegoLoading] = useState(false);
+const [juegoCargado, setJuegoCargado] = useState(false);
 const [pullStartY, setPullStartY] = useState(null);
 const [celebrando, setCelebrando] = useState(false);
 const confettiItems = Array.from({length:20}, (_,i) => ({
@@ -2399,6 +2402,7 @@ const BACK_MAP = {
   "perfil-psicologo": "home",
   "habitos":          "home",
   "diario":           "home",
+  "juego":            "home",
   "psi-dashboard":    "admin-perfil",
   "admin-paciente":   "psi-dashboard",
   "admin-pagos":      "admin-perfil",
@@ -3610,15 +3614,105 @@ const styles = `
                     )}
                   </div>
                   <div onClick={() => { showScreen("notas"); setTimeout(()=>setNoteTab("insights"), 50); }}
-                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:12, padding:"9px 10px", cursor:"pointer" }}>
+                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:12, padding:"9px 10px", cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
                     <div style={{ width:26, height:26, background:"rgba(196,132,90,0.15)", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </div>
                     <div>
                       <div style={{ fontSize:11, fontWeight:700, color:"#F5E6D0", lineHeight:1.2 }}>Para no olvidar</div>
                       <div style={{ fontSize:9, color:"rgba(245,230,208,0.4)" }}>Nueva nota</div>
                     </div>
                   </div>
+                </div>
+
+                {/* MINI JUEGO card */}
+                <div onClick={() => showScreen("juego")}
+                  style={{ display:"flex", alignItems:"center", gap:10, background:"#1A1028",
+                    border:"0.5px solid rgba(139,92,246,0.25)", borderRadius:14, padding:"10px 12px",
+                    marginBottom:8, cursor:"pointer", WebkitTapHighlightColor:"transparent",
+                    position:"relative", overflow:"hidden" }}>
+                  {/* Glow RGB detrás del mando */}
+                  <div style={{ position:"absolute", left:-10, top:-10, width:70, height:70,
+                    borderRadius:"50%", background:"radial-gradient(circle,rgba(139,92,246,0.3) 0%,transparent 70%)", pointerEvents:"none" }}/>
+                  <div style={{ position:"absolute", right:20, bottom:-8, width:50, height:50,
+                    borderRadius:"50%", background:"radial-gradient(circle,rgba(16,185,129,0.2) 0%,transparent 70%)", pointerEvents:"none" }}/>
+                  <div style={{ position:"absolute", left:"35%", bottom:-5, width:40, height:40,
+                    borderRadius:"50%", background:"radial-gradient(circle,rgba(239,68,68,0.15) 0%,transparent 70%)", pointerEvents:"none" }}/>
+                  {/* SVG Mando 3D */}
+                  <div style={{ flexShrink:0, position:"relative", zIndex:2 }}>
+                    <svg width="58" height="44" viewBox="0 0 58 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="mandoCuerpo" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#3D2A5C"/>
+                          <stop offset="100%" stopColor="#1E1035"/>
+                        </linearGradient>
+                        <linearGradient id="mandoBrillo" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="white" stopOpacity="0.18"/>
+                          <stop offset="100%" stopColor="white" stopOpacity="0"/>
+                        </linearGradient>
+                        <linearGradient id="mandobtn1" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#C084FC"/>
+                          <stop offset="100%" stopColor="#7C3AED"/>
+                        </linearGradient>
+                        <linearGradient id="mandobtn2" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#34D399"/>
+                          <stop offset="100%" stopColor="#059669"/>
+                        </linearGradient>
+                        <linearGradient id="mandobtn3" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#FCA5A5"/>
+                          <stop offset="100%" stopColor="#DC2626"/>
+                        </linearGradient>
+                        <linearGradient id="mandobtn4" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#93C5FD"/>
+                          <stop offset="100%" stopColor="#2563EB"/>
+                        </linearGradient>
+                      </defs>
+                      {/* Sombra base */}
+                      <ellipse cx="29" cy="41" rx="20" ry="3" fill="rgba(0,0,0,0.4)"/>
+                      {/* Cuerpo principal */}
+                      <path d="M8 18 C6 12 8 6 14 5 L22 4 C25 4 27 6 29 8 C31 6 33 4 36 4 L44 5 C50 6 52 12 50 18 L46 32 C44 38 40 40 35 39 L31 38 C30 37 28 37 27 38 L23 39 C18 40 14 38 12 32 Z" fill="url(#mandoCuerpo)"/>
+                      {/* Brillo superior */}
+                      <path d="M14 5 C20 3 38 3 44 5 C50 7 52 13 50 18 L48 18 C48 13 46 8 42 6 C36 4 22 4 16 6 C12 8 10 13 10 18 L8 18 C6 13 8 7 14 5 Z" fill="url(#mandoBrillo)"/>
+                      {/* Grieta/detalle central */}
+                      <path d="M22 18 C24 16 26 15 29 15 C32 15 34 16 36 18" stroke="rgba(255,255,255,0.08)" strokeWidth="1" fill="none"/>
+                      {/* D-pad izquierdo */}
+                      <rect x="10" y="16" width="4" height="10" rx="1.5" fill="rgba(255,255,255,0.15)"/>
+                      <rect x="8" y="18" width="8" height="6" rx="1.5" fill="rgba(255,255,255,0.15)"/>
+                      {/* Botones derecha ABXY */}
+                      <circle cx="42" cy="17" r="3.2" fill="url(#mandobtn1)"/>
+                      <circle cx="36" cy="16" r="3.2" fill="url(#mandobtn3)"/>
+                      <circle cx="42" cy="23" r="3.2" fill="url(#mandobtn4)"/>
+                      <circle cx="48" cy="17" r="3.2" fill="url(#mandobtn2)"/>
+                      {/* Letras botones */}
+                      <text x="42" y="18.5" textAnchor="middle" fontSize="3.5" fill="white" fontWeight="800">▲</text>
+                      <text x="36" y="17.5" textAnchor="middle" fontSize="3" fill="white" fontWeight="800">■</text>
+                      <text x="42" y="24.5" textAnchor="middle" fontSize="3" fill="white" fontWeight="800">✕</text>
+                      <text x="48" y="18.5" textAnchor="middle" fontSize="3.5" fill="white" fontWeight="800">●</text>
+                      {/* Joystick izquierdo */}
+                      <circle cx="20" cy="27" r="5" fill="#120A24"/>
+                      <circle cx="20" cy="27" r="4" fill="#1E1035"/>
+                      <circle cx="20" cy="26.5" r="2" fill="rgba(255,255,255,0.12)"/>
+                      {/* Joystick derecho */}
+                      <circle cx="34" cy="27" r="5" fill="#120A24"/>
+                      <circle cx="34" cy="27" r="4" fill="#1E1035"/>
+                      <circle cx="34" cy="26.5" r="2" fill="rgba(255,255,255,0.12)"/>
+                      {/* Botón start/options central */}
+                      <rect x="27" y="19" width="4" height="2.5" rx="1.25" fill="rgba(255,255,255,0.2)"/>
+                      {/* RGB glow reflejado en cuerpo */}
+                      <ellipse cx="14" cy="32" rx="5" ry="2" fill="rgba(139,92,246,0.2)"/>
+                      <ellipse cx="44" cy="32" rx="5" ry="2" fill="rgba(16,185,129,0.2)"/>
+                    </svg>
+                  </div>
+                  <div style={{ zIndex:2, flex:1 }}>
+                    <div style={{ fontSize:11, fontWeight:800, color:"#E0D7FF", lineHeight:1.2 }}>Mini juego</div>
+                    <div style={{ fontSize:9, color:"rgba(167,139,250,0.6)", marginTop:1 }}>
+                      {juegoData ? (juegoData.turnoActual === (usuarioActual?.rol === "paciente" ? "pac" : "psi") ? "¡Es tu turno hoy!" : "Esperando al otro...") : "Juega con tu psicólogo"}
+                    </div>
+                  </div>
+                  {juegoData?.turnoActual === (usuarioActual?.rol === "paciente" ? "pac" : "psi") && (
+                    <div style={{ width:7, height:7, borderRadius:"50%", background:"#A78BFA",
+                      animation:"pulseXP 1.5s ease infinite", zIndex:2, flexShrink:0 }}/>
+                  )}
                 </div>
 
                 {/* FRASE MES */}
@@ -5358,6 +5452,278 @@ const styles = `
                     </div>
                   );
                 })()}
+              </div>
+            );
+          })()}
+
+          {/* MINI JUEGO */}
+          {!notifPanel && screen === "juego" && (() => {
+            const juegoId = usuarioActual?.rol === "paciente"
+              ? `${usuarioActual.psicologoId}_${usuarioActual.uid}`
+              : pacienteSeleccionado
+                ? `${usuarioActual.uid}_${pacienteSeleccionado.id}`
+                : null;
+            const miRol = usuarioActual?.rol === "paciente" ? "pac" : "psi";
+            const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            const FRASES_EMPATE = [
+              "Nadie cedió un centímetro — revancha mañana 🔥",
+              "Tablero bloqueado. Los estrategas siguen en pie.",
+              "Sin ganador hoy — la batalla continúa.",
+              "Igual de implacables. Nueva partida.",
+              "El tablero no pudo con ninguno de los dos.",
+            ];
+
+            const cargarJuego = async () => {
+              if (juegoLoading || juegoCargado || !juegoId) return;
+              setJuegoLoading(true);
+              try {
+                const snap = await getDoc(doc(db, "juegoTerapia", juegoId));
+                if (snap.exists()) {
+                  setJuegoData({ id: snap.id, ...snap.data() });
+                } else {
+                  // Crear partida nueva
+                  const nueva = {
+                    psicologoId: usuarioActual?.rol === "paciente" ? usuarioActual.psicologoId : usuarioActual.uid,
+                    pacienteId: usuarioActual?.rol === "paciente" ? usuarioActual.uid : (pacienteSeleccionado?.id || ""),
+                    tablero: Array(9).fill(null),
+                    turnoActual: "pac",
+                    fechaUltimoMovimiento: "",
+                    scores: { psi: 0, pac: 0 },
+                    estado: "activo",
+                    ganador: null,
+                    creadoEn: new Date().toISOString(),
+                  };
+                  await setDoc(doc(db, "juegoTerapia", juegoId), nueva);
+                  setJuegoData({ id: juegoId, ...nueva });
+                }
+              } catch(e) {}
+              setJuegoLoading(false);
+              setJuegoCargado(true);
+            };
+
+            if (!juegoCargado && !juegoLoading) cargarJuego();
+
+            const hoy = new Date().toDateString();
+            const yaJugueHoy = juegoData?.fechaUltimoMovimiento
+              ? new Date(juegoData.fechaUltimoMovimiento).toDateString() === hoy
+              : false;
+            const esMiTurno = juegoData?.turnoActual === miRol && !yaJugueHoy && juegoData?.estado === "activo";
+
+            const checkWin = (tablero, jugador) =>
+              WINS.find(c => c.every(i => tablero[i] === jugador)) || null;
+
+            const hacerMovimiento = async (idx) => {
+              if (!esMiTurno || !juegoData || juegoData.tablero[idx]) return;
+              const nuevoTablero = [...juegoData.tablero];
+              nuevoTablero[idx] = miRol;
+              const win = checkWin(nuevoTablero, miRol);
+              const empate = !win && nuevoTablero.every(c => c !== null);
+              const nuevoEstado = win || empate ? "terminado" : "activo";
+              const ganador = win ? miRol : empate ? "empate" : null;
+              const nuevoTurno = miRol === "pac" ? "psi" : "pac";
+              const nuevosScores = { ...juegoData.scores };
+              if (win) nuevosScores[miRol] = (nuevosScores[miRol] || 0) + 1;
+              const update = {
+                tablero: nuevoTablero,
+                turnoActual: win || empate ? juegoData.turnoActual : nuevoTurno,
+                fechaUltimoMovimiento: new Date().toISOString(),
+                estado: nuevoEstado,
+                ganador,
+                scores: nuevosScores,
+              };
+              try {
+                await updateDoc(doc(db, "juegoTerapia", juegoId), update);
+                setJuegoData(prev => ({ ...prev, ...update }));
+                if (win) showToast("🏆 ¡Ganaste esta partida!");
+                if (empate) showToast("🤝 " + FRASES_EMPATE[Math.floor(Math.random()*FRASES_EMPATE.length)]);
+              } catch(e) { showToast("Error al jugar ❌"); }
+            };
+
+            const nuevaPartida = async () => {
+              if (!juegoData) return;
+              const reset = {
+                tablero: Array(9).fill(null),
+                turnoActual: "pac",
+                fechaUltimoMovimiento: "",
+                estado: "activo",
+                ganador: null,
+              };
+              await updateDoc(doc(db, "juegoTerapia", juegoId), reset);
+              setJuegoData(prev => ({ ...prev, ...reset }));
+            };
+
+            const winCombo = juegoData ? checkWin(juegoData.tablero, "psi") || checkWin(juegoData.tablero, "pac") : null;
+            const fmtScore = (s) => (s || 0).toString();
+            const nombreOponente = usuarioActual?.rol === "paciente"
+              ? (usuarioActual?.psicologoNombre || "Tu psicólogo")
+              : (pacienteSeleccionado?.nombre || "Paciente");
+
+            return (
+              <div style={{ height:"100%", display:"flex", flexDirection:"column",
+                background:"#070412", position:"relative", overflow:"hidden" }}>
+
+                {/* Fondo RGB */}
+                <div style={{ position:"absolute", inset:0, pointerEvents:"none" }}>
+                  <div style={{ position:"absolute", width:240, height:240, borderRadius:"50%",
+                    background:"radial-gradient(circle,rgba(139,92,246,0.15) 0%,transparent 70%)",
+                    top:-80, left:-60 }}/>
+                  <div style={{ position:"absolute", width:200, height:200, borderRadius:"50%",
+                    background:"radial-gradient(circle,rgba(16,185,129,0.1) 0%,transparent 70%)",
+                    bottom:-60, right:-40 }}/>
+                  <div style={{ position:"absolute", width:160, height:160, borderRadius:"50%",
+                    background:"radial-gradient(circle,rgba(239,68,68,0.08) 0%,transparent 70%)",
+                    bottom:100, left:20 }}/>
+                </div>
+
+                {/* Header */}
+                <div style={{ padding:"12px 16px 10px",
+                  paddingTop:"max(12px,env(safe-area-inset-top,12px))",
+                  flexShrink:0, position:"relative", zIndex:2,
+                  display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                  <div onClick={() => { setJuegoCargado(false); setJuegoData(null); showScreen("home"); }}
+                    style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.06)",
+                      display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </div>
+                  <div style={{ textAlign:"center" }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:"white", letterSpacing:0.3 }}>Mini juego</div>
+                    <div style={{ fontSize:9, color:"rgba(167,139,250,0.5)", marginTop:1 }}>1 movimiento por día</div>
+                  </div>
+                  <div style={{ width:34 }}/>
+                </div>
+
+                {juegoLoading ? (
+                  <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <div style={{ fontSize:12, color:"rgba(167,139,250,0.5)" }}>Cargando partida...</div>
+                  </div>
+                ) : !juegoData ? (
+                  <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
+                    <div style={{ textAlign:"center", color:"rgba(167,139,250,0.5)", fontSize:13 }}>
+                      {usuarioActual?.rol === "psicologo" && !pacienteSeleccionado
+                        ? "Primero selecciona un paciente desde tu panel"
+                        : "No se pudo cargar el juego"}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ flex:1, overflowY:"auto", padding:"0 16px 32px", position:"relative", zIndex:2 }}>
+
+                    {/* Scoreboard */}
+                    <div style={{ display:"flex", gap:10, marginBottom:20, alignItems:"center" }}>
+                      <div style={{ flex:1, background:"rgba(16,185,129,0.1)", border:`1.5px solid ${juegoData.turnoActual==="pac"&&!yaJugueHoy&&juegoData.estado==="activo"?"rgba(16,185,129,0.6)":"rgba(16,185,129,0.2)"}`, borderRadius:14, padding:"10px 12px", textAlign:"center", transition:"border .3s" }}>
+                        <div style={{ fontSize:28, lineHeight:1, marginBottom:4 }}>🌱</div>
+                        <div style={{ fontSize:10, fontWeight:800, color:"#34D399", letterSpacing:.5 }}>PACIENTE</div>
+                        <div style={{ fontSize:22, fontWeight:900, color:"white", marginTop:4 }}>{fmtScore(juegoData.scores?.pac)}</div>
+                      </div>
+                      <div style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.06)", borderRadius:14, padding:"10px 12px", textAlign:"center", minWidth:64 }}>
+                        <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", fontWeight:700, marginBottom:6 }}>VS</div>
+                        <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.4)", lineHeight:1.4 }}>
+                          {juegoData.estado === "terminado"
+                            ? (juegoData.ganador === "empate" ? "🤝" : juegoData.ganador === miRol ? "🏆 Tú" : "💀 Rival")
+                            : (esMiTurno ? "🎮 Tú" : "⏳ Rival")}
+                        </div>
+                      </div>
+                      <div style={{ flex:1, background:"rgba(139,92,246,0.1)", border:`1.5px solid ${juegoData.turnoActual==="psi"&&!yaJugueHoy&&juegoData.estado==="activo"?"rgba(139,92,246,0.6)":"rgba(139,92,246,0.2)"}`, borderRadius:14, padding:"10px 12px", textAlign:"center", transition:"border .3s" }}>
+                        <div style={{ fontSize:28, lineHeight:1, marginBottom:4 }}>🧠</div>
+                        <div style={{ fontSize:10, fontWeight:800, color:"#A78BFA", letterSpacing:.5 }}>PSICÓLOGO</div>
+                        <div style={{ fontSize:22, fontWeight:900, color:"white", marginTop:4 }}>{fmtScore(juegoData.scores?.psi)}</div>
+                      </div>
+                    </div>
+
+                    {/* Tablero */}
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:9, marginBottom:16 }}>
+                      {juegoData.tablero.map((cel, i) => {
+                        const isWin = winCombo?.includes(i);
+                        const canPlay = esMiTurno && !cel;
+                        return (
+                          <div key={i} onClick={() => canPlay && hacerMovimiento(i)}
+                            style={{
+                              aspectRatio:"1", borderRadius:18, display:"flex",
+                              alignItems:"center", justifyContent:"center",
+                              fontSize:38,
+                              background: isWin
+                                ? (cel==="pac"?"rgba(16,185,129,0.25)":"rgba(139,92,246,0.25)")
+                                : cel === "pac" ? "rgba(16,185,129,0.12)"
+                                : cel === "psi" ? "rgba(139,92,246,0.12)"
+                                : "rgba(255,255,255,0.04)",
+                              border: isWin
+                                ? `2px solid ${cel==="pac"?"#34D399":"#A78BFA"}`
+                                : `1.5px solid ${canPlay?"rgba(167,139,250,0.3)":"rgba(255,255,255,0.06)"}`,
+                              cursor: canPlay ? "pointer" : "default",
+                              transition:"all .15s",
+                              transform: isWin ? "scale(1.04)" : "scale(1)",
+                            }}>
+                            {cel === "pac" && "🌱"}
+                            {cel === "psi" && "🧠"}
+                            {!cel && canPlay && (
+                              <div style={{ width:18, height:18, borderRadius:"50%",
+                                background:"rgba(167,139,250,0.15)",
+                                border:"1.5px dashed rgba(167,139,250,0.4)" }}/>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Estado */}
+                    <div style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:14, padding:"12px 16px", marginBottom:16 }}>
+                      {juegoData.estado === "terminado" ? (
+                        <div style={{ textAlign:"center" }}>
+                          <div style={{ fontSize:32, marginBottom:6 }}>
+                            {juegoData.ganador === "empate" ? "🤝" : juegoData.ganador === miRol ? "🏆" : "💀"}
+                          </div>
+                          <div style={{ fontSize:14, fontWeight:800, color:"white", marginBottom:4 }}>
+                            {juegoData.ganador === "empate"
+                              ? FRASES_EMPATE[0]
+                              : juegoData.ganador === miRol
+                                ? "¡Ganaste esta partida!"
+                                : `${nombreOponente} ganó — toca la revancha`}
+                          </div>
+                          <div onClick={nuevaPartida}
+                            style={{ marginTop:12, padding:"10px 0", borderRadius:12,
+                              background:"linear-gradient(135deg,#5B21B6,#7C3AED)",
+                              color:"white", fontSize:13, fontWeight:800, textAlign:"center",
+                              cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
+                            Nueva partida 🔄
+                          </div>
+                        </div>
+                      ) : esMiTurno ? (
+                        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                          <div style={{ width:8, height:8, borderRadius:"50%", background:"#A78BFA",
+                            animation:"pulseXP 1.5s ease infinite", flexShrink:0 }}/>
+                          <div>
+                            <div style={{ fontSize:13, fontWeight:700, color:"white" }}>¡Tu turno hoy!</div>
+                            <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Toca una celda para jugar</div>
+                          </div>
+                        </div>
+                      ) : yaJugueHoy ? (
+                        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                          <div style={{ fontSize:20 }}>⏳</div>
+                          <div>
+                            <div style={{ fontSize:13, fontWeight:700, color:"white" }}>Jugada enviada — esperando a {nombreOponente}</div>
+                            <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Vuelve mañana para tu próximo turno</div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                          <div style={{ fontSize:20 }}>😴</div>
+                          <div>
+                            <div style={{ fontSize:13, fontWeight:700, color:"white" }}>Turno de {nombreOponente}</div>
+                            <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Ellos juegan hoy — vuelve mañana</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Progreso tablero */}
+                    <div style={{ display:"flex", justifyContent:"center", gap:8 }}>
+                      {juegoData.tablero.map((c,i) => (
+                        <div key={i} style={{ width:8, height:8, borderRadius:"50%",
+                          background: c==="pac"?"#34D399": c==="psi"?"#A78BFA":"rgba(255,255,255,0.1)",
+                          transition:"background .3s" }}/>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })()}
@@ -8560,6 +8926,48 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     </div>
                   </div>
                 )}
+                {/* MINI JUEGO — card psicólogo */}
+                <div onClick={() => showScreen("juego")}
+                  style={{ display:"flex", alignItems:"center", gap:10, background:"#1A1028",
+                    border:"0.5px solid rgba(139,92,246,0.25)", borderRadius:14, padding:"10px 12px",
+                    marginBottom:14, cursor:"pointer", WebkitTapHighlightColor:"transparent",
+                    position:"relative", overflow:"hidden" }}>
+                  <div style={{ position:"absolute", left:-10, top:-10, width:70, height:70,
+                    borderRadius:"50%", background:"radial-gradient(circle,rgba(139,92,246,0.3) 0%,transparent 70%)", pointerEvents:"none" }}/>
+                  <div style={{ position:"absolute", right:20, bottom:-8, width:50, height:50,
+                    borderRadius:"50%", background:"radial-gradient(circle,rgba(16,185,129,0.2) 0%,transparent 70%)", pointerEvents:"none" }}/>
+                  <div style={{ flexShrink:0, position:"relative", zIndex:2 }}>
+                    <svg width="58" height="44" viewBox="0 0 58 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="mandoCuerpo2" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#3D2A5C"/>
+                          <stop offset="100%" stopColor="#1E1035"/>
+                        </linearGradient>
+                        <linearGradient id="mandoBrillo2" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="white" stopOpacity="0.18"/>
+                          <stop offset="100%" stopColor="white" stopOpacity="0"/>
+                        </linearGradient>
+                      </defs>
+                      <ellipse cx="29" cy="41" rx="20" ry="3" fill="rgba(0,0,0,0.4)"/>
+                      <path d="M8 18 C6 12 8 6 14 5 L22 4 C25 4 27 6 29 8 C31 6 33 4 36 4 L44 5 C50 6 52 12 50 18 L46 32 C44 38 40 40 35 39 L31 38 C30 37 28 37 27 38 L23 39 C18 40 14 38 12 32 Z" fill="url(#mandoCuerpo2)"/>
+                      <path d="M14 5 C20 3 38 3 44 5 C50 7 52 13 50 18 L48 18 C48 13 46 8 42 6 C36 4 22 4 16 6 C12 8 10 13 10 18 L8 18 C6 13 8 7 14 5 Z" fill="url(#mandoBrillo2)"/>
+                      <rect x="10" y="16" width="4" height="10" rx="1.5" fill="rgba(255,255,255,0.15)"/>
+                      <rect x="8" y="18" width="8" height="6" rx="1.5" fill="rgba(255,255,255,0.15)"/>
+                      <circle cx="42" cy="17" r="3.2" fill="#7C3AED"/><circle cx="36" cy="16" r="3.2" fill="#DC2626"/>
+                      <circle cx="42" cy="23" r="3.2" fill="#2563EB"/><circle cx="48" cy="17" r="3.2" fill="#059669"/>
+                      <circle cx="20" cy="27" r="5" fill="#120A24"/><circle cx="20" cy="27" r="4" fill="#1E1035"/><circle cx="20" cy="26.5" r="2" fill="rgba(255,255,255,0.12)"/>
+                      <circle cx="34" cy="27" r="5" fill="#120A24"/><circle cx="34" cy="27" r="4" fill="#1E1035"/><circle cx="34" cy="26.5" r="2" fill="rgba(255,255,255,0.12)"/>
+                      <rect x="27" y="19" width="4" height="2.5" rx="1.25" fill="rgba(255,255,255,0.2)"/>
+                      <ellipse cx="14" cy="32" rx="5" ry="2" fill="rgba(139,92,246,0.2)"/>
+                      <ellipse cx="44" cy="32" rx="5" ry="2" fill="rgba(16,185,129,0.2)"/>
+                    </svg>
+                  </div>
+                  <div style={{ zIndex:2, flex:1 }}>
+                    <div style={{ fontSize:11, fontWeight:800, color:"#E0D7FF" }}>Mini juego</div>
+                    <div style={{ fontSize:9, color:"rgba(167,139,250,0.6)", marginTop:1 }}>Reta a tus pacientes al tablero</div>
+                  </div>
+                </div>
+
                 {/* CONFIGURACIÓN */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>⚙️ Configuración</div>
                 <div style={{ background:"#FEFAF5", borderRadius:14, overflow:"hidden", marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
