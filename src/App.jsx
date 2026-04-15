@@ -4693,7 +4693,31 @@ const styles = `
                               </div>
                             </div>
                           ))}
-                          {btn(()=>setCitaDetalle(null), "Cerrar", { width:"100%", padding:10, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:700, marginTop:4 })}
+                          {usuarioActual?.rol === "psicologo" && (
+                        <div onClick={async () => {
+                          if (!window.confirm(`¿Eliminar la cita con ${citaDetalle.pacienteNombre}?`)) return;
+                          try {
+                            await deleteDoc(doc(db, "citas", citaDetalle.id));
+                            setCitas(prev => prev.filter(c => c.id !== citaDetalle.id));
+                            setCitaDetalle(null);
+                            setCalCitaDetalle(null);
+                            showToast("🗑️ Cita eliminada");
+                          } catch(e) { showToast("Error al eliminar ❌"); }
+                        }}
+                          style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:7,
+                            width:"100%", padding:10, borderRadius:11, marginBottom:8,
+                            background:"#FFE5E5", color:"#C0524A",
+                            fontSize:13, fontWeight:700, cursor:"pointer",
+                            WebkitTapHighlightColor:"transparent" }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C0524A" strokeWidth="2.5" strokeLinecap="round">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                            <path d="M10 11v6M14 11v6"/>
+                          </svg>
+                          Eliminar cita
+                        </div>
+                      )}
+                      {btn(()=>setCitaDetalle(null), "Cerrar", { width:"100%", padding:10, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:700, marginTop:4 })}
                         </>
                       ) : (
                       <>
