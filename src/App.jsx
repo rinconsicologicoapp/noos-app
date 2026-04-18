@@ -601,7 +601,7 @@ function CompaneroHome({ id }) {
     if (!wrap) return;
     const anim = animRef.current;
     if (!anim) return;
-    const colors = EFFECT_COLORS[id] || ["#E8A87C","#C4845A"];
+    const colors = EFFECT_COLORS[id] || ["#FFB347","#FF7B5A"];
 
     // Remove previous animation class then re-add
     const CLASS_MAP = {
@@ -1051,7 +1051,7 @@ const [juegoCargado, setJuegoCargado] = useState(false);
 const [pullStartY, setPullStartY] = useState(null);
 const [celebrando, setCelebrando] = useState(false);
 const confettiItems = Array.from({length:20}, (_,i) => ({
-  id:i, x:Math.random()*100, color:["#5C4D6E","#7DAA92","#E8A87C","#F0C040","#E57373"][Math.floor(Math.random()*5)],
+  id:i, x:Math.random()*100, color:["#5C4D6E","#4ECDC4","#FFB347","#F0C040","#E57373"][Math.floor(Math.random()*5)],
   delay:Math.random()*0.5, size:Math.random()*8+4
 }));
 
@@ -1634,7 +1634,7 @@ const guardarAnimo = async (valor) => {
     psicologoId,
     valor, fecha: hoy,
     creadoEn: new Date().toISOString(),
-    emoji: ["😞","😕","😐","🙂","😄"][valor],
+    emoji: ["low","neutral-low","neutral","good","great"][valor],
     label: ["Mal","Regular","Neutro","Bien","Genial"][valor],
   };
   try {
@@ -2492,8 +2492,8 @@ const styles = `
     100% { transform: translateX(500%); }
   }
   @keyframes navPulse {
-    0%,100% { opacity:1; box-shadow: 0 0 6px #E8A87C, 0 0 14px rgba(232,168,124,0.4); }
-    50% { opacity:0.7; box-shadow: 0 0 10px #E8A87C, 0 0 24px rgba(232,168,124,0.6); }
+    0%,100% { opacity:1; box-shadow: 0 0 6px #E8A87C, 0 0 14px rgba(255,155,122,0.4); }
+    50% { opacity:0.7; box-shadow: 0 0 10px #E8A87C, 0 0 24px rgba(255,155,122,0.6); }
   }
   @keyframes navPulseAmber {
     0%,100% { opacity:1; }
@@ -2564,33 +2564,164 @@ const styles = `
   .cmp-wobble { animation: cmpWobble 0.55s ease; }
   .cmp-glitch { animation: cmpGlitch 0.5s steps(1,end); }
 `;
-  const C = darkMode ? {
-  plum:"#E8A87C", sage:"#7DAA92", sageDark:"#4A8A72",
-  amber:"#E8A87C", amberDark:"#C4845A", cream:"#1A1208",
-  warm:"#2A1E10", text:"#F5E6D0", light:"#8A6A4A",
-  red:"#E07070", green:"#6AAA72", blue:"#6A9AAA",
-  dark:"#120E06", gold:"#E8A87C", bg:"#1A1208",
-  cardBg:"#2A1E10", headerBg:"rgba(26,18,8,0.98)"
-} : {
-  plum:"#8B5A3A", sage:"#7DAA92", sageDark:"#4A8A72",
-  amber:"#C4845A", amberDark:"#A06040", cream:"#F5EDE0",
-  warm:"#EDE0D0", text:"#3A2A1C", light:"#A08060",
-  red:"#C0524A", green:"#5A8A62", blue:"#5A7A9A",
-  dark:"#2A1E14", gold:"#C4845A", bg:"#F5EDE0",
-  cardBg:"#FEFAF5", headerBg:"#FEFAF5"
-};
+  // Aurora Cálida — paleta unificada (dark-first)
+  const C = {
+    plum:      "#FF7B5A",               // coral — acción principal
+    sage:      "#4ECDC4",               // teal — acción secundaria
+    sageDark:  "#1E8880",               // teal-deep
+    amber:     "#FFB347",               // amber
+    amberDark: "#D04428",               // coral-deep
+    cream:     "#07060F",               // bg-base (fondo principal)
+    warm:      "#0D0B1E",               // bg-surface (cards, headers)
+    text:      "#F5EEE8",               // texto primario
+    light:     "#7A6E8A",               // texto secundario
+    red:       "#FF6B6B",               // error/peligro
+    green:     "#4ECDC4",               // éxito (teal)
+    blue:      "#6EEDDF",               // info (teal-bright)
+    dark:      "#04030C",               // bg-void
+    gold:      "#FFD080",               // oro/spark
+    bg:        "#07060F",               // alias bg-base
+    cardBg:    "#131028",               // bg-raised (cards elevadas)
+    headerBg:  "rgba(7,6,15,0.98)",     // header blur
+  };
+
+  const AvatarSVG = ({ id, size = 28 }) => {
+    const s = size;
+    const avatarDefs = {
+      av1: ( // Mujer — pelo largo coral
+        <svg width={s} height={s} viewBox="0 0 40 40">
+          <circle cx="20" cy="16" r="10" fill="#FF9B7A"/>
+          <ellipse cx="20" cy="13" rx="10" ry="5" fill="#D04428"/>
+          <ellipse cx="9" cy="20" rx="3" ry="7" fill="#D04428"/>
+          <ellipse cx="31" cy="20" rx="3" ry="7" fill="#D04428"/>
+          <circle cx="16.5" cy="16" r="1.8" fill="#04030C"/>
+          <circle cx="23.5" cy="16" r="1.8" fill="#04030C"/>
+          <path d="M17 20 Q20 22.5 23 20" stroke="#04030C" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+          <ellipse cx="20" cy="32" rx="11" ry="7" fill="#FF7B5A"/>
+        </svg>
+      ),
+      av2: ( // Hombre — pelo corto teal
+        <svg width={s} height={s} viewBox="0 0 40 40">
+          <circle cx="20" cy="16" r="10" fill="#6EEDDF"/>
+          <ellipse cx="20" cy="11" rx="10" ry="4" fill="#1E8880"/>
+          <circle cx="16.5" cy="16" r="1.8" fill="#04030C"/>
+          <circle cx="23.5" cy="16" r="1.8" fill="#04030C"/>
+          <path d="M17 20 Q20 22.5 23 20" stroke="#04030C" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+          <ellipse cx="20" cy="32" rx="11" ry="7" fill="#4ECDC4"/>
+        </svg>
+      ),
+      av3: ( // Zorro — orejas puntiagudas amber
+        <svg width={s} height={s} viewBox="0 0 40 40">
+          <polygon points="10,14 14,4 18,14" fill="#FFB347"/>
+          <polygon points="22,14 26,4 30,14" fill="#FFB347"/>
+          <circle cx="20" cy="18" r="10" fill="#FFB347"/>
+          <ellipse cx="20" cy="22" rx="5" ry="3.5" fill="#F5EEE8"/>
+          <circle cx="16.5" cy="16" r="1.8" fill="#04030C"/>
+          <circle cx="23.5" cy="16" r="1.8" fill="#04030C"/>
+          <ellipse cx="20" cy="20" rx="2" ry="1.5" fill="#FF7B5A"/>
+        </svg>
+      ),
+      av4: ( // Lobo — gris azulado
+        <svg width={s} height={s} viewBox="0 0 40 40">
+          <polygon points="10,14 14,3 19,14" fill="#7A6E8A"/>
+          <polygon points="21,14 26,3 30,14" fill="#7A6E8A"/>
+          <circle cx="20" cy="18" r="10" fill="#9B8FAA"/>
+          <ellipse cx="20" cy="22" rx="5" ry="3.5" fill="#F5EEE8"/>
+          <circle cx="16.5" cy="16" r="2" fill="#04030C"/>
+          <circle cx="23.5" cy="16" r="2" fill="#04030C"/>
+          <circle cx="17" cy="15.5" r="0.7" fill="white"/>
+          <circle cx="24" cy="15.5" r="0.7" fill="white"/>
+          <ellipse cx="20" cy="20.5" rx="2" ry="1.3" fill="#7A6E8A"/>
+        </svg>
+      ),
+      av5: ( // León — melena gold
+        <svg width={s} height={s} viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="13" fill="#FFD080" opacity="0.7"/>
+          <circle cx="20" cy="18" r="9" fill="#FFB347"/>
+          <circle cx="16.5" cy="17" r="1.8" fill="#04030C"/>
+          <circle cx="23.5" cy="17" r="1.8" fill="#04030C"/>
+          <ellipse cx="20" cy="21" rx="4" ry="3" fill="#F5EEE8"/>
+          <ellipse cx="20" cy="21.5" rx="2" ry="1.2" fill="#FF9B7A"/>
+          <path d="M17.5 23.5 Q20 25 22.5 23.5" stroke="#04030C" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        </svg>
+      ),
+      av6: ( // Búho — teal oscuro
+        <svg width={s} height={s} viewBox="0 0 40 40">
+          <ellipse cx="20" cy="20" rx="11" ry="12" fill="#1E8880"/>
+          <ellipse cx="14" cy="10" rx="4" ry="5" fill="#1E8880"/>
+          <ellipse cx="26" cy="10" rx="4" ry="5" fill="#1E8880"/>
+          <circle cx="16" cy="18" r="5" fill="#F5EEE8"/>
+          <circle cx="24" cy="18" r="5" fill="#F5EEE8"/>
+          <circle cx="16" cy="18" r="3" fill="#4ECDC4"/>
+          <circle cx="24" cy="18" r="3" fill="#4ECDC4"/>
+          <circle cx="16" cy="18" r="1.5" fill="#04030C"/>
+          <circle cx="24" cy="18" r="1.5" fill="#04030C"/>
+          <polygon points="20,22 18,25 22,25" fill="#FFB347"/>
+        </svg>
+      ),
+      av7: ( // Tigre — rayas coral
+        <svg width={s} height={s} viewBox="0 0 40 40">
+          <circle cx="20" cy="18" r="10" fill="#FFB347"/>
+          <path d="M15,10 Q17,7 20,8 Q23,7 25,10" stroke="#D04428" strokeWidth="1.5" fill="none"/>
+          <path d="M13,14 Q12,17 14,18" stroke="#D04428" strokeWidth="1.5" fill="none"/>
+          <path d="M27,14 Q28,17 26,18" stroke="#D04428" strokeWidth="1.5" fill="none"/>
+          <ellipse cx="20" cy="22" rx="5" ry="3" fill="#F5EEE8"/>
+          <circle cx="16.5" cy="16" r="1.8" fill="#04030C"/>
+          <circle cx="23.5" cy="16" r="1.8" fill="#04030C"/>
+          <ellipse cx="20" cy="21" rx="2" ry="1.2" fill="#FF7B5A"/>
+        </svg>
+      ),
+      av8: ( // Panda — blanco y negro
+        <svg width={s} height={s} viewBox="0 0 40 40">
+          <circle cx="20" cy="18" r="10" fill="#F5EEE8"/>
+          <circle cx="14" cy="14" r="5" fill="#131028"/>
+          <circle cx="26" cy="14" r="5" fill="#131028"/>
+          <circle cx="14" cy="14" r="2.5" fill="white"/>
+          <circle cx="26" cy="14" r="2.5" fill="white"/>
+          <circle cx="14" cy="14" r="1.5" fill="#04030C"/>
+          <circle cx="26" cy="14" r="1.5" fill="#04030C"/>
+          <ellipse cx="20" cy="22" rx="4" ry="2.5" fill="#F5EEE8"/>
+          <ellipse cx="20" cy="22" rx="2" ry="1.2" fill="#7A6E8A"/>
+          <path d="M17.5 24 Q20 26 22.5 24" stroke="#131028" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        </svg>
+      ),
+      av9: ( // Delfín — teal suave
+        <svg width={s} height={s} viewBox="0 0 40 40">
+          <ellipse cx="20" cy="20" rx="12" ry="9" fill="#4ECDC4"/>
+          <ellipse cx="20" cy="22" rx="8" ry="5" fill="#6EEDDF" opacity="0.5"/>
+          <circle cx="15" cy="17" r="2" fill="#04030C"/>
+          <circle cx="15.6" cy="16.4" r="0.7" fill="white"/>
+          <path d="M28,18 Q33,14 32,10 Q28,13 28,18" fill="#4ECDC4"/>
+          <path d="M14,26 Q18,30 22,26" stroke="#1E8880" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+        </svg>
+      ),
+      av10: ( // Águila — coral y gold
+        <svg width={s} height={s} viewBox="0 0 40 40">
+          <ellipse cx="20" cy="18" rx="10" ry="11" fill="#F5EEE8"/>
+          <ellipse cx="8" cy="18" rx="5" ry="8" fill="#FF7B5A" transform="rotate(-15 8 18)"/>
+          <ellipse cx="32" cy="18" rx="5" ry="8" fill="#FF7B5A" transform="rotate(15 32 18)"/>
+          <circle cx="16" cy="15" r="2" fill="#04030C"/>
+          <circle cx="24" cy="15" r="2" fill="#04030C"/>
+          <circle cx="16.6" cy="14.4" r="0.7" fill="white"/>
+          <circle cx="24.6" cy="14.4" r="0.7" fill="white"/>
+          <path d="M17,19 L20,23 L23,19" fill="#FFD080"/>
+        </svg>
+      ),
+    };
+    return avatarDefs[id] || avatarDefs.av1;
+  };
 
   const avatars = [
-    { id:"av1",  label:"Mujer",    svg:<span style={{fontSize:28}}>👩</span> },
-    { id:"av2",  label:"Hombre",   svg:<span style={{fontSize:28}}>👨</span> },
-    { id:"av3",  label:"Zorro",    svg:<span style={{fontSize:28}}>🦊</span> },
-    { id:"av4",  label:"Lobo",     svg:<span style={{fontSize:28}}>🐺</span> },
-    { id:"av5",  label:"León",     svg:<span style={{fontSize:28}}>🦁</span> },
-    { id:"av6",  label:"Búho",     svg:<span style={{fontSize:28}}>🦉</span> },
-    { id:"av7",  label:"Tigre",    svg:<span style={{fontSize:28}}>🐯</span> },
-    { id:"av8",  label:"Panda",    svg:<span style={{fontSize:28}}>🐼</span> },
-    { id:"av9",  label:"Delfín",   svg:<span style={{fontSize:28}}>🐬</span> },
-    { id:"av10", label:"Águila",   svg:<span style={{fontSize:28}}>🦅</span> },
+    { id:"av1",  label:"Mujer",    svg:<AvatarSVG id="av1"  size={28}/> },
+    { id:"av2",  label:"Hombre",   svg:<AvatarSVG id="av2"  size={28}/> },
+    { id:"av3",  label:"Zorro",    svg:<AvatarSVG id="av3"  size={28}/> },
+    { id:"av4",  label:"Lobo",     svg:<AvatarSVG id="av4"  size={28}/> },
+    { id:"av5",  label:"León",     svg:<AvatarSVG id="av5"  size={28}/> },
+    { id:"av6",  label:"Búho",     svg:<AvatarSVG id="av6"  size={28}/> },
+    { id:"av7",  label:"Tigre",    svg:<AvatarSVG id="av7"  size={28}/> },
+    { id:"av8",  label:"Panda",    svg:<AvatarSVG id="av8"  size={28}/> },
+    { id:"av9",  label:"Delfín",   svg:<AvatarSVG id="av9"  size={28}/> },
+    { id:"av10", label:"Águila",   svg:<AvatarSVG id="av10" size={28}/> },
   ];
 
   const btn = (onClick, children, s = {}) => (
@@ -2598,10 +2729,10 @@ const styles = `
 );
 
   const mitem = (icon, label, onClick, danger) => (
-    <div onClick={onClick} style={{ background:"#FEFAF5", borderRadius:13, padding:"13px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:7, cursor:"pointer" }}>
-      <div style={{ fontSize:18, width:34, height:34, background:C.warm, borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>{icon}</div>
-      <div style={{ fontSize:13, fontWeight:700, color:danger?C.red:C.text, flex:1 }}>{label}</div>
-      <div style={{ color:C.light }}>›</div>
+    <div onClick={onClick} style={{ background:"rgba(255,255,255,.028)", border:"1px solid rgba(255,255,255,.065)", borderRadius:14, padding:"13px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:7, cursor:"pointer", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", boxShadow:"0 1px 2px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06)" }}>
+      <div style={{ width:36, height:36, background:danger?"rgba(255,107,107,.12)":"rgba(255,123,90,.10)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{icon}</div>
+      <div style={{ fontSize:14, fontWeight:600, color:danger?C.red:C.text, flex:1, letterSpacing:"-0.01em" }}>{label}</div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
   );
 
@@ -2690,9 +2821,9 @@ const styles = `
 
   const bnav = (active) => {
   const tareasCount = tareasPsicologo.filter(t => !t.completada).length;
-  const AMB = "#E8A87C";
-  const AMB_DIM = "rgba(232,168,124,0.6)";
-  const AMB_BORDER = "rgba(232,168,124,0.18)";
+  const AMB = "#FFB347";
+  const AMB_DIM = "rgba(255,155,122,0.6)";
+  const AMB_BORDER = "rgba(255,155,122,0.18)";
   const isAct = (id) => active === id;
   const navItems = [
     { id:"home", lb:"Inicio",
@@ -2708,7 +2839,7 @@ const styles = `
   ];
   return (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200,
-      background:"#3D2E20",
+      background:"#0D0B1E",
       backdropFilter:"blur(28px)", WebkitBackdropFilter:"blur(28px)",
       borderTop:`0.5px solid ${AMB_BORDER}`,
       paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)",
@@ -2722,7 +2853,7 @@ const styles = `
 
       {navItems.map(({ id, lb, ico }) => {
         const act = isAct(id);
-        const color = act ? AMB : "rgba(196,132,90,0.28)";
+        const color = act ? AMB : "rgba(255,123,90,0.28)";
         return (
           <div key={id} onClick={() => {
             if(navigator.vibrate) navigator.vibrate([6,0,6]);
@@ -2752,14 +2883,14 @@ const styles = `
                 width: id==="habitos" ? 44 : 38,
                 height: id==="habitos" ? 32 : 30,
                 borderRadius: id==="habitos" ? 12 : 10,
-                background: act ? "rgba(232,168,124,0.13)" : "transparent",
-                border: act ? `1px solid rgba(232,168,124,0.32)` : "1px solid transparent",
+                background: act ? "rgba(255,155,122,0.13)" : "transparent",
+                border: act ? `1px solid rgba(255,155,122,0.32)` : "1px solid transparent",
                 display:"flex", alignItems:"center", justifyContent:"center",
                 transition:"all 0.25s",
                 overflow:"hidden", position:"relative",
               }}>
                 {/* Scan interno solo en activo */}
-                {act && <div className="nav-scan" style={{ position:"absolute", top:0, bottom:0, width:16, background:"linear-gradient(90deg,transparent,rgba(232,168,124,0.22),transparent)", pointerEvents:"none" }}/>}
+                {act && <div className="nav-scan" style={{ position:"absolute", top:0, bottom:0, width:16, background:"linear-gradient(90deg,transparent,rgba(255,155,122,0.22),transparent)", pointerEvents:"none" }}/>}
                 {ico(color)}
               </div>
               {/* Badge tareas */}
@@ -2775,7 +2906,7 @@ const styles = `
                 <div className="nav-dot-pulse-2" style={{ width:3, height:3, borderRadius:"50%", background:AMB, flexShrink:0 }}/>
               </div>
             ) : (
-              <span style={{ fontSize:8.5, fontWeight:400, color:"rgba(196,132,90,0.28)", transition:"all 0.2s" }}>{lb}</span>
+              <span style={{ fontSize:8.5, fontWeight:400, color:"rgba(255,123,90,0.28)", transition:"all 0.2s" }}>{lb}</span>
             )}
           </div>
         );
@@ -2786,8 +2917,8 @@ const styles = `
 
   const anav = (active) => {
   const isAdminNav = active === "admin-home" || active === "admin-psicologo" || active === "admin-pacientes" || active === "admin-pagos";
-  const AMB = "#E8A87C";
-  const AMB_DIM = "rgba(232,168,124,0.6)";
+  const AMB = "#FFB347";
+  const AMB_DIM = "rgba(255,155,122,0.6)";
   const navItems = isAdminNav
     ? [
         { id:"admin-home",      lb:"Dashboard",
@@ -2811,14 +2942,14 @@ const styles = `
       ];
   return (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200,
-      background:"#3D2E20",
+      background:"#0D0B1E",
       backdropFilter:"blur(28px)", WebkitBackdropFilter:"blur(28px)",
-      borderTop:"0.5px solid rgba(232,168,124,0.2)",
+      borderTop:"0.5px solid rgba(255,155,122,0.2)",
       paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)",
       paddingTop:10, paddingLeft:2, paddingRight:2,
       display:"flex", alignItems:"flex-end", overflow:"hidden",
     }}>
-      <div style={{ position:"absolute", top:0, left:0, right:0, height:"0.5px", background:"linear-gradient(90deg,transparent,rgba(232,168,124,0.2),transparent)" }}/>
+      <div style={{ position:"absolute", top:0, left:0, right:0, height:"0.5px", background:"linear-gradient(90deg,transparent,rgba(255,155,122,0.2),transparent)" }}/>
       {navItems.map(({ id, lb, ico }) => {
         const act = active === id;
         const c = act ? AMB : AMB_DIM;
@@ -2827,12 +2958,12 @@ const styles = `
             style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3, paddingBottom:4, cursor:"pointer", position:"relative" }}>
             {act && <div style={{ position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)", width:1, height:8, background:`linear-gradient(to bottom,transparent,${AMB})`, borderRadius:1 }}/>}
             <div style={{ width:38, height:30, borderRadius:10,
-              background: act ? "rgba(232,168,124,0.13)" : "transparent",
-              border: act ? "1px solid rgba(232,168,124,0.32)" : "1px solid transparent",
+              background: act ? "rgba(255,155,122,0.13)" : "transparent",
+              border: act ? "1px solid rgba(255,155,122,0.32)" : "1px solid transparent",
               display:"flex", alignItems:"center", justifyContent:"center",
               transition:"all 0.25s", overflow:"hidden", position:"relative",
             }}>
-              {act && <div className="nav-scan" style={{ position:"absolute", top:0, bottom:0, width:16, background:"linear-gradient(90deg,transparent,rgba(232,168,124,0.22),transparent)", pointerEvents:"none" }}/>}
+              {act && <div className="nav-scan" style={{ position:"absolute", top:0, bottom:0, width:16, background:"linear-gradient(90deg,transparent,rgba(255,155,122,0.22),transparent)", pointerEvents:"none" }}/>}
               {ico(c)}
             </div>
             {act ? (
@@ -2901,14 +3032,14 @@ const styles = `
         fontFamily:"system-ui", paddingTop:"env(safe-area-inset-top,0)", paddingBottom:"env(safe-area-inset-bottom,0)" }}>
         {/* Logo */}
         <div style={{ marginBottom:40, textAlign:"center" }}>
-          <div style={{ width:64,height:64,borderRadius:20,background:"rgba(196,132,90,0.12)",
-            border:"1px solid rgba(196,132,90,0.2)",display:"flex",alignItems:"center",
+          <div style={{ width:64,height:64,borderRadius:20,background:"rgba(255,123,90,0.12)",
+            border:"1px solid rgba(255,123,90,0.2)",display:"flex",alignItems:"center",
             justifyContent:"center",margin:"0 auto 14px" }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.5" strokeLinecap="round">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.5" strokeLinecap="round">
               <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/>
             </svg>
           </div>
-          <div style={{ fontSize:20, fontWeight:900, color:"#F5EDE0", letterSpacing:-0.3 }}>Mi Psicólogo</div>
+          <div style={{ fontSize:20, fontWeight:900, color:"#07060F", letterSpacing:-0.3 }}>Mi Psicólogo</div>
           <div style={{ fontSize:12, color:"rgba(245,237,224,0.4)", marginTop:5 }}>
             Hola, {usuarioActual.nombre?.split(" ")[0] || "de nuevo"}
           </div>
@@ -2917,14 +3048,14 @@ const styles = `
         {/* Botón huella — el toque directo activa WebAuthn */}
         <div onClick={desbloquear}
           style={{ width:96,height:96,borderRadius:32,
-            background:"rgba(196,132,90,0.08)",
-            border:"1.5px solid rgba(196,132,90,0.25)",
+            background:"rgba(255,123,90,0.08)",
+            border:"1.5px solid rgba(255,123,90,0.25)",
             display:"flex",flexDirection:"column",alignItems:"center",
             justifyContent:"center",gap:6,cursor:"pointer",
             marginBottom:14,WebkitTapHighlightColor:"transparent",
             transition:"all 0.15s",
             boxShadow:"0 8px 32px rgba(0,0,0,0.3)" }}>
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.4" strokeLinecap="round">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.4" strokeLinecap="round">
             <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/>
             <path d="M14 13.12c0 2.38 0 6.38-1 8.88"/>
             <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/>
@@ -2972,20 +3103,20 @@ const styles = `
       .loading-line { animation: expandLine 1.6s ease-in-out infinite; }
     `}</style>
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:18 }}>
-      <div style={{ fontSize:13, fontWeight:700, color:"#F5E6D0", letterSpacing:"2.5px", opacity:0.9 }}>MI PSICÓLOGO</div>
-      <div style={{ height:1.5, width:60, background:"rgba(232,168,124,0.15)", borderRadius:1, overflow:"hidden", position:"relative" }}>
-        <div className="loading-line" style={{ position:"absolute", left:0, top:0, height:"100%", background:"#E8A87C", borderRadius:1 }}/>
+      <div style={{ fontSize:13, fontWeight:700, color:"#F5EEE8", letterSpacing:"2.5px", opacity:0.9 }}>MI PSICÓLOGO</div>
+      <div style={{ height:1.5, width:60, background:"rgba(255,155,122,0.15)", borderRadius:1, overflow:"hidden", position:"relative" }}>
+        <div className="loading-line" style={{ position:"absolute", left:0, top:0, height:"100%", background:"#FFB347", borderRadius:1 }}/>
       </div>
     </div>
   </div>
 );
 
   return (
-    <div className={darkMode ? "dark-mode" : ""} style={{ fontFamily:"system-ui,sans-serif", background:darkMode?"#0F0E17":"#E8EDF0", position:"fixed", top:0, left:0, right:0, bottom:0, overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", transition:"background 0.3s", paddingTop:"env(safe-area-inset-top, 0px)" }}><style>{styles}</style>
-      
+    <div style={{ fontFamily:"system-ui,sans-serif", background:"radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%)", position:"fixed", top:0, left:0, right:0, bottom:0, overflow:"hidden", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", paddingTop:"env(safe-area-inset-top, 0px)" }}><style>{styles}</style>
+
       {/* CONTENEDOR PRINCIPAL */}
       <div
-        style={{ width:"100%", maxWidth:430, height:"100%", background:C.cream, overflow:"hidden", position:"relative", margin:"0 auto", transition:"background 0.3s" }}
+        style={{ width:"100%", maxWidth:430, height:"100%", background:"#07060F", overflow:"hidden", position:"relative", margin:"0 auto" }}
         onTouchStart={e => {
           const t = e.touches[0];
           window._swipeStartX = t.clientX;
@@ -3034,25 +3165,29 @@ const styles = `
           {/* NOTIFICACIÓN INTERACTIVA DE CITA */}
         {notifCitaActiva && (
           <div style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:12, right:12, zIndex:900, animation:"slideDown 0.35s cubic-bezier(0.34,1.56,0.64,1) both" }}>
-            <div style={{ background:"linear-gradient(135deg,#1A1230,#2A1848)", borderRadius:18, padding:"14px 16px", boxShadow:"0 8px 32px rgba(0,0,0,0.4)", border:"1px solid rgba(196,132,90,0.3)" }}>
+            <div style={{ background:"rgba(13,11,30,.95)", backdropFilter:"blur(32px)", WebkitBackdropFilter:"blur(32px)", borderRadius:18, padding:"14px 16px", boxShadow:"0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,123,90,.20)", border:"1px solid rgba(255,255,255,.08)" }}>
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-                <div style={{ width:44, height:44, borderRadius:12, background:"rgba(196,132,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>📅</div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:13, fontWeight:800, color:"white", marginBottom:2 }}>{notifCitaActiva.titulo}</div>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", lineHeight:1.4 }}>{notifCitaActiva.mensaje}</div>
+                <div style={{ width:44, height:44, borderRadius:12, background:"rgba(255,123,90,.15)", border:"1px solid rgba(255,123,90,.25)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 </div>
-                <div onClick={() => setNotifCitaActiva(null)} style={{ fontSize:18, color:"rgba(255,255,255,0.4)", cursor:"pointer", flexShrink:0, padding:4 }}>✕</div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:2, letterSpacing:"-0.01em" }}>{notifCitaActiva.titulo}</div>
+                  <div style={{ fontSize:11, color:C.light, lineHeight:1.5 }}>{notifCitaActiva.mensaje}</div>
+                </div>
+                <div onClick={() => setNotifCitaActiva(null)} style={{ width:28, height:28, borderRadius:8, background:"rgba(255,255,255,.06)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </div>
               </div>
               <div style={{ display:"flex", gap:8, marginTop:12 }}>
                 {notifCitaActiva.link && (
                   <a href={notifCitaActiva.link} target="_blank" rel="noreferrer"
                     onClick={() => setNotifCitaActiva(null)}
-                    style={{ flex:2, display:"block", padding:"10px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:11, fontSize:12, fontWeight:800, textAlign:"center", textDecoration:"none" }}>
-                    🔗 Abrir sesión ahora
+                    style={{ flex:2, display:"block", padding:"11px 0", background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", color:"white", borderRadius:11, fontSize:12, fontWeight:700, textAlign:"center", textDecoration:"none", boxShadow:"0 2px 8px rgba(255,90,54,.3)" }}>
+                    Abrir sesión ahora
                   </a>
                 )}
                 <div onClick={() => { showScreen("calendario"); setNotifCitaActiva(null); }}
-                  style={{ flex:1, padding:"10px 0", background:"rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.7)", borderRadius:11, fontSize:12, fontWeight:700, textAlign:"center", cursor:"pointer" }}>
+                  style={{ flex:1, padding:"11px 0", background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,.08)", color:C.text, borderRadius:11, fontSize:12, fontWeight:600, textAlign:"center", cursor:"pointer" }}>
                   Ver cita
                 </div>
               </div>
@@ -3065,9 +3200,12 @@ const styles = `
               {confettiItems.map(c => (
                 <div key={c.id} className="confetti-piece" style={{ left:`${c.x}%`, top:0, width:c.size, height:c.size*1.5, background:c.color, animationDelay:`${c.delay}s` }}/>
               ))}
-              <div style={{ position:"absolute", top:"40%", left:"50%", textAlign:"center", animation:"celebFadeOut 1.4s ease forwards" }}>
-                <div style={{ fontSize:60 }}>🎉</div>
-                <div style={{ fontSize:18, fontWeight:900, color:"white", textShadow:"0 2px 10px rgba(0,0,0,0.5)", marginTop:8 }}>¡Tarea completada!</div>
+              <div style={{ position:"absolute", top:"40%", left:"50%", textAlign:"center", transform:"translateX(-50%)", animation:"celebFadeOut 1.4s ease forwards" }}>
+                <svg width="64" height="64" viewBox="0 0 64 64" style={{ filter:"drop-shadow(0 0 16px rgba(255,208,128,.6))" }}>
+                  <circle cx="32" cy="32" r="28" fill="rgba(255,208,128,.15)" stroke="#FFD080" strokeWidth="1.5"/>
+                  <path d="M20 32 L28 40 L44 24" stroke="#FFD080" strokeWidth="3.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <div style={{ fontSize:18, fontWeight:800, color:C.text, letterSpacing:"-0.02em", marginTop:10 }}>¡Tarea completada!</div>
               </div>
             </div>
           )}
@@ -3082,13 +3220,13 @@ const styles = `
               <div onClick={() => { setHabitosPacienteId(usuarioActual.uid); setScreenHabitos(true); }}
                 style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:12, right:12, zIndex:200,
                   background:"linear-gradient(135deg,#2A1E14,#3A2A1C)", borderRadius:16, padding:"12px 16px",
-                  border:"0.5px solid rgba(196,132,90,0.25)", cursor:"pointer", display:"flex", alignItems:"center", gap:12,
+                  border:"0.5px solid rgba(255,123,90,0.25)", cursor:"pointer", display:"flex", alignItems:"center", gap:12,
                   animation:"slideDown 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}>
-                <div style={{ width:36, height:36, borderRadius:10, background:"rgba(196,132,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+                <div style={{ width:36, height:36, borderRadius:10, background:"rgba(255,123,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:12, fontWeight:700, color:"#F5E6D0" }}>Registra tus hábitos de hoy</div>
+                  <div style={{ fontSize:12, fontWeight:700, color:"#F5EEE8" }}>Registra tus hábitos de hoy</div>
                   <div style={{ fontSize:10, color:"rgba(245,230,208,0.5)", marginTop:1 }}>{pendientes} hábito{pendientes!==1?"s":""} pendiente{pendientes!==1?"s":""}</div>
                 </div>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.3)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
@@ -3101,9 +3239,9 @@ const styles = `
               <div style={{ background:C.cardBg, borderRadius:28, padding:"28px 24px", width:"100%", animation:"checkInIn 0.4s cubic-bezier(0.34,1.56,0.64,1)" }}>
                 <div style={{ display:"flex", justifyContent:"center", marginBottom:12 }}>
                   <svg width="48" height="48" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 22 C8 16, 14 16, 18 22 C22 28, 28 28, 32 22 C36 16, 40 18, 42 22" stroke="#C4845A" strokeWidth="2.5" strokeLinecap="round"/>
-                    <path d="M4 30 C8 24, 14 24, 18 30 C22 36, 28 36, 32 30 C36 24, 40 26, 42 30" stroke="#E8A87C" strokeWidth="1.8" strokeLinecap="round" opacity=".5"/>
-                    <path d="M4 14 C8 8, 14 8, 18 14 C22 20, 28 20, 32 14 C36 8, 40 10, 42 14" stroke="#E8A87C" strokeWidth="1.8" strokeLinecap="round" opacity=".35"/>
+                    <path d="M4 22 C8 16, 14 16, 18 22 C22 28, 28 28, 32 22 C36 16, 40 18, 42 22" stroke="#FF7B5A" strokeWidth="2.5" strokeLinecap="round"/>
+                    <path d="M4 30 C8 24, 14 24, 18 30 C22 36, 28 36, 32 30 C36 24, 40 26, 42 30" stroke="#FFB347" strokeWidth="1.8" strokeLinecap="round" opacity=".5"/>
+                    <path d="M4 14 C8 8, 14 8, 18 14 C22 20, 28 20, 32 14 C36 8, 40 10, 42 14" stroke="#FFB347" strokeWidth="1.8" strokeLinecap="round" opacity=".35"/>
                   </svg>
                 </div>
                 <div style={{ fontSize:20, fontWeight:900, color:C.text, textAlign:"center", marginBottom:4 }}>¿Cómo te sientes hoy?</div>
@@ -3129,10 +3267,10 @@ const styles = `
             // Recargar siempre que se abre el panel
             if (usuarioActual?.uid) cargarNotificaciones(usuarioActual.uid);
             return (
-            <div style={{ height:"100%", display:"flex", flexDirection:"column", background:darkMode?"#0F0E17":"#F5EDE0" }}>
+            <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#07060F" }}>
               {/* HEADER */}
-              <div style={{ background:darkMode?"#1A1208":"#FEFAF5", padding:"16px 18px", borderBottom:`0.5px solid rgba(196,132,90,0.12)`, display:"flex", alignItems:"center", gap:10, paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
-                <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(196,132,90,0.08)", flexShrink:0 }}>
+              <div style={{ background:"rgba(7,6,15,.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px", borderBottom:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:10, paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
+                <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,.06)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
@@ -3141,7 +3279,7 @@ const styles = `
                     {unread > 0 ? `${unread} sin leer` : "Todo al día"}
                   </div>
                 </div>
-                {unread > 0 && btn(markAllRead, "Leer todas", { fontSize:11, fontWeight:700, color:C.plum, background:`${C.plum}12`, padding:"6px 12px", borderRadius:20 })}
+                {unread > 0 && btn(markAllRead, "Leer todas", { fontSize:11, fontWeight:600, color:C.plum, background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.20)", padding:"6px 14px", borderRadius:20 })}
               </div>
 
               {/* LISTA */}
@@ -3180,11 +3318,11 @@ const styles = `
                       showScreen("calendario");
                     }
                   }}
-                    style={{ background:n.read?(darkMode?"#1A1208":"white"):(darkMode?"#2A1848":"#F5F0FB"), borderRadius:16, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.read?"rgba(196,132,90,0.08)":"rgba(139,90,58,0.15)"}`, display:"flex", gap:12, alignItems:"flex-start", cursor:"pointer", position:"relative", overflow:"hidden", transition:"all 0.15s", animation:`fadeIn 0.2s ease ${i * 0.03}s both` }}>
+                    style={{ background:n.read?"rgba(255,255,255,.020)":"rgba(255,123,90,.05)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderRadius:16, padding:"13px 14px", marginBottom:8, border:`1px solid ${n.read?"rgba(255,255,255,.05)":"rgba(255,123,90,.15)"}`, display:"flex", gap:12, alignItems:"flex-start", cursor:"pointer", position:"relative", overflow:"hidden", transition:"all 0.15s", animation:`fadeIn 0.2s ease ${i * 0.03}s both` }}>
                     {/* Barra lateral de color según tipo */}
-                    <div style={{ position:"absolute", left:0, top:0, bottom:0, width:3, borderRadius:"16px 0 0 16px", background:n.read?"transparent": n.tipo==="demora"?C.amber : n.tipo==="cita_nueva"||n.tipo==="recordatorio_cita"?"#5A7A9A" : n.tipo==="tarea_completada"?C.green : C.plum }}/>
+                    <div style={{ position:"absolute", left:0, top:0, bottom:0, width:3, borderRadius:"16px 0 0 16px", background:n.read?"transparent": n.tipo==="demora"?C.amber : n.tipo==="cita_nueva"||n.tipo==="recordatorio_cita"?C.sage : n.tipo==="tarea_completada"?C.green : C.plum }}/>
                     {/* Ícono */}
-                    <div style={{ width:42, height:42, borderRadius:13, background:n.read?(darkMode?"rgba(196,132,90,0.08)":C.warm):(darkMode?"rgba(139,90,200,0.2)":"#EDE8F5"), display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, marginLeft:6 }}>{n.icon}</div>
+                    <div style={{ width:42, height:42, borderRadius:13, background:n.read?"rgba(255,255,255,.06)":"rgba(255,123,90,.12)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, marginLeft:6 }}>{n.icon}</div>
                     {/* Contenido */}
                     <div style={{ flex:1, minWidth:0 }}>
                       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:3 }}>
@@ -3325,62 +3463,78 @@ const styles = `
 )}
 {/* REGISTRO */}
 {!notifPanel && screen === "registro" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, background:`linear-gradient(160deg,${C.cream} 0%,#EDE8F5 100%)` }}>
-    
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 24px", background:"radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%)", overflowY:"auto" }}>
+
     {/* LOGO */}
-    <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
-                    <LucideIcon name="brain" color={C.plum} size={48}/>
-                  </div>
-    <div style={{ fontSize:20, fontWeight:700, color:C.plum, marginBottom:4 }}>Crear cuenta</div>
-    <div style={{ fontSize:13, color:C.light, marginBottom:32 }}>Únete a Mi Psicólogo</div>
+    <div style={{ marginBottom:16 }}>
+      <svg width="56" height="56" viewBox="0 0 200 200">
+        <g fill="rgba(255,255,255,.82)">
+          <polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/>
+          <polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/>
+          <polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/>
+          <polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/>
+        </g>
+        <polygon points="120,50 138,60 138,80 120,90 102,80 102,60"   fill="#FF7B5A"/>
+        <polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/>
+        <polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/>
+        <polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/>
+        <polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
+      </svg>
+    </div>
+    <div style={{ fontSize:22, fontWeight:700, letterSpacing:"-0.02em", marginBottom:4, background:"linear-gradient(135deg,#FF9B7A,#FFD080,#6EEDDF)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>Crear cuenta</div>
+    <div style={{ fontSize:13, color:C.light, marginBottom:28 }}>Únete a Mi Psicólogo</div>
 
     {/* FORMULARIO */}
-    <div style={{ width:"100%", background:"rgba(255,255,255,0.07)", border:"1px solid rgba(232,168,124,0.1)", borderRadius:22, padding:24 }}>
+    <div style={{ width:"100%", background:"rgba(255,255,255,.028)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:22, padding:24, boxShadow:"0 1px 2px rgba(0,0,0,.4), 0 8px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)" }}>
 
       {/* NOMBRE */}
-      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Nombre completo</div>
+      <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6, letterSpacing:"0.08em", textTransform:"uppercase" }}>Nombre completo</div>
       <input
         type="text"
         placeholder="Tu nombre"
         value={regNombre}
         onChange={e => setRegNombre(e.target.value)}
-        style={{ width:"100%", padding:"11px 14px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:12, fontSize:14, marginBottom:16, outline:"none", boxSizing:"border-box" }}
+        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
       />
 
       {/* CORREO */}
-      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>Correo electrónico</div>
+      <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6, letterSpacing:"0.08em", textTransform:"uppercase" }}>Correo electrónico</div>
       <input
         type="email"
-        placeholder="Tu correo"
+        placeholder="tu@correo.com"
         value={regEmail}
         onChange={e => setRegEmail(e.target.value)}
-        style={{ width:"100%", padding:"11px 14px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:12, fontSize:14, marginBottom:16, outline:"none", boxSizing:"border-box" }}
+        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
       />
 
       {/* PIN */}
-      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:6 }}>PIN de acceso</div>
+      <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:10, letterSpacing:"0.08em", textTransform:"uppercase" }}>PIN de acceso</div>
       <div style={{ display:"flex", justifyContent:"center", gap:16, marginBottom:8 }}>
         {[0,1,2,3].map(i => (
-          <div key={i} style={{ width:18, height:18, borderRadius:"50%", background: regPin && regPin.length > i ? C.plum : "transparent", border:`2.5px solid ${C.plum}` }}/>
+          <div key={i} style={{ width:16, height:16, borderRadius:"50%", background: regPin && regPin.length > i ? C.plum : "transparent", border:`2px solid ${regPin && regPin.length > i ? C.plum : "rgba(255,255,255,.20)"}`, transition:"all 0.2s ease" }}/>
         ))}
       </div>
       <input
         type="password"
-        placeholder="PIN"
+        placeholder="4 dígitos"
         inputMode="numeric"
         maxLength={4}
         value={regPin}
         onChange={e => setRegPin(e.target.value)}
-        style={{ width:"100%", padding:"11px 14px", border:`2px solid rgba(0,0,0,0.08)`, borderRadius:12, fontSize:14, marginBottom:16, outline:"none", boxSizing:"border-box" }}
+        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
       />
 
       {/* ROL */}
-      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:10 }}>Soy...</div>
+      <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:10, letterSpacing:"0.08em", textTransform:"uppercase" }}>Soy...</div>
       <div style={{ display:"flex", gap:10, marginBottom:24 }}>
-        {[["paciente","👤","Paciente"],["psicologo","🧠","Psicólogo"]].map(([val,ic,lb]) => (
-          <div key={val} onClick={() => setRegRol(val)} style={{ flex:1, padding:"12px 0", borderRadius:14, textAlign:"center", cursor:"pointer", border:`2px solid ${regRol===val ? C.plum : "rgba(0,0,0,0.08)"}`, background:regRol===val ? `${C.plum}15` : "white" }}>
-            <div style={{ fontSize:24 }}>{ic}</div>
-            <div style={{ fontSize:12, fontWeight:800, color:regRol===val ? C.plum : C.light }}>{lb}</div>
+        {[["paciente","Paciente","user"],["psicologo","Psicólogo","brain"]].map(([val,lb,ic]) => (
+          <div key={val} onClick={() => setRegRol(val)} style={{ flex:1, padding:"14px 0", borderRadius:14, textAlign:"center", cursor:"pointer", border:`1px solid ${regRol===val ? C.plum : "rgba(255,255,255,.08)"}`, background:regRol===val ? "rgba(255,123,90,.10)" : "rgba(255,255,255,.02)", transition:"all 0.2s ease" }}>
+            <div style={{ display:"flex", justifyContent:"center", marginBottom:6 }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={regRol===val ? C.plum : C.light} strokeWidth="1.75" strokeLinecap="round">
+                {ic === "user" ? <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></> : <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>}
+              </svg>
+            </div>
+            <div style={{ fontSize:12, fontWeight:700, color:regRol===val ? C.plum : C.light }}>{lb}</div>
           </div>
         ))}
       </div>
@@ -3388,7 +3542,7 @@ const styles = `
       {/* BOTÓN */}
       <button
         onClick={handleRegister}
-        style={{ width:"100%", padding:11, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:700, border:"none", cursor:"pointer" }}
+        style={{ width:"100%", height:50, background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", color:"white", borderRadius:14, fontSize:15, fontWeight:700, border:"none", cursor:"pointer", fontFamily:"inherit", letterSpacing:"-0.01em", boxShadow:"0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(255,90,54,.35)", touchAction:"manipulation" }}
       >
         Crear cuenta
       </button>
@@ -3407,56 +3561,56 @@ const styles = `
 
           {/* HOME */}
           {!notifPanel && screen === "home" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:darkMode?"#0F0E17":"#F5F0EB" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#07060F" }}>
 
               {/* HEADER */}
-              <div style={{ background:"#3D2E20", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative" }}>
-                <div style={{ position:"absolute", top:0, left:0, right:0, height:"0.5px", background:"linear-gradient(90deg,transparent,rgba(232,168,124,0.35),transparent)" }}/>
+              <div style={{ background:"linear-gradient(180deg,#1A0D28 0%,#0D0B1E 100%)", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative", borderBottom:"1px solid rgba(255,255,255,.06)" }}>
+                <div style={{ position:"absolute", top:0, left:0, right:0, height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),rgba(255,179,71,.2),transparent)" }}/>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <div>
-                    <div style={{ fontSize:9, color:"rgba(232,168,124,0.75)", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:7 }}>
+                    <div style={{ fontSize:9, color:"rgba(255,179,71,0.65)", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:7, fontWeight:700 }}>
                       {new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}
                     </div>
-                    <div style={{ fontSize:12, color:"rgba(245,230,208,0.8)", fontWeight:400, lineHeight:1 }}>{(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días," : h < 18 ? "Buenas tardes," : "Buenas noches,"; })()}</div>
-                    <div style={{ fontSize:26, color:"#FFF8EE", fontWeight:700, marginTop:2, letterSpacing:"-0.5px", lineHeight:1.1 }}>
+                    <div style={{ fontSize:12, color:"rgba(245,238,232,0.55)", fontWeight:400, lineHeight:1 }}>{(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días," : h < 18 ? "Buenas tardes," : "Buenas noches,"; })()}</div>
+                    <div style={{ fontSize:26, color:C.text, fontWeight:700, marginTop:2, letterSpacing:"-0.025em", lineHeight:1.1 }}>
                       {usuarioActual?.nombre?.split(" ")[0] || "Bienvenido"}
                     </div>
                     {(usuarioActual?.racha || 0) > 0 && (
-                      <div style={{ display:"inline-flex", alignItems:"center", gap:4, background:"rgba(232,168,124,0.1)", border:"0.5px solid rgba(232,168,124,0.2)", borderRadius:20, padding:"3px 9px", marginTop:6 }}>
-                        <div style={{ width:5, height:5, borderRadius:"50%", background:"#E8A87C" }}/>
-                        <span style={{ fontSize:9, color:"#E8A87C", fontWeight:700 }}>{usuarioActual.racha} día{usuarioActual.racha !== 1 ? "s" : ""} de racha</span>
+                      <div style={{ display:"inline-flex", alignItems:"center", gap:5, background:"rgba(255,179,71,.08)", border:"1px solid rgba(255,179,71,.18)", borderRadius:20, padding:"3px 10px", marginTop:6 }}>
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="#FFB347"><circle cx="12" cy="12" r="10"/></svg>
+                        <span style={{ fontSize:9, color:"#FFB347", fontWeight:700 }}>{usuarioActual.racha} día{usuarioActual.racha !== 1 ? "s" : ""} de racha</span>
                       </div>
                     )}
                   </div>
                   <div style={{ display:"flex", gap:8, alignItems:"center", marginTop:4 }}>
-                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:34, height:34, background:"rgba(232,168,124,0.08)", borderRadius:10, border:"0.5px solid rgba(232,168,124,0.15)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.75)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                      {unread > 0 && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"white" }}>{unread}</div>}
+                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(255,255,255,.06)", borderRadius:10, border:"1px solid rgba(255,255,255,.08)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(245,238,232,0.65)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                      {unread > 0 && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, background:C.plum, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"white" }}>{unread}</div>}
                     </div>
-                    <div onClick={() => showScreen("perfil")} style={{ width:34, height:34, background:"rgba(196,132,90,0.2)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, border:"0.5px solid rgba(232,168,124,0.25)", cursor:"pointer", overflow:"hidden" }}>
-                      {avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar}
+                    <div onClick={() => showScreen("perfil")} style={{ width:36, height:36, background:"rgba(255,123,90,.12)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", border:"1px solid rgba(255,123,90,.20)", cursor:"pointer", overflow:"hidden" }}>
+                      {avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : <AvatarSVG id="av1" size={22}/>}
                     </div>
                   </div>
                 </div>
 
                 {/* BARRA XP */}
                 <div onClick={() => showScreen("logros")} style={{ display:"flex", alignItems:"center", gap:10, marginTop:14, cursor:"pointer" }}>
-                  <div style={{ flex:1, height:2.5, background:"rgba(255,255,255,0.07)", borderRadius:2, overflow:"hidden" }}>
-                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:"linear-gradient(90deg,#8B5A3A,#C4845A,#E8A87C)", borderRadius:2, transition:"width 0.5s ease" }}/>
+                  <div style={{ flex:1, height:3, background:"rgba(255,255,255,0.06)", borderRadius:2, overflow:"hidden" }}>
+                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:"linear-gradient(90deg,#FF7B5A,#FFB347,#FFD080)", borderRadius:2, transition:"width 0.5s ease", boxShadow:"0 0 8px rgba(255,208,128,.4)" }}/>
                   </div>
-                  <span style={{ fontSize:9, color:"rgba(232,168,124,0.72)", whiteSpace:"nowrap", letterSpacing:"0.5px" }}>◆ {xp} XP</span>
+                  <span style={{ fontSize:9, color:"rgba(255,208,128,0.65)", whiteSpace:"nowrap", letterSpacing:"0.5px", fontWeight:600 }}>◆ {xp} XP</span>
                 </div>
               </div>
 
               {/* PRÓXIMA CITA */}
               <div style={{ padding:"0 14px", marginTop:-24, position:"relative", zIndex:10 }}>
                 {citas.length === 0 ? (
-                  <div style={{ background:darkMode?"#2A2018":"#2A2018", border:"0.5px solid rgba(232,168,124,0.12)", borderRadius:16, padding:14, textAlign:"center", marginBottom:12 }}>
-                    <div style={{ width:36, height:36, background:"rgba(196,132,90,0.15)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 8px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <div style={{ background:"rgba(255,255,255,.028)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:16, padding:14, textAlign:"center", marginBottom:12, boxShadow:"0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2)" }}>
+                    <div style={{ width:36, height:36, background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.18)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 8px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     </div>
-                    <div style={{ fontSize:12, fontWeight:600, color:"#F5E6D0" }}>Sin citas agendadas</div>
-                    <div style={{ fontSize:11, color:"rgba(245,230,208,0.4)", marginTop:3 }}>Tu psicólogo agendará tu próxima sesión</div>
+                    <div style={{ fontSize:12, fontWeight:600, color:C.text }}>Sin citas agendadas</div>
+                    <div style={{ fontSize:11, color:C.light, marginTop:3 }}>Tu psicólogo agendará tu próxima sesión</div>
                   </div>
                 ) : (
                   (() => {
@@ -3466,58 +3620,58 @@ const styles = `
                       .sort((a,b) => fechaOrden(a) - fechaOrden(b))[0];
                     if (!proxima) return null;
                     return (
-                      <div style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.15)", borderRadius:16, padding:14, marginBottom:12, overflow:"hidden", position:"relative" }}>
-                        <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,#C4845A,transparent)", opacity:0.6 }}/>
+                      <div style={{ background:"rgba(255,255,255,.028)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:16, padding:14, marginBottom:12, overflow:"hidden", position:"relative", boxShadow:"0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08)" }}>
+                        <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,#FF7B5A,#FFB347,transparent)" }}/>
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-                          <span style={{ fontSize:10, fontWeight:600, color:"rgba(232,168,124,0.55)", letterSpacing:0.8, textTransform:"uppercase" }}>Próxima cita</span>
+                          <span style={{ fontSize:10, fontWeight:700, color:"rgba(255,179,71,0.65)", letterSpacing:"0.12em", textTransform:"uppercase" }}>Próxima cita</span>
                           <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                             {(() => {
                               const diff = fechaOrden(proxima) - new Date().getTime();
-                              if (diff <= 0) return <span style={{ fontSize:10, fontWeight:700, color:"#E8A87C" }}>¡Es ahora!</span>;
+                              if (diff <= 0) return <span style={{ fontSize:10, fontWeight:700, color:C.plum }}>¡Es ahora!</span>;
                               const dias = Math.floor(diff / 86400000);
                               const horas = Math.floor((diff % 86400000) / 3600000);
                               const mins = Math.floor((diff % 3600000) / 60000);
                               return (
-                                <span style={{ fontSize:10, fontWeight:700, color:"rgba(232,168,124,0.7)", background:"rgba(232,168,124,0.08)", padding:"3px 8px", borderRadius:20 }}>
+                                <span style={{ fontSize:10, fontWeight:600, color:C.amber, background:"rgba(255,179,71,.08)", border:"1px solid rgba(255,179,71,.15)", padding:"3px 8px", borderRadius:20 }}>
                                   {dias > 0 ? `En ${dias}d ${horas}h` : horas > 0 ? `En ${horas}h ${mins}m` : `En ${mins} min`}
                                 </span>
                               );
                             })()}
-                            <div style={{ background:proxima.status==="confirmada"?"rgba(125,170,146,0.18)":"rgba(232,168,124,0.15)", color:proxima.status==="confirmada"?"#7DAA92":"#E8A87C", fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20 }}>
-                              {proxima.status==="confirmada"?"✅ Confirmada":"⏳ Pendiente"}
+                            <div style={{ background:proxima.status==="confirmada"?"rgba(78,205,196,.12)":"rgba(255,179,71,.10)", color:proxima.status==="confirmada"?C.sage:C.amber, fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20, border:`1px solid ${proxima.status==="confirmada"?"rgba(78,205,196,.20)":"rgba(255,179,71,.18)"}` }}>
+                              {proxima.status==="confirmada"?"Confirmada":"Pendiente"}
                             </div>
                           </div>
                         </div>
                         <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-                          <div style={{ background:"#C4845A", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:44 }}>
+                          <div style={{ background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:44, boxShadow:"0 2px 8px rgba(255,90,54,.3)" }}>
                             <div style={{ fontSize:16, fontWeight:700, color:"white", lineHeight:1 }}>
                               {mostrarFechaLocal(proxima, "dia")}
                             </div>
-                            <div style={{ fontSize:8, color:"rgba(255,255,255,0.75)", fontWeight:600, textTransform:"uppercase" }}>
+                            <div style={{ fontSize:8, color:"rgba(255,255,255,0.80)", fontWeight:600, textTransform:"uppercase" }}>
                               {mostrarFechaLocal(proxima, "mes")}
                             </div>
                           </div>
                           <div style={{ flex:1 }}>
-                            <div style={{ fontSize:13, fontWeight:600, color:"#F5E6D0" }}>Sesión con {proxima.psicologoNombre}</div>
-                            <div style={{ fontSize:11, color:"rgba(245,230,208,0.45)", marginTop:3 }}>{mostrarFechaLocal(proxima, "hora")} · {proxima.modalidad==="virtual"?"Virtual":"Presencial"}</div>
+                            <div style={{ fontSize:13, fontWeight:600, color:C.text, letterSpacing:"-0.01em" }}>Sesión con {proxima.psicologoNombre}</div>
+                            <div style={{ fontSize:11, color:C.light, marginTop:3 }}>{mostrarFechaLocal(proxima, "hora")} · {proxima.modalidad==="virtual"?"Virtual":"Presencial"}</div>
                           </div>
                         </div>
                         {proxima.modalidad==="virtual" && proxima.link && (
                           <a href={proxima.link.startsWith("http") ? proxima.link : `https://${proxima.link}`} target="_blank" rel="noreferrer"
-                            style={{ display:"block", padding:"10px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:12, fontSize:12, fontWeight:800, textAlign:"center", textDecoration:"none", marginBottom:10 }}>
-                            🎥 Unirse a la sesión
+                            style={{ display:"block", padding:"11px 0", background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", color:"white", borderRadius:12, fontSize:12, fontWeight:700, textAlign:"center", textDecoration:"none", marginBottom:10, boxShadow:"0 2px 8px rgba(255,90,54,.35)" }}>
+                            Unirse a la sesión
                           </a>
                         )}
                         {proxima.status === "pendiente" && (
                           <div style={{ display:"flex", gap:8 }}>
-                            {btn(() => { setCitaSeleccionada(proxima); setModal("confirmar-cita"); }, "✓ Confirmar asistencia", { flex:1, padding:"9px 0", borderRadius:10, background:C.green, color:"white", fontWeight:800, fontSize:12 })}
+                            {btn(() => { setCitaSeleccionada(proxima); setModal("confirmar-cita"); }, "Confirmar asistencia", { flex:1, padding:"9px 0", borderRadius:10, background:"linear-gradient(135deg,#6AEDE4,#28B0A8)", color:"white", fontWeight:700, fontSize:12, boxShadow:"0 2px 8px rgba(40,176,168,.3)" })}
                           </div>
                         )}
                         {proxima.status === "confirmada" && (
                           <div onClick={() => { setCitaSeleccionada(proxima); setRetrasoTexto(""); setRetrasoMinutos(10); setModal("demora-aviso"); }}
-                            style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"9px 0", borderRadius:10, background:"#FFE5E5", border:"1px solid rgba(192,82,74,0.2)", cursor:"pointer", marginBottom:8 }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C0524A" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            <span style={{ fontSize:12, fontWeight:800, color:"#C0524A" }}>🔴 Voy tarde</span>
+                            style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"9px 0", borderRadius:10, background:"rgba(255,107,107,.08)", border:"1px solid rgba(255,107,107,.20)", cursor:"pointer", marginBottom:8 }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span style={{ fontSize:12, fontWeight:700, color:C.red }}>Voy tarde</span>
                           </div>
                         )}
                         {btn(() => showScreen("calendario"), "Ver todas mis citas →", { width:"100%", padding:"9px 0", borderRadius:10, background:C.warm, color:C.plum, fontWeight:800, fontSize:12 })}
@@ -3551,26 +3705,26 @@ const styles = `
                       <ellipse cx="36" cy="57" rx="22" ry="4" fill="rgba(0,0,0,0.35)"/>
                       <rect x="10" y="8" width="11" height="44" rx="2" fill="url(#lomoGrad)"/>
                       <rect x="20" y="6" width="38" height="46" rx="2" fill="url(#portadaGrad)"/>
-                      <path d="M20 6 L10 8 L10 11 L20 9 Z" fill="#4A2008"/>
-                      <path d="M20 6 L58 6 L58 9 L20 9 Z" fill="#C8762A"/>
-                      <rect x="56" y="8" width="4" height="42" rx="1" fill="#F0E8D4"/>
+                      <path d="M20 6 L10 8 L10 11 L20 9 Z" fill="#D04428"/>
+                      <path d="M20 6 L58 6 L58 9 L20 9 Z" fill="#FF9B7A"/>
+                      <rect x="56" y="8" width="4" height="42" rx="1" fill="rgba(255,255,255,.15)"/>
                       {[14,19,24,29,34,39,44].map((y,i) => (
-                        <line key={i} x1="57" y1={y} x2="59" y2={y} stroke="rgba(180,150,100,0.4)" strokeWidth="0.5"/>
+                        <line key={i} x1="57" y1={y} x2="59" y2={y} stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
                       ))}
-                      <rect x="21" y="7" width="12" height="44" fill="url(#brilloGrad)" rx="1" opacity="0.25"/>
+                      <rect x="21" y="7" width="12" height="44" fill="url(#brilloGrad)" rx="1" opacity="0.20"/>
                       {[18,24,30,36,42].map((y,i) => (
-                        <line key={i} x1="26" y1={y} x2="52" y2={y} stroke="rgba(255,255,255,0.12)" strokeWidth="1"/>
+                        <line key={i} x1="26" y1={y} x2="52" y2={y} stroke="rgba(255,255,255,0.10)" strokeWidth="1"/>
                       ))}
-                      <rect x="46" y="5" width="4" height="14" rx="1" fill="#E8A87C" opacity="0.85"/>
-                      <path d="M46 18 L48 22 L50 18 Z" fill="#E8A87C" opacity="0.85"/>
-                      <rect x="26" y="12" width="24" height="2.5" rx="1" fill="rgba(255,255,255,0.2)"/>
-                      <rect x="29" y="17" width="18" height="1.5" rx="0.75" fill="rgba(255,255,255,0.12)"/>
+                      <rect x="46" y="5" width="4" height="14" rx="1" fill="#FFD080" opacity="0.90"/>
+                      <path d="M46 18 L48 22 L50 18 Z" fill="#FFD080" opacity="0.90"/>
+                      <rect x="26" y="12" width="24" height="2.5" rx="1" fill="rgba(255,255,255,0.25)"/>
+                      <rect x="29" y="17" width="18" height="1.5" rx="0.75" fill="rgba(255,255,255,0.15)"/>
                       <defs>
                         <linearGradient id="lomoGrad" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#3A1A06"/><stop offset="100%" stopColor="#6B3010"/>
+                          <stop offset="0%" stopColor="#D04428"/><stop offset="100%" stopColor="#FF7B5A"/>
                         </linearGradient>
                         <linearGradient id="portadaGrad" x1="0" y1="0" x2="1" y2="1">
-                          <stop offset="0%" stopColor="#8B4A14"/><stop offset="50%" stopColor="#7A3D10"/><stop offset="100%" stopColor="#5C2E08"/>
+                          <stop offset="0%" stopColor="#FF8B6A"/><stop offset="50%" stopColor="#FF6040"/><stop offset="100%" stopColor="#D04428"/>
                         </linearGradient>
                         <linearGradient id="brilloGrad" x1="0" y1="0" x2="1" y2="0">
                           <stop offset="0%" stopColor="white" stopOpacity="1"/><stop offset="100%" stopColor="white" stopOpacity="0"/>
@@ -3579,9 +3733,9 @@ const styles = `
                     </svg>
                     {usuarioActual?.diarioBiometria && (
                       <div style={{ position:"absolute", top:0, right:0, width:14, height:14, borderRadius:"50%",
-                        background:"#3D2E20", border:"1px solid rgba(196,132,90,0.4)",
+                        background:"#0D0B1E", border:"1px solid rgba(255,123,90,0.4)",
                         display:"flex", alignItems:"center", justifyContent:"center" }}>
-                        <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="3" strokeLinecap="round">
+                        <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="3" strokeLinecap="round">
                           <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                         </svg>
                       </div>
@@ -3590,16 +3744,17 @@ const styles = `
 
                   {/* Para no olvidar */}
                   <div onClick={() => { showScreen("notas"); setTimeout(()=>setNoteTab("insights"), 50); }}
-                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#2A2018",
-                      border:"0.5px solid rgba(232,168,124,0.1)", borderRadius:12, padding:"9px 10px",
-                      cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
-                    <div style={{ width:26, height:26, background:"rgba(196,132,90,0.15)", borderRadius:8,
+                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"rgba(255,255,255,.028)",
+                      backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
+                      border:"1px solid rgba(255,255,255,.065)", borderRadius:12, padding:"9px 10px",
+                      cursor:"pointer", WebkitTapHighlightColor:"transparent", boxShadow:"inset 0 1px 0 rgba(255,255,255,.06)" }}>
+                    <div style={{ width:26, height:26, background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.15)", borderRadius:8,
                       display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </div>
                     <div>
-                      <div style={{ fontSize:11, fontWeight:700, color:"#F5E6D0", lineHeight:1.2 }}>Para no olvidar</div>
-                      <div style={{ fontSize:9, color:"rgba(245,230,208,0.4)" }}>Nueva nota</div>
+                      <div style={{ fontSize:11, fontWeight:700, color:C.text, lineHeight:1.2 }}>Para no olvidar</div>
+                      <div style={{ fontSize:9, color:C.light }}>Nueva nota</div>
                     </div>
                   </div>
 
@@ -3608,13 +3763,13 @@ const styles = `
                     style={{ position:"relative", width:72, height:62, flexShrink:0,
                       cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
                     <div style={{ position:"absolute", inset:0, borderRadius:14, overflow:"hidden",
-                      background:"#1A1028", border:"0.5px solid rgba(139,92,246,0.3)" }}>
+                      background:"#131028", border:"0.5px solid rgba(255,123,90,0.3)" }}>
                       <div style={{ position:"absolute", left:-8, top:-8, width:44, height:44, borderRadius:"50%",
-                        background:"radial-gradient(circle,rgba(139,92,246,0.45) 0%,transparent 70%)" }}/>
+                        background:"radial-gradient(circle,rgba(255,123,90,0.45) 0%,transparent 70%)" }}/>
                       <div style={{ position:"absolute", right:-4, bottom:-4, width:32, height:32, borderRadius:"50%",
-                        background:"radial-gradient(circle,rgba(16,185,129,0.35) 0%,transparent 70%)" }}/>
+                        background:"radial-gradient(circle,rgba(78,205,196,0.35) 0%,transparent 70%)" }}/>
                       <div style={{ position:"absolute", left:"40%", top:-4, width:24, height:24, borderRadius:"50%",
-                        background:"radial-gradient(circle,rgba(239,68,68,0.2) 0%,transparent 70%)" }}/>
+                        background:"radial-gradient(circle,rgba(255,208,128,0.2) 0%,transparent 70%)" }}/>
                     </div>
                     <svg width="72" height="62" viewBox="0 0 72 62" fill="none" xmlns="http://www.w3.org/2000/svg"
                       style={{ position:"relative", zIndex:1 }}>
@@ -3628,10 +3783,10 @@ const styles = `
                       <path d="M21 10 C28 8 44 8 51 10 C57 12 59 21 56 28 L54 28 C54 21 52 13 47 11 C41 9 31 9 25 11 C20 13 18 21 18 28 L16 28 C13 21 15 12 21 10 Z" fill="rgba(255,255,255,0.1)"/>
                       <rect x="19" y="25" width="4" height="9" rx="1.5" fill="rgba(255,255,255,0.18)"/>
                       <rect x="17" y="27" width="8" height="5" rx="1.5" fill="rgba(255,255,255,0.18)"/>
-                      <circle cx="49" cy="24" r="3" fill="#7C3AED"/>
-                      <circle cx="43" cy="23" r="3" fill="#DC2626"/>
-                      <circle cx="49" cy="29" r="3" fill="#2563EB"/>
-                      <circle cx="55" cy="24" r="3" fill="#059669"/>
+                      <circle cx="49" cy="24" r="3" fill="#FF7B5A"/>
+                      <circle cx="43" cy="23" r="3" fill="#FFB347"/>
+                      <circle cx="49" cy="29" r="3" fill="#4ECDC4"/>
+                      <circle cx="55" cy="24" r="3" fill="#6EEDDF"/>
                       <circle cx="29" cy="35" r="4" fill="#120A24"/>
                       <circle cx="29" cy="35" r="3" fill="#1E1035"/>
                       <circle cx="29" cy="34.5" r="1.5" fill="rgba(255,255,255,0.1)"/>
@@ -3650,10 +3805,10 @@ const styles = `
 
                 {/* FRASE MES */}
                 {fraseDelMes ? (
-                  <div style={{ background:"rgba(196,132,90,0.08)", border:"0.5px solid rgba(232,168,124,0.15)", borderRadius:14, padding:"12px 14px", marginBottom:12 }}>
-                    <div style={{ fontSize:10, color:"rgba(232,168,124,0.55)", fontWeight:600, marginBottom:6, letterSpacing:0.5 }}>FRASE DEL MES</div>
-                    <div style={{ fontSize:13, color:"#F5E6D0", lineHeight:1.6, fontStyle:"italic" }}>"{fraseDelMes}"</div>
-                    <div style={{ fontSize:10, color:"rgba(245,230,208,0.4)", marginTop:6 }}>— {psicologoData?.nombre || "Tu psicólogo"}</div>
+                  <div style={{ background:"rgba(255,208,128,.06)", border:"1px solid rgba(255,208,128,.12)", borderRadius:14, padding:"12px 14px", marginBottom:12 }}>
+                    <div style={{ fontSize:10, color:"rgba(255,208,128,.55)", fontWeight:700, marginBottom:6, letterSpacing:"0.12em", textTransform:"uppercase" }}>Frase del mes</div>
+                    <div style={{ fontSize:13, color:C.text, lineHeight:1.6, fontStyle:"italic" }}>"{fraseDelMes}"</div>
+                    <div style={{ fontSize:10, color:C.light, marginTop:6 }}>— {psicologoData?.nombre || "Tu psicólogo"}</div>
                   </div>
                 ) : null}
               </div>
@@ -3681,7 +3836,7 @@ const styles = `
               {mdl("demora-aviso", citaSeleccionada && (
                 <div>
                   <div style={{ display:"flex", justifyContent:"center", marginBottom:14 }}>
-                    <div style={{ width:60, height:60, borderRadius:18, background:"rgba(196,132,90,0.1)", border:"1.5px solid rgba(196,132,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <div style={{ width:60, height:60, borderRadius:18, background:"rgba(255,123,90,0.1)", border:"1.5px solid rgba(255,123,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                       <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                       </svg>
@@ -3695,7 +3850,7 @@ const styles = `
                       <div key={m} onClick={() => setRetrasoMinutos(m)}
                         style={{ flex:1, padding:"10px 0", borderRadius:11, textAlign:"center", cursor:"pointer",
                           border:`1.5px solid ${retrasoMinutos===m ? C.amber : "rgba(0,0,0,0.08)"}`,
-                          background: retrasoMinutos===m ? "#FFF8EE" : "white", transition:"all 0.15s" }}>
+                          background: retrasoMinutos===m ? "#F5EEE8" : "white", transition:"all 0.15s" }}>
                         <div style={{ fontSize:13, fontWeight:800, color:retrasoMinutos===m ? C.amberDark : C.text }}>{m}'</div>
                         <div style={{ fontSize:8, color:retrasoMinutos===m ? C.amber : C.light, fontWeight:600 }}>min</div>
                       </div>
@@ -3731,21 +3886,21 @@ const styles = `
 
           {/* PANTALLA ELEGIR COMPAÑERO */}
 {screen === "elegir-companero" && (
-  <div style={{position:"absolute",inset:0,background:"#F5EDE0",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10}}>
+  <div style={{position:"absolute",inset:0,background:"#07060F",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10}}>
 
     {/* Header */}
     <div style={{background:"linear-gradient(160deg,#3A2A1C,#2A1E14)",padding:"32px 20px 32px",borderRadius:"0 0 28px 28px",flexShrink:0,position:"relative",overflow:"hidden"}}>
       {[...Array(18)].map((_,i)=>(
-        <div key={i} style={{position:"absolute",width:3,height:3,borderRadius:"50%",background:"rgba(232,168,124,0.15)",left:`${(i*67)%100}%`,top:`${(i*43)%100}%`}}/>
+        <div key={i} style={{position:"absolute",width:3,height:3,borderRadius:"50%",background:"rgba(255,155,122,0.15)",left:`${(i*67)%100}%`,top:`${(i*43)%100}%`}}/>
       ))}
-      <div style={{fontSize:10,color:"rgba(232,168,124,0.5)",letterSpacing:2,marginBottom:8,fontWeight:700}}>PRIMER INGRESO</div>
-      <div style={{fontSize:23,fontWeight:800,color:"#F5EDE0",lineHeight:1.25}}>
+      <div style={{fontSize:10,color:"rgba(255,155,122,0.5)",letterSpacing:2,marginBottom:8,fontWeight:700}}>PRIMER INGRESO</div>
+      <div style={{fontSize:23,fontWeight:800,color:"#07060F",lineHeight:1.25}}>
         Elige tu compañero{" "}
-        <span style={{color:"#E8A87C"}}>de terapia</span>
+        <span style={{color:"#FFB347"}}>de terapia</span>
       </div>
       <div style={{fontSize:12,color:"rgba(245,237,224,0.45)",marginTop:10,lineHeight:1.6}}>
         Este será tu aliado en el camino.{" "}
-        <span style={{color:"rgba(232,168,124,0.6)"}}>Tómate el tiempo que necesites.</span>
+        <span style={{color:"rgba(255,155,122,0.6)"}}>Tómate el tiempo que necesites.</span>
       </div>
       <div style={{marginTop:16,height:2,width:40,background:"linear-gradient(90deg,#E8A87C,transparent)",borderRadius:2}}/>
     </div>
@@ -3771,7 +3926,7 @@ const styles = `
             background: companeroSeleccionando === id ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.65)",
             backdropFilter:"blur(16px)",
             WebkitBackdropFilter:"blur(16px)",
-            border:`${companeroSeleccionando === id ? "1.5px" : "0.5px"} solid ${companeroSeleccionando === id ? data.color : "rgba(196,132,90,0.15)"}`,
+            border:`${companeroSeleccionando === id ? "1.5px" : "0.5px"} solid ${companeroSeleccionando === id ? data.color : "rgba(255,123,90,0.15)"}`,
             borderLeft:`3px solid ${companeroSeleccionando === id ? data.color : "transparent"}`,
             borderRadius:20,
             padding:"14px 16px",
@@ -3801,7 +3956,7 @@ const styles = `
             )}
           </div>
           {/* Check círculo */}
-          <div style={{width:24,height:24,borderRadius:12,border:`1.5px solid ${companeroSeleccionando===id ? data.color : "rgba(196,132,90,0.2)"}`,background:companeroSeleccionando===id ? data.color : "transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.2s"}}>
+          <div style={{width:24,height:24,borderRadius:12,border:`1.5px solid ${companeroSeleccionando===id ? data.color : "rgba(255,123,90,0.2)"}`,background:companeroSeleccionando===id ? data.color : "transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.2s"}}>
             {companeroSeleccionando === id && <span style={{fontSize:12,color:"white"}}>✓</span>}
           </div>
         </div>
@@ -3917,7 +4072,7 @@ const styles = `
       <div style={{ position:"absolute", inset:0, pointerEvents:"none",
         backgroundImage:`repeating-linear-gradient(
           transparent, transparent 31px,
-          rgba(196,132,90,0.08) 31px, rgba(196,132,90,0.08) 32px
+          rgba(255,123,90,0.08) 31px, rgba(255,123,90,0.08) 32px
         )`,
         backgroundSize:"100% 32px",
         backgroundPositionY:"48px"
@@ -3932,7 +4087,7 @@ const styles = `
           <>
             {notaAbierta.descripcion && (
               <div style={{ fontSize:13, color:C.light, lineHeight:1.8, marginBottom:24,
-                fontStyle:"italic", paddingBottom:16, borderBottom:"0.5px solid rgba(196,132,90,0.15)",
+                fontStyle:"italic", paddingBottom:16, borderBottom:"1px solid rgba(255,255,255,.08)",
                 whiteSpace:"pre-wrap" }}>
                 {notaAbierta.descripcion.split('\n').map((ln, i, arr) => (
                   <span key={i}>{ln}{i < arr.length - 1 && <br/>}</span>
@@ -4074,13 +4229,13 @@ const styles = `
 )}
 
 {!notifPanel && screen === "notas" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column", background:darkMode?"#1A1208":"#F5EDE0" }}>
-    
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#07060F" }}>
+
     {/* HEADER */}
-    <div style={{ background:darkMode?"#2A1E10":"#FEFAF5", padding:"16px 18px 0", borderBottom:"0.5px solid rgba(196,132,90,0.12)" }}>
+    <div style={{ background:"rgba(7,6,15,.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 0", borderBottom:"1px solid rgba(255,255,255,.06)", paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
         <div>
-          <div style={{ fontSize:17, fontWeight:700, color:C.text }}>Mis notas</div>
+          <div style={{ fontSize:17, fontWeight:700, color:C.text, letterSpacing:"-0.02em" }}>Mis notas</div>
           <div style={{ fontSize:11, color:C.light, marginTop:2 }}>
             {noteTab === "insights"
               ? `${insights.length} nota${insights.length !== 1 ? "s" : ""} · ${insights.filter(n=>n.shared).length} compartida${insights.filter(n=>n.shared).length !== 1 ? "s" : ""}`
@@ -4089,15 +4244,15 @@ const styles = `
         </div>
         {noteTab === "insights" && (
           <div onClick={() => setModal("nueva-nota-modal")}
-            style={{ width:34, height:34, background:C.plum, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+            style={{ width:36, height:36, background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", boxShadow:"0 2px 8px rgba(255,90,54,.3)" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </div>
         )}
       </div>
-      <div style={{ display:"flex", borderBottom:"0.5px solid rgba(196,132,90,0.12)" }}>
+      <div style={{ display:"flex", borderBottom:"1px solid rgba(255,255,255,.06)" }}>
         {[["Para no olvidar","insights"],["Tareas","tareas"]].map(([lb,id]) => (
-          <button key={id} onClick={() => setNoteTab(id)} style={{ flex:1, padding:"10px 0", fontSize:12, fontWeight:600, color:noteTab===id?C.plum:C.light, border:"none", background:"transparent", borderBottom:`2px solid ${noteTab===id?C.plum:"transparent"}`, marginBottom:-1, cursor:"pointer", fontFamily:"inherit" }}>
-            {lb}{id==="tareas" && pendientes > 0 && <span style={{ background:C.amber, color:"white", fontSize:10, fontWeight:800, padding:"2px 7px", borderRadius:20, marginLeft:6 }}>{pendientes}</span>}
+          <button key={id} onClick={() => setNoteTab(id)} style={{ flex:1, padding:"10px 0", fontSize:12, fontWeight:600, color:noteTab===id?C.plum:C.light, border:"none", background:"transparent", borderBottom:`2px solid ${noteTab===id?C.plum:"transparent"}`, marginBottom:-1, cursor:"pointer", fontFamily:"inherit", transition:"color 200ms ease" }}>
+            {lb}{id==="tareas" && pendientes > 0 && <span style={{ background:C.plum, color:"white", fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20, marginLeft:6 }}>{pendientes}</span>}
           </button>
         ))}
       </div>
@@ -4122,7 +4277,7 @@ const styles = `
                 ))}
               </div>
               <input type="text" placeholder="Título (opcional)" value={insightTitle} onChange={e => setInsightTitle(e.target.value)}
-                style={{ width:"100%", padding:"11px 14px", border:"1.5px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:"#FEFAF5" }}/>
+                style={{ width:"100%", padding:"11px 14px", border:"1.5px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:"#0D0B1E" }}/>
               <textarea placeholder="Escribe lo que no quieres olvidar para tu próxima sesión..." value={insightText} onChange={e => setInsightText(e.target.value)}
                 style={{ width:"100%", minHeight:100, padding:"11px 14px", border:"1.5px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6 }}/>
               <div onClick={() => setInsightShared(!insightShared)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:11, background:insightShared?`${C.sage}18`:"rgba(0,0,0,0.03)", cursor:"pointer", marginBottom:14 }}>
@@ -4165,7 +4320,7 @@ const styles = `
           )}
           {insights.map(n => (
             <div key={n.id} onClick={() => setNotaAbierta({ ...n, tipo:"insight" })}
-              style={{ background:n.shared?"#F5FAF7":"#FEFAF5", borderRadius:14, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.shared?"rgba(74,138,114,0.2)":"rgba(196,132,90,0.10)"}`, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+              style={{ background:n.shared?"#F5FAF7":"#0D0B1E", borderRadius:14, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.shared?"rgba(74,138,114,0.2)":"rgba(255,123,90,0.10)"}`, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
               <div style={{ width:32, height:32, borderRadius:9, background:n.shared?`${C.sageDark}15`:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:1 }}>
                 {n.shared
                   ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.sageDark} strokeWidth="1.75" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -4196,7 +4351,7 @@ const styles = `
     {/* SUBTABS */}
     <div style={{ display:"flex", gap:8, marginBottom:16 }}>
       {[["📋","Mis autorregistros","autorregistros"],["📚","Mis recursos","recursos"],["🎯","Tareas","tareas"]].map(([ic,lb,id]) => (
-        <div key={id} onClick={() => setTareasTab(id)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"12px 8px", borderRadius:16, background:tareasTab===id?C.plum:"white", cursor:"pointer", border:"0.5px solid rgba(196,132,90,0.12)", transition:"all 0.2s" }}>
+        <div key={id} onClick={() => setTareasTab(id)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"12px 8px", borderRadius:16, background:tareasTab===id?C.plum:"white", cursor:"pointer", border:"1px solid rgba(255,255,255,.06)", transition:"all 0.2s" }}>
           <span style={{ fontSize:22 }}>{ic}</span>
           <span style={{ fontSize:10, fontWeight:800, color:tareasTab===id?"white":C.light, textAlign:"center" }}>{lb}</span>
         </div>
@@ -4218,7 +4373,7 @@ const styles = `
             ) : (
               autorregistros.map((ar, i) => (
                 <div key={i} onClick={() => setNotaAbierta({ ...ar, tipo:"autorregistro" })}
-                  style={{ background:"#FEFAF5", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(196,132,90,0.10)", cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+                  style={{ background:"#0D0B1E", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(255,123,90,0.10)", cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
                   <div style={{ width:32, height:32, borderRadius:9, background:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:1 }}>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </div>
@@ -4295,7 +4450,7 @@ const styles = `
         Tu psicólogo aún no ha enviado materiales
       </div>
     ) : recursos.map(r => (
-      <div key={r.id} style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+      <div key={r.id} style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:10, border:"1px solid rgba(255,255,255,.06)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
           <div style={{ width:44, height:44, borderRadius:12, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>
             {r.tipo==="PDF"?"📄":r.tipo==="Podcast"?"🎵":r.tipo==="YouTube"?"🎬":r.tipo==="Imagen"?"🖼️":r.tipo==="Enlace"?"🔗":"📎"}
@@ -4342,7 +4497,7 @@ const styles = `
               } catch(e) {}
             }
           }}
-            style={{ background:"#FEFAF5", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(196,132,90,0.10)", opacity:t.completada?0.6:1, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+            style={{ background:"#0D0B1E", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(255,123,90,0.10)", opacity:t.completada?0.6:1, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
             <div onClick={async e => {
               e.stopPropagation();
               try {
@@ -4480,7 +4635,7 @@ const styles = `
             };
 
             return (
-              <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5EDE0" }}>
+              <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#07060F" }}>
                 {/* Header */}
                 <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"16px 18px 18px", paddingTop:"max(16px, env(safe-area-inset-top,16px))", flexShrink:0 }}>
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:2 }}>
@@ -4495,7 +4650,7 @@ const styles = `
 
                 <div style={{ flex:1, overflowY:"auto", paddingBottom:NAV_PB }}>
                   {/* Grid calendario */}
-                  <div style={{ background:"#FEFAF5", margin:14, borderRadius:16, padding:12, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                  <div style={{ background:"#0D0B1E", margin:14, borderRadius:16, padding:12, border:"1px solid rgba(255,255,255,.06)" }}>
                     {/* Días semana */}
                     <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", marginBottom:6 }}>
                       {dias.map(d => (
@@ -4515,8 +4670,8 @@ const styles = `
                         const tieneCitas = citasPorDia[dia];
                         return (
                           <div key={dia} onClick={() => tieneCitas && (tieneCitas.length === 1 ? setCitaDetalle(tieneCitas[0]) : setCitaDetalle({ _esDia: true, _citas: tieneCitas, _dia: dia }))}
-                            style={{ aspectRatio:"1", borderRadius:10, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:tieneCitas?"pointer":"default", background:esHoy?"#3A2A1C":tieneCitas?"rgba(196,132,90,0.1)":"transparent", border:esHoy?"2px solid #E8A87C":tieneCitas?"1.5px solid rgba(196,132,90,0.25)":"1.5px solid transparent", position:"relative", transition:"all 0.15s" }}>
-                            <div style={{ fontSize:13, fontWeight:esHoy||tieneCitas?700:400, color:esHoy?"#E8A87C":tieneCitas?C.text:C.light }}>
+                            style={{ aspectRatio:"1", borderRadius:10, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:tieneCitas?"pointer":"default", background:esHoy?"#3A2A1C":tieneCitas?"rgba(255,123,90,0.1)":"transparent", border:esHoy?"2px solid #E8A87C":tieneCitas?"1.5px solid rgba(255,123,90,0.25)":"1.5px solid transparent", position:"relative", transition:"all 0.15s" }}>
+                            <div style={{ fontSize:13, fontWeight:esHoy||tieneCitas?700:400, color:esHoy?"#FFB347":tieneCitas?C.text:C.light }}>
                               {dia}
                             </div>
                             {tieneCitas && (
@@ -4550,19 +4705,19 @@ const styles = `
                       .sort((a,b) => fechaOrden(a) - fechaOrden(b))[0];
                     if (!proxima) return null;
                     return (
-                      <div style={{ margin:"0 14px 14px", background:"#2A2018", borderRadius:16, padding:14, border:"0.5px solid rgba(232,168,124,0.15)", position:"relative", overflow:"hidden" }}>
+                      <div style={{ margin:"0 14px 14px", background:"#0D0B1E", borderRadius:16, padding:14, border:"0.5px solid rgba(255,155,122,0.15)", position:"relative", overflow:"hidden" }}>
                         <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,#C4845A,transparent)", opacity:0.6 }}/>
-                        <div style={{ fontSize:10, fontWeight:600, color:"rgba(232,168,124,0.55)", letterSpacing:0.8, textTransform:"uppercase", marginBottom:8 }}>Próxima sesión</div>
+                        <div style={{ fontSize:10, fontWeight:600, color:"rgba(255,155,122,0.55)", letterSpacing:0.8, textTransform:"uppercase", marginBottom:8 }}>Próxima sesión</div>
                         <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-                          <div style={{ background:"#C4845A", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:44 }}>
+                          <div style={{ background:"#FF7B5A", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:44 }}>
                             <div style={{ fontSize:16, fontWeight:700, color:"white", lineHeight:1 }}>{mostrarFechaLocal(proxima,"dia")}</div>
                             <div style={{ fontSize:8, color:"rgba(255,255,255,0.75)", fontWeight:600, textTransform:"uppercase" }}>{mostrarFechaLocal(proxima,"mes")}</div>
                           </div>
                           <div style={{ flex:1 }}>
-                            <div style={{ fontSize:13, fontWeight:600, color:"#F5E6D0" }}>Sesión con {proxima.psicologoNombre}</div>
+                            <div style={{ fontSize:13, fontWeight:600, color:"#F5EEE8" }}>Sesión con {proxima.psicologoNombre}</div>
                             <div style={{ fontSize:11, color:"rgba(245,230,208,0.5)", marginTop:2 }}>{mostrarFechaLocal(proxima,"hora")} · {proxima.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
                           </div>
-                          <div style={{ background:proxima.status==="confirmada"?"rgba(125,170,146,0.2)":"rgba(232,168,124,0.15)", color:proxima.status==="confirmada"?"#7DAA92":"#E8A87C", fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20 }}>
+                          <div style={{ background:proxima.status==="confirmada"?"rgba(125,170,146,0.2)":"rgba(255,155,122,0.15)", color:proxima.status==="confirmada"?"#4ECDC4":"#FFB347", fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20 }}>
                             {proxima.status==="confirmada"?"✅ Confirmada":"⏳ Pendiente"}
                           </div>
                         </div>
@@ -4594,7 +4749,7 @@ const styles = `
                         .slice()
                         .sort((a,b) => fechaOrden(a) - fechaOrden(b))
                         .map(c => (
-                      <div key={c.id} style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`3px solid ${colStatus(c.status)}` }}>
+                      <div key={c.id} style={{ background:"#0D0B1E", borderRadius:14, padding:"12px 14px", marginBottom:10, border:"1px solid rgba(255,255,255,.06)", borderLeft:`3px solid ${colStatus(c.status)}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ background:colStatus(c.status)+"20", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:46, flexShrink:0 }}>
                             <div style={{ fontSize:18, fontWeight:900, color:colStatus(c.status), lineHeight:1 }}>{mostrarFechaLocal(c, "dia")}</div>
@@ -4665,7 +4820,7 @@ const styles = `
                           </>)}
                           {c.status==="confirmada" && usuarioActual?.rol==="paciente" && (
                             <div onClick={()=>{ setCitaSeleccionada(c); setRetrasoTexto(""); setRetrasoMinutos(10); setModal("demora-aviso"); }}
-                              style={{ display:"flex", alignItems:"center", gap:5, padding:"3px 10px", borderRadius:9, background:"#F5F0E8", border:"1px solid rgba(196,132,90,0.2)", cursor:"pointer" }}>
+                              style={{ display:"flex", alignItems:"center", gap:5, padding:"3px 10px", borderRadius:9, background:"#F5F0E8", border:"1px solid rgba(255,123,90,0.2)", cursor:"pointer" }}>
                               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.amberDark} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                               <span style={{ fontSize:10, fontWeight:700, color:C.amberDark }}>Me demoraré un momento</span>
                             </div>
@@ -4684,7 +4839,7 @@ const styles = `
                 {/* Modal detalle cita desde calendario */}
                 {citaDetalle && (
                   <div onClick={()=>setCitaDetalle(null)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.45)", zIndex:500, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
-                    <div onClick={e=>e.stopPropagation()} style={{ background:"#FEFAF5", borderRadius:"20px 20px 0 0", padding:"20px 18px 32px", width:"100%", maxWidth:430, maxHeight:"85%", overflowY:"auto" }}>
+                    <div onClick={e=>e.stopPropagation()} style={{ background:"#0D0B1E", borderRadius:"20px 20px 0 0", padding:"20px 18px 32px", width:"100%", maxWidth:430, maxHeight:"85%", overflowY:"auto" }}>
                       <div style={{ width:36, height:4, background:"rgba(0,0,0,0.12)", borderRadius:2, margin:"0 auto 16px" }}/>
                       {/* LISTA de citas del día */}
                       {citaDetalle._esDia ? (
@@ -4746,7 +4901,7 @@ const styles = `
                         <div style={{ fontSize:9, fontWeight:800, padding:"4px 10px", borderRadius:20, background:colStatus(citaDetalle.status)+"20", color:colStatus(citaDetalle.status) }}>
                           {citaDetalle.status==="confirmada"?"✅ Confirmada":citaDetalle.status==="cancelada"?"❌ Cancelada":"⏳ Pendiente"}
                         </div>
-                        <div style={{ fontSize:9, fontWeight:800, padding:"4px 10px", borderRadius:20, background:"rgba(196,132,90,0.1)", color:C.amber }}>
+                        <div style={{ fontSize:9, fontWeight:800, padding:"4px 10px", borderRadius:20, background:"rgba(255,123,90,0.1)", color:C.amber }}>
                           {citaDetalle.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}
                         </div>
                       </div>
@@ -4841,7 +4996,7 @@ const styles = `
                   <div>
                     {/* Icono SVG reloj profesional */}
                     <div style={{ display:"flex", justifyContent:"center", marginBottom:14 }}>
-                      <div style={{ width:60, height:60, borderRadius:18, background:"rgba(196,132,90,0.1)", border:"1.5px solid rgba(196,132,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <div style={{ width:60, height:60, borderRadius:18, background:"rgba(255,123,90,0.1)", border:"1.5px solid rgba(255,123,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="12" cy="12" r="10"/>
                           <polyline points="12 6 12 12 16 14"/>
@@ -4865,7 +5020,7 @@ const styles = `
                         <div key={m} onClick={() => setRetrasoMinutos(m)}
                           style={{ flex:1, padding:"10px 0", borderRadius:11, textAlign:"center", cursor:"pointer",
                             border:`1.5px solid ${retrasoMinutos===m ? C.amber : "rgba(0,0,0,0.08)"}`,
-                            background: retrasoMinutos===m ? "#FFF8EE" : "white",
+                            background: retrasoMinutos===m ? "#F5EEE8" : "white",
                             transition:"all 0.15s" }}>
                           <div style={{ fontSize:13, fontWeight:800, color:retrasoMinutos===m ? C.amberDark : C.text }}>{m}'</div>
                           <div style={{ fontSize:8, color:retrasoMinutos===m ? C.amber : C.light, fontWeight:600 }}>min</div>
@@ -4912,7 +5067,7 @@ const styles = `
 
           {/* LOGROS */}
           {!notifPanel && screen === "logros" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#07060F" }}>
               <div style={{ background:`linear-gradient(145deg,${C.amberDark},${C.gold})`, padding:"32px 24px 52px", textAlign:"center" }}>
                 <div style={{ fontSize:64, marginBottom:10 }}>{getRango(xp).icono}</div>
                 <div style={{ fontSize:20, fontWeight:700, color:"white", marginBottom:4 }}>{getRango(xp).nombre}</div>
@@ -4921,7 +5076,7 @@ const styles = `
 
               <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))", marginTop:-24, position:"relative", zIndex:10 }}>
                 {/* TARJETA XP */}
-                <div style={{ background:"#FEFAF5", borderRadius:14, padding:14, border:"0.5px solid rgba(196,132,90,0.15)", marginBottom:16 }}>
+                <div style={{ background:"#0D0B1E", borderRadius:14, padding:14, border:"1px solid rgba(255,255,255,.08)", marginBottom:16 }}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Tu progreso</div>
                     <div style={{ fontSize:13, fontWeight:800, color:C.amberDark }}>{xp} XP</div>
@@ -4946,7 +5101,7 @@ const styles = `
                   {min:150,max:199,nombre:"Sapiens",icono:"👁️",desc:"La visión interna"},
                   {min:200,max:Infinity,nombre:"Sapiens Sapiens",icono:"💎",desc:"Claridad total"}
                 ].map(r => (
-                  <div key={r.nombre} style={{ background:"#FEFAF5", borderRadius:14, padding:"11px 14px", marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:14, opacity:xp >= r.min ? 1 : 0.4 }}>
+                  <div key={r.nombre} style={{ background:"#0D0B1E", borderRadius:14, padding:"11px 14px", marginBottom:9, border:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:14, opacity:xp >= r.min ? 1 : 0.4 }}>
                     <div style={{ fontSize:32, width:52, height:52, background:xp>=r.min?`${C.amber}20`:"#F5F5F5", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center" }}>{r.icono}</div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{r.nombre}</div>
@@ -4960,7 +5115,7 @@ const styles = `
 
                 {/* CÓMO GANAR PUNTOS */}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12, marginTop:4 }}>¿Cómo ganar puntos?</div>
-                <div style={{ background:"#FEFAF5", borderRadius:14, overflow:"hidden", border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                <div style={{ background:"#0D0B1E", borderRadius:14, overflow:"hidden", border:"1px solid rgba(255,255,255,.06)" }}>
                   {[["📋","Completar tarea","5 pts"],["💡","Guardar nota","2 pts"],["📝","Autorregistro","1 pt"],["📚","Abrir recurso","1 pt"]].map(([ic,lb,pts],i,arr) => (
                     <div key={lb} style={{ display:"flex", alignItems:"center", gap:12, padding:"13px 16px", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none" }}>
                       <div style={{ fontSize:20 }}>{ic}</div>
@@ -4979,8 +5134,8 @@ const styles = `
             const MOODS = [
               { label:"Tranquilo",  color:"#5A8A72" },
               { label:"Reflexivo",  color:"#5A6A8A" },
-              { label:"Alegre",     color:"#C4845A" },
-              { label:"Ansioso",    color:"#A06040" },
+              { label:"Alegre",     color:"#FF7B5A" },
+              { label:"Ansioso",    color:"#D04428" },
               { label:"Triste",     color:"#7A6A8A" },
               { label:"Agradecido", color:"#7A9A5A" },
             ];
@@ -5126,13 +5281,13 @@ const styles = `
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(245,237,224,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                   </div>
                   <div style={{ textAlign:"center" }}>
-                    <div style={{ fontSize:14,fontWeight:700,color:"#F5EDE0",letterSpacing:0.3 }}>Mi Diario</div>
+                    <div style={{ fontSize:14,fontWeight:700,color:"#07060F",letterSpacing:0.3 }}>Mi Diario</div>
                     <div style={{ fontSize:9,color:"rgba(245,237,224,0.35)",marginTop:1 }}>Solo visible para ti</div>
                   </div>
                   <div onClick={nuevaEntrada}
-                    style={{ width:34,height:34,borderRadius:10,background:"rgba(196,132,90,0.18)",
+                    style={{ width:34,height:34,borderRadius:10,background:"rgba(255,123,90,0.18)",
                       display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",WebkitTapHighlightColor:"transparent" }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   </div>
                 </div>
 
@@ -5143,7 +5298,7 @@ const styles = `
                     {diarioLoading ? (
                       <div style={{ display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
                         height:300, gap:16 }}>
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(196,132,90,0.5)" strokeWidth="1.25" strokeLinecap="round">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,123,90,0.5)" strokeWidth="1.25" strokeLinecap="round">
                           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                         </svg>
                         <div style={{ fontSize:13,color:"rgba(245,237,224,0.4)" }}>Abriendo el diario...</div>
@@ -5151,19 +5306,19 @@ const styles = `
                     ) : diarioEntradas.length === 0 ? (
                       <div style={{ display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
                         height:300,padding:"0 32px",textAlign:"center",gap:12 }}>
-                        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(196,132,90,0.35)" strokeWidth="1" strokeLinecap="round">
+                        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(255,123,90,0.35)" strokeWidth="1" strokeLinecap="round">
                           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                           <line x1="10" y1="8" x2="16" y2="8"/><line x1="10" y1="12" x2="16" y2="12"/><line x1="10" y1="16" x2="13" y2="16"/>
                         </svg>
-                        <div style={{ fontSize:16,fontWeight:700,color:"#F5EDE0" }}>Páginas en blanco</div>
+                        <div style={{ fontSize:16,fontWeight:700,color:"#07060F" }}>Páginas en blanco</div>
                         <div style={{ fontSize:12,color:"rgba(245,237,224,0.4)",lineHeight:1.6 }}>
                           Este es tu espacio privado. Nadie más puede verlo.
                         </div>
                         <div onClick={nuevaEntrada}
                           style={{ marginTop:8,padding:"11px 28px",borderRadius:12,
-                            background:"rgba(196,132,90,0.18)",color:"#C4845A",
+                            background:"rgba(255,123,90,0.18)",color:"#FF7B5A",
                             fontSize:13,fontWeight:700,cursor:"pointer",
-                            border:"1px solid rgba(196,132,90,0.3)",WebkitTapHighlightColor:"transparent" }}>
+                            border:"1px solid rgba(255,123,90,0.3)",WebkitTapHighlightColor:"transparent" }}>
                           Escribir primera entrada
                         </div>
                       </div>
@@ -5181,15 +5336,15 @@ const styles = `
                               style={{ display:"flex",alignItems:"center",gap:12,
                                 padding:"12px 14px",borderRadius:14,marginBottom:7,
                                 background:"rgba(255,255,255,0.04)",
-                                border:"0.5px solid rgba(196,132,90,0.1)",
+                                border:"1px solid rgba(255,255,255,.06)",
                                 borderLeft:`3px solid ${mc}`,cursor:"pointer",
                                 WebkitTapHighlightColor:"transparent" }}>
                               <div style={{ flexShrink:0,textAlign:"center",minWidth:36 }}>
-                                <div style={{ fontSize:20,fontWeight:900,color:"#F5EDE0",lineHeight:1 }}>{f.dia}</div>
+                                <div style={{ fontSize:20,fontWeight:900,color:"#07060F",lineHeight:1 }}>{f.dia}</div>
                                 <div style={{ fontSize:9,color:"rgba(245,237,224,0.45)",textTransform:"uppercase",fontWeight:600 }}>{f.mes.slice(0,3)}</div>
                               </div>
                               <div style={{ flex:1,minWidth:0 }}>
-                                <div style={{ fontSize:12,color:"#F5EDE0",lineHeight:1.5,
+                                <div style={{ fontSize:12,color:"#07060F",lineHeight:1.5,
                                   overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",
                                   whiteSpace:"pre-wrap" }}>
                                   {e.texto || "Entrada vacía"}
@@ -5268,7 +5423,7 @@ const styles = `
                               fontFamily:"Georgia,serif",lineHeight:`${LINE_H*1.1}px` }}>
                               {f.dia} de {f.mes}
                             </div>
-                            <div style={{ fontSize:9,color:"#8B5A3A",textTransform:"uppercase",
+                            <div style={{ fontSize:9,color:"#FF7B5A",textTransform:"uppercase",
                               letterSpacing:1.4,fontWeight:700,lineHeight:`${LINE_H}px`,marginTop:2 }}>
                               {f.diaSemana}, {f.anio}
                             </div>
@@ -5324,7 +5479,7 @@ const styles = `
                                 resize:"none", fontFamily:"Georgia,serif",
                                 boxSizing:"border-box",
                                 letterSpacing:"0.01em",
-                                caretColor:"#8B5A3A",
+                                caretColor:"#FF7B5A",
                                 paddingTop:0, paddingBottom:0
                               }}/>
                           )}
@@ -5346,7 +5501,7 @@ const styles = `
                             display:"flex",alignItems:"center",justifyContent:"center",
                             cursor:hasPrev?"pointer":"default",WebkitTapHighlightColor:"transparent" }}>
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke={hasPrev?"#8B5A3A":"rgba(139,90,58,0.25)"} strokeWidth="2" strokeLinecap="round">
+                            stroke={hasPrev?"#FF7B5A":"rgba(139,90,58,0.25)"} strokeWidth="2" strokeLinecap="round">
                             <polyline points="15 18 9 12 15 6"/>
                           </svg>
                         </div>
@@ -5354,14 +5509,14 @@ const styles = `
                         {/* Indicador de página */}
                         <div style={{ flex:1,textAlign:"center" }}>
                           {diarioModo === "lectura" ? (
-                            <div style={{ fontSize:10,color:"#8B5A3A",fontWeight:600 }}>
+                            <div style={{ fontSize:10,color:"#FF7B5A",fontWeight:600 }}>
                               {idxActual+1} / {diarioEntradas.length} · {f.hora}
                             </div>
                           ) : (
                             <div style={{ display:"flex",gap:7 }}>
                               <div onClick={() => setDiarioModo(diarioEntradaActual?._nueva?"lista":"lectura")}
                                 style={{ flex:1,padding:"8px 0",borderRadius:10,
-                                  background:"rgba(139,90,58,0.1)",color:"#8B5A3A",
+                                  background:"rgba(139,90,58,0.1)",color:"#FF7B5A",
                                   fontSize:12,fontWeight:700,textAlign:"center",cursor:"pointer",
                                   WebkitTapHighlightColor:"transparent" }}>
                                 Cancelar
@@ -5389,7 +5544,7 @@ const styles = `
                               background:"rgba(139,90,58,0.1)",
                               display:"flex",alignItems:"center",justifyContent:"center",
                               cursor:"pointer",WebkitTapHighlightColor:"transparent" }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="2" strokeLinecap="round">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="2" strokeLinecap="round">
                               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                             </svg>
@@ -5410,7 +5565,7 @@ const styles = `
                               display:"flex",alignItems:"center",justifyContent:"center",
                               cursor:hasNext?"pointer":"default",WebkitTapHighlightColor:"transparent" }}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                              stroke={hasNext?"#8B5A3A":"rgba(139,90,58,0.25)"} strokeWidth="2" strokeLinecap="round">
+                              stroke={hasNext?"#FF7B5A":"rgba(139,90,58,0.25)"} strokeWidth="2" strokeLinecap="round">
                               <polyline points="9 18 15 12 9 6"/>
                             </svg>
                           </div>
@@ -5586,13 +5741,13 @@ const styles = `
                 {/* Fondo RGB */}
                 <div style={{ position:"absolute", inset:0, pointerEvents:"none" }}>
                   <div style={{ position:"absolute", width:240, height:240, borderRadius:"50%",
-                    background:"radial-gradient(circle,rgba(139,92,246,0.15) 0%,transparent 70%)",
+                    background:"radial-gradient(circle,rgba(255,123,90,0.15) 0%,transparent 70%)",
                     top:-80, left:-60 }}/>
                   <div style={{ position:"absolute", width:200, height:200, borderRadius:"50%",
-                    background:"radial-gradient(circle,rgba(16,185,129,0.1) 0%,transparent 70%)",
+                    background:"radial-gradient(circle,rgba(78,205,196,0.1) 0%,transparent 70%)",
                     bottom:-60, right:-40 }}/>
                   <div style={{ position:"absolute", width:160, height:160, borderRadius:"50%",
-                    background:"radial-gradient(circle,rgba(239,68,68,0.08) 0%,transparent 70%)",
+                    background:"radial-gradient(circle,rgba(255,208,128,0.08) 0%,transparent 70%)",
                     bottom:100, left:20 }}/>
                 </div>
 
@@ -5617,7 +5772,7 @@ const styles = `
                       setJuegoLoading(false);
                       setPacienteSeleccionado(null);
                     }}
-                      style={{ width:34, height:34, borderRadius:10, background:"rgba(139,92,246,0.15)",
+                      style={{ width:34, height:34, borderRadius:10, background:"rgba(255,123,90,0.15)",
                         display:"flex", alignItems:"center", justifyContent:"center",
                         cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" strokeWidth="2" strokeLinecap="round">
@@ -5680,7 +5835,7 @@ const styles = `
                           style={{ display:"flex", alignItems:"center", gap:12,
                             background:"rgba(255,255,255,0.04)", borderRadius:14,
                             padding:"12px 14px", marginBottom:9,
-                            border:"1px solid rgba(139,92,246,0.15)",
+                            border:"1px solid rgba(255,123,90,0.15)",
                             cursor:"pointer", WebkitTapHighlightColor:"transparent",
                             transition:"border .15s" }}>
                           <div style={{ width:42, height:42, borderRadius:13, overflow:"hidden",
@@ -5712,7 +5867,7 @@ const styles = `
 
                     {/* Scoreboard */}
                     <div style={{ display:"flex", gap:10, marginBottom:20, alignItems:"center" }}>
-                      <div style={{ flex:1, background:"rgba(16,185,129,0.1)", border:`1.5px solid ${juegoData.turnoActual==="pac"&&!yaJugueHoy&&juegoData.estado==="activo"?"rgba(16,185,129,0.6)":"rgba(16,185,129,0.2)"}`, borderRadius:14, padding:"10px 12px", textAlign:"center", transition:"border .3s" }}>
+                      <div style={{ flex:1, background:"rgba(78,205,196,0.1)", border:`1.5px solid ${juegoData.turnoActual==="pac"&&!yaJugueHoy&&juegoData.estado==="activo"?"rgba(78,205,196,0.6)":"rgba(78,205,196,0.2)"}`, borderRadius:14, padding:"10px 12px", textAlign:"center", transition:"border .3s" }}>
                         <div style={{ fontSize:28, lineHeight:1, marginBottom:4 }}>🌱</div>
                         <div style={{ fontSize:10, fontWeight:800, color:"#34D399", letterSpacing:.5 }}>PACIENTE</div>
                         <div style={{ fontSize:22, fontWeight:900, color:"white", marginTop:4 }}>{fmtScore(juegoData.scores?.pac)}</div>
@@ -5725,7 +5880,7 @@ const styles = `
                             : (esMiTurno ? "🎮 Tú" : "⏳ Rival")}
                         </div>
                       </div>
-                      <div style={{ flex:1, background:"rgba(139,92,246,0.1)", border:`1.5px solid ${juegoData.turnoActual==="psi"&&!yaJugueHoy&&juegoData.estado==="activo"?"rgba(139,92,246,0.6)":"rgba(139,92,246,0.2)"}`, borderRadius:14, padding:"10px 12px", textAlign:"center", transition:"border .3s" }}>
+                      <div style={{ flex:1, background:"rgba(255,123,90,0.1)", border:`1.5px solid ${juegoData.turnoActual==="psi"&&!yaJugueHoy&&juegoData.estado==="activo"?"rgba(255,123,90,0.6)":"rgba(255,123,90,0.2)"}`, borderRadius:14, padding:"10px 12px", textAlign:"center", transition:"border .3s" }}>
                         <div style={{ fontSize:28, lineHeight:1, marginBottom:4 }}>🧠</div>
                         <div style={{ fontSize:10, fontWeight:800, color:"#A78BFA", letterSpacing:.5 }}>PSICÓLOGO</div>
                         <div style={{ fontSize:22, fontWeight:900, color:"white", marginTop:4 }}>{fmtScore(juegoData.scores?.psi)}</div>
@@ -5744,9 +5899,9 @@ const styles = `
                               alignItems:"center", justifyContent:"center",
                               fontSize:38,
                               background: isWin
-                                ? (cel==="pac"?"rgba(16,185,129,0.25)":"rgba(139,92,246,0.25)")
-                                : cel === "pac" ? "rgba(16,185,129,0.12)"
-                                : cel === "psi" ? "rgba(139,92,246,0.12)"
+                                ? (cel==="pac"?"rgba(78,205,196,0.25)":"rgba(255,123,90,0.25)")
+                                : cel === "pac" ? "rgba(78,205,196,0.12)"
+                                : cel === "psi" ? "rgba(255,123,90,0.12)"
                                 : "rgba(255,255,255,0.04)",
                               border: isWin
                                 ? `2px solid ${cel==="pac"?"#34D399":"#A78BFA"}`
@@ -5808,7 +5963,7 @@ const styles = `
                             <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Turno del oponente mañana</div>
                           </div>
                           <div onClick={refrescarJuego}
-                            style={{ padding:"5px 10px", borderRadius:8, background:"rgba(139,92,246,0.2)",
+                            style={{ padding:"5px 10px", borderRadius:8, background:"rgba(255,123,90,0.2)",
                               color:"#A78BFA", fontSize:10, fontWeight:700, cursor:"pointer",
                               WebkitTapHighlightColor:"transparent" }}>
                             Actualizar
@@ -5824,7 +5979,7 @@ const styles = `
                             <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Tu turno se habilita mañana</div>
                           </div>
                           <div onClick={refrescarJuego}
-                            style={{ padding:"5px 10px", borderRadius:8, background:"rgba(139,92,246,0.2)",
+                            style={{ padding:"5px 10px", borderRadius:8, background:"rgba(255,123,90,0.2)",
                               color:"#A78BFA", fontSize:10, fontWeight:700, cursor:"pointer",
                               WebkitTapHighlightColor:"transparent" }}>
                             Actualizar
@@ -5838,7 +5993,7 @@ const styles = `
                             <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", marginTop:2 }}>Es su turno — vuelve cuando jueguen</div>
                           </div>
                           <div onClick={refrescarJuego}
-                            style={{ padding:"5px 10px", borderRadius:8, background:"rgba(139,92,246,0.2)",
+                            style={{ padding:"5px 10px", borderRadius:8, background:"rgba(255,123,90,0.2)",
                               color:"#A78BFA", fontSize:10, fontWeight:700, cursor:"pointer",
                               WebkitTapHighlightColor:"transparent" }}>
                             Actualizar
@@ -5863,26 +6018,26 @@ const styles = `
 
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:darkMode?"#0F0E17":"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#07060F" }}>
 
               {/* HEADER */}
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"28px 20px 40px", textAlign:"center" }}>
                 <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); }} style={{ position:"relative", display:"inline-block", marginBottom:10, cursor:"pointer" }}>
-                  <div style={{ width:64, height:64, background:"rgba(196,132,90,0.2)", borderRadius:"50%", border:"2px solid rgba(232,168,124,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, overflow:"hidden" }}>
+                  <div style={{ width:64, height:64, background:"rgba(255,123,90,0.2)", borderRadius:"50%", border:"2px solid rgba(255,155,122,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, overflow:"hidden" }}>
                     {usuarioActual?.foto
                       ? <img src={usuarioActual.foto} alt="foto" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
                       : (avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar)
                     }
                   </div>
-                  <div style={{ position:"absolute", bottom:0, right:0, width:22, height:22, background:"#C4845A", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid #2A1E14" }}>
+                  <div style={{ position:"absolute", bottom:0, right:0, width:22, height:22, background:"#FF7B5A", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid #2A1E14" }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                   </div>
                 </div>
-                <div style={{ fontSize:17, fontWeight:700, color:"#F5E6D0", marginBottom:3 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
-                <div style={{ fontSize:11, color:"rgba(245,230,208,0.4)", marginBottom:10 }}>{usuarioActual?.email || ""}</div>
-                <div style={{ display:"inline-flex", background:"rgba(232,168,124,0.1)", border:"0.5px solid rgba(232,168,124,0.2)", borderRadius:20, padding:"4px 12px", gap:5, alignItems:"center" }}>
+                <div style={{ fontSize:17, fontWeight:700, color:"#F5EEE8", marginBottom:3 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
+                <div style={{ fontSize:11, color:"rgba(245,238,232,0.35)", marginBottom:10 }}>{usuarioActual?.email || ""}</div>
+                <div style={{ display:"inline-flex", background:"rgba(255,155,122,0.1)", border:"0.5px solid rgba(255,155,122,0.2)", borderRadius:20, padding:"4px 12px", gap:5, alignItems:"center" }}>
                   <span style={{ fontSize:12 }}>{getRango(xp).icono}</span>
-                  <span style={{ fontSize:11, fontWeight:600, color:"#E8A87C" }}>{getRango(xp).nombre} · {xp} XP</span>
+                  <span style={{ fontSize:11, fontWeight:600, color:"#FFB347" }}>{getRango(xp).nombre} · {xp} XP</span>
                 </div>
               </div>
 
@@ -5890,63 +6045,63 @@ const styles = `
 
                 {/* MI PSICÓLOGO */}
                 <div onClick={async () => { setPsicologoData(null); showScreen("perfil-psicologo"); }}
-                  style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.15)", borderRadius:16, padding:"12px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:12, cursor:"pointer" }}>
-                  <div style={{ width:44, height:44, background:"rgba(196,132,90,0.15)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👨‍⚕️</div>
+                  style={{ background:"#0D0B1E", border:"0.5px solid rgba(255,155,122,0.15)", borderRadius:16, padding:"12px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:12, cursor:"pointer" }}>
+                  <div style={{ width:44, height:44, background:"rgba(255,123,90,0.15)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👨‍⚕️</div>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontSize:10, color:"rgba(232,168,124,0.5)", fontWeight:600, textTransform:"uppercase", letterSpacing:0.5, marginBottom:2 }}>Mi psicólogo</div>
-                    <div style={{ fontSize:13, fontWeight:600, color:"#F5E6D0" }}>{usuarioActual?.psicologoNombre || "Mi psicólogo"}</div>
+                    <div style={{ fontSize:10, color:"rgba(255,155,122,0.5)", fontWeight:600, textTransform:"uppercase", letterSpacing:0.5, marginBottom:2 }}>Mi psicólogo</div>
+                    <div style={{ fontSize:13, fontWeight:600, color:"#F5EEE8" }}>{usuarioActual?.psicologoNombre || "Mi psicólogo"}</div>
                   </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.25)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(245,238,232,0.25)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
 
                 {/* MI CUENTA */}
                 <div style={{ fontSize:11, fontWeight:600, color:"rgba(245,230,208,0.35)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Mi cuenta</div>
-                <div style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
+                <div style={{ background:"#0D0B1E", border:"0.5px solid rgba(255,155,122,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
                   {[
                     { ic:"user", lb:"Cambiar avatar", fn:() => setModal("avatar") },
                     { ic:"edit", lb:"Editar perfil", fn:() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); } },
                   ].map(({ ic, lb, fn }, i, arr) => (
                     <div key={lb} onClick={fn}
-                      style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:i<arr.length-1?"0.5px solid rgba(232,168,124,0.06)":"none", cursor:"pointer" }}>
-                      <div style={{ width:30, height:30, background:"rgba(196,132,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                        {ic==="user" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
-                        {ic==="edit" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>}
-                        {ic==="bell" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>}
+                      style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:i<arr.length-1?"0.5px solid rgba(255,155,122,0.06)":"none", cursor:"pointer" }}>
+                      <div style={{ width:30, height:30, background:"rgba(255,123,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        {ic==="user" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
+                        {ic==="edit" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>}
+                        {ic==="bell" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>}
                       </div>
-                      <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5E6D0" }}>{lb}</div>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.2)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                      <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5EEE8" }}>{lb}</div>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                     </div>
                   ))}
                 </div>
 
                 {/* CONFIGURACIÓN */}
                 <div style={{ fontSize:11, fontWeight:600, color:"rgba(245,230,208,0.35)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Configuración</div>
-                <div style={{ background:"#2A2018", border:"0.5px solid rgba(232,168,124,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
+                <div style={{ background:"#0D0B1E", border:"0.5px solid rgba(255,155,122,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
                   <div onClick={() => setModal("privacidad")}
-                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(232,168,124,0.06)", cursor:"pointer" }}>
-                    <div style={{ width:30, height:30, background:"rgba(196,132,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(255,155,122,0.06)", cursor:"pointer" }}>
+                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
-                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5E6D0" }}>Privacidad y seguridad</div>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.2)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5EEE8" }}>Privacidad y seguridad</div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                   <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
-                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(232,168,124,0.06)", cursor:"pointer" }}>
-                    <div style={{ width:30, height:30, background:"rgba(196,132,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(255,155,122,0.06)", cursor:"pointer" }}>
+                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
                     </div>
-                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5E6D0" }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
-                    <div style={{ width:38, height:20, borderRadius:10, background:darkMode?"#C4845A":"rgba(245,230,208,0.15)", position:"relative", transition:"background 0.3s", flexShrink:0 }}>
+                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5EEE8" }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
+                    <div style={{ width:38, height:20, borderRadius:10, background:darkMode?"#FF7B5A":"rgba(245,230,208,0.15)", position:"relative", transition:"background 0.3s", flexShrink:0 }}>
                       <div style={{ width:14, height:14, borderRadius:"50%", background:"white", position:"absolute", top:3, left:darkMode?21:3, transition:"left 0.3s" }}/>
                     </div>
                   </div>
                   <div onClick={() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", cursor:"pointer" }}>
-                    <div style={{ width:30, height:30, background:"rgba(196,132,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     </div>
-                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5E6D0" }}>Valorar a mi psicólogo</div>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.2)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5EEE8" }}>Valorar a mi psicólogo</div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
@@ -6002,19 +6157,19 @@ const styles = `
                           } catch(e) { showToast("Error al guardar ❌"); }
                         }
                       }}/>
-                    <div style={{ border:`2px dashed ${subiendoFoto ? C.sage : "rgba(196,132,90,0.3)"}`, borderRadius:14, padding:"12px 14px",
-                      background: subiendoFoto ? "rgba(125,170,146,0.06)" : "rgba(196,132,90,0.04)",
+                    <div style={{ border:`2px dashed ${subiendoFoto ? C.sage : "rgba(255,123,90,0.3)"}`, borderRadius:14, padding:"12px 14px",
+                      background: subiendoFoto ? "rgba(125,170,146,0.06)" : "rgba(255,123,90,0.04)",
                       display:"flex", alignItems:"center", gap:12 }}>
                       <div style={{ width:52, height:52, borderRadius:"50%", overflow:"hidden", flexShrink:0,
-                        background:"rgba(196,132,90,0.1)", display:"flex", alignItems:"center", justifyContent:"center",
-                        border:`2px solid rgba(196,132,90,0.2)` }}>
+                        background:"rgba(255,123,90,0.1)", display:"flex", alignItems:"center", justifyContent:"center",
+                        border:`2px solid rgba(255,123,90,0.2)` }}>
                         {usuarioActual?.foto
                           ? <img src={usuarioActual.foto} alt="foto" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
                           : (avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : <span style={{fontSize:28}}>{avatar}</span>)
                         }
                       </div>
                       <div style={{ flex:1 }}>
-                        <div style={{ fontSize:13, fontWeight:700, color: subiendoFoto ? "#7DAA92" : C.text }}>
+                        <div style={{ fontSize:13, fontWeight:700, color: subiendoFoto ? "#4ECDC4" : C.text }}>
                           {subiendoFoto ? "Subiendo..." : usuarioActual?.foto ? "Cambiar foto" : "Subir foto"}
                         </div>
                         <div style={{ fontSize:10, color:C.light, marginTop:2 }}>
@@ -6037,20 +6192,20 @@ const styles = `
                   <input value={usuarioActual?.email || ""} disabled
                     style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.04)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#F5F5F5", color:C.light }}/>
 
-                  <div style={{ background:"rgba(196,132,90,0.06)", borderRadius:14, padding:"12px 14px", marginBottom:14, border:"1px solid rgba(196,132,90,0.15)" }}>
+                  <div style={{ background:"rgba(255,123,90,0.06)", borderRadius:14, padding:"12px 14px", marginBottom:14, border:"1px solid rgba(255,123,90,0.15)" }}>
                     <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:10 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                      <div style={{ fontSize:11, fontWeight:800, color:"#8B5A3A" }}>Contacto de emergencia</div>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      <div style={{ fontSize:11, fontWeight:800, color:"#FF7B5A" }}>Contacto de emergencia</div>
                     </div>
                     <div style={{ fontSize:11, fontWeight:700, color:C.text, marginBottom:5 }}>Nombre</div>
                     <input value={editContactoNombre} onChange={e => setEditContactoNombre(e.target.value)}
                       placeholder="Nombre del contacto"
-                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(196,132,90,0.2)", borderRadius:10, fontSize:13, marginBottom:8, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"white" }}/>
+                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:13, marginBottom:8, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"white" }}/>
                     <div style={{ fontSize:11, fontWeight:700, color:C.text, marginBottom:5 }}>Teléfono</div>
                     <input value={editContactoTel} onChange={e => setEditContactoTel(e.target.value.replace(/\D/g,""))}
                       placeholder="Ej: 3001234567"
                       type="tel" inputMode="numeric" pattern="[0-9]*"
-                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(196,132,90,0.2)", borderRadius:10, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"white" }}/>
+                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"white" }}/>
                   </div>
 
                   <div style={{ display:"flex", gap:8 }}>
@@ -6082,7 +6237,7 @@ const styles = `
     </div>
 
     {/* NOTIFICACIONES */}
-    <div style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:`2px solid rgba(0,0,0,0.06)` }}>
+    <div style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:`2px solid rgba(0,0,0,0.06)` }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
         <div>
           <div style={{ fontSize:13, fontWeight:800, color:C.text }}>🔔 Notificaciones push</div>
@@ -6121,7 +6276,7 @@ const styles = `
 
     {/* Biometría */}
     {window.PublicKeyCredential !== undefined && (
-      <div style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,0.06)" }}>
+      <div style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,0.06)" }}>
         <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>🔐 Desbloqueo biométrico</div>
         <div style={{ fontSize:11, color:C.light, marginBottom:12, lineHeight:1.5 }}>
           {usuarioActual?.webauthnCredentialId
@@ -6175,7 +6330,7 @@ const styles = `
 
     {/* Bloquear diario con biometría */}
     {usuarioActual?.webauthnCredentialId && (
-      <div style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,0.06)" }}>
+      <div style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,0.06)" }}>
         <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>📔 Bloqueo del diario</div>
         <div style={{ fontSize:11, color:C.light, marginBottom:12, lineHeight:1.5 }}>
           {usuarioActual?.diarioBiometria
@@ -6203,7 +6358,7 @@ const styles = `
       </div>
     )}
 
-    {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:10, background:"#FEFAF5", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
+    {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:10, background:"#0D0B1E", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
     {btn(() => setModal(null), "Cerrar", { width:"100%", padding:9, background:C.warm, color:C.text, borderRadius:12, fontSize:13, fontWeight:800 })}
   </div>
 ))}
@@ -6288,7 +6443,7 @@ const styles = `
           )}
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#07060F" }}>
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative" }}>
                 <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,0.1)" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -6357,7 +6512,7 @@ const styles = `
                     {psicologoData?.telefono && (
                       <div style={{ display:"flex", alignItems:"center", gap:11, padding:"10px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
                         <div style={{ width:30, height:30, borderRadius:9, background:"rgba(139,90,58,0.08)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                         </div>
                         <div>
                           <div style={{ fontSize:9, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:2 }}>Teléfono</div>
@@ -6374,8 +6529,8 @@ const styles = `
                             { lb:"Enfoque",      val:psicologoData?.enfoque },
                           ].filter(x => x.val).map(({ lb, val }) => (
                             <div key={lb} style={{ background:"rgba(139,90,58,0.06)", borderRadius:10, padding:"9px 11px" }}>
-                              <div style={{ fontSize:9, fontWeight:700, color:"#8B5A3A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>{lb}</div>
-                              <div style={{ fontSize:12, fontWeight:600, color:"#3A1A06" }}>{val}</div>
+                              <div style={{ fontSize:9, fontWeight:700, color:"#FF7B5A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>{lb}</div>
+                              <div style={{ fontSize:12, fontWeight:600, color:C.text }}>{val}</div>
                             </div>
                           ))}
                         </div>
@@ -6395,7 +6550,7 @@ const styles = `
                 {loadingResenas ? (
                   <div style={{ textAlign:"center", padding:20, color:C.light }}>Cargando...</div>
                 ) : resenas.length === 0 ? (
-                  <div style={{ background:"#FEFAF5", borderRadius:14, padding:20, textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                  <div style={{ background:"#0D0B1E", borderRadius:14, padding:20, textAlign:"center", border:"1px solid rgba(255,255,255,.06)" }}>
                     <div style={{ fontSize:11, color:C.light }}>Aún no hay reseñas</div>
                   </div>
                 ) : (
@@ -6405,7 +6560,7 @@ const styles = `
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
                     </div>
                     {resenas.filter(r => !r.oculta).map(r => (
-                      <div key={r.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                      <div key={r.id} style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:9, border:"1px solid rgba(255,255,255,.06)" }}>
                         <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                           <div style={{ fontSize:14 }}>{"⭐".repeat(r.rating)}</div>
                           <div style={{ fontSize:10, color:C.light }}>{new Date(r.fecha).toLocaleDateString('es-CO')}</div>
@@ -6422,7 +6577,7 @@ const styles = `
                 {/* MÉTODOS DE PAGO del psicólogo */}
                 {/* ACCESO A MIS HÁBITOS desde perfil del psicólogo */}
                 <div onClick={() => { cargarHabitos(usuarioActual.uid); cargarRegistrosHabito(usuarioActual.uid); setHabitosPacienteId(usuarioActual.uid); setScreenHabitos(true); }}
-                  style={{ background:"linear-gradient(135deg,#F5EDE0,#EDE0D0)", borderRadius:16, padding:"14px 16px", marginBottom:14, border:"0.5px solid rgba(196,132,90,0.15)", cursor:"pointer", display:"flex", alignItems:"center", gap:14 }}>
+                  style={{ background:"linear-gradient(135deg,#F5EDE0,#EDE0D0)", borderRadius:16, padding:"14px 16px", marginBottom:14, border:"1px solid rgba(255,255,255,.08)", cursor:"pointer", display:"flex", alignItems:"center", gap:14 }}>
                   <div style={{ width:40, height:40, borderRadius:12, background:"linear-gradient(135deg,#8B5A3A,#6A3E28)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
                   </div>
@@ -6441,7 +6596,7 @@ const styles = `
                       {pagosPsicologo.map((mp, i) => {
                         const info = METODOS_INFO[mp.id] || { nombre:mp.id, color:C.plum, bg:`${C.plum}15` };
                         return (
-                          <div key={i} style={{ background:"#FEFAF5", borderRadius:14, padding:"13px 16px", marginBottom:8, border:"0.5px solid rgba(196,132,90,0.10)", display:"flex", alignItems:"center", gap:12 }}>
+                          <div key={i} style={{ background:"#0D0B1E", borderRadius:14, padding:"13px 16px", marginBottom:8, border:"0.5px solid rgba(255,123,90,0.10)", display:"flex", alignItems:"center", gap:12 }}>
                             <div style={{ width:40, height:40, borderRadius:11, background:info.bg, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                               <span style={{ fontSize:11, fontWeight:800, color:info.color }}>{info.nombre.slice(0,2).toUpperCase()}</span>
                             </div>
@@ -6491,7 +6646,7 @@ const styles = `
           )}    
           {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#07060F" }}>
               <div style={{ background:"linear-gradient(160deg,#3A2A1C,#2A1E14)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:12 }}>
                 <div onClick={() => showScreen("admin-perfil")} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,0.1)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -6509,7 +6664,7 @@ const styles = `
               <div style={{ padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:9, marginBottom:18 }}>
                   {[[pacientes.length,"Pacientes"],[citas.filter(c=>c.status==="pendiente").length,"Pendientes"],[citas.filter(c=>c.status==="confirmada").length,"Confirmadas"]].map(([n,l]) => (
-                    <div key={l} style={{ background:"#FEFAF5", borderRadius:14, padding:13, textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                    <div key={l} style={{ background:"#0D0B1E", borderRadius:14, padding:13, textAlign:"center", border:"1px solid rgba(255,255,255,.06)" }}>
                       <div style={{ fontSize:17, fontWeight:700, color:C.plum }}>{n}</div>
                       <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                     </div>
@@ -6521,7 +6676,7 @@ const styles = `
                   const recursosRecibidos = recursos.filter(r => r.recibido);
                   if (citasHoy.length === 0 && recursosRecibidos.length === 0) return null;
                   return (
-                    <div style={{ background:C.cardBg, borderRadius:16, padding:14, marginBottom:14, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                    <div style={{ background:C.cardBg, borderRadius:16, padding:14, marginBottom:14, border:"1px solid rgba(255,255,255,.06)" }}>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:10 }}>🔔 Alertas del día</div>
                       {citasHoy.map(c => (
                         <div key={c.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}` }}>
@@ -6544,7 +6699,7 @@ const styles = `
                   <>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📅 Citas de hoy</div>
                     {citas.filter(c => esCitaHoy(c)).map(c => (
-                      <div key={c.id} style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${C.sage}` }}>
+                      <div key={c.id} style={{ background:"#0D0B1E", borderRadius:14, padding:"12px 14px", marginBottom:9, border:"1px solid rgba(255,255,255,.06)", borderLeft:`4px solid ${C.sage}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ flex:1 }}>
                             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{c.pacienteNombre}</div>
@@ -6595,7 +6750,7 @@ const styles = `
                       setHabitosPacienteId(p.id);
                       showScreen("admin-paciente");
                     }}
-                      style={{ background:"#FEFAF5", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer" }}>
+                      style={{ background:"#0D0B1E", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"1px solid rgba(255,255,255,.06)", cursor:"pointer" }}>
                       <div style={{ width:46, height:46, borderRadius:14, overflow:"hidden",
                         background:`linear-gradient(135deg,${C.plum},${C.sage})`,
                         display:"flex", alignItems:"center", justifyContent:"center",
@@ -6622,7 +6777,7 @@ const styles = `
     {recordatorios
       .filter(r => r.pacienteId === pacienteSeleccionado?.id)
       .map(r => (
-        <div key={r.id} style={{ background:"#FEFAF5", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
+        <div key={r.id} style={{ background:"#0D0B1E", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.titulo}</div>
             <div style={{ display:"flex", gap:6, alignItems:"center" }}>
@@ -6651,13 +6806,13 @@ const styles = `
                   {/* Paciente — pre-llenado si viene de admin-paciente */}
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
                   {pacienteSeleccionado ? (
-                    <div style={{ background:"rgba(196,132,90,0.08)", border:"1px solid rgba(196,132,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
+                    <div style={{ background:"rgba(255,123,90,0.08)", border:"1px solid rgba(255,123,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
                       <span style={{ fontSize:16 }}>👤</span>
                       <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{pacienteSeleccionado.nombre}</span>
                     </div>
                   ) : (
                     <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
-                      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FEFAF5", boxSizing:"border-box" }}>
+                      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#0D0B1E", boxSizing:"border-box" }}>
                       <option value="">— Seleccionar paciente —</option>
                       {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
                     </select>
@@ -6759,7 +6914,7 @@ const styles = `
   const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
   const pacientes = todosUsuarios.filter(u => u.rol === "paciente");
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5EDE0" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#07060F" }}>
       {/* Header */}
       <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
         <div style={{ fontSize:16, fontWeight:700, color:"white" }}>🧠 Psicólogos</div>
@@ -6773,7 +6928,7 @@ const styles = `
           const susPacientes = pacientes.filter(u => u.psicologoId === p.id);
           const sinPsicologo = pacientes.filter(u => !u.psicologoId || u.psicologoId === "");
           return (
-            <div key={p.id} style={{ background:"#FEFAF5", borderRadius:16, padding:14, marginBottom:12, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+            <div key={p.id} style={{ background:"#0D0B1E", borderRadius:16, padding:14, marginBottom:12, border:"1px solid rgba(255,255,255,.06)" }}>
               {/* Info psicólogo */}
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
                 <div style={{ width:44, height:44, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -6814,7 +6969,7 @@ const styles = `
               {susPacientes.length === 0 ? (
                 <div style={{ fontSize:11, color:C.light, fontStyle:"italic", marginBottom:8 }}>Sin pacientes aún</div>
               ) : susPacientes.map(pac => (
-                <div key={pac.id} style={{ display:"flex", alignItems:"center", gap:8, background:"#F5EDE0", borderRadius:10, padding:"8px 10px", marginBottom:6 }}>
+                <div key={pac.id} style={{ display:"flex", alignItems:"center", gap:8, background:"#07060F", borderRadius:10, padding:"8px 10px", marginBottom:6 }}>
                   <div style={{ fontSize:13 }}>👤</div>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{pac.nombre}</div>
@@ -6835,7 +6990,7 @@ const styles = `
                 <div style={{ marginTop:8 }}>
                   <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6 }}>ASIGNAR PACIENTE</div>
                   <select
-                    style={{ width:"100%", padding:"9px 12px", border:"1px solid rgba(196,132,90,0.2)", borderRadius:10, fontSize:12, background:"#FEFAF5", color:C.text, fontFamily:"inherit", marginBottom:8 }}
+                    style={{ width:"100%", padding:"9px 12px", border:"1px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:12, background:"#0D0B1E", color:C.text, fontFamily:"inherit", marginBottom:8 }}
                     defaultValue=""
                     onChange={async (e) => {
                       const pacId = e.target.value;
@@ -6878,7 +7033,7 @@ const styles = `
     .filter(u => !busqueda || u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || u.email?.toLowerCase().includes(busqueda.toLowerCase()));
   const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5EDE0" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#07060F" }}>
       <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
         <div style={{ fontSize:16, fontWeight:700, color:"white" }}>👥 Pacientes</div>
         <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>{todosUsuarios.filter(u=>u.rol==="paciente").length} pacientes registrados</div>
@@ -6901,10 +7056,10 @@ const styles = `
         ) : pacientes.map(pac => {
           const psi = psicologos.find(p => p.id === pac.psicologoId);
           return (
-            <div key={pac.id} style={{ background:"#FEFAF5", borderRadius:16, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+            <div key={pac.id} style={{ background:"#0D0B1E", borderRadius:16, padding:14, marginBottom:10, border:"1px solid rgba(255,255,255,.06)" }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-                <div style={{ width:40, height:40, background:"rgba(196,132,90,0.15)", borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <div style={{ width:40, height:40, background:"rgba(255,123,90,0.15)", borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{pac.nombre}</div>
@@ -6917,7 +7072,7 @@ const styles = `
               {/* Psicólogo asignado */}
               <div style={{ fontSize:10, color:C.light, marginBottom:6, fontWeight:600 }}>PSICÓLOGO ASIGNADO</div>
               {psi ? (
-                <div style={{ display:"flex", alignItems:"center", gap:8, background:"#F5EDE0", borderRadius:10, padding:"8px 10px", marginBottom:8 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, background:"#07060F", borderRadius:10, padding:"8px 10px", marginBottom:8 }}>
                   <span style={{ fontSize:13 }}>🧠</span>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{psi.nombre}</div>
@@ -6935,7 +7090,7 @@ const styles = `
               )}
               {/* Cambiar / asignar psicólogo */}
               <select
-                style={{ width:"100%", padding:"8px 12px", border:"1px solid rgba(196,132,90,0.2)", borderRadius:10, fontSize:12, background:"#FEFAF5", color:C.text, fontFamily:"inherit" }}
+                style={{ width:"100%", padding:"8px 12px", border:"1px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:12, background:"#0D0B1E", color:C.text, fontFamily:"inherit" }}
                 value={pac.psicologoId || ""}
                 onChange={async (e) => {
                   const psiId = e.target.value;
@@ -6972,8 +7127,8 @@ const styles = `
   const pacId = habitosPacienteId || usuarioActual?.uid;
   const habitosActivos = habitos.filter(h => h.activo && h.titulo);
   const ESTADOS = [
-    { k:"si",      label:"Sí",      color:"#4A8A72", bg:"#E8F5EE", darkColor:"#3A7A62" },
-    { k:"parcial", label:"Parcial", color:"#C4845A", bg:"#FFF3E8", darkColor:"#A06040" },
+    { k:"si",      label:"Sí",      color:"#1E8880", bg:"#E8F5EE", darkColor:"#3A7A62" },
+    { k:"parcial", label:"Parcial", color:"#FF7B5A", bg:"#FFF3E8", darkColor:"#D04428" },
     { k:"no",      label:"No",      color:"#C0524A", bg:"#FFE8E8", darkColor:"#A04038" },
   ];
 
@@ -7046,14 +7201,14 @@ const styles = `
     [{ r:56, sw:9 },  { r:42, sw:8 }, { r:28, sw:7 }],
   ];
   const ringCfg = RING_CONFIGS[Math.max(0, totalActivos - 1)] || RING_CONFIGS[0];
-  const RING_COLORS = ["#4A8A72", "#C4845A", "#8B5A3A"];
+  const RING_COLORS = ["#1E8880", "#FF7B5A", "#FF7B5A"];
 
   return (
-    <div style={{ position:"absolute", inset:0, zIndex: screenHabitos ? 900 : 50, display:"flex", flexDirection:"column", background:"#F5EDE0",
+    <div style={{ position:"absolute", inset:0, zIndex: screenHabitos ? 900 : 50, display:"flex", flexDirection:"column", background:"#07060F",
       paddingBottom: screen === "habitos" ? "calc(72px + env(safe-area-inset-bottom, 10px))" : 0 }}>
 
       {/* HEADER */}
-      <div style={{ background:"#1A1208", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", paddingBottom:0, flexShrink:0 }}>
+      <div style={{ background:"#07060F", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", paddingBottom:0, flexShrink:0 }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 16px 0" }}>
           <div onClick={() => {
             setScreenHabitos(false);
@@ -7070,16 +7225,16 @@ const styles = `
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </div>
           <div style={{ flex:1 }}>
-            <div style={{ fontSize:17, fontWeight:700, color:"#F5E6D0" }}>Mis hábitos</div>
-            <div style={{ fontSize:10, color:"rgba(245,230,208,0.4)", marginTop:1 }}>
+            <div style={{ fontSize:17, fontWeight:700, color:"#F5EEE8" }}>Mis hábitos</div>
+            <div style={{ fontSize:10, color:"rgba(245,238,232,0.35)", marginTop:1 }}>
               {usuarioActual?.rol === "psicologo" && pacienteSeleccionado?.nombre
                 ? pacienteSeleccionado.nombre
                 : new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}
             </div>
           </div>
           <div onClick={() => { setHabitosEditando(!habitosEditando); setHabitosTab("hoy"); }}
-            style={{ padding:"6px 14px", background: habitosEditando ? "rgba(255,255,255,0.12)" : "rgba(196,132,90,0.25)", borderRadius:20, cursor:"pointer" }}>
-            <span style={{ fontSize:11, fontWeight:700, color: habitosEditando ? "rgba(245,230,208,0.7)" : "#E8A87C" }}>{habitosEditando ? "Cancelar" : "✏️ Editar"}</span>
+            style={{ padding:"6px 14px", background: habitosEditando ? "rgba(255,255,255,0.12)" : "rgba(255,123,90,0.25)", borderRadius:20, cursor:"pointer" }}>
+            <span style={{ fontSize:11, fontWeight:700, color: habitosEditando ? "rgba(245,230,208,0.7)" : "#FFB347" }}>{habitosEditando ? "Cancelar" : "✏️ Editar"}</span>
           </div>
         </div>
 
@@ -7089,8 +7244,8 @@ const styles = `
             {[["hoy","Hoy"],["mes","Este mes"]].map(([id, lb]) => (
               <div key={id} onClick={() => setHabitosTab(id)}
                 style={{ flex:1, padding:"9px 0", textAlign:"center", fontSize:12, fontWeight:600, cursor:"pointer",
-                  background: habitosTab === id ? "rgba(196,132,90,0.3)" : "transparent",
-                  color: habitosTab === id ? "#E8A87C" : "rgba(245,230,208,0.35)",
+                  background: habitosTab === id ? "rgba(255,123,90,0.3)" : "transparent",
+                  color: habitosTab === id ? "#FFB347" : "rgba(245,230,208,0.35)",
                   transition:"all 0.2s" }}>
                 {lb}
               </div>
@@ -7110,15 +7265,15 @@ const styles = `
               Activa hasta 3 hábitos. Solo los prendidos aparecen en el seguimiento.
             </div>
             {habitos.map((h, i) => (
-              <div key={h.id} style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:10,
-                border:`1.5px solid ${h.activo ? "#8B5A3A" : "rgba(196,132,90,0.1)"}`, transition:"all 0.2s" }}>
+              <div key={h.id} style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:10,
+                border:`1.5px solid ${h.activo ? "#FF7B5A" : "rgba(255,123,90,0.1)"}`, transition:"all 0.2s" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom: h.activo ? 12 : 0 }}>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Hábito {i+1}</div>
                     {!h.activo && <div style={{ fontSize:11, color:C.light, marginTop:2 }}>Toca el toggle para activar</div>}
                   </div>
                   <div onClick={() => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, activo:!x.activo } : x))}
-                    style={{ width:48, height:28, borderRadius:14, background:h.activo?"#8B5A3A":"rgba(0,0,0,0.1)",
+                    style={{ width:48, height:28, borderRadius:14, background:h.activo?"#FF7B5A":"rgba(0,0,0,0.1)",
                       position:"relative", cursor:"pointer", transition:"background 0.25s", flexShrink:0 }}>
                     <div style={{ position:"absolute", top:4, left: h.activo ? 24 : 4, width:20, height:20,
                       borderRadius:"50%", background:"white", transition:"left 0.25s",
@@ -7130,15 +7285,15 @@ const styles = `
                     <input placeholder="Nombre del hábito (ej: Meditación 5 min)"
                       value={h.titulo}
                       onChange={e => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, titulo:e.target.value } : x))}
-                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(196,132,90,0.18)",
+                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.18)",
                         borderRadius:10, fontSize:13, outline:"none", fontFamily:"inherit",
-                        boxSizing:"border-box", background:"#FEFAF5", marginBottom:8, color:C.text }}/>
+                        boxSizing:"border-box", background:"#0D0B1E", marginBottom:8, color:C.text }}/>
                     <input placeholder="Descripción breve (opcional)"
                       value={h.descripcion}
                       onChange={e => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, descripcion:e.target.value } : x))}
-                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(196,132,90,0.18)",
+                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.18)",
                         borderRadius:10, fontSize:12, outline:"none", fontFamily:"inherit",
-                        boxSizing:"border-box", background:"#FEFAF5", color:C.light }}/>
+                        boxSizing:"border-box", background:"#0D0B1E", color:C.light }}/>
                   </>
                 )}
               </div>
@@ -7146,7 +7301,7 @@ const styles = `
 
             {/* NOTA DEL PSICÓLOGO — solo visible para psicólogo en modo edición */}
             {usuarioActual?.rol === "psicologo" && (
-              <div style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:10, border:"1.5px solid rgba(196,132,90,0.15)" }}>
+              <div style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:10, border:"1.5px solid rgba(255,123,90,0.15)" }}>
                 <div style={{ fontSize:12, fontWeight:700, color:C.text, marginBottom:4 }}>Nota de refuerzo semanal</div>
                 <div style={{ fontSize:10, color:C.light, marginBottom:10, lineHeight:1.5 }}>
                   Se recomienda dar un mensaje de refuerzo al paciente 1 vez por semana. El paciente lo verá en "Este mes".
@@ -7156,11 +7311,11 @@ const styles = `
                   value={notaPsicologoEdit}
                   onChange={e => setNotaPsicologoEdit(e.target.value)}
                   rows={3}
-                  style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(196,132,90,0.18)",
+                  style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.18)",
                     borderRadius:10, fontSize:12, outline:"none", fontFamily:"inherit",
-                    boxSizing:"border-box", background:"#FEFAF5", resize:"none", color:C.text, lineHeight:1.6 }}/>
+                    boxSizing:"border-box", background:"#0D0B1E", resize:"none", color:C.text, lineHeight:1.6 }}/>
                 <div onClick={() => guardarNotaHabitos(pacId)}
-                  style={{ marginTop:8, padding:"9px 0", background: guardandoNota ? "rgba(139,90,58,0.4)" : "#8B5A3A",
+                  style={{ marginTop:8, padding:"9px 0", background: guardandoNota ? "rgba(139,90,58,0.4)" : "#FF7B5A",
                     color:"white", borderRadius:10, textAlign:"center", fontSize:12, fontWeight:700, cursor:"pointer" }}>
                   {guardandoNota ? "Guardando..." : "Guardar nota"}
                 </div>
@@ -7168,7 +7323,7 @@ const styles = `
             )}
 
             <div onClick={() => guardarHabitos(pacId)}
-              style={{ background:"#8B5A3A", color:"white", borderRadius:14, padding:14,
+              style={{ background:"#FF7B5A", color:"white", borderRadius:14, padding:14,
                 textAlign:"center", fontSize:14, fontWeight:700, cursor:"pointer", marginTop:4 }}>
               Guardar hábitos
             </div>
@@ -7182,7 +7337,7 @@ const styles = `
               <div style={{ textAlign:"center", padding:"60px 24px" }}>
                 <div style={{ width:64, height:64, borderRadius:20, background:"rgba(139,90,58,0.1)",
                   display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.5" strokeLinecap="round">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.5" strokeLinecap="round">
                     <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/>
                   </svg>
                 </div>
@@ -7229,8 +7384,8 @@ const styles = `
                   const estadoHoy = regs[hoy];
                   const racha = calcRacha(regs);
                   return (
-                    <div key={h.id} style={{ background:"#FEFAF5", borderRadius:18, padding:16, marginBottom:12,
-                      border:`1.5px solid ${estadoHoy === "si" ? "#4A8A72" : estadoHoy === "parcial" ? "#C4845A" : estadoHoy === "no" ? "rgba(192,82,74,0.2)" : "rgba(196,132,90,0.1)"}`,
+                    <div key={h.id} style={{ background:"#0D0B1E", borderRadius:18, padding:16, marginBottom:12,
+                      border:`1.5px solid ${estadoHoy === "si" ? "#1E8880" : estadoHoy === "parcial" ? "#FF7B5A" : estadoHoy === "no" ? "rgba(192,82,74,0.2)" : "rgba(255,123,90,0.1)"}`,
                       transition:"border-color 0.2s" }}>
                       <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:12 }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10, flex:1 }}>
@@ -7241,9 +7396,9 @@ const styles = `
                           </div>
                         </div>
                         {racha > 0 && (
-                          <div style={{ background: racha >= 7 ? "#8B5A3A" : "rgba(139,90,58,0.12)",
+                          <div style={{ background: racha >= 7 ? "#FF7B5A" : "rgba(139,90,58,0.12)",
                             borderRadius:20, padding:"3px 10px", flexShrink:0 }}>
-                            <span style={{ fontSize:11, fontWeight:700, color: racha >= 7 ? "white" : "#8B5A3A" }}>🔥 {racha}d</span>
+                            <span style={{ fontSize:11, fontWeight:700, color: racha >= 7 ? "white" : "#FF7B5A" }}>🔥 {racha}d</span>
                           </div>
                         )}
                       </div>
@@ -7255,7 +7410,7 @@ const styles = `
                           const esHoyF = f === hoy;
                           return (
                             <div key={f} style={{ flex:1, height:6, borderRadius:3,
-                              background: est === "si" ? "#4A8A72" : est === "parcial" ? "#C4845A" : est === "no" ? "rgba(192,82,74,0.3)" : "rgba(0,0,0,0.06)",
+                              background: est === "si" ? "#1E8880" : est === "parcial" ? "#FF7B5A" : est === "no" ? "rgba(192,82,74,0.3)" : "rgba(0,0,0,0.06)",
                               outline: esHoyF ? "1.5px solid #C4845A" : "none",
                               outlineOffset: "1px" }}/>
                           );
@@ -7291,10 +7446,10 @@ const styles = `
                         return (
                           <div style={{ display:"flex", gap:6 }}>
                             <div style={{ flex:1, background:"rgba(74,138,114,0.08)", borderRadius:10, padding:"8px 4px", textAlign:"center" }}>
-                              <div style={{ fontSize:15, fontWeight:700, color:"#4A8A72" }}>{pct}%</div>
+                              <div style={{ fontSize:15, fontWeight:700, color:"#1E8880" }}>{pct}%</div>
                               <div style={{ fontSize:8, color:C.light }}>este mes</div>
                             </div>
-                            <div style={{ flex:1, background:"rgba(196,132,90,0.08)", borderRadius:10, padding:"8px 4px", textAlign:"center" }}>
+                            <div style={{ flex:1, background:"rgba(255,123,90,0.08)", borderRadius:10, padding:"8px 4px", textAlign:"center" }}>
                               <div style={{ fontSize:15, fontWeight:700, color:C.plum }}>{racha}</div>
                               <div style={{ fontSize:8, color:C.light }}>racha</div>
                             </div>
@@ -7313,8 +7468,8 @@ const styles = `
                 {mejorRacha > 0 && (
                   <div style={{ background:"rgba(139,90,58,0.08)", borderRadius:14, padding:"10px 16px",
                     display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                    <div style={{ fontSize:12, color:"#8B5A3A", fontWeight:600 }}>Mejor racha actual</div>
-                    <div style={{ fontSize:18, fontWeight:700, color:"#8B5A3A" }}>🔥 {mejorRacha} días</div>
+                    <div style={{ fontSize:12, color:"#FF7B5A", fontWeight:600 }}>Mejor racha actual</div>
+                    <div style={{ fontSize:18, fontWeight:700, color:"#FF7B5A" }}>🔥 {mejorRacha} días</div>
                   </div>
                 )}
               </>
@@ -7338,8 +7493,8 @@ const styles = `
                 </div>
 
                 {/* TERMÓMETROS DE ADHERENCIA */}
-                <div style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:12,
-                  border:"0.5px solid rgba(196,132,90,0.1)" }}>
+                <div style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:12,
+                  border:"1px solid rgba(255,255,255,.06)" }}>
                   <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:12,
                     textTransform:"uppercase", letterSpacing:0.5 }}>Adherencia del mes</div>
                   {habitosActivos.map((h, i) => {
@@ -7368,22 +7523,22 @@ const styles = `
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:12 }}>
                   <div style={{ background:"#E8F5EE", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:700, color:"#2A4A36" }}>{diasPerfectos}</div>
-                    <div style={{ fontSize:10, color:"#4A8A72", marginTop:2 }}>días perfectos</div>
+                    <div style={{ fontSize:10, color:"#1E8880", marginTop:2 }}>días perfectos</div>
                     <div style={{ fontSize:9, color:"rgba(74,138,114,0.6)", marginTop:1 }}>todos los hábitos</div>
                   </div>
                   <div style={{ background:"rgba(139,90,58,0.1)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:700, color:"#6A3E28" }}>{mejorRacha}</div>
-                    <div style={{ fontSize:10, color:"#8B5A3A", marginTop:2 }}>racha actual</div>
+                    <div style={{ fontSize:10, color:"#FF7B5A", marginTop:2 }}>racha actual</div>
                     <div style={{ fontSize:9, color:"rgba(139,90,58,0.5)", marginTop:1 }}>días seguidos</div>
                   </div>
-                  <div style={{ background:"rgba(196,132,90,0.08)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
-                    <div style={{ fontSize:22, fontWeight:700, color:"#8B5A3A" }}>
+                  <div style={{ background:"rgba(255,123,90,0.08)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
+                    <div style={{ fontSize:22, fontWeight:700, color:"#FF7B5A" }}>
                       {habitosActivos.length > 0 ? Math.round(habitosActivos.reduce((sum, h) => {
                         const key = `${pacId}_slot${h.slot || h.id}`;
                         return sum + statsMes(key).pct;
                       }, 0) / habitosActivos.length) : 0}%
                     </div>
-                    <div style={{ fontSize:10, color:"#8B5A3A", marginTop:2 }}>adherencia global</div>
+                    <div style={{ fontSize:10, color:"#FF7B5A", marginTop:2 }}>adherencia global</div>
                     <div style={{ fontSize:9, color:"rgba(139,90,58,0.5)", marginTop:1 }}>promedio todos</div>
                   </div>
                   <div style={{ background:"rgba(74,138,114,0.08)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
@@ -7393,14 +7548,14 @@ const styles = `
                         return (registrosHabito[key] || {})[f];
                       })).length}
                     </div>
-                    <div style={{ fontSize:10, color:"#4A8A72", marginTop:2 }}>días registrados</div>
+                    <div style={{ fontSize:10, color:"#1E8880", marginTop:2 }}>días registrados</div>
                     <div style={{ fontSize:9, color:"rgba(74,138,114,0.5)", marginTop:1 }}>de {diasEnMes} en el mes</div>
                   </div>
                 </div>
 
                 {/* MAPA DEL MES */}
-                <div style={{ background:"#FEFAF5", borderRadius:16, padding:14, marginBottom:12,
-                  border:"0.5px solid rgba(196,132,90,0.1)" }}>
+                <div style={{ background:"#0D0B1E", borderRadius:16, padding:14, marginBottom:12,
+                  border:"1px solid rgba(255,255,255,.06)" }}>
                   <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:10,
                     textTransform:"uppercase", letterSpacing:0.5 }}>Mapa del mes</div>
                   <div style={{ fontSize:10, color:C.light, marginBottom:8 }}>
@@ -7413,8 +7568,8 @@ const styles = `
                       const esHoy = f === hoy;
                       const esFuturo = f > hoy;
                       const bg = esFuturo ? "rgba(0,0,0,0.03)"
-                        : est === "si" ? "#4A8A72"
-                        : est === "parcial" ? "#C4845A"
+                        : est === "si" ? "#1E8880"
+                        : est === "parcial" ? "#FF7B5A"
                         : est === "no" ? "rgba(192,82,74,0.35)"
                         : "rgba(0,0,0,0.06)";
                       return (
@@ -7426,7 +7581,7 @@ const styles = `
                     })}
                   </div>
                   <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-                    {[["#4A8A72","Sí"],["#C4845A","Parcial"],["rgba(192,82,74,0.35)","No"],["rgba(0,0,0,0.06)","Sin registro"]].map(([color,label]) => (
+                    {[["#1E8880","Sí"],["#FF7B5A","Parcial"],["rgba(192,82,74,0.35)","No"],["rgba(0,0,0,0.06)","Sin registro"]].map(([color,label]) => (
                       <div key={label} style={{ display:"flex", alignItems:"center", gap:4 }}>
                         <div style={{ width:8, height:8, borderRadius:2, background:color }}/>
                         <span style={{ fontSize:9, color:C.light }}>{label}</span>
@@ -7439,15 +7594,15 @@ const styles = `
                 {notaPsicologo ? (
                   <div style={{ background:"rgba(139,90,58,0.07)", borderRadius:14, padding:"12px 14px",
                     border:"0.5px solid rgba(139,90,58,0.15)" }}>
-                    <div style={{ fontSize:10, fontWeight:700, color:"#8B5A3A", marginBottom:6,
+                    <div style={{ fontSize:10, fontWeight:700, color:"#FF7B5A", marginBottom:6,
                       textTransform:"uppercase", letterSpacing:0.5 }}>Tu psicólogo dice</div>
                     <div style={{ fontSize:13, color:"#5A3A20", lineHeight:1.6, fontStyle:"italic" }}>
                       "{notaPsicologo}"
                     </div>
                   </div>
                 ) : usuarioActual?.rol === "paciente" ? null : (
-                  <div style={{ background:"rgba(196,132,90,0.06)", borderRadius:14, padding:"12px 14px",
-                    border:"1.5px dashed rgba(196,132,90,0.2)", textAlign:"center" }}>
+                  <div style={{ background:"rgba(255,123,90,0.06)", borderRadius:14, padding:"12px 14px",
+                    border:"1.5px dashed rgba(255,123,90,0.2)", textAlign:"center" }}>
                     <div style={{ fontSize:11, color:C.light }}>Sin nota de refuerzo aún</div>
                     <div style={{ fontSize:10, color:C.light, marginTop:2 }}>Agrégala desde "Editar"</div>
                   </div>
@@ -7596,7 +7751,7 @@ const styles = `
   };
 
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5EDE0" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#07060F" }}>
 
       {/* Header con 2 tabs principales */}
       <div style={{ background:`linear-gradient(145deg,${C.dark},#3A1E4A)`, padding:"16px 18px 0", paddingTop:"max(16px, env(safe-area-inset-top,16px))", flexShrink:0 }}>
@@ -7607,7 +7762,7 @@ const styles = `
           {[["finanzas","💰 Finanzas"],["metodos","💳 Métodos pago"]].map(([id,lb]) => (
             <div key={id} onClick={() => setPagosMainTab(id)}
               style={{ flex:1, textAlign:"center", padding:"9px 0", fontSize:12, fontWeight:700,
-                color: pagosMainTab===id ? "#E8A87C" : "rgba(255,255,255,0.4)",
+                color: pagosMainTab===id ? "#FFB347" : "rgba(255,255,255,0.4)",
                 borderBottom: pagosMainTab===id ? "2.5px solid #E8A87C" : "2.5px solid transparent",
                 cursor:"pointer", transition:"all 0.15s" }}>
               {lb}
@@ -7660,9 +7815,9 @@ const styles = `
                 <div key={p.id} onClick={() => setIngresoPaciente(p.id==="ninguno" ? null : p)}
                   style={{ padding:"5px 12px", borderRadius:20, fontSize:11, fontWeight:700, cursor:"pointer",
                     background: (ingresoPaciente?.id === p.id || (p.id==="ninguno" && !ingresoPaciente))
-                      ? "#8B5A3A" : "rgba(139,90,58,0.08)",
+                      ? "#FF7B5A" : "rgba(139,90,58,0.08)",
                     color: (ingresoPaciente?.id === p.id || (p.id==="ninguno" && !ingresoPaciente))
-                      ? "white" : "#8B5A3A" }}>
+                      ? "white" : "#FF7B5A" }}>
                   {p.nombre}
                 </div>
               ))}
@@ -7682,7 +7837,7 @@ const styles = `
             <div style={{ fontSize:10, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Valor</div>
             <div style={{ position:"relative", marginBottom:14 }}>
               <span style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)",
-                fontSize:14, fontWeight:700, color:"#8B5A3A" }}>$</span>
+                fontSize:14, fontWeight:700, color:"#FF7B5A" }}>$</span>
               <input
                 value={ingresoValor}
                 onChange={e => setIngresoValor(e.target.value.replace(/\D/g,""))}
@@ -7722,7 +7877,7 @@ const styles = `
             <div style={{ display:"flex", gap:10 }}>
               <div onClick={() => setModalIngreso(false)}
                 style={{ flex:1, padding:"12px 0", borderRadius:14, textAlign:"center",
-                  background:"rgba(139,90,58,0.08)", color:"#8B5A3A", fontSize:13, fontWeight:700, cursor:"pointer" }}>
+                  background:"rgba(139,90,58,0.08)", color:"#FF7B5A", fontSize:13, fontWeight:700, cursor:"pointer" }}>
                 Cancelar
               </div>
               <div onClick={async () => {
@@ -7775,7 +7930,7 @@ const styles = `
                   {metodosPago.map((mp,i) => {
                     const info = METODOS_DISPONIBLES.find(m => m.id===mp.id) || METODOS_DISPONIBLES[0];
                     return (
-                      <div key={i} style={{ background:"#FEFAF5", borderRadius:16, padding:"14px 16px", marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:12 }}>
+                      <div key={i} style={{ background:"#0D0B1E", borderRadius:16, padding:"14px 16px", marginBottom:10, border:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:12 }}>
                         <div style={{ width:44, height:44, borderRadius:12, background:info.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, fontWeight:800, color:info.color, flexShrink:0 }}>
                           {info.nombre[0]}
                         </div>
@@ -7804,7 +7959,7 @@ const styles = `
               {METODOS_DISPONIBLES.map(m => {
                 const activo = pagoEditTemp.find(p => p.id===m.id);
                 return (
-                  <div key={m.id} style={{ background:"#FEFAF5", borderRadius:16, padding:"14px 16px", marginBottom:10, border:`1.5px solid ${activo?m.color:"rgba(0,0,0,0.07)"}` }}>
+                  <div key={m.id} style={{ background:"#0D0B1E", borderRadius:16, padding:"14px 16px", marginBottom:10, border:`1.5px solid ${activo?m.color:"rgba(0,0,0,0.07)"}` }}>
                     <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:activo?10:0 }}>
                       <div style={{ width:40, height:40, borderRadius:11, background:m.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, fontWeight:800, color:m.color }}>{m.nombre[0]}</div>
                       <div style={{ flex:1 }}>
@@ -7835,7 +7990,7 @@ const styles = `
         {pagosMainTab === "finanzas" && (
           <div>
             {/* Sub-tabs finanzas */}
-            <div style={{ display:"flex", background:"#FEFAF5", borderBottom:"1px solid rgba(196,132,90,0.12)", padding:"0 16px" }}>
+            <div style={{ display:"flex", background:"#0D0B1E", borderBottom:"1px solid rgba(255,123,90,0.12)", padding:"0 16px" }}>
               {[["resumen","📊 Resumen"],["sesiones","📋 Sesiones"],["tarifas","💲 Tarifas"]].map(([id,lb]) => (
                 <div key={id} onClick={() => setFinanzasTab(id)}
                   style={{ flex:1, textAlign:"center", padding:"11px 0", fontSize:11, fontWeight:700,
@@ -7854,10 +8009,10 @@ const styles = `
                 {/* Navegador mes */}
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
                   <div onClick={() => { if(finanzasMes===0){setFinanzasMes(11);setFinanzasAnio(a=>a-1);}else setFinanzasMes(m=>m-1); }}
-                    style={{ width:34,height:34,borderRadius:10,background:"#FEFAF5",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>‹</div>
+                    style={{ width:34,height:34,borderRadius:10,background:"#0D0B1E",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>‹</div>
                   <div style={{ fontSize:15, fontWeight:800, color:C.text }}>{mesesFull[finanzasMes]} {finanzasAnio}</div>
                   <div onClick={() => { if(finanzasMes===11){setFinanzasMes(0);setFinanzasAnio(a=>a+1);}else setFinanzasMes(m=>m+1); }}
-                    style={{ width:34,height:34,borderRadius:10,background:"#FEFAF5",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>›</div>
+                    style={{ width:34,height:34,borderRadius:10,background:"#0D0B1E",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>›</div>
                 </div>
 
                 {loadingFinanzas ? (
@@ -7867,7 +8022,7 @@ const styles = `
                   {/* Cards + Donut */}
                   <div style={{ display:"flex", gap:12, marginBottom:16, alignItems:"center" }}>
                     {/* Donut */}
-                    <div style={{ background:"#FEFAF5", borderRadius:16, padding:14, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", border:"0.5px solid rgba(196,132,90,0.12)", flexShrink:0 }}>
+                    <div style={{ background:"#0D0B1E", borderRadius:16, padding:14, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", border:"1px solid rgba(255,255,255,.06)", flexShrink:0 }}>
                       {(() => {
                         const r=38; const circ=2*Math.PI*r; const dash=(pctCobrado/100)*circ;
                         return (
@@ -7895,7 +8050,7 @@ const styles = `
                         { lb:"Pendiente", val:fmt(pendienteMes), color:C.amber, icon:"⏳" },
                         { lb:"Sesiones", val:sesDelMes.length+" sesión"+(sesDelMes.length!==1?"es":""), color:C.blue, icon:"🗓️" },
                       ].map(({lb,val,color,icon}) => (
-                        <div key={lb} style={{ background:"#FEFAF5", borderRadius:11, padding:"8px 12px", border:`1px solid ${color}20`, display:"flex", alignItems:"center", gap:8 }}>
+                        <div key={lb} style={{ background:"#0D0B1E", borderRadius:11, padding:"8px 12px", border:`1px solid ${color}20`, display:"flex", alignItems:"center", gap:8 }}>
                           <span style={{ fontSize:14 }}>{icon}</span>
                           <div>
                             <div style={{ fontSize:12, fontWeight:800, color }}>{val}</div>
@@ -7907,7 +8062,7 @@ const styles = `
                   </div>
 
                   {/* Barras semanales */}
-                  <div style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                  <div style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(255,255,255,.06)" }}>
                     <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:14 }}>Semanas de {mesesFull[finanzasMes]}</div>
                     <div style={{ display:"flex", gap:8, alignItems:"flex-end", height:90 }}>
                       {semanas.map((val,i) => (
@@ -7922,7 +8077,7 @@ const styles = `
                   </div>
 
                   {/* Tendencia 6 meses */}
-                  <div style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                  <div style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(255,255,255,.06)" }}>
                     <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:14 }}>Tendencia 6 meses</div>
                     <div style={{ display:"flex", gap:6, alignItems:"flex-end", height:80 }}>
                       {trend.map((t,i) => (
@@ -7937,7 +8092,7 @@ const styles = `
 
                   {/* Por paciente */}
                   {Object.keys(porPac).length > 0 && (
-                    <div style={{ background:"#FEFAF5", borderRadius:16, padding:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                    <div style={{ background:"#0D0B1E", borderRadius:16, padding:16, border:"1px solid rgba(255,255,255,.06)" }}>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:12 }}>Por paciente</div>
                       {Object.values(porPac).sort((a,b)=>b.total-a.total).map((p,i,arr) => (
                         <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:i<arr.length-1?"0.5px solid rgba(0,0,0,0.06)":"none" }}>
@@ -7974,16 +8129,16 @@ const styles = `
               <div style={{ padding:16 }}>
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
                   <div onClick={() => { if(finanzasMes===0){setFinanzasMes(11);setFinanzasAnio(a=>a-1);}else setFinanzasMes(m=>m-1); }}
-                    style={{ width:32,height:32,borderRadius:9,background:"#FEFAF5",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>‹</div>
+                    style={{ width:32,height:32,borderRadius:9,background:"#0D0B1E",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>‹</div>
                   <div style={{ fontSize:14,fontWeight:800,color:C.text }}>{mesesFull[finanzasMes]} {finanzasAnio}</div>
                   <div onClick={() => { if(finanzasMes===11){setFinanzasMes(0);setFinanzasAnio(a=>a+1);}else setFinanzasMes(m=>m+1); }}
-                    style={{ width:32,height:32,borderRadius:9,background:"#FEFAF5",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>›</div>
+                    style={{ width:32,height:32,borderRadius:9,background:"#0D0B1E",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>›</div>
                 </div>                
                 {/* Lista sesiones del mes */}
                 {sesDelMes.length === 0 ? (
                   <div style={{ textAlign:"center",padding:"24px 0",color:C.light,fontSize:13 }}>Sin sesiones este mes</div>
                 ) : sesDelMes.map(s => (
-                  <div key={s.id} style={{ background:"#FEFAF5", borderRadius:13, padding:"12px 14px", marginBottom:9, border:`1px solid ${s.pagado?C.green:C.amber}30`, borderLeft:`3px solid ${s.pagado?C.green:C.amber}` }}>
+                  <div key={s.id} style={{ background:"#0D0B1E", borderRadius:13, padding:"12px 14px", marginBottom:9, border:`1px solid ${s.pagado?C.green:C.amber}30`, borderLeft:`3px solid ${s.pagado?C.green:C.amber}` }}>
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                       <div style={{ flex:1, minWidth:0 }}>
                         <div style={{ fontSize:13,fontWeight:800,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{s.pacienteNombre}</div>
@@ -7992,7 +8147,7 @@ const styles = `
                       <div style={{ fontSize:14,fontWeight:900,color:C.plum,flexShrink:0 }}>{fmt(s.valor)}</div>
                       <div onClick={() => marcarPagado(s.id, s.pagado)}
                         style={{ padding:"5px 10px", borderRadius:20, fontSize:10, fontWeight:800, cursor:"pointer", flexShrink:0,
-                          background:s.pagado?"rgba(90,138,98,0.12)":"rgba(196,132,90,0.12)",
+                          background:s.pagado?"rgba(90,138,98,0.12)":"rgba(255,123,90,0.12)",
                           color:s.pagado?C.green:C.amber, border:`1px solid ${s.pagado?C.green:C.amber}40` }}>
                         {s.pagado?"✅ Cobrado":"⏳ Pendiente"}
                       </div>
@@ -8015,7 +8170,7 @@ const styles = `
                 {pacientes.length === 0 ? (
                   <div style={{ textAlign:"center",padding:32,color:C.light }}>Sin pacientes asignados</div>
                 ) : pacientes.map(p => (
-                  <div key={p.id} style={{ background:"#FEFAF5", borderRadius:13, padding:"12px 14px", marginBottom:9, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                  <div key={p.id} style={{ background:"#0D0B1E", borderRadius:13, padding:"12px 14px", marginBottom:9, border:"1px solid rgba(255,255,255,.06)" }}>
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                       <div style={{ width:38,height:38,borderRadius:10,background:`${C.plum}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800,color:C.plum,flexShrink:0 }}>
                         {p.nombre?.[0]?.toUpperCase()||"?"}
@@ -8064,7 +8219,7 @@ const styles = `
   <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB }}>
     <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
       <div style={{ width:44, height:44, display:"flex", alignItems:"center", justifyContent:"center" }}>
-        <LucideIcon name="crown" color="#E8A87C" size={34}/>
+        <LucideIcon name="crown" color="#FFB347" size={34}/>
       </div>
       <div style={{ flex:1 }}>
         <div style={{ fontSize:16, fontWeight:700, color:"white" }}>Panel Administrador</div>
@@ -8082,7 +8237,7 @@ const styles = `
         ["🔒", "Cuentas inactivas", todosUsuarios.filter(u=>u.inactivo).length || "0"],
         ["👤", "Total usuarios", todosUsuarios.length || "—"]
       ].map(([ic,lb,val]) => (
-          <div key={lb} style={{ background:"#FEFAF5", borderRadius:14, padding:13, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+          <div key={lb} style={{ background:"#0D0B1E", borderRadius:14, padding:13, border:"1px solid rgba(255,255,255,.06)" }}>
             <div style={{ fontSize:24, marginBottom:4 }}>{ic}</div>
             <div style={{ fontSize:20, fontWeight:900, color:C.plum }}>{val}</div>
             <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>{lb}</div>
@@ -8097,7 +8252,7 @@ const styles = `
       ) : todosUsuarios.filter(u=>u.rol==="psicologo").map(p => {
         const pacientesCount = todosUsuarios.filter(u=>u.rol==="paciente"&&u.psicologoId===p.id).length;
         return (
-          <div key={p.id} style={{ background:"#FEFAF5", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+          <div key={p.id} style={{ background:"#0D0B1E", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, border:"1px solid rgba(255,255,255,.06)" }}>
             <div style={{ fontSize:26, width:42, height:42, background:C.warm, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>🧠</div>
             <div style={{ flex:1 }}>
               <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{p.nombre}</div>
@@ -8115,7 +8270,7 @@ const styles = `
 {mitem("👥", "Ver y gestionar usuarios", () => { cargarTodosUsuarios(); setModal("gestionar-usuarios"); })}
 {mitem("💰", "Gestión de pagos", () => showNotif("Pagos", "Función disponible pronto", "💰"))}
 {mitem("📊", "Ver reportes", () => showNotif("Reportes", "Función disponible pronto", "📊"))}
-<div style={{ margin:"8px 0 4px", height:"0.5px", background:"rgba(196,132,90,0.15)" }}/>
+<div style={{ margin:"8px 0 4px", height:"0.5px", background:"rgba(255,123,90,0.15)" }}/>
 <div onClick={cerrarSesion}
 style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", background:"#FFF0F0", borderRadius:14, marginBottom:8, cursor:"pointer", border:"0.5px solid rgba(192,80,80,0.15)" }}>
   <div style={{ width:38, height:38, borderRadius:11, background:"rgba(192,80,80,0.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>🚪</div>
@@ -8144,7 +8299,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
       <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>No hay usuarios registrados</div>
     ) : (
       todosUsuarios.map(u => (
-        <div key={u.id} style={{ background:usuariosSeleccionados.includes(u.id)?"#F0EDF5":"white", borderRadius:13, padding:"11px 13px", marginBottom:8, border:"0.5px solid rgba(196,132,90,0.12)", border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:"transparent"}` }}>
+        <div key={u.id} style={{ background:usuariosSeleccionados.includes(u.id)?"#F0EDF5":"white", borderRadius:13, padding:"11px 13px", marginBottom:8, border:"1px solid rgba(255,255,255,.06)", border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:"transparent"}` }}>
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             <div onClick={() => toggleSeleccion(u.id)} style={{ width:22, height:22, borderRadius:6, border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:C.light}`, background:usuariosSeleccionados.includes(u.id)?C.plum:"transparent", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, color:"white", cursor:"pointer", flexShrink:0 }}>
               {usuariosSeleccionados.includes(u.id) ? "✓" : ""}
@@ -8214,7 +8369,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
       <>
         <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8, marginTop:4 }}>Psicólogo asignado</div>
         <select value={formPsicologoId} onChange={e => setFormPsicologoId(e.target.value)}
-          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", background:"#FEFAF5", boxSizing:"border-box" }}>
+          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", background:"#0D0B1E", boxSizing:"border-box" }}>
           <option value="">— Seleccionar psicólogo —</option>
           {todosUsuarios.filter(u => u.rol === "psicologo").map(p => (
             <option key={p.id} value={p.id}>{p.nombre}</option>
@@ -8253,13 +8408,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
               <div style={{ padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:16 }}>
                   {[[autorregistros.length,"Registros"],[citas.filter(c=>c.pacienteId===pacienteSeleccionado?.id).length,"Sesiones"],[pacienteSeleccionado?.xp||0,"XP"]].map(([n,l]) => (
-                    <div key={l} style={{ background:"#FEFAF5", borderRadius:13, padding:"12px 8px", textAlign:"center", border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                    <div key={l} style={{ background:"#0D0B1E", borderRadius:13, padding:"12px 8px", textAlign:"center", border:"1px solid rgba(255,255,255,.06)" }}>
                       <div style={{ fontSize:16, fontWeight:700, color:C.plum }}>{n}</div>
                       <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:12, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                <div style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:12, border:"1px solid rgba(255,255,255,.06)" }}>
                   <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:4 }}>📊 Estado de ánimo</div>
                   {registrosAnimo.length === 0 ? (
                     <div style={{ textAlign:"center", padding:"16px 0", color:C.light, fontSize:12 }}>El paciente aún no ha registrado su ánimo</div>
@@ -8321,11 +8476,11 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 </div>
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📝 Autorregistros recientes</div>
                 {autorregistros.length === 0 ? (
-                  <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
+                  <div style={{ background:"#0D0B1E", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
                     El paciente aún no tiene autorregistros
                   </div>
                 ) : autorregistros.slice(0,3).map(ar => (
-                  <div key={ar.id} style={{ background:"#FEFAF5", borderRadius:16, padding:16, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${C.plum}` }}>
+                  <div key={ar.id} style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:10, border:"1px solid rgba(255,255,255,.06)", borderLeft:`4px solid ${C.plum}` }}>
                     <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>📅 {ar.fecha}</div>
                     <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:4 }}>¿Qué estaba haciendo?</div>
                     <div style={{ fontSize:12, color:C.light, lineHeight:1.5, marginBottom:6 }}>{ar.haciendo}</div>
@@ -8334,16 +8489,16 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   </div>
                 ))}
                 {(pacienteSeleccionado?.contactoEmergenciaNombre || pacienteSeleccionado?.contactoEmergenciaTel) && (
-                  <div style={{ background:"rgba(196,132,90,0.06)", borderRadius:12, padding:"10px 14px", marginBottom:12, border:"1px solid rgba(196,132,90,0.12)", display:"flex", alignItems:"center", gap:10 }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  <div style={{ background:"rgba(255,123,90,0.06)", borderRadius:12, padding:"10px 14px", marginBottom:12, border:"1px solid rgba(255,123,90,0.12)", display:"flex", alignItems:"center", gap:10 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:10, fontWeight:700, color:"#8B5A3A", marginBottom:1 }}>Contacto de emergencia</div>
+                      <div style={{ fontSize:10, fontWeight:700, color:"#FF7B5A", marginBottom:1 }}>Contacto de emergencia</div>
                       <div style={{ fontSize:12, fontWeight:600, color:C.text }}>{pacienteSeleccionado?.contactoEmergenciaNombre || "—"}</div>
                       <div style={{ fontSize:11, color:C.light }}>{pacienteSeleccionado?.contactoEmergenciaTel || "—"}</div>
                     </div>
                     {pacienteSeleccionado?.contactoEmergenciaTel && (
                       <a href={`tel:${pacienteSeleccionado.contactoEmergenciaTel}`}
-                        style={{ width:34, height:34, background:"#4A8A72", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", flexShrink:0 }}>
+                        style={{ width:34, height:34, background:"#1E8880", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", flexShrink:0 }}>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                       </a>
                     )}
@@ -8351,8 +8506,8 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 )}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
                 {btn(() => setModal("assign-task"), "📋 Asignar nueva tarea", { width:"100%", padding:9, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, color:"white", borderRadius:13, fontSize:13, fontWeight:800, marginBottom:10 })}
-                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, "Nota clínica privada", () => setModal("feedback"))}
-                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>, "Mis hábitos", () => {
+                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, "Nota clínica privada", () => setModal("feedback"))}
+                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>, "Mis hábitos", () => {
                   if (!pacienteSeleccionado) { showToast("Selecciona un paciente primero ❌"); return; }
                   setHabitos([{ id:1, activo:false, titulo:"", descripcion:"" },{ id:2, activo:false, titulo:"", descripcion:"" },{ id:3, activo:false, titulo:"", descripcion:"" }]);
                   setRegistrosHabito({});
@@ -8364,16 +8519,16 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   setHabitosEditando(false);
                   setScreenHabitos(true);
                 })}
-                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>, "Agendar cita", () => { setCitaPacienteId(pacienteSeleccionado?.id || ""); setModal("agendar-cita"); })}                
-                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><line x1="12" y1="2" x2="12" y2="2"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="8" y1="6" x2="8" y2="2"/><line x1="16" y1="6" x2="16" y2="2"/></svg>, "Recordatorios recurrentes", () => setModal("crear-recordatorio"))}
-                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>, "Enviar material", () => setModal("enviar-material"))}
+                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>, "Agendar cita", () => { setCitaPacienteId(pacienteSeleccionado?.id || ""); setModal("agendar-cita"); })}                
+                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><line x1="12" y1="2" x2="12" y2="2"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="8" y1="6" x2="8" y2="2"/><line x1="16" y1="6" x2="16" y2="2"/></svg>, "Recordatorios recurrentes", () => setModal("crear-recordatorio"))}
+                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>, "Enviar material", () => setModal("enviar-material"))}
                 {recordatorios.filter(r => r.pacienteId === pacienteSeleccionado?.id).length > 0 && (
   <div style={{ marginTop:4, marginBottom:4 }}>
     <div style={{ fontSize:12, fontWeight:800, color:C.light, margin:"12px 0 8px" }}>RECORDATORIOS ACTIVOS</div>
     {recordatorios
       .filter(r => r.pacienteId === pacienteSeleccionado?.id)
       .map(r => (
-        <div key={r.id} style={{ background:"#FEFAF5", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
+        <div key={r.id} style={{ background:"#0D0B1E", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.titulo}</div>
             <div style={{ display:"flex", gap:6, alignItems:"center" }}>
@@ -8394,9 +8549,9 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 )}
 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>📤 Materiales enviados</div>
 {recursos.length === 0 ? (
-  <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay materiales enviados aún</div>
+  <div style={{ background:"#0D0B1E", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay materiales enviados aún</div>
 ) : recursos.map(r => (
-  <div key={r.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:`4px solid ${r.recibido ? C.green : C.sage}` }}>
+  <div key={r.id} style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(255,255,255,.06)", borderLeft:`4px solid ${r.recibido ? C.green : C.sage}` }}>
     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
       <div style={{ display:"flex", alignItems:"center", gap:10 }}>
         <div style={{ width:38, height:38, borderRadius:10, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
@@ -8418,10 +8573,10 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 ))}
 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>📋 Tareas asignadas</div>
 {tareasPsicologo.length === 0 ? (
-  <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay tareas asignadas aún</div>
+  <div style={{ background:"#0D0B1E", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay tareas asignadas aún</div>
 ) : tareasPsicologo.map(t => (
   <div key={t.id} onClick={() => setNotaAbierta({ ...t, tipo:"tarea_psi" })}
-    style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:"0.5px solid rgba(196,132,90,0.12)", cursor:"pointer", borderLeft:`3px solid ${t.completada ? "#5A8A62" : "#C4845A"}` }}>
+    style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(255,255,255,.06)", cursor:"pointer", borderLeft:`3px solid ${t.completada ? "#5A8A62" : "#FF7B5A"}` }}>
     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
       <div style={{ fontSize:13, fontWeight:800, color:C.text, flex:1 }}>{t.titulo}</div>
       <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
@@ -8463,12 +8618,12 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 ))}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>🔒 Notas clínicas</div>
                 {notasClinicas.length === 0 ? (
-                  <div style={{ background:"#FEFAF5", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
+                  <div style={{ background:"#0D0B1E", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
                     Aún no has escrito notas clínicas para este paciente
                   </div>
                 ) : notasClinicas.map(n => (
                   <div key={n.id} onClick={() => setNotaAbierta({ ...n, tipo:"clinica" })}
-                    style={{ background:"#FEFAF5", borderRadius:14, padding:14, border:"0.5px solid rgba(196,132,90,0.12)", borderLeft:"3px solid #8B7BA0", marginBottom:10, cursor:"pointer" }}>
+                    style={{ background:"#0D0B1E", borderRadius:14, padding:14, border:"1px solid rgba(255,255,255,.06)", borderLeft:"3px solid #8B7BA0", marginBottom:10, cursor:"pointer" }}>
                     <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{n.titulo}</div>
                       <div style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -8822,7 +8977,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario en tiempo real</div>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
-                  <div style={{ background:"rgba(196,132,90,0.08)", border:"1px solid rgba(196,132,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
+                  <div style={{ background:"rgba(255,123,90,0.08)", border:"1px solid rgba(255,123,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
                     <span style={{ fontSize:16 }}>👤</span>
                     <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{pacienteSeleccionado?.nombre}</span>
                   </div>
@@ -8885,10 +9040,10 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
           {/* ADMIN PERFIL */}
           {!notifPanel && screen === "admin-perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5EDE0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#07060F" }}>
 
               {/* HEADER */}
-              <div style={{ background:"#2A1E14", padding:"32px 24px 48px", textAlign:"center", position:"relative", borderBottom:"0.5px solid rgba(232,168,124,0.12)" }}>
+              <div style={{ background:"#2A1E14", padding:"32px 24px 48px", textAlign:"center", position:"relative", borderBottom:"0.5px solid rgba(255,155,122,0.12)" }}>
                 <div style={{ position:"relative", display:"inline-block", marginBottom:14 }}>
                   {usuarioActual?.foto ? (
                     <img src={usuarioActual.foto} alt="foto" style={{ width:90, height:90, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,0.25)", margin:"0 auto", display:"block" }}/>
@@ -8950,9 +9105,9 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
               </div>
 
               {/* STATS */}
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:"rgba(196,132,90,0.1)", margin:"-1px 0 16px" }}>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:"rgba(255,123,90,0.1)", margin:"-1px 0 16px" }}>
                 {[[pacientes.length || "0","Pacientes"],[citas.length || "0","Citas"],[citas.filter(c=>c.status==="confirmada").length || "0","Confirmadas"]].map(([n,l]) => (
-                  <div key={l} style={{ background:"#FEFAF5", padding:"14px 8px", textAlign:"center" }}>
+                  <div key={l} style={{ background:"#0D0B1E", padding:"14px 8px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:900, color:C.plum }}>{n}</div>
                     <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                   </div>
@@ -8964,9 +9119,9 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 {/* ACCIONES RÁPIDAS — 4 cards con color */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9, marginBottom:16 }}>
                   <div onClick={() => { showToast("Selecciona un paciente para agendar 👆"); showScreen("psi-dashboard"); }}
-                    style={{ background:"#F5EDE0", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"0.5px solid rgba(196,132,90,0.2)", cursor:"pointer" }}>
+                    style={{ background:"#07060F", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"1px solid rgba(255,255,255,.10)", cursor:"pointer" }}>
                     <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1" fill="#8B5A3A"/><circle cx="12" cy="15" r="1" fill="#8B5A3A"/></svg>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1" fill="#FF7B5A"/><circle cx="12" cy="15" r="1" fill="#FF7B5A"/></svg>
                     </div>
                     <div style={{ fontSize:11, fontWeight:800, color:"#6A3E28" }}>Agendar cita</div>
                   </div>
@@ -9020,7 +9175,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       {usuarioActual?.telefono && (
                         <div style={{ display:"flex", alignItems:"center", gap:11, padding:"10px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
                           <div style={{ width:30, height:30, borderRadius:9, background:"rgba(139,90,58,0.08)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                           </div>
                           <div>
                             <div style={{ fontSize:9, fontWeight:700, color:"#A08060", textTransform:"uppercase", letterSpacing:0.8, marginBottom:2 }}>Teléfono</div>
@@ -9037,8 +9192,8 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                               { lb:"Enfoque",      val:usuarioActual?.enfoque },
                             ].filter(x => x.val).map(({ lb, val }) => (
                               <div key={lb} style={{ background:"rgba(139,90,58,0.06)", borderRadius:10, padding:"9px 11px" }}>
-                                <div style={{ fontSize:9, fontWeight:700, color:"#8B5A3A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>{lb}</div>
-                                <div style={{ fontSize:12, fontWeight:600, color:"#3A1A06" }}>{val}</div>
+                                <div style={{ fontSize:9, fontWeight:700, color:"#FF7B5A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>{lb}</div>
+                                <div style={{ fontSize:12, fontWeight:600, color:C.text }}>{val}</div>
                               </div>
                             ))}
                           </div>
@@ -9055,14 +9210,14 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 )}
                 {/* MINI JUEGO — card psicólogo */}
                 <div onClick={() => showScreen("juego")}
-                  style={{ display:"flex", alignItems:"center", gap:10, background:"#1A1028",
-                    border:"0.5px solid rgba(139,92,246,0.25)", borderRadius:14, padding:"10px 12px",
+                  style={{ display:"flex", alignItems:"center", gap:10, background:"#131028",
+                    border:"0.5px solid rgba(255,123,90,0.25)", borderRadius:14, padding:"10px 12px",
                     marginBottom:14, cursor:"pointer", WebkitTapHighlightColor:"transparent",
                     position:"relative", overflow:"hidden" }}>
                   <div style={{ position:"absolute", left:-10, top:-10, width:70, height:70,
-                    borderRadius:"50%", background:"radial-gradient(circle,rgba(139,92,246,0.3) 0%,transparent 70%)", pointerEvents:"none" }}/>
+                    borderRadius:"50%", background:"radial-gradient(circle,rgba(255,123,90,0.3) 0%,transparent 70%)", pointerEvents:"none" }}/>
                   <div style={{ position:"absolute", right:20, bottom:-8, width:50, height:50,
-                    borderRadius:"50%", background:"radial-gradient(circle,rgba(16,185,129,0.2) 0%,transparent 70%)", pointerEvents:"none" }}/>
+                    borderRadius:"50%", background:"radial-gradient(circle,rgba(78,205,196,0.2) 0%,transparent 70%)", pointerEvents:"none" }}/>
                   <div style={{ flexShrink:0, position:"relative", zIndex:2 }}>
                     <svg width="58" height="44" viewBox="0 0 58 44" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <defs>
@@ -9080,13 +9235,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       <path d="M14 5 C20 3 38 3 44 5 C50 7 52 13 50 18 L48 18 C48 13 46 8 42 6 C36 4 22 4 16 6 C12 8 10 13 10 18 L8 18 C6 13 8 7 14 5 Z" fill="url(#mandoBrillo2)"/>
                       <rect x="10" y="16" width="4" height="10" rx="1.5" fill="rgba(255,255,255,0.15)"/>
                       <rect x="8" y="18" width="8" height="6" rx="1.5" fill="rgba(255,255,255,0.15)"/>
-                      <circle cx="42" cy="17" r="3.2" fill="#7C3AED"/><circle cx="36" cy="16" r="3.2" fill="#DC2626"/>
-                      <circle cx="42" cy="23" r="3.2" fill="#2563EB"/><circle cx="48" cy="17" r="3.2" fill="#059669"/>
+                      <circle cx="42" cy="17" r="3.2" fill="#FF7B5A"/><circle cx="36" cy="16" r="3.2" fill="#FFB347"/>
+                      <circle cx="42" cy="23" r="3.2" fill="#4ECDC4"/><circle cx="48" cy="17" r="3.2" fill="#6EEDDF"/>
                       <circle cx="20" cy="27" r="5" fill="#120A24"/><circle cx="20" cy="27" r="4" fill="#1E1035"/><circle cx="20" cy="26.5" r="2" fill="rgba(255,255,255,0.12)"/>
                       <circle cx="34" cy="27" r="5" fill="#120A24"/><circle cx="34" cy="27" r="4" fill="#1E1035"/><circle cx="34" cy="26.5" r="2" fill="rgba(255,255,255,0.12)"/>
                       <rect x="27" y="19" width="4" height="2.5" rx="1.25" fill="rgba(255,255,255,0.2)"/>
-                      <ellipse cx="14" cy="32" rx="5" ry="2" fill="rgba(139,92,246,0.2)"/>
-                      <ellipse cx="44" cy="32" rx="5" ry="2" fill="rgba(16,185,129,0.2)"/>
+                      <ellipse cx="14" cy="32" rx="5" ry="2" fill="rgba(255,123,90,0.2)"/>
+                      <ellipse cx="44" cy="32" rx="5" ry="2" fill="rgba(78,205,196,0.2)"/>
                     </svg>
                   </div>
                   <div style={{ zIndex:2, flex:1 }}>
@@ -9097,11 +9252,11 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                 {/* CONFIGURACIÓN */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>⚙️ Configuración</div>
-                <div style={{ background:"#FEFAF5", borderRadius:14, overflow:"hidden", marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                <div style={{ background:"#0D0B1E", borderRadius:14, overflow:"hidden", marginBottom:16, border:"1px solid rgba(255,255,255,.06)" }}>
                   <div onClick={() => setNotifPanel(true)}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
                     <div style={{ width:32, height:32, background:"rgba(139,90,58,0.08)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                     </div>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, flex:1 }}>Notificaciones</div>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
@@ -9110,8 +9265,8 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
                     <div style={{ width:32, height:32, background:"rgba(139,90,58,0.08)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
                       {darkMode
-                        ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-                        : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B5A3A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                        ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                       }
                     </div>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, flex:1 }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
@@ -9133,7 +9288,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 {loadingResenas ? (
                   <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>Cargando reseñas...</div>
                 ) : resenas.length === 0 ? (
-                  <div style={{ background:"#FEFAF5", borderRadius:14, padding:20, textAlign:"center", marginBottom:16, border:"0.5px solid rgba(196,132,90,0.12)" }}>
+                  <div style={{ background:"#0D0B1E", borderRadius:14, padding:20, textAlign:"center", marginBottom:16, border:"1px solid rgba(255,255,255,.06)" }}>
                     <div style={{ fontSize:32, marginBottom:6 }}>⭐</div>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Aún no tienes reseñas</div>
                     <div style={{ fontSize:11, color:C.light, marginTop:4 }}>Tus pacientes podrán valorarte desde su perfil</div>
@@ -9145,7 +9300,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
                     </div>
                     {resenas.map(r => (
-                      <div key={r.id} style={{ background:"#FEFAF5", borderRadius:14, padding:14, marginBottom:10, border:`0.5px solid rgba(196,132,90,0.12)`, opacity:r.oculta ? 0.45 : 1 }}>
+                      <div key={r.id} style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:`1px solid rgba(255,255,255,.06)`, opacity:r.oculta ? 0.45 : 1 }}>
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
                           <div style={{ fontSize:14 }}>{"⭐".repeat(r.rating)}</div>
                           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -9204,18 +9359,18 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                         const url = await subirFotoPerfil(archivo);
                         if (url) setEditFoto(url);
                       }}/>
-                    <div style={{ border:`2px dashed ${subiendoFoto ? C.sage : "rgba(196,132,90,0.3)"}`, borderRadius:14, padding:"14px 16px",
-                      background: subiendoFoto ? "rgba(125,170,146,0.06)" : "rgba(196,132,90,0.04)",
+                    <div style={{ border:`2px dashed ${subiendoFoto ? C.sage : "rgba(255,123,90,0.3)"}`, borderRadius:14, padding:"14px 16px",
+                      background: subiendoFoto ? "rgba(125,170,146,0.06)" : "rgba(255,123,90,0.04)",
                       display:"flex", alignItems:"center", gap:12, transition:"all 0.2s" }}>
-                      <div style={{ width:40, height:40, borderRadius:12, background: subiendoFoto ? "rgba(125,170,146,0.15)" : "rgba(196,132,90,0.1)",
+                      <div style={{ width:40, height:40, borderRadius:12, background: subiendoFoto ? "rgba(125,170,146,0.15)" : "rgba(255,123,90,0.1)",
                         display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                         {subiendoFoto
-                          ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7DAA92" strokeWidth="2" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-                          : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C4845A" strokeWidth="1.75" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                          ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ECDC4" strokeWidth="2" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                          : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                         }
                       </div>
                       <div style={{ flex:1 }}>
-                        <div style={{ fontSize:13, fontWeight:700, color: subiendoFoto ? "#7DAA92" : C.text }}>
+                        <div style={{ fontSize:13, fontWeight:700, color: subiendoFoto ? "#4ECDC4" : C.text }}>
                           {subiendoFoto ? "Subiendo foto..." : editFoto ? "Cambiar foto" : "Subir foto desde galería"}
                         </div>
                         <div style={{ fontSize:10, color:C.light, marginTop:2 }}>
@@ -9224,7 +9379,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       </div>
                       {editFoto && !subiendoFoto && (
                         <img src={editFoto} alt="preview"
-                          style={{ width:40, height:40, borderRadius:10, objectFit:"cover", border:`2px solid rgba(196,132,90,0.2)`, flexShrink:0 }}/>
+                          style={{ width:40, height:40, borderRadius:10, objectFit:"cover", border:`2px solid rgba(255,123,90,0.2)`, flexShrink:0 }}/>
                       )}
                     </div>
                   </label>
@@ -9277,7 +9432,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
                   <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FEFAF5", boxSizing:"border-box" }}>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,0.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#0D0B1E", boxSizing:"border-box" }}>
                     <option value="">— Seleccionar paciente —</option>
                     {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
                   </select>
@@ -9341,7 +9496,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
         {/* TOAST */}
         {toast && (
-          <div style={{ position:"absolute", bottom:"calc(90px + env(safe-area-inset-bottom, 0px))", left:"50%", transform:"translateX(-50%)", background:"rgba(42,30,20,0.92)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", color:"#F5E6D0", fontWeight:700, fontSize:13, padding:"11px 22px", borderRadius:24, zIndex:600, whiteSpace:"nowrap", boxShadow:"0 8px 24px rgba(0,0,0,0.3)", pointerEvents:"none", border:"0.5px solid rgba(232,168,124,0.2)", animation:"fadeIn 0.2s ease" }}>
+          <div style={{ position:"absolute", bottom:"calc(90px + env(safe-area-inset-bottom, 0px))", left:"50%", transform:"translateX(-50%)", background:"rgba(42,30,20,0.92)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", color:"#F5EEE8", fontWeight:700, fontSize:13, padding:"11px 22px", borderRadius:24, zIndex:600, whiteSpace:"nowrap", boxShadow:"0 8px 24px rgba(0,0,0,0.3)", pointerEvents:"none", border:"0.5px solid rgba(255,155,122,0.2)", animation:"fadeIn 0.2s ease" }}>
             {toast}
           </div>
         )}
