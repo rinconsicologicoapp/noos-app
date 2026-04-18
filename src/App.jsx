@@ -3205,46 +3205,51 @@ const styles = `
 
           {/* LOGIN */}
 {!notifPanel && screen === "login" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 28px", background:"linear-gradient(160deg, #2A2018 0%, #1E1610 60%, #181210 100%)", position:"relative", overflow:"hidden" }}>
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 24px", background:"radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%)", position:"relative", overflow:"hidden" }}>
+
+    {/* AURA de fondo */}
+    <div style={{ position:"absolute", width:320, height:320, borderRadius:"50%", background:"radial-gradient(ellipse, rgba(255,123,90,.10) 0%, rgba(78,205,196,.05) 50%, transparent 70%)", top:"15%", left:"50%", transform:"translateX(-50%)", pointerEvents:"none" }}/>
 
     {/* PILL TOP */}
-    <div style={{ width:40, height:3, borderRadius:2, background:"rgba(232,168,124,0.25)", marginBottom:28 }}/>
+    <div style={{ width:40, height:3, borderRadius:2, background:"rgba(255,123,90,0.25)", marginBottom:32 }}/>
 
-    {/* SOFÁ */}
-    <div style={{ marginBottom:12, animation:"fadeIn 0.8s ease" }}>
-      <svg width="160" height="96" viewBox="180 140 320 200" xmlns="http://www.w3.org/2000/svg">
-        <rect x="195" y="240" width="60" height="52" rx="10" fill="#5A3820"/>
-        <rect x="425" y="240" width="60" height="52" rx="10" fill="#5A3820"/>
-        <rect x="170" y="185" width="340" height="40" rx="20" fill="#7A5030"/>
-        <rect x="185" y="200" width="310" height="95" rx="18" fill="#C4845A"/>
-        <rect x="170" y="195" width="72" height="115" rx="22" fill="#A06040"/>
-        <rect x="438" y="195" width="72" height="115" rx="22" fill="#A06040"/>
-        <rect x="215" y="155" width="50" height="52" rx="14" fill="#E8A87C"/>
-        <rect x="415" y="155" width="50" height="52" rx="14" fill="#E8A87C"/>
-        <rect x="180" y="280" width="320" height="16" rx="8" fill="#5A3820" opacity="0.4"/>
+    {/* LOGO GEOMÉTRICO */}
+    <div style={{ marginBottom:16, animation:"fadeIn 0.8s ease" }}>
+      <svg width="88" height="88" viewBox="0 0 200 200">
+        <g fill="rgba(255,255,255,.82)">
+          <polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/>
+          <polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/>
+          <polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/>
+          <polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/>
+        </g>
+        <polygon points="120,50 138,60 138,80 120,90 102,80 102,60"   fill="#FF7B5A"/>
+        <polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/>
+        <polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/>
+        <polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/>
+        <polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
       </svg>
     </div>
 
     {/* TÍTULO */}
-    <div style={{ fontSize:28, fontWeight:800, color:"#F5E6D0", letterSpacing:0.2, marginBottom:8 }}>Mi Psicólogo</div>
+    <div style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em", marginBottom:8, background:"linear-gradient(135deg, #FF9B7A 0%, #FFD080 38%, #6EEDDF 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>Mi Psicólogo</div>
 
     {/* BADGE SUBTÍTULO */}
-    <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(232,168,124,0.10)", border:"0.8px solid rgba(232,168,124,0.18)", borderRadius:20, padding:"5px 14px", marginBottom:28 }}>
-      <span style={{ fontSize:10, color:"rgba(232,168,124,0.55)" }}>✦ Un espacio seguro</span>
+    <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(255,123,90,0.08)", border:"1px solid rgba(255,123,90,0.18)", borderRadius:20, padding:"5px 14px", marginBottom:28 }}>
+      <span style={{ fontSize:10, fontWeight:600, letterSpacing:"0.10em", color:"rgba(255,155,122,0.70)", textTransform:"uppercase" }}>✦ Tu espacio seguro</span>
     </div>
 
     {/* CARD GLASS */}
-    <div style={{ width:"100%", background:"rgba(255,255,255,0.045)", border:"1px solid rgba(232,168,124,0.09)", borderRadius:24, overflow:"hidden", backdropFilter:"blur(10px)" }}>
+    <div style={{ width:"100%", background:"rgba(255,255,255,0.028)", border:"1px solid rgba(255,255,255,0.065)", borderRadius:24, overflow:"hidden", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", boxShadow:"0 1px 2px rgba(0,0,0,.4), 0 8px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)" }}>
 
       {/* ACENTO SUPERIOR */}
-      <div style={{ height:3, background:"linear-gradient(90deg, transparent, #C4845A, transparent)", opacity:0.5 }}/>
+      <div style={{ height:2, background:"linear-gradient(90deg, transparent, #FF7B5A, #FFB347, transparent)" }}/>
 
       <div style={{ padding:"24px 20px 20px" }}>
 
         {/* CAMPO CORREO */}
         <div style={{ position:"relative", marginBottom:1 }}>
           <div style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(232,168,124,0.35)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,155,122,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
             </svg>
@@ -3254,24 +3259,24 @@ const styles = `
             placeholder="tu@correo.com"
             value={emailValue}
             onChange={e => setEmailValue(e.target.value)}
-            style={{ width:"100%", padding:"14px 16px 14px 40px", background:"rgba(255,255,255,0.055)", border:"0.8px solid rgba(232,168,124,0.10)", borderRadius:12, fontSize:13, outline:"none", color:"#F5E6D0", fontFamily:"inherit", boxSizing:"border-box" }}
+            style={{ width:"100%", padding:"14px 16px 14px 40px", background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:12, fontSize:14, outline:"none", color:"#F5EEE8", fontFamily:"inherit", boxSizing:"border-box" }}
           />
         </div>
 
         {/* DIVISOR */}
-        <div style={{ height:1, background:"rgba(232,168,124,0.07)", margin:"12px 0" }}/>
+        <div style={{ height:1, background:"rgba(255,255,255,0.05)", margin:"12px 0" }}/>
 
         {/* CAMPO PIN */}
         <div style={{ position:"relative", marginBottom:16 }}>
           <div style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(232,168,124,0.35)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,155,122,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
               <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
           </div>
-          <div style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:14, padding:"14px 16px 14px 40px", background:"rgba(255,255,255,0.055)", border:"0.8px solid rgba(232,168,124,0.10)", borderRadius:14 }}>
+          <div style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:14, padding:"14px 16px 14px 40px", background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:14 }}>
             {[0,1,2,3].map(i => (
-              <div key={i} style={{ width:10, height:10, borderRadius:"50%", background: pinValue && pinValue.length > i ? "#E8A87C" : "transparent", border:`1.5px solid ${pinValue && pinValue.length > i ? "#E8A87C" : "rgba(245,230,208,0.2)"}`, transition:"all 0.2s ease" }}/>
+              <div key={i} style={{ width:10, height:10, borderRadius:"50%", background: pinValue && pinValue.length > i ? "#FF7B5A" : "transparent", border:`1.5px solid ${pinValue && pinValue.length > i ? "#FF7B5A" : "rgba(255,255,255,0.20)"}`, transition:"all 0.2s ease" }}/>
             ))}
           </div>
           <input
@@ -3296,7 +3301,7 @@ const styles = `
             setTimeout(() => circle.remove(), 500);
             handleLogin();
           }}
-          style={{ width:"100%", padding:"11px 0", background:"#C4845A", color:"white", borderRadius:21, fontSize:14, fontWeight:700, border:"none", cursor:"pointer", fontFamily:"inherit", position:"relative", overflow:"hidden", letterSpacing:0.3 }}
+          style={{ width:"100%", height:52, background:"linear-gradient(135deg, #FF8B6A 0%, #FF5A36 100%)", color:"white", borderRadius:14, fontSize:15, fontWeight:700, border:"none", cursor:"pointer", fontFamily:"inherit", position:"relative", overflow:"hidden", letterSpacing:"-0.01em", boxShadow:"0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(255,90,54,.35), inset 0 1px 0 rgba(255,255,255,.20)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}
         >
           Entrar a mi espacio →
         </button>
@@ -3306,12 +3311,12 @@ const styles = `
 
     {/* FOOTER */}
     <div style={{ marginTop:20, textAlign:"center" }}>
-      <span style={{ fontSize:11, color:"rgba(245,230,208,0.25)" }}>¿Problemas para entrar? </span>
-      <span style={{ fontSize:11, color:"#E8A87C", fontWeight:700, cursor:"pointer" }}>Contacta a tu psicólogo</span>
+      <span style={{ fontSize:11, color:"rgba(245,238,232,0.25)" }}>¿Problemas para entrar? </span>
+      <span style={{ fontSize:11, color:"#FF9B7A", fontWeight:700, cursor:"pointer" }}>Contacta a tu psicólogo</span>
     </div>
 
     {showInstall && (
-      <button onClick={handleInstall} style={{ marginTop:14, padding:"8px 20px", background:"rgba(232,168,124,0.08)", color:"rgba(232,168,124,0.4)", borderRadius:20, fontSize:11, fontWeight:600, border:"0.8px solid rgba(232,168,124,0.12)", cursor:"pointer", fontFamily:"inherit" }}>
+      <button onClick={handleInstall} style={{ marginTop:14, padding:"8px 20px", background:"rgba(255,123,90,0.08)", color:"rgba(255,155,122,0.5)", borderRadius:20, fontSize:11, fontWeight:600, border:"1px solid rgba(255,123,90,0.14)", cursor:"pointer", fontFamily:"inherit" }}>
         ⬇ Descargar App
       </button>
     )}
