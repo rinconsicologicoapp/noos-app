@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brain Logo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#04030C;display:flex;align-items:center;justify-content:center;min-height:100vh;gap:80px;padding:60px;flex-wrap:wrap}
+svg{filter:drop-shadow(0 24px 64px rgba(0,0,0,.9))}
+</style>
+</head>
+<body>
+
+<!-- V1: Cerebro Dorado — Aurora Cálida paint splash -->
+<svg width="420" height="400" viewBox="0 0 420 400" fill="none">
+<defs>
+  <radialGradient id="brainGrad" cx="38%" cy="30%" r="68%">
+    <stop offset="0%"   stop-color="#FFE070"/>
+    <stop offset="35%"  stop-color="#F5A818"/>
+    <stop offset="75%"  stop-color="#D88A08"/>
+    <stop offset="100%" stop-color="#A06005"/>
+  </radialGradient>
+  <radialGradient id="brainHilight" cx="35%" cy="25%" r="55%">
+    <stop offset="0%"   stop-color="#FFF0A0" stop-opacity=".7"/>
+    <stop offset="100%" stop-color="#FFD060"  stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="bgGlow" cx="50%" cy="45%" r="45%">
+    <stop offset="0%"   stop-color="#FFB030" stop-opacity=".18"/>
+    <stop offset="100%" stop-color="#FF7030"  stop-opacity="0"/>
+  </radialGradient>
+  <filter id="blur2"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="blur4"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+
+<!-- Ambient glow behind brain -->
+<ellipse cx="205" cy="158" rx="105" ry="90" fill="url(#bgGlow)"/>
+
+<!-- ══ PURPLE SPLASH — left + upper-left ══ -->
+<g fill="#7C3AED">
+  <!-- Main blob -->
+  <path d="M 162 162 C 138 148 102 145 80 158 C 60 170 58 190 74 195 C 85 198 94 183 110 187 C 128 192 124 212 143 207 C 157 204 157 188 170 183 C 180 178 182 167 162 162 Z"/>
+  <!-- Spike up-left -->
+  <path d="M 124 150 C 110 128 95 103 102 86 C 107 73 121 77 124 89 C 127 100 118 115 123 138 Z"/>
+  <!-- Spike upper -->
+  <path d="M 158 148 C 150 126 158 102 172 96 C 182 92 190 103 184 115 C 178 125 164 128 160 143 Z"/>
+  <!-- Spike down-left -->
+  <path d="M 78 193 C 64 208 53 228 61 241 C 67 250 79 247 80 237 C 82 226 73 212 79 197 Z"/>
+  <!-- Drip 1 -->
+  <path d="M 95 205 C 93 218 91 234 94 245 C 97 253 103 253 105 245 C 107 234 104 218 99 207 Z"/>
+  <!-- Drip 2 (thin drop) -->
+  <path d="M 112 210 C 111 220 110 231 113 239 C 115 245 120 245 121 239 C 122 231 120 220 115 212 Z"/>
+  <!-- Dots -->
+  <circle cx="52"  cy="140" r="6.5"/>
+  <circle cx="36"  cy="167" r="4.5"/>
+  <circle cx="70"  cy="116" r="5.5"/>
+  <circle cx="100" cy="76"  r="6"/>
+  <circle cx="90"  cy="63"  r="4"/>
+  <circle cx="172" cy="90"  r="5.5"/>
+  <circle cx="183" cy="79"  r="3.5"/>
+  <circle cx="44"  cy="196" r="4"/>
+  <circle cx="108" cy="255" r="5"/>
+  <circle cx="90"  cy="248" r="3.5"/>
+</g>
+
+<!-- ══ CORAL SPLASH — right + upper-right ══ -->
+<g fill="#FF5030">
+  <!-- Main blob -->
+  <path d="M 258 152 C 283 139 320 140 341 158 C 358 172 354 194 338 198 C 326 201 320 185 303 189 C 286 193 286 213 268 208 C 253 204 252 188 246 178 C 240 168 244 158 258 152 Z"/>
+  <!-- Spike upper-right -->
+  <path d="M 295 138 C 308 114 333 93 350 100 C 362 105 360 121 349 127 C 338 133 320 130 305 143 Z"/>
+  <!-- Spike far right -->
+  <path d="M 343 164 C 364 156 383 161 385 175 C 387 187 374 193 363 188 C 353 183 348 170 343 164 Z"/>
+  <!-- Spike down-right -->
+  <path d="M 322 196 C 334 211 346 231 339 244 C 334 253 321 250 318 241 C 315 230 323 215 318 200 Z"/>
+  <!-- Drip 1 -->
+  <path d="M 338 198 C 336 213 334 232 337 244 C 340 253 346 253 348 244 C 350 233 347 213 342 200 Z"/>
+  <!-- Drip 2 -->
+  <path d="M 316 204 C 314 216 312 229 315 239 C 317 246 322 246 324 239 C 326 229 323 216 319 206 Z"/>
+  <!-- Dots -->
+  <circle cx="362" cy="139" r="7"/>
+  <circle cx="380" cy="167" r="5"/>
+  <circle cx="352" cy="113" r="5.5"/>
+  <circle cx="370" cy="100" r="4"/>
+  <circle cx="348" cy="100" r="3.5"/>
+  <circle cx="383" cy="190" r="4.5"/>
+  <circle cx="350" cy="256" r="5"/>
+  <circle cx="330" cy="252" r="3.5"/>
+</g>
+
+<!-- ══ TEAL SPLASH — bottom ══ -->
+<g fill="#4ECDC4">
+  <!-- Main blob -->
+  <path d="M 220 215 C 240 225 272 236 280 255 C 287 270 276 283 261 280 C 249 277 244 262 228 262 C 213 262 211 278 197 275 C 184 272 183 257 192 248 C 200 239 203 226 220 215 Z"/>
+  <!-- Extension left -->
+  <path d="M 185 238 C 170 248 158 266 164 279 C 169 289 181 287 183 277 C 185 267 179 254 183 242 Z"/>
+  <!-- Extension right -->
+  <path d="M 268 258 C 285 262 304 270 308 284 C 311 295 302 302 293 297 C 284 292 280 278 270 272 C 262 266 262 256 268 258 Z"/>
+  <!-- Drip 1 long -->
+  <path d="M 260 278 C 257 296 254 318 258 333 C 261 344 268 345 271 334 C 274 321 270 298 265 280 Z"/>
+  <!-- Drip 2 -->
+  <path d="M 195 272 C 192 286 190 304 193 316 C 196 324 202 324 204 316 C 206 304 203 286 198 273 Z"/>
+  <!-- Drip 3 thin -->
+  <path d="M 225 276 C 223 287 222 299 225 308 C 227 315 232 315 233 308 C 234 299 232 287 227 278 Z"/>
+  <!-- Dots -->
+  <circle cx="285" cy="218" r="6.5"/>
+  <circle cx="313" cy="242" r="5"/>
+  <circle cx="150" cy="262" r="5.5"/>
+  <circle cx="272" cy="346" r="5.5"/>
+  <circle cx="196" cy="330" r="4.5"/>
+  <circle cx="228" cy="318" r="4"/>
+  <circle cx="306" cy="298" r="4.5"/>
+</g>
+
+<!-- ══ HOT PINK accent — top ══ -->
+<g fill="#E8106A" opacity=".88">
+  <path d="M 220 92 C 216 76 221 59 232 56 C 241 53 248 64 242 75 C 237 84 225 86 220 92 Z"/>
+  <path d="M 244 85 C 254 70 271 56 282 62 C 291 67 287 81 277 85 C 268 89 254 86 244 85 Z"/>
+  <circle cx="284" cy="52" r="5.5"/>
+  <circle cx="299" cy="70" r="4"/>
+  <circle cx="228" cy="50" r="4.5"/>
+  <circle cx="265" cy="46" r="3.5"/>
+  <circle cx="242" cy="44" r="2.5"/>
+</g>
+
+<!-- ══ BRAIN ══ -->
+<!-- Outer shadow/depth -->
+<path d="M 148 175 C 130 157 126 124 145 105 C 162 87 192 81 222 91 C 250 101 270 124 270 154 C 270 182 255 201 232 210 C 209 218 184 218 162 210 C 140 202 126 190 120 174 C 115 160 122 162 148 175 Z"
+      fill="#8C5200" opacity=".7"/>
+
+<!-- Main brain shape -->
+<path d="M 146 172 C 128 154 124 122 143 103 C 160 85 190 79 220 89 C 248 99 267 122 267 151 C 267 179 252 198 229 207 C 207 215 182 215 161 208 C 139 200 126 188 119 172 C 113 158 120 160 146 172 Z"
+      fill="url(#brainGrad)"/>
+
+<!-- Highlight layer -->
+<path d="M 146 172 C 128 154 124 122 143 103 C 160 85 190 79 220 89 C 248 99 267 122 267 151 C 267 179 252 198 229 207 C 207 215 182 215 161 208 C 139 200 126 188 119 172 C 113 158 120 160 146 172 Z"
+      fill="url(#brainHilight)"/>
+
+<!-- ── Sulcal fold lines ── -->
+<!-- Central sulcus -->
+<path d="M 212 91 C 214 110 212 128 207 145 C 202 160 199 172 203 185" stroke="#7A4800" stroke-width="2.8" stroke-linecap="round" fill="none" opacity=".75"/>
+<!-- Pre-central sulcus -->
+<path d="M 191 89 C 193 108 191 127 186 143 C 181 158 179 170 182 182" stroke="#7A4800" stroke-width="2.2" stroke-linecap="round" fill="none" opacity=".65"/>
+<!-- Post-central sulcus -->
+<path d="M 232 94 C 234 111 233 128 228 143 C 223 156 222 167 227 178" stroke="#7A4800" stroke-width="2.2" stroke-linecap="round" fill="none" opacity=".65"/>
+<!-- Lateral (Sylvian) fissure — large horizontal, very characteristic -->
+<path d="M 138 175 C 156 165 178 160 197 162 C 215 164 234 170 247 180" stroke="#6A3C00" stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".7"/>
+<!-- Superior frontal sulcus -->
+<path d="M 147 118 C 160 111 176 109 186 116 C 193 120 195 130 190 138" stroke="#7A4800" stroke-width="2" stroke-linecap="round" fill="none" opacity=".6"/>
+<!-- Inferior frontal sulcus -->
+<path d="M 141 137 C 154 130 169 128 178 135 C 184 139 183 148 177 155" stroke="#7A4800" stroke-width="1.8" stroke-linecap="round" fill="none" opacity=".6"/>
+<!-- Intraparietal sulcus -->
+<path d="M 218 97 C 234 97 250 104 260 118" stroke="#7A4800" stroke-width="2" stroke-linecap="round" fill="none" opacity=".6"/>
+<!-- Superior temporal sulcus -->
+<path d="M 157 192 C 174 183 196 181 212 186 C 226 189 238 198 243 208" stroke="#7A4800" stroke-width="1.8" stroke-linecap="round" fill="none" opacity=".55"/>
+<!-- Post-parietal sulcus -->
+<path d="M 248 105 C 256 118 259 132 257 148" stroke="#7A4800" stroke-width="1.8" stroke-linecap="round" fill="none" opacity=".55"/>
+
+<!-- ══ AMBER DRIPS from brain ══ -->
+<g fill="#FFB030">
+  <path d="M 176 212 C 174 226 172 245 176 259 C 179 269 185 270 187 259 C 190 246 187 227 182 214 Z"/>
+  <path d="M 157 210 C 155 222 153 238 157 250 C 160 259 165 259 167 250 C 169 238 166 222 161 212 Z"/>
+  <path d="M 196 213 C 195 224 194 236 197 246 C 199 254 204 254 205 246 C 206 236 204 224 200 215 Z"/>
+  <circle cx="152" cy="263" r="5.5"/>
+  <circle cx="188" cy="276" r="5"/>
+  <circle cx="204" cy="258" r="4.5"/>
+  <circle cx="167" cy="270" r="4"/>
+  <circle cx="178" cy="284" r="3.5"/>
+  <circle cx="160" cy="280" r="3"/>
+</g>
+</svg>
+
+
+<!-- V2: Cerebro Dual — left coral / right teal -->
+<svg width="420" height="400" viewBox="0 0 420 400" fill="none">
+<defs>
+  <linearGradient id="v2cc" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%"   stop-color="#FF7B5A"/>
+    <stop offset="48%"  stop-color="#FF9850"/>
+    <stop offset="52%"  stop-color="#50D8D0"/>
+    <stop offset="100%" stop-color="#4ECDC4"/>
+  </linearGradient>
+  <linearGradient id="v2shadow" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%"   stop-color="#A03018"/>
+    <stop offset="50%"  stop-color="#884820"/>
+    <stop offset="100%" stop-color="#0C6860"/>
+  </linearGradient>
+  <radialGradient id="v2glow" cx="50%" cy="45%" r="45%">
+    <stop offset="0%"  stop-color="#FFB060" stop-opacity=".2"/>
+    <stop offset="100%" stop-color="#4ECDC4" stop-opacity="0"/>
+  </radialGradient>
+  <clipPath id="v2L"><rect x="0" y="0" width="210" height="400"/></clipPath>
+  <clipPath id="v2R"><rect x="210" y="0" width="210" height="400"/></clipPath>
+  <filter id="blur2b"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+
+<ellipse cx="205" cy="158" rx="105" ry="90" fill="url(#v2glow)"/>
+
+<!-- CORAL SPLASH left -->
+<g fill="#FF5030">
+  <path d="M 162 162 C 138 148 102 145 80 158 C 60 170 58 190 74 195 C 85 198 94 183 110 187 C 128 192 124 212 143 207 C 157 204 157 188 170 183 C 180 178 182 167 162 162 Z"/>
+  <path d="M 124 150 C 110 128 95 103 102 86 C 107 73 121 77 124 89 C 127 100 118 115 123 138 Z"/>
+  <path d="M 78 193 C 64 208 53 228 61 241 C 67 250 79 247 80 237 C 82 226 73 212 79 197 Z"/>
+  <circle cx="52" cy="140" r="6.5"/><circle cx="36" cy="167" r="4.5"/>
+  <circle cx="70" cy="116" r="5.5"/><circle cx="100" cy="76" r="6"/>
+  <circle cx="90" cy="63" r="4"/><circle cx="44" cy="196" r="4"/>
+</g>
+
+<!-- TEAL SPLASH right -->
+<g fill="#28C0B8">
+  <path d="M 258 152 C 283 139 320 140 341 158 C 358 172 354 194 338 198 C 326 201 320 185 303 189 C 286 193 286 213 268 208 C 253 204 252 188 246 178 C 240 168 244 158 258 152 Z"/>
+  <path d="M 295 138 C 308 114 333 93 350 100 C 362 105 360 121 349 127 C 338 133 320 130 305 143 Z"/>
+  <path d="M 343 164 C 364 156 383 161 385 175 C 387 187 374 193 363 188 C 353 183 348 170 343 164 Z"/>
+  <circle cx="362" cy="139" r="7"/><circle cx="380" cy="167" r="5"/>
+  <circle cx="352" cy="113" r="5.5"/><circle cx="383" cy="190" r="4.5"/>
+</g>
+
+<!-- PURPLE accent top -->
+<g fill="#7C3AED" opacity=".85">
+  <path d="M 158 148 C 150 126 158 102 172 96 C 182 92 190 103 184 115 C 178 125 164 128 160 143 Z"/>
+  <path d="M 220 92 C 216 76 221 59 232 56 C 241 53 248 64 242 75 C 237 84 225 86 220 92 Z"/>
+  <circle cx="172" cy="90" r="5.5"/><circle cx="183" cy="79" r="3.5"/>
+  <circle cx="228" cy="50" r="4.5"/><circle cx="248" cy="44" r="3"/>
+</g>
+
+<!-- TEAL splash bottom -->
+<g fill="#4ECDC4">
+  <path d="M 220 215 C 240 225 272 236 280 255 C 287 270 276 283 261 280 C 249 277 244 262 228 262 C 213 262 211 278 197 275 C 184 272 183 257 192 248 C 200 239 203 226 220 215 Z"/>
+  <path d="M 260 278 C 257 296 254 318 258 333 C 261 344 268 345 271 334 C 274 321 270 298 265 280 Z"/>
+  <path d="M 195 272 C 192 286 190 304 193 316 C 196 324 202 324 204 316 C 206 304 203 286 198 273 Z"/>
+  <circle cx="285" cy="218" r="6.5"/><circle cx="150" cy="262" r="5.5"/>
+  <circle cx="272" cy="346" r="5.5"/><circle cx="196" cy="330" r="4.5"/>
+</g>
+
+<!-- BRAIN shadow -->
+<path d="M 148 175 C 130 157 126 124 145 105 C 162 87 192 81 222 91 C 250 101 270 124 270 154 C 270 182 255 201 232 210 C 209 218 184 218 162 210 C 140 202 126 190 120 174 C 115 160 122 162 148 175 Z"
+      fill="url(#v2shadow)" opacity=".65"/>
+
+<!-- BRAIN LEFT hemisphere (coral) -->
+<g clip-path="url(#v2L)">
+  <path d="M 146 172 C 128 154 124 122 143 103 C 160 85 190 79 220 89 C 248 99 267 122 267 151 C 267 179 252 198 229 207 C 207 215 182 215 161 208 C 139 200 126 188 119 172 C 113 158 120 160 146 172 Z"
+        fill="#FF7B5A"/>
+  <!-- Highlight -->
+  <ellipse cx="168" cy="128" rx="28" ry="38" fill="#FF9B7A" opacity=".35" transform="rotate(-12,168,128)"/>
+  <ellipse cx="158" cy="115" rx="14" ry="20" fill="white" opacity=".12" transform="rotate(-12,158,115)"/>
+</g>
+
+<!-- BRAIN RIGHT hemisphere (teal) -->
+<g clip-path="url(#v2R)">
+  <path d="M 146 172 C 128 154 124 122 143 103 C 160 85 190 79 220 89 C 248 99 267 122 267 151 C 267 179 252 198 229 207 C 207 215 182 215 161 208 C 139 200 126 188 119 172 C 113 158 120 160 146 172 Z"
+        fill="#4ECDC4"/>
+  <!-- Highlight -->
+  <ellipse cx="242" cy="128" rx="20" ry="35" fill="#6AEDE4" opacity=".35" transform="rotate(12,242,128)"/>
+  <ellipse cx="248" cy="116" rx="10" ry="18" fill="white" opacity=".12" transform="rotate(12,248,116)"/>
+</g>
+
+<!-- Brain outline border -->
+<path d="M 146 172 C 128 154 124 122 143 103 C 160 85 190 79 220 89 C 248 99 267 122 267 151 C 267 179 252 198 229 207 C 207 215 182 215 161 208 C 139 200 126 188 119 172 C 113 158 120 160 146 172 Z"
+      fill="none" stroke="rgba(0,0,0,.18)" stroke-width="1.5"/>
+
+<!-- Sulcal lines coral side -->
+<g clip-path="url(#v2L)">
+  <path d="M 191 89 C 193 108 191 127 186 143 C 181 158 179 170 182 182" stroke="#C03018" stroke-width="2.2" stroke-linecap="round" fill="none" opacity=".5"/>
+  <path d="M 147 118 C 160 111 176 109 186 116 C 193 120 195 130 190 138" stroke="#C03018" stroke-width="2" stroke-linecap="round" fill="none" opacity=".45"/>
+  <path d="M 141 137 C 154 130 169 128 178 135 C 184 139 183 148 177 155" stroke="#C03018" stroke-width="1.8" stroke-linecap="round" fill="none" opacity=".4"/>
+  <path d="M 138 175 C 156 165 178 160 197 162" stroke="#C03018" stroke-width="2.8" stroke-linecap="round" fill="none" opacity=".45"/>
+  <path d="M 157 192 C 174 183 196 181 205 185" stroke="#C03018" stroke-width="1.8" stroke-linecap="round" fill="none" opacity=".4"/>
+</g>
+
+<!-- Sulcal lines teal side -->
+<g clip-path="url(#v2R)">
+  <path d="M 212 91 C 214 110 212 128 207 145 C 202 160 199 172 203 185" stroke="#0C6858" stroke-width="2.2" stroke-linecap="round" fill="none" opacity=".5"/>
+  <path d="M 232 94 C 234 111 233 128 228 143 C 223 156 222 167 227 178" stroke="#0C6858" stroke-width="2" stroke-linecap="round" fill="none" opacity=".45"/>
+  <path d="M 218 97 C 234 97 250 104 260 118" stroke="#0C6858" stroke-width="2" stroke-linecap="round" fill="none" opacity=".45"/>
+  <path d="M 205 162 C 215 164 234 170 247 180" stroke="#0C6858" stroke-width="2.8" stroke-linecap="round" fill="none" opacity=".45"/>
+  <path d="M 212 186 C 226 189 238 198 243 208" stroke="#0C6858" stroke-width="1.8" stroke-linecap="round" fill="none" opacity=".4"/>
+</g>
+
+<!-- CORAL drips (left) -->
+<g fill="#FF6040">
+  <path d="M 157 210 C 155 222 153 238 157 250 C 160 259 165 259 167 250 C 169 238 166 222 161 212 Z"/>
+  <path d="M 140 208 C 138 218 136 231 139 241 C 141 249 146 249 148 241 C 150 231 148 218 143 210 Z"/>
+  <circle cx="135" cy="254" r="5.5"/><circle cx="152" cy="262" r="4.5"/>
+  <circle cx="166" cy="268" r="4"/><circle cx="140" cy="270" r="3.5"/>
+</g>
+
+<!-- TEAL drips (right) -->
+<g fill="#28B8B0">
+  <path d="M 265 212 C 263 226 261 245 265 259 C 268 269 274 270 276 259 C 279 246 276 227 271 214 Z"/>
+  <path d="M 248 210 C 246 222 244 238 248 250 C 251 259 256 259 258 250 C 260 238 257 222 252 212 Z"/>
+  <circle cx="276" cy="272" r="5.5"/><circle cx="255" cy="264" r="4.5"/>
+  <circle cx="268" cy="278" r="4"/><circle cx="250" cy="274" r="3.5"/>
+</g>
+
+<!-- Amber gold spark at center divide -->
+<circle cx="210" cy="148" r="7" fill="#FFE060" opacity=".95">
+  <animate attributeName="r" values="5;8;5" dur="2s" repeatCount="indefinite"/>
+  <animate attributeName="opacity" values=".65;1;.65" dur="2s" repeatCount="indefinite"/>
+</circle>
+<circle cx="210" cy="148" r="3" fill="white" opacity=".95"/>
+</svg>
+
+</body>
+</html>

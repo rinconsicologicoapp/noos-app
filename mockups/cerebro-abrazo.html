@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Psicólogo · Cerebro + Abrazo</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --coral:#FF7B5A;--teal:#4ECDC4;--amber:#FFB347;--gold:#FFD080;
+  --bg:#04030C;--s1:rgba(255,255,255,.028);--b1:rgba(255,255,255,.065);
+  --text:#F5EEE8;--sub:rgba(245,238,232,.52);--low:rgba(245,238,232,.22);
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;overflow-x:hidden}
+canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:1260px;margin:0 auto;padding:0 28px}
+
+/* HEADER */
+header{text-align:center;padding:80px 24px 52px}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.08);border-radius:40px;padding:6px 18px;background:rgba(255,255,255,.03);font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--low);margin-bottom:22px}
+.pill span{width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}
+h1{font-size:clamp(34px,6vw,62px);font-weight:900;letter-spacing:-.03em;line-height:1.04;background:linear-gradient(135deg,#FF9B7A 0%,#FFD080 42%,#6EEDDF 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:14px}
+header>p{font-size:14px;color:var(--sub);max-width:520px;margin:0 auto;line-height:1.75}
+
+/* UX ANALYSIS */
+.section-label{display:flex;align-items:center;gap:18px;padding:52px 0 24px}
+.section-label .ln{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent)}
+.section-label span{font-size:9.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--low);white-space:nowrap}
+
+.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px}
+@media(max-width:640px){.analysis-grid{grid-template-columns:1fr}}
+
+.acard{background:var(--s1);border:1px solid var(--b1);border-radius:20px;padding:28px;position:relative;overflow:hidden}
+.acard::before{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.08);pointer-events:none}
+.acard-tag{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.acard-tag::before{content:'';width:20px;height:1px}
+.acard h3{font-size:18px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+.acard-style{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;border-radius:6px;padding:3px 10px;margin-bottom:14px;opacity:.9}
+.acard p{font-size:13px;color:var(--sub);line-height:1.75}
+.acard ul{margin-top:12px;list-style:none;display:flex;flex-direction:column;gap:6px}
+.acard ul li{font-size:12px;color:var(--sub);padding-left:18px;position:relative;line-height:1.6}
+.acard ul li::before{content:'→';position:absolute;left:0;color:var(--low);font-size:10px;top:1px}
+
+/* LOGO GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:28px;padding-bottom:100px}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:24px;overflow:hidden;position:relative;transition:transform .3s cubic-bezier(.22,1,.36,1),border-color .3s,box-shadow .3s}
+.card:hover{transform:translateY(-8px);border-color:rgba(255,123,90,.22);box-shadow:0 32px 80px rgba(0,0,0,.6),0 0 40px rgba(255,123,90,.06)}
+.hero-badge{position:absolute;top:14px;right:14px;z-index:20;background:linear-gradient(90deg,#FF7B5A,#FFD080);color:#fff;font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 12px;border-radius:20px}
+
+.stage{height:250px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+
+.info{padding:22px 22px 20px}
+.logo-name{font-size:16px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px}
+.logo-desc{font-size:12px;color:var(--sub);line-height:1.72;margin-bottom:20px}
+
+.icons{display:flex;gap:14px;align-items:flex-end}
+.icon-slot{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ilbl{font-size:8.5px;color:var(--low);letter-spacing:.06em;text-transform:uppercase}
+.ico{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.ico::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.15),inset 0 -1px 0 rgba(0,0,0,.2);pointer-events:none}
+.ico-ios{width:58px;height:58px;border-radius:13px}
+.ico-and{width:54px;height:54px;border-radius:50%}
+
+.hs{width:90px;height:142px;background:#08071A;border-radius:14px;border:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;align-items:center;padding:16px 6px 10px;gap:6px}
+.hs-ico{width:54px;height:54px;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hs-lbl{font-size:7px;color:rgba(255,255,255,.5);text-align:center;line-height:1.3;font-weight:500}
+.hs-bar{display:flex;gap:3px;margin-top:auto}
+.hsd{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.1)}
+.hsd.on{background:rgba(255,255,255,.45)}
+
+.pstrip{display:flex;height:3px}
+.ps{flex:1}
+
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+@keyframes floatUp{0%{transform:translateY(0);opacity:0}25%{opacity:.85}100%{transform:translateY(-44px);opacity:0}}
+@keyframes neonPulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.05)}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="wrap">
+
+<header>
+  <div class="pill"><span></span>Mi Psicólogo · Concepto de Logo</div>
+  <h1>Cerebro + Abrazo</h1>
+  <p>Personajes 3D con iluminación de estudio · Neon glow · Aurora Cálida · Inspirado en Spacers &amp; ChainGPT</p>
+</header>
+
+<!-- UX ANALYSIS -->
+<div class="section-label"><div class="ln"></div><span>Análisis de UX — tus páginas de referencia</span><div class="ln"></div></div>
+
+<div class="analysis-grid">
+  <div class="acard" style="border-color:rgba(140,100,255,.2)">
+    <div class="acard-tag" style="color:#A080FF"><div style="background:#A080FF;width:20px;height:1px"></div>spacers.wannathis.one</div>
+    <h3>Glassmorphism 3D</h3>
+    <div class="acard-style" style="background:rgba(140,100,255,.12);color:#C0A0FF;border:1px solid rgba(140,100,255,.2)">Estilo: Cosmic 3D Illustration</div>
+    <p>Usa el paradigma de <strong style="color:var(--text)">diseño 3D de ilustración de estudio</strong> — personajes renderizados en Blender con iluminación profesional: luz clave suave + rim light que crea dimensión. El fondo dark-cosmic (púrpuras profundos) hace que los personajes "floten" sobre el espacio.</p>
+    <ul>
+      <li><strong style="color:var(--text)">Iluminación esférica</strong>: highlight en top-left, shadow en bottom-right — simula fuente de luz a las 10 del reloj</li>
+      <li><strong style="color:var(--text)">Rim light</strong>: borde luminoso sutil en el lado opuesto a la luz, da profundidad</li>
+      <li><strong style="color:var(--text)">Paleta saturada</strong>: personajes con colores vividos contra fondo oscuro y neutro</li>
+      <li><strong style="color:var(--text)">Tipografía bold sans-serif</strong>: muy espaciada, jerarquía clara, mucho aire</li>
+      <li><strong style="color:var(--text)">UX pattern</strong>: Showcase + Storytelling. El producto se presenta a través de los personajes, no de specs técnicos</li>
+    </ul>
+  </div>
+
+  <div class="acard" style="border-color:rgba(78,205,196,.2)">
+    <div class="acard-tag" style="color:#4ECDC4"><div style="background:#4ECDC4;width:20px;height:1px"></div>chaingpt.org</div>
+    <h3>Web3 Neon Futurismo</h3>
+    <div class="acard-style" style="background:rgba(78,205,196,.1);color:#6EEDDF;border:1px solid rgba(78,205,196,.2)">Estilo: Dark Neon / Glassmorphism</div>
+    <p>Usa el paradigma <strong style="color:var(--text)">Dark UI + Neon Accent</strong> — backgrounds casi-negros con elementos que "emiten luz" propia. Cada CTA, borde y acento tiene glow. La tipografía es limpia y el espacio vacío es generoso.</p>
+    <ul>
+      <li><strong style="color:var(--text)">Neon glow en borders</strong>: bordes de cards con feGaussianBlur que simula luz LED</li>
+      <li><strong style="color:var(--text)">Gradientes de acento</strong>: cyan/teal sobre negro — alta vibración visual sin ser agresivo</li>
+      <li><strong style="color:var(--text)">Corner decorations</strong>: marcos geométricos en esquinas — patrón Web3 signature</li>
+      <li><strong style="color:var(--text)">Glassmorphism cards</strong>: superficies semi-transparentes con blur, float sobre el fondo</li>
+      <li><strong style="color:var(--text)">UX pattern</strong>: Progressive Disclosure + Social Proof. La información se organiza en bloques con jerarquía visual muy clara. Mucha CTA secundaria antes de la primaria.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="section-label" style="padding-top:36px"><div class="ln"></div><span>3 logos — cerebro + abrazo</span><div class="ln"></div></div>
+<div class="grid">
+
+
+<!-- ══════════════════════════════════════════════
+     LOGO 1 · MENTES UNIDAS (Hero)
+══════════════════════════════════════════════ -->
+<div class="card">
+  <div class="hero-badge">★ Hero</div>
+  <div class="pstrip">
+    <div class="ps" style="background:#FF7B5A"></div>
+    <div class="ps" style="background:#FF9870"></div>
+    <div class="ps" style="background:#FFD080"></div>
+    <div class="ps" style="background:#4ECDC4"></div>
+    <div class="ps" style="background:#2ABDB5"></div>
+  </div>
+
+  <div class="stage" style="background:radial-gradient(ellipse 70% 60% at 50% 40%,#14082A 0%,#08061A 55%,#04030C 100%)">
+
+    <!-- Particles floating up -->
+    <svg style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none" viewBox="0 0 300 250">
+      <circle cx="150" cy="148" r="2.2" fill="#FFD080" opacity="0"><animate attributeName="cy" values="148;110;82" dur="2.2s" repeatCount="indefinite" begin="0s"/><animate attributeName="opacity" values="0;.9;0" dur="2.2s" repeatCount="indefinite" begin="0s"/><animate attributeName="r" values="2.2;1.4;0.4" dur="2.2s" repeatCount="indefinite" begin="0s"/></circle>
+      <circle cx="144" cy="152" r="1.8" fill="#FF9870" opacity="0"><animate attributeName="cy" values="152;118;90" dur="1.9s" repeatCount="indefinite" begin=".8s"/><animate attributeName="cx" values="144;140;136" dur="1.9s" repeatCount="indefinite" begin=".8s"/><animate attributeName="opacity" values="0;.75;0" dur="1.9s" repeatCount="indefinite" begin=".8s"/></circle>
+      <circle cx="156" cy="150" r="1.8" fill="#4ECDC4" opacity="0"><animate attributeName="cy" values="150;114;88" dur="2.5s" repeatCount="indefinite" begin="1.4s"/><animate attributeName="cx" values="156;162;167" dur="2.5s" repeatCount="indefinite" begin="1.4s"/><animate attributeName="opacity" values="0;.7;0" dur="2.5s" repeatCount="indefinite" begin="1.4s"/></circle>
+      <circle cx="150" cy="154" r="1.4" fill="#FFD080" opacity="0"><animate attributeName="cy" values="154;120;96" dur="2s" repeatCount="indefinite" begin="1.9s"/><animate attributeName="opacity" values="0;.95;0" dur="2s" repeatCount="indefinite" begin="1.9s"/></circle>
+    </svg>
+
+    <svg width="240" height="230" viewBox="0 0 220 210" fill="none"
+         style="animation:breathe 4s ease-in-out infinite;filter:drop-shadow(0 8px 32px rgba(0,0,0,.6))">
+      <defs>
+        <!-- LEFT BRAIN (coral) — light from top-left -->
+        <radialGradient id="v1bL" cx="32%" cy="24%" r="72%">
+          <stop offset="0%"   stop-color="#FFD4BC"/>
+          <stop offset="22%"  stop-color="#FF9872"/>
+          <stop offset="55%"  stop-color="#FF6040"/>
+          <stop offset="100%" stop-color="#8C1408"/>
+        </radialGradient>
+        <!-- Rim light left brain -->
+        <radialGradient id="v1rL" cx="85%" cy="80%" r="55%">
+          <stop offset="0%"   stop-color="#FF9060" stop-opacity=".35"/>
+          <stop offset="100%" stop-color="#FF6040" stop-opacity="0"/>
+        </radialGradient>
+        <!-- LEFT IRIS -->
+        <radialGradient id="v1iL" cx="38%" cy="30%" r="70%">
+          <stop offset="0%"   stop-color="#FF8060"/>
+          <stop offset="100%" stop-color="#6A0C04"/>
+        </radialGradient>
+        <!-- RIGHT BRAIN (teal) — light from top-right -->
+        <radialGradient id="v1bR" cx="68%" cy="24%" r="72%">
+          <stop offset="0%"   stop-color="#BCFFF8"/>
+          <stop offset="22%"  stop-color="#60E4DC"/>
+          <stop offset="55%"  stop-color="#28C0B8"/>
+          <stop offset="100%" stop-color="#084840"/>
+        </radialGradient>
+        <radialGradient id="v1rR" cx="15%" cy="80%" r="55%">
+          <stop offset="0%"   stop-color="#60E4DC" stop-opacity=".35"/>
+          <stop offset="100%" stop-color="#28C0B8" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="v1iR" cx="62%" cy="30%" r="70%">
+          <stop offset="0%"   stop-color="#60E4DC"/>
+          <stop offset="100%" stop-color="#044040"/>
+        </radialGradient>
+        <!-- ARM GRADIENTS -->
+        <linearGradient id="v1aL" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"   stop-color="#FF9070"/>
+          <stop offset="100%" stop-color="#AA2808"/>
+        </linearGradient>
+        <linearGradient id="v1aR" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#60E4DC"/>
+          <stop offset="100%" stop-color="#086858"/>
+        </linearGradient>
+        <!-- CENTER WARMTH -->
+        <radialGradient id="v1warm" cx="50%" cy="55%" r="32%">
+          <stop offset="0%"   stop-color="#FFE4A0" stop-opacity=".55"/>
+          <stop offset="60%"  stop-color="#FFB060" stop-opacity=".18"/>
+          <stop offset="100%" stop-color="#FF7040" stop-opacity="0"/>
+        </radialGradient>
+        <!-- GLOW FILTERS -->
+        <filter id="v1gCoral" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="5" result="b"/>
+          <feColorMatrix in="b" type="matrix" values="1.5 0 0 0 0.1  0 .3 0 0 0  0 0 .2 0 0  0 0 0 1.2 0" result="c"/>
+          <feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="v1gTeal" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="5" result="b"/>
+          <feColorMatrix in="b" type="matrix" values=".2 0 0 0 0  0 1.5 0 0 0.1  0 0 1.5 0 0.1  0 0 0 1.2 0" result="c"/>
+          <feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="v1gsm" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="v1spark" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="6" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- Warm aura center -->
+      <ellipse cx="110" cy="116" rx="70" ry="62" fill="url(#v1warm)"/>
+
+      <!-- Neon glow rings (ChainGPT style) -->
+      <ellipse cx="72" cy="112" rx="38" ry="36" fill="none" stroke="rgba(255,100,60,.28)" stroke-width="1.2" filter="url(#v1gCoral)" style="animation:neonPulse 2.5s ease-in-out infinite"/>
+      <ellipse cx="148" cy="112" rx="38" ry="36" fill="none" stroke="rgba(40,190,185,.28)" stroke-width="1.2" filter="url(#v1gTeal)" style="animation:neonPulse 2.5s ease-in-out infinite .4s"/>
+
+      <!-- ── ARMS z-layer ── -->
+
+      <!-- Right brain's LEFT arm → wraps behind left brain -->
+      <path d="M 114 116 C 96 100 74 98 56 106 C 44 113 40 126 42 138"
+            stroke="url(#v1aR)" stroke-width="12" stroke-linecap="round" fill="none"
+            filter="url(#v1gsm)" opacity=".88"/>
+
+      <!-- Left brain body -->
+      <g transform="translate(72,112)">
+        <!-- Shadow/ambient occlusion at bottom -->
+        <ellipse cx="0" cy="28" rx="24" ry="6" fill="rgba(0,0,0,.3)"/>
+        <!-- Main brain shape -->
+        <path d="M 0,-26 C -7,-29 -17,-28 -22,-21 C -27,-14 -28,-4 -26,7 C -24,17 -18,25 -9,29 C -4,31 0,31 0,31 C 4,31 8,29 15,25 C 23,18 26,8 28,-3 C 28,-14 24,-21 17,-28 C 7,-29 0,-26 0,-26 Z"
+              fill="url(#v1bL)" filter="url(#v1gsm)"/>
+        <!-- Rim light (right/bottom edge — opposite to main light) -->
+        <path d="M 0,-26 C -7,-29 -17,-28 -22,-21 C -27,-14 -28,-4 -26,7 C -24,17 -18,25 -9,29"
+              fill="none" stroke="rgba(255,150,100,.18)" stroke-width="3" stroke-linecap="round"/>
+        <!-- Specular highlight blob (top-left) -->
+        <ellipse cx="-8" cy="-14" rx="8" ry="10" fill="white" opacity=".14" transform="rotate(-15,-8,-14)"/>
+        <!-- Brain fold lines (sulci) -->
+        <path d="M -18,-10 C -12,-16 -2,-15 2,-9 C 5,-4 2,2 -4,4" stroke="rgba(140,30,8,.22)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <path d="M -20,2 C -14,-4 -6,-2 -4,4 C -2,8 -6,12 -12,13" stroke="rgba(140,30,8,.18)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M 4,-8 C 10,-14 18,-12 20,-6 C 22,-1 18,6 13,8" stroke="rgba(140,30,8,.2)" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <path d="M -12,18 C -6,14 6,14 14,18" stroke="rgba(140,30,8,.16)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <!-- Central sulcus (brain divide) -->
+        <path d="M 0,-26 C -1,-18 -2,-8 -1,4" stroke="rgba(100,20,6,.2)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+
+        <!-- LEFT EYE — looking right (toward partner) -->
+        <g style="animation:blink 5s ease-in-out infinite">
+          <circle cx="-13" cy="12" r="7" fill="white" filter="url(#v1gsm)"/>
+          <circle cx="-12" cy="12" r="4.5" fill="#0a0410"/>
+          <circle cx="-12" cy="12" r="3" fill="url(#v1iL)"/>
+          <circle cx="-10.5" cy="10.5" r="1.4" fill="white" opacity=".95"/>
+          <circle cx="-14.5" cy="13.5" r=".6" fill="white" opacity=".5"/>
+        </g>
+        <!-- RIGHT EYE — looking right -->
+        <g style="animation:blink 5s ease-in-out infinite .4s">
+          <circle cx="13" cy="12" r="7" fill="white" filter="url(#v1gsm)"/>
+          <circle cx="14" cy="12" r="4.5" fill="#0a0410"/>
+          <circle cx="14" cy="12" r="3" fill="url(#v1iL)"/>
+          <circle cx="15.5" cy="10.5" r="1.4" fill="white" opacity=".95"/>
+          <circle cx="11.5" cy="13.5" r=".6" fill="white" opacity=".5"/>
+        </g>
+        <!-- Small smile -->
+        <path d="M -4,22 C -1,25 3,25 6,22" stroke="rgba(140,50,20,.5)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </g>
+
+      <!-- Left brain's RIGHT arm → wraps behind right brain -->
+      <path d="M 106 116 C 124 100 146 98 164 106 C 176 113 180 126 178 138"
+            stroke="url(#v1aL)" stroke-width="12" stroke-linecap="round" fill="none"
+            filter="url(#v1gsm)" opacity=".88"/>
+
+      <!-- Right brain body -->
+      <g transform="translate(148,112)">
+        <ellipse cx="0" cy="28" rx="24" ry="6" fill="rgba(0,0,0,.3)"/>
+        <path d="M 0,-26 C -7,-29 -17,-28 -22,-21 C -27,-14 -28,-4 -26,7 C -24,17 -18,25 -9,29 C -4,31 0,31 0,31 C 4,31 8,29 15,25 C 23,18 26,8 28,-3 C 28,-14 24,-21 17,-28 C 7,-29 0,-26 0,-26 Z"
+              fill="url(#v1bR)" filter="url(#v1gsm)"/>
+        <path d="M 0,-26 C 7,-29 17,-28 22,-21 C 27,-14 28,-4 26,7 C 24,17 18,25 9,29"
+              fill="none" stroke="rgba(100,220,215,.18)" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="8" cy="-14" rx="8" ry="10" fill="white" opacity=".14" transform="rotate(15,8,-14)"/>
+        <!-- Folds -->
+        <path d="M 18,-10 C 12,-16 2,-15 -2,-9 C -5,-4 -2,2 4,4" stroke="rgba(8,100,100,.22)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <path d="M 20,2 C 14,-4 6,-2 4,4 C 2,8 6,12 12,13" stroke="rgba(8,100,100,.18)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M -4,-8 C -10,-14 -18,-12 -20,-6 C -22,-1 -18,6 -13,8" stroke="rgba(8,100,100,.2)" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <path d="M -14,18 C -6,14 6,14 14,18" stroke="rgba(8,100,100,.16)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <path d="M 0,-26 C 1,-18 2,-8 1,4" stroke="rgba(6,80,80,.2)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+
+        <!-- LEFT EYE — looking left (toward partner) -->
+        <g style="animation:blink 5s ease-in-out infinite .8s">
+          <circle cx="-13" cy="12" r="7" fill="white" filter="url(#v1gsm)"/>
+          <circle cx="-14" cy="12" r="4.5" fill="#020C10"/>
+          <circle cx="-14" cy="12" r="3" fill="url(#v1iR)"/>
+          <circle cx="-15.5" cy="10.5" r="1.4" fill="white" opacity=".95"/>
+          <circle cx="-11.5" cy="13.5" r=".6" fill="white" opacity=".5"/>
+        </g>
+        <!-- RIGHT EYE — looking left -->
+        <g style="animation:blink 5s ease-in-out infinite 1.2s">
+          <circle cx="13" cy="12" r="7" fill="white" filter="url(#v1gsm)"/>
+          <circle cx="12" cy="12" r="4.5" fill="#020C10"/>
+          <circle cx="12" cy="12" r="3" fill="url(#v1iR)"/>
+          <circle cx="10.5" cy="10.5" r="1.4" fill="white" opacity=".95"/>
+          <circle cx="14.5" cy="13.5" r=".6" fill="white" opacity=".5"/>
+        </g>
+        <path d="M -6,22 C -3,25 1,25 4,22" stroke="rgba(8,120,120,.5)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </g>
+
+      <!-- Neural spark center -->
+      <circle cx="110" cy="116" r="7" fill="#FFE8A0" opacity=".9" filter="url(#v1spark)">
+        <animate attributeName="r" values="5;8;5" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".6;1;.6" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="110" cy="116" r="3" fill="white" opacity=".9"/>
+
+      <!-- Corner neon decorators (ChainGPT style) -->
+      <g opacity=".4" filter="url(#v1gCoral)">
+        <path d="M 14 14 L 14 28 M 14 14 L 28 14" stroke="#FF7B5A" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M 206 14 L 206 28 M 206 14 L 192 14" stroke="#4ECDC4" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M 14 196 L 14 182 M 14 196 L 28 196" stroke="#FF7B5A" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M 206 196 L 206 182 M 206 196 L 192 196" stroke="#4ECDC4" stroke-width="1.5" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="info">
+    <div class="logo-name">Mentes Unidas</div>
+    <div class="logo-desc">Dos personajes-cerebro 3D — psicólogo (coral) y paciente (teal) — en abrazo real. Iluminación esférica estilo Spacers, neon glow rings estilo ChainGPT, chispa neural dorada animada. Ojos que se miran entre sí.</div>
+    <div class="icons">
+      <div class="icon-slot">
+        <svg class="ico ico-ios" style="background:linear-gradient(145deg,#14082A,#04030C)" viewBox="0 0 58 58">
+          <defs>
+            <radialGradient id="i1bL" cx="32%" cy="25%" r="70%"><stop offset="0%" stop-color="#FFD4BC"/><stop offset="50%" stop-color="#FF6040"/><stop offset="100%" stop-color="#8C1408"/></radialGradient>
+            <radialGradient id="i1bR" cx="68%" cy="25%" r="70%"><stop offset="0%" stop-color="#BCFFF8"/><stop offset="50%" stop-color="#28C0B8"/><stop offset="100%" stop-color="#084840"/></radialGradient>
+            <linearGradient id="i1aL" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF9070"/><stop offset="100%" stop-color="#AA2808"/></linearGradient>
+            <linearGradient id="i1aR" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#60E4DC"/><stop offset="100%" stop-color="#086858"/></linearGradient>
+          </defs>
+          <ellipse cx="29" cy="30" rx="22" ry="20" fill="rgba(255,208,100,.1)"/>
+          <!-- Teal arm behind left brain -->
+          <path d="M 37 29 C 30 23 22 22 16 25 C 11 28 10 34 11 40" stroke="url(#i1aR)" stroke-width="5" stroke-linecap="round" fill="none" opacity=".85"/>
+          <!-- Left brain -->
+          <g transform="translate(19,28)"><path d="M 0,-12 C -3,-13 -8,-13 -10,-9 C -12,-6 -12,-1 -11,4 C -10,8 -7,11 -3,13 C 0,14 0,14 0,14 C 3,13 7,11 10,8 C 13,4 13,-1 11,-6 C 9,-11 3,-13 0,-12Z" fill="url(#i1bL)"/><ellipse cx="-3" cy="-6" rx="3.5" ry="4.5" fill="white" opacity=".14"/><circle cx="-5" cy="5" r="3.2" fill="white"/><circle cx="-5" cy="5" r="2" fill="#6A0C04"/><circle cx="-4.2" cy="4.2" r=".7" fill="white" opacity=".9"/><circle cx="4" cy="5" r="3.2" fill="white"/><circle cx="4.5" cy="5" r="2" fill="#6A0C04"/><circle cx="5.2" cy="4.2" r=".7" fill="white" opacity=".9"/></g>
+          <!-- Coral arm behind right brain -->
+          <path d="M 21 29 C 28 23 36 22 42 25 C 47 28 48 34 47 40" stroke="url(#i1aL)" stroke-width="5" stroke-linecap="round" fill="none" opacity=".85"/>
+          <!-- Right brain -->
+          <g transform="translate(39,28)"><path d="M 0,-12 C -3,-13 -8,-13 -10,-9 C -12,-6 -12,-1 -11,4 C -10,8 -7,11 -3,13 C 0,14 0,14 0,14 C 3,13 7,11 10,8 C 13,4 13,-1 11,-6 C 9,-11 3,-13 0,-12Z" fill="url(#i1bR)"/><ellipse cx="3" cy="-6" rx="3.5" ry="4.5" fill="white" opacity=".14"/><circle cx="-4" cy="5" r="3.2" fill="white"/><circle cx="-4.5" cy="5" r="2" fill="#044040"/><circle cx="-5.2" cy="4.2" r=".7" fill="white" opacity=".9"/><circle cx="5" cy="5" r="3.2" fill="white"/><circle cx="4.5" cy="5" r="2" fill="#044040"/><circle cx="3.8" cy="4.2" r=".7" fill="white" opacity=".9"/></g>
+          <circle cx="29" cy="29" r="3" fill="#FFE8A0" opacity=".9"/>
+        </svg>
+        <div class="ilbl">iOS</div>
+      </div>
+      <div class="icon-slot">
+        <svg class="ico ico-and" style="background:linear-gradient(145deg,#14082A,#04030C)" viewBox="0 0 54 54">
+          <ellipse cx="27" cy="28" rx="20" ry="18" fill="rgba(255,208,100,.1)"/>
+          <path d="M 35 27 C 28 21 20 20 14 23 C 9 26 8 32 9 38" stroke="#4ECDC4" stroke-width="4.5" stroke-linecap="round" fill="none" opacity=".85"/>
+          <g transform="translate(18,26)"><path d="M 0,-11 C -3,-12 -7,-12 -10,-8 C -12,-5 -12,0 -10,5 C -8,9 -4,12 0,13 C 4,12 8,9 10,5 C 12,0 12,-5 10,-8 C 7,-12 3,-12 0,-11Z" fill="#FF7B5A"/><circle cx="-5" cy="5" r="3" fill="white"/><circle cx="-4.5" cy="5" r="2" fill="#6A0C04"/><circle cx="-3.8" cy="4.2" r=".7" fill="white"/><circle cx="4" cy="5" r="3" fill="white"/><circle cx="4.5" cy="5" r="2" fill="#6A0C04"/><circle cx="5.2" cy="4.2" r=".7" fill="white"/></g>
+          <path d="M 19 27 C 26 21 34 20 40 23 C 45 26 46 32 45 38" stroke="#FF7B5A" stroke-width="4.5" stroke-linecap="round" fill="none" opacity=".85"/>
+          <g transform="translate(36,26)"><path d="M 0,-11 C -3,-12 -7,-12 -10,-8 C -12,-5 -12,0 -10,5 C -8,9 -4,12 0,13 C 4,12 8,9 10,5 C 12,0 12,-5 10,-8 C 7,-12 3,-12 0,-11Z" fill="#4ECDC4"/><circle cx="-5" cy="5" r="3" fill="white"/><circle cx="-5" cy="5" r="2" fill="#044040"/><circle cx="-4.3" cy="4.2" r=".7" fill="white"/><circle cx="4" cy="5" r="3" fill="white"/><circle cx="4" cy="5" r="2" fill="#044040"/><circle cx="3.3" cy="4.2" r=".7" fill="white"/></g>
+          <circle cx="27" cy="27" r="2.8" fill="#FFE8A0" opacity=".9"/>
+        </svg>
+        <div class="ilbl">Android</div>
+      </div>
+      <div class="icon-slot" style="margin-left:4px">
+        <div class="hs">
+          <div class="hs-ico" style="background:linear-gradient(145deg,#14082A,#04030C)">
+            <svg width="46" height="46" viewBox="0 0 58 58">
+              <path d="M 35 27 C 28 21 20 20 14 23 C 9 26 8 32 9 38" stroke="#4ECDC4" stroke-width="5" stroke-linecap="round" fill="none" opacity=".85"/>
+              <g transform="translate(19,28)"><path d="M 0,-12 C -3,-13 -8,-13 -10,-9 C -12,-6 -12,-1 -11,4 C -10,8 -7,11 -3,13 C 0,14 3,13 7,11 C 10,8 13,4 13,-1 C 13,-6 11,-9 9,-11 C 3,-13 0,-12 0,-12Z" fill="#FF7B5A"/><circle cx="-5" cy="5" r="3.2" fill="white"/><circle cx="-5" cy="5" r="2" fill="#6A0C04"/><circle cx="-4.2" cy="4.2" r=".7" fill="white"/><circle cx="4" cy="5" r="3.2" fill="white"/><circle cx="4.5" cy="5" r="2" fill="#6A0C04"/><circle cx="5.2" cy="4.2" r=".7" fill="white"/></g>
+              <path d="M 21 27 C 28 21 36 20 42 23 C 47 26 48 32 47 38" stroke="#FF7B5A" stroke-width="5" stroke-linecap="round" fill="none" opacity=".85"/>
+              <g transform="translate(39,28)"><path d="M 0,-12 C -3,-13 -8,-13 -10,-9 C -12,-6 -12,-1 -11,4 C -10,8 -7,11 -3,13 C 0,14 3,13 7,11 C 10,8 13,4 13,-1 C 13,-6 11,-9 9,-11 C 3,-13 0,-12 0,-12Z" fill="#4ECDC4"/><circle cx="-5" cy="5" r="3.2" fill="white"/><circle cx="-5" cy="5" r="2" fill="#044040"/><circle cx="-4.2" cy="4.2" r=".7" fill="white"/><circle cx="4" cy="5" r="3.2" fill="white"/><circle cx="4.5" cy="5" r="2" fill="#044040"/><circle cx="5.2" cy="4.2" r=".7" fill="white"/></g>
+              <circle cx="29" cy="29" r="3" fill="#FFE8A0" opacity=".9"/>
+            </svg>
+          </div>
+          <div class="hs-lbl">Mi<br>Psicólogo</div>
+          <div class="hs-bar"><div class="hsd"></div><div class="hsd on"></div><div class="hsd"></div></div>
+        </div>
+        <div class="ilbl">Home</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     LOGO 2 · HEMISFERIOS (Una mente, dos almas)
+══════════════════════════════════════════════ -->
+<div class="card">
+  <div class="pstrip">
+    <div class="ps" style="background:#FF7B5A"></div>
+    <div class="ps" style="background:#FF9B7A"></div>
+    <div class="ps" style="background:#FFD080"></div>
+    <div class="ps" style="background:#6EEDDF"></div>
+    <div class="ps" style="background:#4ECDC4"></div>
+  </div>
+
+  <div class="stage" style="background:radial-gradient(ellipse 65% 55% at 50% 45%,#100A24 0%,#07060F 65%,#04030C 100%)">
+    <svg width="230" height="220" viewBox="0 0 210 200" fill="none"
+         style="animation:breathe 5s ease-in-out infinite;filter:drop-shadow(0 6px 28px rgba(0,0,0,.6))">
+      <defs>
+        <!-- Left hemisphere (coral) -->
+        <radialGradient id="v2hL" cx="30%" cy="22%" r="75%">
+          <stop offset="0%"   stop-color="#FFD0B8"/>
+          <stop offset="30%"  stop-color="#FF8060"/>
+          <stop offset="65%"  stop-color="#FF5030"/>
+          <stop offset="100%" stop-color="#841008"/>
+        </radialGradient>
+        <!-- Right hemisphere (teal) -->
+        <radialGradient id="v2hR" cx="70%" cy="22%" r="75%">
+          <stop offset="0%"   stop-color="#C0FFF8"/>
+          <stop offset="30%"  stop-color="#50E0D8"/>
+          <stop offset="65%"  stop-color="#20B0A8"/>
+          <stop offset="100%" stop-color="#085850"/>
+        </radialGradient>
+        <!-- Corpus callosum (golden bridge) -->
+        <linearGradient id="v2cc" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#FFE880"/>
+          <stop offset="100%" stop-color="#FFB030"/>
+        </linearGradient>
+        <!-- Iris L -->
+        <radialGradient id="v2iL" cx="38%" cy="30%" r="70%"><stop offset="0%" stop-color="#FF8060"/><stop offset="100%" stop-color="#6A0C04"/></radialGradient>
+        <!-- Iris R -->
+        <radialGradient id="v2iR" cx="62%" cy="30%" r="70%"><stop offset="0%" stop-color="#60E4DC"/><stop offset="100%" stop-color="#044040"/></radialGradient>
+        <!-- Filters -->
+        <filter id="v2gsm" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="v2glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="v2gold" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5" result="b"/><feColorMatrix in="b" type="matrix" values="1.5 0.4 0 0 0.1  0.4 1 0 0 0  0 0 .1 0 0  0 0 0 1.5 0" result="c"/><feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <!-- Clip paths for each hemisphere -->
+        <clipPath id="v2clipL">
+          <rect x="0" y="0" width="105" height="200"/>
+        </clipPath>
+        <clipPath id="v2clipR">
+          <rect x="105" y="0" width="105" height="200"/>
+        </clipPath>
+      </defs>
+
+      <!-- Ambient glow -->
+      <ellipse cx="105" cy="105" rx="75" ry="68" fill="rgba(255,200,80,.07)"/>
+
+      <!-- Full brain shape clipped to each half -->
+      <!-- Brain outline path (full) centered at 105,105 -->
+      <!-- Left hemisphere (coral) — clip to left half -->
+      <g clip-path="url(#v2clipL)">
+        <path d="M 105,72 C 97,68 83,68 75,76 C 66,84 64,96 66,108 C 68,120 74,130 84,136 C 90,140 97,142 105,143 C 105,143 105,143 105,143 L 105,72 Z" fill="url(#v2hL)" filter="url(#v2gsm)"/>
+        <!-- Left hemisphere folds -->
+        <path d="M 74,88 C 80,82 90,82 96,88 C 100,93 98,100 92,103" stroke="rgba(140,30,8,.2)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <path d="M 70,102 C 76,96 84,96 88,102 C 90,107 86,112 80,114" stroke="rgba(140,30,8,.18)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M 76,120 C 82,115 92,115 98,120" stroke="rgba(140,30,8,.15)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <!-- Specular highlight left -->
+        <ellipse cx="80" cy="84" rx="9" ry="12" fill="white" opacity=".12" transform="rotate(-15,80,84)"/>
+
+        <!-- Left face — eyes looking right (toward center) -->
+        <g style="animation:blink 6s ease-in-out infinite">
+          <circle cx="84" cy="118" r="6.5" fill="white" filter="url(#v2gsm)"/>
+          <circle cx="85" cy="118" r="4" fill="#0a0410"/>
+          <circle cx="85" cy="118" r="2.8" fill="url(#v2iL)"/>
+          <circle cx="86.2" cy="116.8" r="1.2" fill="white" opacity=".95"/>
+        </g>
+        <!-- Small smile left -->
+        <path d="M 82,130 C 85,133 90,133 93,130" stroke="rgba(140,50,20,.45)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      </g>
+
+      <!-- Right hemisphere (teal) -->
+      <g clip-path="url(#v2clipR)">
+        <path d="M 105,72 L 105,143 C 113,143 120,140 126,136 C 136,130 142,120 144,108 C 146,96 144,84 135,76 C 127,68 113,68 105,72 Z" fill="url(#v2hR)" filter="url(#v2gsm)"/>
+        <!-- Right hemisphere folds -->
+        <path d="M 136,88 C 130,82 120,82 114,88 C 110,93 112,100 118,103" stroke="rgba(8,100,100,.2)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <path d="M 140,102 C 134,96 126,96 122,102 C 120,107 124,112 130,114" stroke="rgba(8,100,100,.18)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M 134,120 C 128,115 118,115 112,120" stroke="rgba(8,100,100,.15)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <ellipse cx="130" cy="84" rx="9" ry="12" fill="white" opacity=".12" transform="rotate(15,130,84)"/>
+
+        <!-- Right face — eyes looking left (toward center) -->
+        <g style="animation:blink 6s ease-in-out infinite .5s">
+          <circle cx="126" cy="118" r="6.5" fill="white" filter="url(#v2gsm)"/>
+          <circle cx="125" cy="118" r="4" fill="#020C10"/>
+          <circle cx="125" cy="118" r="2.8" fill="url(#v2iR)"/>
+          <circle cx="123.8" cy="116.8" r="1.2" fill="white" opacity=".95"/>
+        </g>
+        <path d="M 117,130 C 120,133 125,133 128,130" stroke="rgba(8,120,120,.45)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      </g>
+
+      <!-- Brain outer outline (unity border) -->
+      <path d="M 105,72 C 97,68 83,68 75,76 C 66,84 64,96 66,108 C 68,120 74,130 84,136 C 90,140 97,142 105,143 C 113,143 120,140 126,136 C 136,130 142,120 144,108 C 146,96 144,84 135,76 C 127,68 113,68 105,72 Z"
+            fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.2"/>
+
+      <!-- Top brain bumps (two lobes visible) -->
+      <path d="M 88 76 C 84 68 90 62 98 64 C 103 65 105 70 105 72" fill="url(#v2hL)" filter="url(#v2gsm)"/>
+      <path d="M 122 76 C 126 68 120 62 112 64 C 107 65 105 70 105 72" fill="url(#v2hR)" filter="url(#v2gsm)"/>
+      <path d="M 88 76 C 84 68 90 62 98 64 C 103 65 105 70 105 72" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+      <path d="M 122 76 C 126 68 120 62 112 64 C 107 65 105 70 105 72" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+
+      <!-- Corpus callosum (golden dividing bridge — the HUG between two halves) -->
+      <path d="M 105 80 C 103 90 103 110 105 130 C 107 110 107 90 105 80"
+            fill="url(#v2cc)" opacity=".7" filter="url(#v2gold)"/>
+      <line x1="105" y1="74" x2="105" y2="142" stroke="url(#v2cc)" stroke-width="1.5" opacity=".5"/>
+
+      <!-- Golden spark at center (connection point) -->
+      <circle cx="105" cy="108" r="5.5" fill="#FFE880" opacity=".9" filter="url(#v2gold)">
+        <animate attributeName="r" values="4;6.5;4" dur="2.4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".6;1;.6" dur="2.4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="105" cy="108" r="2.5" fill="white" opacity=".95"/>
+
+      <!-- Small "hug arms" at bottom -->
+      <path d="M 80 138 C 74 143 75 150 80 152 C 90 155 100 154 105 152"
+            stroke="#FF7B5A" stroke-width="6" stroke-linecap="round" fill="none" opacity=".65"/>
+      <path d="M 130 138 C 136 143 135 150 130 152 C 120 155 110 154 105 152"
+            stroke="#4ECDC4" stroke-width="6" stroke-linecap="round" fill="none" opacity=".65"/>
+
+      <!-- Label -->
+      <text x="105" y="175" text-anchor="middle" font-size="8" font-family="system-ui" font-weight="700" letter-spacing="2" fill="rgba(255,255,255,.2)" text-decoration="none">TERAPIA · CONEXIÓN · MENTE</text>
+    </svg>
+  </div>
+
+  <div class="info">
+    <div class="logo-name">Hemisferios</div>
+    <div class="logo-desc">Un solo cerebro, dos almas. El hemisferio coral es el terapeuta, el teal es el paciente. El corpus callosum dorado es el abrazo — la conexión que une dos mentes en una. Concepto único, imposible de confundir.</div>
+    <div class="icons">
+      <div class="icon-slot">
+        <svg class="ico ico-ios" style="background:linear-gradient(145deg,#100A24,#04030C)" viewBox="0 0 58 58">
+          <defs>
+            <radialGradient id="i2hL" cx="30%" cy="25%" r="72%"><stop offset="0%" stop-color="#FFD0B8"/><stop offset="55%" stop-color="#FF5030"/><stop offset="100%" stop-color="#841008"/></radialGradient>
+            <radialGradient id="i2hR" cx="70%" cy="25%" r="72%"><stop offset="0%" stop-color="#C0FFF8"/><stop offset="55%" stop-color="#20B0A8"/><stop offset="100%" stop-color="#085850"/></radialGradient>
+            <clipPath id="i2cL"><rect x="0" y="0" width="29" height="58"/></clipPath>
+            <clipPath id="i2cR"><rect x="29" y="0" width="29" height="58"/></clipPath>
+            <linearGradient id="i2cc" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE880"/><stop offset="100%" stop-color="#FFB030"/></linearGradient>
+          </defs>
+          <g clip-path="url(#i2cL)"><path d="M 29,14 C 24,12 16,12 11,17 C 6,22 5,30 7,37 C 9,43 14,48 21,50 C 24,51 27,52 29,52 L 29,14 Z" fill="url(#i2hL)"/><circle cx="20" cy="38" r="4" fill="white"/><circle cx="20.5" cy="38" r="2.5" fill="#6A0C04"/><circle cx="21.2" cy="37.2" r="1" fill="white" opacity=".9"/></g>
+          <g clip-path="url(#i2cR)"><path d="M 29,14 L 29,52 C 31,52 34,51 37,50 C 44,48 49,43 51,37 C 53,30 52,22 47,17 C 42,12 34,12 29,14 Z" fill="url(#i2hR)"/><circle cx="38" cy="38" r="4" fill="white"/><circle cx="37.5" cy="38" r="2.5" fill="#044040"/><circle cx="36.8" cy="37.2" r="1" fill="white" opacity=".9"/></g>
+          <path d="M 29 16 C 28 24 28 34 29 48 C 30 34 30 24 29 16" fill="url(#i2cc)" opacity=".7"/>
+          <circle cx="29" cy="33" r="3.5" fill="#FFE880" opacity=".9"/>
+          <circle cx="29" cy="33" r="1.5" fill="white" opacity=".9"/>
+        </svg>
+        <div class="ilbl">iOS</div>
+      </div>
+      <div class="icon-slot">
+        <svg class="ico ico-and" style="background:linear-gradient(145deg,#100A24,#04030C)" viewBox="0 0 54 54">
+          <defs>
+            <clipPath id="i2cLa"><rect x="0" y="0" width="27" height="54"/></clipPath>
+            <clipPath id="i2cRa"><rect x="27" y="0" width="27" height="54"/></clipPath>
+            <linearGradient id="i2cca" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE880"/><stop offset="100%" stop-color="#FFB030"/></linearGradient>
+          </defs>
+          <g clip-path="url(#i2cLa)"><path d="M 27,13 C 22,11 14,11 9,16 C 4,21 3,29 5,36 C 7,42 12,47 19,49 C 22,50 25,51 27,51 L 27,13 Z" fill="#FF7B5A"/><circle cx="18" cy="37" r="3.8" fill="white"/><circle cx="18.5" cy="37" r="2.4" fill="#6A0C04"/><circle cx="19.2" cy="36.2" r=".9" fill="white" opacity=".9"/></g>
+          <g clip-path="url(#i2cRa)"><path d="M 27,13 L 27,51 C 29,51 32,50 35,49 C 42,47 47,42 49,36 C 51,29 50,21 45,16 C 40,11 32,11 27,13 Z" fill="#4ECDC4"/><circle cx="36" cy="37" r="3.8" fill="white"/><circle cx="35.5" cy="37" r="2.4" fill="#044040"/><circle cx="34.8" cy="36.2" r=".9" fill="white" opacity=".9"/></g>
+          <path d="M 27 15 C 26 23 26 33 27 47 C 28 33 28 23 27 15" fill="url(#i2cca)" opacity=".7"/>
+          <circle cx="27" cy="31" r="3.2" fill="#FFE880" opacity=".9"/><circle cx="27" cy="31" r="1.4" fill="white" opacity=".9"/>
+        </svg>
+        <div class="ilbl">Android</div>
+      </div>
+      <div class="icon-slot" style="margin-left:4px">
+        <div class="hs">
+          <div class="hs-ico" style="background:linear-gradient(145deg,#100A24,#04030C)">
+            <svg width="46" height="46" viewBox="0 0 58 58">
+              <defs><clipPath id="i2cLhs"><rect x="0" y="0" width="29" height="58"/></clipPath><clipPath id="i2cRhs"><rect x="29" y="0" width="29" height="58"/></clipPath><linearGradient id="i2cchs" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE880"/><stop offset="100%" stop-color="#FFB030"/></linearGradient></defs>
+              <g clip-path="url(#i2cLhs)"><path d="M 29,14 C 24,12 16,12 11,17 C 6,22 5,30 7,37 C 9,43 14,48 21,50 C 24,51 27,52 29,52 L 29,14 Z" fill="#FF7B5A"/><circle cx="20" cy="38" r="4" fill="white"/><circle cx="20.5" cy="38" r="2.5" fill="#6A0C04"/><circle cx="21.2" cy="37.2" r="1" fill="white" opacity=".9"/></g>
+              <g clip-path="url(#i2cRhs)"><path d="M 29,14 L 29,52 C 31,52 34,51 37,50 C 44,48 49,43 51,37 C 53,30 52,22 47,17 C 42,12 34,12 29,14 Z" fill="#4ECDC4"/><circle cx="38" cy="38" r="4" fill="white"/><circle cx="37.5" cy="38" r="2.5" fill="#044040"/><circle cx="36.8" cy="37.2" r="1" fill="white" opacity=".9"/></g>
+              <path d="M 29 16 C 28 24 28 34 29 48 C 30 34 30 24 29 16" fill="url(#i2cchs)" opacity=".7"/>
+              <circle cx="29" cy="33" r="3.5" fill="#FFE880" opacity=".9"/><circle cx="29" cy="33" r="1.5" fill="white" opacity=".9"/>
+            </svg>
+          </div>
+          <div class="hs-lbl">Mi<br>Psicólogo</div>
+          <div class="hs-bar"><div class="hsd"></div><div class="hsd on"></div><div class="hsd"></div></div>
+        </div>
+        <div class="ilbl">Home</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     LOGO 3 · CHISPA NEURAL (Tech / ChainGPT)
+══════════════════════════════════════════════ -->
+<div class="card">
+  <div class="pstrip">
+    <div class="ps" style="background:#FF7B5A"></div>
+    <div class="ps" style="background:#D06040"></div>
+    <div class="ps" style="background:#904020"></div>
+    <div class="ps" style="background:#206080"></div>
+    <div class="ps" style="background:#4ECDC4"></div>
+  </div>
+
+  <div class="stage" style="background:radial-gradient(ellipse 60% 50% at 50% 45%,#0C0820 0%,#060510 60%,#03020A 100%)">
+    <svg width="232" height="222" viewBox="0 0 210 200" fill="none"
+         style="filter:drop-shadow(0 6px 28px rgba(0,0,0,.6))">
+      <defs>
+        <radialGradient id="v3bL" cx="30%" cy="22%" r="72%"><stop offset="0%" stop-color="#FFD0B8"/><stop offset="30%" stop-color="#FF8060"/><stop offset="65%" stop-color="#FF5030"/><stop offset="100%" stop-color="#841008"/></radialGradient>
+        <radialGradient id="v3bR" cx="70%" cy="22%" r="72%"><stop offset="0%" stop-color="#C0FFF8"/><stop offset="30%" stop-color="#50E0D8"/><stop offset="65%" stop-color="#20B0A8"/><stop offset="100%" stop-color="#085850"/></radialGradient>
+        <radialGradient id="v3iL" cx="38%" cy="30%" r="70%"><stop offset="0%" stop-color="#FF8060"/><stop offset="100%" stop-color="#6A0C04"/></radialGradient>
+        <radialGradient id="v3iR" cx="62%" cy="30%" r="70%"><stop offset="0%" stop-color="#60E4DC"/><stop offset="100%" stop-color="#044040"/></radialGradient>
+        <filter id="v3gsm" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="v3neonC" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="5" result="b"/><feColorMatrix in="b" type="matrix" values="2 0.2 0 0 0.1  0 .3 0 0 0  0 0 .2 0 0  0 0 0 1.8 0" result="c"/><feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="v3neonT" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="5" result="b"/><feColorMatrix in="b" type="matrix" values=".2 0 0 0 0  0 2 0 0 0.1  0 0 2 0 0.1  0 0 0 1.8 0" result="c"/><feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="v3spark" x="-150%" y="-150%" width="400%" height="400%"><feGaussianBlur stdDeviation="7" result="b"/><feColorMatrix in="b" type="matrix" values="1.5 0.5 0 0 0.1  0.5 1.5 0 0 0.05  0 0 .5 0 0  0 0 0 2 0" result="c"/><feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <linearGradient id="v3thread1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FF7050" stop-opacity=".8"/><stop offset="50%" stop-color="#FFD080" stop-opacity=".9"/><stop offset="100%" stop-color="#4ECDC4" stop-opacity=".8"/></linearGradient>
+        <linearGradient id="v3thread2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FF7050" stop-opacity=".5"/><stop offset="50%" stop-color="#FFD080" stop-opacity=".6"/><stop offset="100%" stop-color="#4ECDC4" stop-opacity=".5"/></linearGradient>
+      </defs>
+
+      <!-- Neural threads connecting the two brains (ChainGPT style) -->
+      <!-- Thread 1 (main, thick) -->
+      <path d="M 84 102 C 96 90 114 90 126 102" stroke="url(#v3thread1)" stroke-width="2" fill="none" opacity=".9" style="animation:neonPulse 1.8s ease-in-out infinite"/>
+      <!-- Thread 2 (upper) -->
+      <path d="M 84 96 C 96 80 114 80 126 96" stroke="url(#v3thread2)" stroke-width="1.2" fill="none" opacity=".7" style="animation:neonPulse 2.2s ease-in-out infinite .3s"/>
+      <!-- Thread 3 (lower) -->
+      <path d="M 84 108 C 96 120 114 120 126 108" stroke="url(#v3thread2)" stroke-width="1.2" fill="none" opacity=".7" style="animation:neonPulse 2s ease-in-out infinite .6s"/>
+      <!-- Thread 4 (thin upper) -->
+      <path d="M 86 90 C 98 72 112 72 124 90" stroke="url(#v3thread2)" stroke-width=".8" fill="none" opacity=".45" style="animation:neonPulse 2.8s ease-in-out infinite .2s"/>
+      <!-- Thread 5 (thin lower) -->
+      <path d="M 86 114 C 98 132 112 132 124 114" stroke="url(#v3thread2)" stroke-width=".8" fill="none" opacity=".45" style="animation:neonPulse 2.4s ease-in-out infinite .9s"/>
+
+      <!-- LEFT BRAIN (coral, smaller — more abstract/tech) -->
+      <g transform="translate(67,102)" style="animation:breathe 3.8s ease-in-out infinite">
+        <ellipse cx="0" cy="22" rx="18" ry="5" fill="rgba(0,0,0,.35)"/>
+        <path d="M 0,-22 C -5,-24 -14,-24 -18,-18 C -22,-12 -22,-4 -20,5 C -18,13 -13,20 -6,23 C -2,25 0,25 0,25 C 3,24 7,22 12,18 C 18,12 20,3 20,-5 C 20,-14 16,-21 9,-24 C 4,-25 0,-22 0,-22 Z" fill="url(#v3bL)" filter="url(#v3gsm)"/>
+        <!-- Rim light -->
+        <path d="M 0,-22 C -5,-24 -14,-24 -18,-18 C -22,-12 -22,-4 -20,5" fill="none" stroke="rgba(255,150,100,.2)" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Specular -->
+        <ellipse cx="-6" cy="-12" rx="6" ry="8" fill="white" opacity=".14" transform="rotate(-15,-6,-12)"/>
+        <!-- Fold lines -->
+        <path d="M -14,-8 C -9,-13 -2,-13 2,-8 C 4,-4 2,1 -3,3" stroke="rgba(140,30,8,.2)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M -16,2 C -10,-4 -4,-2 -2,3 C 0,7 -4,11 -9,12" stroke="rgba(140,30,8,.17)" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+        <path d="M 2,-6 C 7,-11 14,-10 16,-4 C 17,0 14,5 9,7" stroke="rgba(140,30,8,.18)" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+        <!-- Eyes -->
+        <g style="animation:blink 5.5s ease-in-out infinite">
+          <circle cx="-9" cy="10" r="6" fill="white" filter="url(#v3gsm)"/>
+          <circle cx="-8" cy="10" r="4" fill="#0a0410"/><circle cx="-8" cy="10" r="2.6" fill="url(#v3iL)"/>
+          <circle cx="-6.8" cy="8.8" r="1.1" fill="white" opacity=".95"/>
+        </g>
+        <g style="animation:blink 5.5s ease-in-out infinite .5s">
+          <circle cx="9" cy="10" r="6" fill="white" filter="url(#v3gsm)"/>
+          <circle cx="10" cy="10" r="4" fill="#0a0410"/><circle cx="10" cy="10" r="2.6" fill="url(#v3iL)"/>
+          <circle cx="11.2" cy="8.8" r="1.1" fill="white" opacity=".95"/>
+        </g>
+        <!-- Neon glow ring -->
+        <ellipse cx="0" cy="2" rx="24" ry="26" fill="none" stroke="rgba(255,90,50,.35)" stroke-width="1" filter="url(#v3neonC)" style="animation:neonPulse 2s ease-in-out infinite"/>
+      </g>
+
+      <!-- RIGHT BRAIN (teal, abstract) -->
+      <g transform="translate(143,102)" style="animation:breathe 3.8s ease-in-out infinite .5s">
+        <ellipse cx="0" cy="22" rx="18" ry="5" fill="rgba(0,0,0,.35)"/>
+        <path d="M 0,-22 C -5,-24 -14,-24 -18,-18 C -22,-12 -22,-4 -20,5 C -18,13 -13,20 -6,23 C -2,25 0,25 0,25 C 3,24 7,22 12,18 C 18,12 20,3 20,-5 C 20,-14 16,-21 9,-24 C 4,-25 0,-22 0,-22 Z" fill="url(#v3bR)" filter="url(#v3gsm)"/>
+        <path d="M 0,-22 C 5,-24 14,-24 18,-18 C 22,-12 22,-4 20,5" fill="none" stroke="rgba(100,220,215,.2)" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="6" cy="-12" rx="6" ry="8" fill="white" opacity=".14" transform="rotate(15,6,-12)"/>
+        <!-- Fold lines -->
+        <path d="M 14,-8 C 9,-13 2,-13 -2,-8 C -4,-4 -2,1 3,3" stroke="rgba(8,100,100,.2)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M 16,2 C 10,-4 4,-2 2,3 C 0,7 4,11 9,12" stroke="rgba(8,100,100,.17)" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+        <path d="M -2,-6 C -7,-11 -14,-10 -16,-4 C -17,0 -14,5 -9,7" stroke="rgba(8,100,100,.18)" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+        <!-- Eyes looking left -->
+        <g style="animation:blink 5.5s ease-in-out infinite 1s">
+          <circle cx="-9" cy="10" r="6" fill="white" filter="url(#v3gsm)"/>
+          <circle cx="-10" cy="10" r="4" fill="#020C10"/><circle cx="-10" cy="10" r="2.6" fill="url(#v3iR)"/>
+          <circle cx="-11.2" cy="8.8" r="1.1" fill="white" opacity=".95"/>
+        </g>
+        <g style="animation:blink 5.5s ease-in-out infinite 1.5s">
+          <circle cx="9" cy="10" r="6" fill="white" filter="url(#v3gsm)"/>
+          <circle cx="8" cy="10" r="4" fill="#020C10"/><circle cx="8" cy="10" r="2.6" fill="url(#v3iR)"/>
+          <circle cx="6.8" cy="8.8" r="1.1" fill="white" opacity=".95"/>
+        </g>
+        <ellipse cx="0" cy="2" rx="24" ry="26" fill="none" stroke="rgba(40,190,185,.35)" stroke-width="1" filter="url(#v3neonT)" style="animation:neonPulse 2s ease-in-out infinite .4s"/>
+      </g>
+
+      <!-- CENTRAL NEURAL SPARK -->
+      <circle cx="105" cy="102" r="8" fill="#FFE880" opacity=".85" filter="url(#v3spark)">
+        <animate attributeName="r" values="6;10;6" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".55;.95;.55" dur="1.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="105" cy="102" r="3.5" fill="white" opacity=".95"/>
+      <!-- Spark rays -->
+      <g opacity=".6" filter="url(#v3spark)">
+        <line x1="105" y1="88" x2="105" y2="80" stroke="#FFE880" stroke-width="1.5" stroke-linecap="round" style="animation:neonPulse 1.4s ease-in-out infinite"/>
+        <line x1="105" y1="116" x2="105" y2="124" stroke="#FFE880" stroke-width="1.5" stroke-linecap="round" style="animation:neonPulse 1.4s ease-in-out infinite .2s"/>
+        <line x1="91" y1="102" x2="83" y2="102" stroke="#FF7050" stroke-width="1.5" stroke-linecap="round" style="animation:neonPulse 1.4s ease-in-out infinite .4s"/>
+        <line x1="119" y1="102" x2="127" y2="102" stroke="#4ECDC4" stroke-width="1.5" stroke-linecap="round" style="animation:neonPulse 1.4s ease-in-out infinite .6s"/>
+      </g>
+
+      <!-- ChainGPT corner decorators -->
+      <g opacity=".5">
+        <path d="M 12 12 L 12 24 M 12 12 L 24 12" stroke="#FF7B5A" stroke-width="1.5" stroke-linecap="round" filter="url(#v3neonC)"/>
+        <path d="M 198 12 L 198 24 M 198 12 L 186 12" stroke="#4ECDC4" stroke-width="1.5" stroke-linecap="round" filter="url(#v3neonT)"/>
+        <path d="M 12 188 L 12 176 M 12 188 L 24 188" stroke="#FF7B5A" stroke-width="1.5" stroke-linecap="round" filter="url(#v3neonC)"/>
+        <path d="M 198 188 L 198 176 M 198 188 L 186 188" stroke="#4ECDC4" stroke-width="1.5" stroke-linecap="round" filter="url(#v3neonT)"/>
+      </g>
+
+      <!-- Floating neural particles -->
+      <circle cx="105" cy="95" r="1.8" fill="#FFD080" opacity="0"><animate attributeName="cy" values="95;70;50" dur="2s" repeatCount="indefinite" begin="0s"/><animate attributeName="opacity" values="0;.9;0" dur="2s" repeatCount="indefinite" begin="0s"/></circle>
+      <circle cx="100" cy="98" r="1.4" fill="#FF9070" opacity="0"><animate attributeName="cy" values="98;76;56" dur="2.3s" repeatCount="indefinite" begin=".7s"/><animate attributeName="cx" values="100;96;93" dur="2.3s" repeatCount="indefinite" begin=".7s"/><animate attributeName="opacity" values="0;.75;0" dur="2.3s" repeatCount="indefinite" begin=".7s"/></circle>
+      <circle cx="110" cy="98" r="1.4" fill="#4ECDC4" opacity="0"><animate attributeName="cy" values="98;76;56" dur="2.1s" repeatCount="indefinite" begin="1.3s"/><animate attributeName="cx" values="110;114;117" dur="2.1s" repeatCount="indefinite" begin="1.3s"/><animate attributeName="opacity" values="0;.75;0" dur="2.1s" repeatCount="indefinite" begin="1.3s"/></circle>
+    </svg>
+  </div>
+
+  <div class="info">
+    <div class="logo-name">Chispa Neural</div>
+    <div class="logo-desc">Dos cerebros conectados por hilos neurales que forman el abrazo. Neon threads con gradiente coral→dorado→teal. Spark central pulsante. Estética ChainGPT aplicada al mundo terapéutico.</div>
+    <div class="icons">
+      <div class="icon-slot">
+        <svg class="ico ico-ios" style="background:linear-gradient(145deg,#0C0820,#03020A)" viewBox="0 0 58 58">
+          <defs>
+            <radialGradient id="i3bL" cx="30%" cy="25%" r="72%"><stop offset="0%" stop-color="#FFD0B8"/><stop offset="55%" stop-color="#FF5030"/><stop offset="100%" stop-color="#841008"/></radialGradient>
+            <radialGradient id="i3bR" cx="70%" cy="25%" r="72%"><stop offset="0%" stop-color="#C0FFF8"/><stop offset="55%" stop-color="#20B0A8"/><stop offset="100%" stop-color="#085850"/></radialGradient>
+            <linearGradient id="i3thr" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FF7050"/><stop offset="50%" stop-color="#FFD080"/><stop offset="100%" stop-color="#4ECDC4"/></linearGradient>
+          </defs>
+          <path d="M 21 29 C 26 24 32 24 37 29" stroke="url(#i3thr)" stroke-width="1.4" fill="none" opacity=".9"/>
+          <path d="M 22 26 C 27 18 31 18 36 26" stroke="url(#i3thr)" stroke-width=".8" fill="none" opacity=".55"/>
+          <path d="M 22 32 C 27 40 31 40 36 32" stroke="url(#i3thr)" stroke-width=".8" fill="none" opacity=".55"/>
+          <g transform="translate(15,28)"><path d="M 0,-12 C -3,-13 -7,-13 -10,-9 C -12,-6 -12,-1 -11,4 C -10,8 -6,12 0,13 C 6,12 10,8 11,4 C 12,-1 12,-6 10,-9 C 7,-13 3,-13 0,-12Z" fill="url(#i3bL)"/><circle cx="-4" cy="5" r="3.2" fill="white"/><circle cx="-3.5" cy="5" r="2" fill="#6A0C04"/><circle cx="-2.8" cy="4.2" r=".8" fill="white" opacity=".9"/><circle cx="4" cy="5" r="3.2" fill="white"/><circle cx="4.5" cy="5" r="2" fill="#6A0C04"/><circle cx="5.2" cy="4.2" r=".8" fill="white" opacity=".9"/></g>
+          <g transform="translate(43,28)"><path d="M 0,-12 C -3,-13 -7,-13 -10,-9 C -12,-6 -12,-1 -11,4 C -10,8 -6,12 0,13 C 6,12 10,8 11,4 C 12,-1 12,-6 10,-9 C 7,-13 3,-13 0,-12Z" fill="url(#i3bR)"/><circle cx="-4" cy="5" r="3.2" fill="white"/><circle cx="-4.5" cy="5" r="2" fill="#044040"/><circle cx="-5.2" cy="4.2" r=".8" fill="white" opacity=".9"/><circle cx="4" cy="5" r="3.2" fill="white"/><circle cx="3.5" cy="5" r="2" fill="#044040"/><circle cx="2.8" cy="4.2" r=".8" fill="white" opacity=".9"/></g>
+          <circle cx="29" cy="29" r="4" fill="#FFE880" opacity=".85"/><circle cx="29" cy="29" r="1.8" fill="white" opacity=".95"/>
+        </svg>
+        <div class="ilbl">iOS</div>
+      </div>
+      <div class="icon-slot">
+        <svg class="ico ico-and" style="background:linear-gradient(145deg,#0C0820,#03020A)" viewBox="0 0 54 54">
+          <defs><linearGradient id="i3thra" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FF7050"/><stop offset="50%" stop-color="#FFD080"/><stop offset="100%" stop-color="#4ECDC4"/></linearGradient></defs>
+          <path d="M 20 27 C 24 22 30 22 34 27" stroke="url(#i3thra)" stroke-width="1.3" fill="none" opacity=".9"/>
+          <g transform="translate(14,26)"><path d="M 0,-11 C -3,-12 -7,-12 -10,-8 C -12,-5 -12,0 -10,5 C -8,9 -4,12 0,12 C 4,12 8,9 10,5 C 12,0 12,-5 10,-8 C 7,-12 3,-12 0,-11Z" fill="#FF7B5A"/><circle cx="-4" cy="5" r="3" fill="white"/><circle cx="-3.5" cy="5" r="1.9" fill="#6A0C04"/><circle cx="-2.8" cy="4.2" r=".7" fill="white" opacity=".9"/><circle cx="4" cy="5" r="3" fill="white"/><circle cx="4.5" cy="5" r="1.9" fill="#6A0C04"/><circle cx="5.2" cy="4.2" r=".7" fill="white" opacity=".9"/></g>
+          <g transform="translate(40,26)"><path d="M 0,-11 C -3,-12 -7,-12 -10,-8 C -12,-5 -12,0 -10,5 C -8,9 -4,12 0,12 C 4,12 8,9 10,5 C 12,0 12,-5 10,-8 C 7,-12 3,-12 0,-11Z" fill="#4ECDC4"/><circle cx="-4" cy="5" r="3" fill="white"/><circle cx="-4.5" cy="5" r="1.9" fill="#044040"/><circle cx="-5.2" cy="4.2" r=".7" fill="white" opacity=".9"/><circle cx="4" cy="5" r="3" fill="white"/><circle cx="3.5" cy="5" r="1.9" fill="#044040"/><circle cx="2.8" cy="4.2" r=".7" fill="white" opacity=".9"/></g>
+          <circle cx="27" cy="27" r="3.5" fill="#FFE880" opacity=".85"/><circle cx="27" cy="27" r="1.6" fill="white" opacity=".95"/>
+        </svg>
+        <div class="ilbl">Android</div>
+      </div>
+      <div class="icon-slot" style="margin-left:4px">
+        <div class="hs">
+          <div class="hs-ico" style="background:linear-gradient(145deg,#0C0820,#03020A)">
+            <svg width="46" height="46" viewBox="0 0 54 54">
+              <defs><linearGradient id="i3thrhs" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FF7050"/><stop offset="50%" stop-color="#FFD080"/><stop offset="100%" stop-color="#4ECDC4"/></linearGradient></defs>
+              <path d="M 20 27 C 24 22 30 22 34 27" stroke="url(#i3thrhs)" stroke-width="1.3" fill="none" opacity=".9"/>
+              <g transform="translate(14,26)"><path d="M 0,-11 C -3,-12 -7,-12 -10,-8 C -12,-5 -12,0 -10,5 C -8,9 -4,12 0,12 C 4,12 8,9 10,5 C 12,0 12,-5 10,-8 C 7,-12 3,-12 0,-11Z" fill="#FF7B5A"/><circle cx="-4" cy="5" r="3" fill="white"/><circle cx="-3.5" cy="5" r="1.9" fill="#6A0C04"/><circle cx="-2.8" cy="4.2" r=".7" fill="white" opacity=".9"/><circle cx="4" cy="5" r="3" fill="white"/><circle cx="4.5" cy="5" r="1.9" fill="#6A0C04"/><circle cx="5.2" cy="4.2" r=".7" fill="white" opacity=".9"/></g>
+              <g transform="translate(40,26)"><path d="M 0,-11 C -3,-12 -7,-12 -10,-8 C -12,-5 -12,0 -10,5 C -8,9 -4,12 0,12 C 4,12 8,9 10,5 C 12,0 12,-5 10,-8 C 7,-12 3,-12 0,-11Z" fill="#4ECDC4"/><circle cx="-4" cy="5" r="3" fill="white"/><circle cx="-4.5" cy="5" r="1.9" fill="#044040"/><circle cx="-5.2" cy="4.2" r=".7" fill="white" opacity=".9"/><circle cx="4" cy="5" r="3" fill="white"/><circle cx="3.5" cy="5" r="1.9" fill="#044040"/><circle cx="2.8" cy="4.2" r=".7" fill="white" opacity=".9"/></g>
+              <circle cx="27" cy="27" r="3.5" fill="#FFE880" opacity=".85"/><circle cx="27" cy="27" r="1.6" fill="white" opacity=".95"/>
+            </svg>
+          </div>
+          <div class="hs-lbl">Mi<br>Psicólogo</div>
+          <div class="hs-bar"><div class="hsd"></div><div class="hsd on"></div><div class="hsd"></div></div>
+        </div>
+        <div class="ilbl">Home</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /grid -->
+</div><!-- /wrap -->
+
+<script>
+const cv = document.getElementById('bg');
+const ctx = cv.getContext('2d');
+let W, H, pts = [];
+function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight}
+function init(){pts=[];const n=Math.min(60,Math.floor(W*H/16000));for(let i=0;i<n;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.6+.5,c:Math.random()>.5?'rgba(255,112,80,':'rgba(78,205,196,',a:Math.random()*.38+.06})}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<130){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(255,200,130,${(1-d/130)*.055})`;ctx.lineWidth=.5;ctx.stroke()}}
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+p.a+')';ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1});
+  requestAnimationFrame(draw);
+}
+resize();init();draw();
+window.addEventListener('resize',()=>{resize();init()});
+</script>
+</body>
+</html>

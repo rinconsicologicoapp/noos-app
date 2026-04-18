@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 32px;
+    padding: 48px;
+  }
+  .card {
+    background: rgba(255,255,255,.028);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.065);
+    border-radius: 24px;
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    color: rgba(245,238,232,.35);
+    text-transform: uppercase;
+  }
+  .app-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #FF9B7A 0%, #FFD080 38%, #6EEDDF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .lockup {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  /* Favicon simulation */
+  .favicon-bg {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    background: #07060F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.6);
+  }
+  .favicon-bg.coral {
+    background: linear-gradient(135deg, #FF8B6A 0%, #FF5A36 100%);
+  }
+  .favicon-bg.dark-glass {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+  }
+</style>
+</head>
+<body>
+
+<div class="grid">
+
+  <!-- VARIANTE 1: Paleta Aurora Cálida directa -->
+  <div class="card">
+    <div class="label">Aurora Cálida</div>
+    <svg width="96" height="96" viewBox="0 0 200 200">
+      <!-- Hexágonos oscuros (izquierda) — bg-surface -->
+      <g fill="#0D0B1E">
+        <polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/>
+        <polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/>
+        <polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/>
+        <polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/>
+      </g>
+      <!-- Hexágonos de color (derecha) — Aurora Cálida -->
+      <polygon points="120,50 138,60 138,80 120,90 102,80 102,60"   fill="#FF7B5A"/>
+      <polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/>
+      <polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/>
+      <polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/>
+      <polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
+    </svg>
+    <div class="lockup">
+      <svg width="32" height="32" viewBox="0 0 200 200">
+        <g fill="#0D0B1E">
+          <polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/>
+          <polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/>
+          <polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/>
+          <polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/>
+        </g>
+        <polygon points="120,50 138,60 138,80 120,90 102,80 102,60"   fill="#FF7B5A"/>
+        <polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/>
+        <polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/>
+        <polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/>
+        <polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
+      </svg>
+      <span class="app-name">Mi Psicólogo</span>
+    </div>
+    <div class="label">Lockup completo</div>
+  </div>
+
+  <!-- VARIANTE 2: Favicon sobre fondo coral -->
+  <div class="card">
+    <div class="label">Favicon iOS/Android</div>
+    <div style="display:flex; gap:16px; align-items:center;">
+      <!-- Sobre fondo oscuro -->
+      <div class="favicon-bg">
+        <svg width="44" height="44" viewBox="0 0 200 200">
+          <g fill="rgba(255,255,255,.10)">
+            <polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/>
+            <polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/>
+            <polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/>
+            <polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/>
+          </g>
+          <polygon points="120,50 138,60 138,80 120,90 102,80 102,60"   fill="#FF7B5A"/>
+          <polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/>
+          <polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/>
+          <polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/>
+          <polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
+        </svg>
+      </div>
+      <!-- Sobre fondo coral -->
+      <div class="favicon-bg coral">
+        <svg width="44" height="44" viewBox="0 0 200 200">
+          <g fill="rgba(255,255,255,.25)">
+            <polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/>
+            <polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/>
+            <polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/>
+            <polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/>
+          </g>
+          <polygon points="120,50 138,60 138,80 120,90 102,80 102,60"   fill="white"/>
+          <polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFE4B0"/>
+          <polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#B0F5F0"/>
+          <polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="white"/>
+          <polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FFE4B0"/>
+        </svg>
+      </div>
+      <!-- Glass -->
+      <div class="favicon-bg dark-glass">
+        <svg width="44" height="44" viewBox="0 0 200 200">
+          <g fill="rgba(255,255,255,.08)">
+            <polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/>
+            <polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/>
+            <polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/>
+            <polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/>
+          </g>
+          <polygon points="120,50 138,60 138,80 120,90 102,80 102,60"   fill="#FF7B5A"/>
+          <polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/>
+          <polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/>
+          <polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/>
+          <polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
+        </svg>
+      </div>
+    </div>
+    <div class="label">Negro · Coral · Glass</div>
+
+    <!-- Tallas -->
+    <div style="display:flex; gap:12px; align-items:flex-end; margin-top:8px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <svg width="20" height="20" viewBox="0 0 200 200">
+          <g fill="#0D0B1E"><polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/><polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/><polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/><polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/></g>
+          <polygon points="120,50 138,60 138,80 120,90 102,80 102,60" fill="#FF7B5A"/><polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/><polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/><polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/><polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
+        </svg>
+        <span style="font-size:10px;color:rgba(255,255,255,.3)">20px</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <svg width="32" height="32" viewBox="0 0 200 200">
+          <g fill="#0D0B1E"><polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/><polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/><polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/><polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/></g>
+          <polygon points="120,50 138,60 138,80 120,90 102,80 102,60" fill="#FF7B5A"/><polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/><polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/><polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/><polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
+        </svg>
+        <span style="font-size:10px;color:rgba(255,255,255,.3)">32px</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <svg width="48" height="48" viewBox="0 0 200 200">
+          <g fill="#0D0B1E"><polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/><polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/><polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/><polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/></g>
+          <polygon points="120,50 138,60 138,80 120,90 102,80 102,60" fill="#FF7B5A"/><polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/><polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/><polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/><polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
+        </svg>
+        <span style="font-size:10px;color:rgba(255,255,255,.3)">48px</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <svg width="72" height="72" viewBox="0 0 200 200">
+          <g fill="#0D0B1E"><polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/><polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/><polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/><polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/></g>
+          <polygon points="120,50 138,60 138,80 120,90 102,80 102,60" fill="#FF7B5A"/><polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/><polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/><polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/><polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
+        </svg>
+        <span style="font-size:10px;color:rgba(255,255,255,.3)">72px</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VARIANTE 3: Splash screen / App hero -->
+  <div class="card">
+    <div class="label">Splash Screen</div>
+    <!-- Simula un mini teléfono -->
+    <div style="
+      width: 160px;
+      height: 280px;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%);
+      border-radius: 20px;
+      border: 1.5px solid rgba(255,255,255,.10);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    ">
+      <!-- Aura de calor detrás del logo -->
+      <div style="
+        position: absolute;
+        width: 120px; height: 120px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse, rgba(255,123,90,.18) 0%, rgba(255,208,128,.08) 50%, transparent 70%);
+        top: 50%; left: 50%;
+        transform: translate(-50%,-65%);
+      "></div>
+      <svg width="72" height="72" viewBox="0 0 200 200">
+        <g fill="rgba(255,255,255,.07)">
+          <polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/>
+          <polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/>
+          <polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/>
+          <polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/>
+        </g>
+        <polygon points="120,50 138,60 138,80 120,90 102,80 102,60"   fill="#FF7B5A"/>
+        <polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/>
+        <polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/>
+        <polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/>
+        <polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
+      </svg>
+      <div style="text-align:center;">
+        <div style="
+          font-size: 15px;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          background: linear-gradient(135deg, #FF9B7A 0%, #FFD080 50%, #6EEDDF 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        ">Mi Psicólogo</div>
+        <div style="font-size: 9px; letter-spacing:.10em; color:rgba(255,255,255,.25); margin-top:3px; text-transform:uppercase;">Tu espacio seguro</div>
+      </div>
+    </div>
+    <div class="label">Preview app</div>
+  </div>
+
+</div>
+
+</body>
+</html>

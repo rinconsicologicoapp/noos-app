@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Psicólogo · Logos Premium</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --coral:#FF7B5A;--teal:#4ECDC4;--amber:#FFB347;
+  --bg:#06050E;--card:rgba(255,255,255,.028);--border:rgba(255,255,255,.065);
+  --text:#F5EEE8;--sub:rgba(245,238,232,.5);--low:rgba(245,238,232,.22);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;
+  overflow-x:hidden;min-height:100vh;
+}
+canvas#bg{position:fixed;inset:0;z-index:0;opacity:.4}
+
+.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 28px}
+
+/* ── HEADER ── */
+header{text-align:center;padding:72px 24px 48px;position:relative;z-index:1}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--low);margin-bottom:20px;
+  border:1px solid rgba(255,255,255,.08);border-radius:20px;
+  padding:6px 16px;background:rgba(255,255,255,.03);
+}
+.eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}
+h1{
+  font-size:clamp(32px,5.5vw,56px);font-weight:900;line-height:1.05;
+  background:linear-gradient(135deg,#FF9B7A 0%,#FFD080 38%,#6EEDDF 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:14px;letter-spacing:-.02em;
+}
+header p{font-size:14px;color:var(--sub);max-width:540px;margin:0 auto;line-height:1.75}
+
+/* ── DIVIDER ── */
+.divr{display:flex;align-items:center;gap:18px;padding:16px 0 28px}
+.divr .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent)}
+.divr .label{font-size:9.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--low);white-space:nowrap}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:28px;padding-bottom:100px}
+
+/* ── CARD ── */
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:24px;
+  overflow:hidden;transition:transform .3s cubic-bezier(.22,1,.36,1),border-color .3s,box-shadow .3s;
+  position:relative;
+}
+.card:hover{
+  transform:translateY(-8px);
+  border-color:rgba(255,123,90,.2);
+  box-shadow:0 32px 80px rgba(0,0,0,.55),0 0 40px rgba(255,123,90,.06);
+}
+.badge{
+  position:absolute;top:14px;right:14px;z-index:20;
+  background:linear-gradient(90deg,#FF7B5A,#FFB347);
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:.07em;
+  padding:4px 12px;border-radius:20px;
+}
+
+/* ── LOGO STAGE ── */
+.stage{
+  height:240px;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.stage::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 55%,rgba(255,179,71,.08) 0%,transparent 70%);
+}
+
+/* ── CARD BODY ── */
+.info{padding:22px 22px 20px}
+.logo-name{font-size:15px;font-weight:800;margin-bottom:6px;letter-spacing:-.01em}
+.logo-desc{font-size:12px;color:var(--sub);line-height:1.7;margin-bottom:20px}
+
+/* ── ICON ROW ── */
+.icons{display:flex;gap:12px;align-items:flex-end}
+.icon-slot{display:flex;flex-direction:column;align-items:center;gap:6px}
+.icon-lbl{font-size:8.5px;color:var(--low);letter-spacing:.06em;text-transform:uppercase}
+.ico{
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.ico::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -1px 0 rgba(0,0,0,.25);
+}
+.ico-ios{width:56px;height:56px;border-radius:12.5px}
+.ico-android{width:52px;height:52px;border-radius:50%}
+
+/* homescreen */
+.hs{
+  width:86px;height:136px;background:#08071A;border-radius:12px;
+  border:1px solid rgba(255,255,255,.07);
+  display:flex;flex-direction:column;align-items:center;padding:14px 6px 10px;gap:6px;
+}
+.hs-ico{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.hs-name{font-size:7px;color:rgba(255,255,255,.5);text-align:center;line-height:1.3;font-weight:500}
+.hs-bar{display:flex;gap:3px;margin-top:auto}
+.hs-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.1)}
+.hs-dot.a{background:rgba(255,255,255,.45)}
+
+/* ── PALETTE STRIP ── */
+.pstrip{display:flex;height:3px}
+.ps{flex:1}
+
+/* ── ANIMATIONS ── */
+@keyframes breathe{0%,100%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.04) rotate(.5deg)}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 6px rgba(255,179,71,.25))}50%{filter:drop-shadow(0 0 18px rgba(255,179,71,.55))}}
+@keyframes floatUp{0%{transform:translateY(0);opacity:0}20%{opacity:.8}100%{transform:translateY(-38px);opacity:0}}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}15%{transform:scale(1.22)}30%{transform:scale(1)}45%{transform:scale(1.12)}60%{transform:scale(1)}}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Mi Psicólogo · Logo Concepto</div>
+  <h1>Abrazo Humano</h1>
+  <p>Cuatro interpretaciones del vínculo terapéutico. Formas orgánicas, luz volumétrica, colores <span style="color:#FF9B7A">coral</span> y <span style="color:#6EEDDF">teal</span>.</p>
+</header>
+
+<div class="divr"><div class="line"></div><div class="label">4 variaciones premium</div><div class="line"></div></div>
+
+<div class="grid">
+
+<!-- ═══════════════════════════════════════════
+     LOGO 1 · ABRAZO COMPLETO
+═══════════════════════════════════════════ -->
+<div class="card" style="--accent:#FF7B5A">
+  <div class="badge">★ Hero</div>
+  <div class="pstrip">
+    <div class="ps" style="background:#FF7B5A"></div>
+    <div class="ps" style="background:#FF9B6A"></div>
+    <div class="ps" style="background:#FFB347"></div>
+    <div class="ps" style="background:#4ECDC4"></div>
+    <div class="ps" style="background:#2ABDB5"></div>
+  </div>
+
+  <div class="stage" style="background:radial-gradient(ellipse at 50% 40%,#160D20 0%,#0A0814 60%,#060510 100%)">
+
+    <!-- Floating particles -->
+    <svg style="position:absolute;inset:0;width:100%;height:100%;overflow:visible" viewBox="0 0 300 240">
+      <circle cx="150" cy="135" r="2.5" fill="#FFD080" opacity="0">
+        <animate attributeName="cy" values="135;95;70" dur="2.4s" repeatCount="indefinite" begin="0s"/>
+        <animate attributeName="opacity" values="0;0.8;0" dur="2.4s" repeatCount="indefinite" begin="0s"/>
+        <animate attributeName="r" values="2.5;1.5;0.5" dur="2.4s" repeatCount="indefinite" begin="0s"/>
+      </circle>
+      <circle cx="144" cy="140" r="2" fill="#FF9B7A" opacity="0">
+        <animate attributeName="cy" values="140;105;80" dur="2.1s" repeatCount="indefinite" begin="0.7s"/>
+        <animate attributeName="cx" values="144;140;136" dur="2.1s" repeatCount="indefinite" begin="0.7s"/>
+        <animate attributeName="opacity" values="0;0.65;0" dur="2.1s" repeatCount="indefinite" begin="0.7s"/>
+      </circle>
+      <circle cx="156" cy="138" r="2" fill="#4ECDC4" opacity="0">
+        <animate attributeName="cy" values="138;100;75" dur="2.6s" repeatCount="indefinite" begin="1.4s"/>
+        <animate attributeName="cx" values="156;160;163" dur="2.6s" repeatCount="indefinite" begin="1.4s"/>
+        <animate attributeName="opacity" values="0;0.65;0" dur="2.6s" repeatCount="indefinite" begin="1.4s"/>
+      </circle>
+      <circle cx="148" cy="142" r="1.5" fill="#FFD080" opacity="0">
+        <animate attributeName="cy" values="142;108;85" dur="1.9s" repeatCount="indefinite" begin="2s"/>
+        <animate attributeName="opacity" values="0;0.9;0" dur="1.9s" repeatCount="indefinite" begin="2s"/>
+      </circle>
+    </svg>
+
+    <svg width="220" height="210" viewBox="0 0 200 192" fill="none"
+         style="animation:glow 3.5s ease-in-out infinite;filter:drop-shadow(0 8px 24px rgba(0,0,0,.5))">
+      <defs>
+        <!-- HEAD GRADIENTS – 3D sphere lighting -->
+        <radialGradient id="a1hL" cx="38%" cy="30%" r="65%">
+          <stop offset="0%"  stop-color="#FFCFB8"/>
+          <stop offset="40%" stop-color="#FF8C6A"/>
+          <stop offset="100%" stop-color="#C43C1C"/>
+        </radialGradient>
+        <radialGradient id="a1hR" cx="62%" cy="30%" r="65%">
+          <stop offset="0%"  stop-color="#B8FFF8"/>
+          <stop offset="40%" stop-color="#4ECDC4"/>
+          <stop offset="100%" stop-color="#186860"/>
+        </radialGradient>
+
+        <!-- BODY GRADIENTS – cylindrical lighting -->
+        <linearGradient id="a1bL" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stop-color="#A83010"/>
+          <stop offset="28%"  stop-color="#FF7B5A"/>
+          <stop offset="58%"  stop-color="#FF9B7A"/>
+          <stop offset="80%"  stop-color="#FF7055"/>
+          <stop offset="100%" stop-color="#A83010"/>
+        </linearGradient>
+        <linearGradient id="a1bR" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stop-color="#106860"/>
+          <stop offset="28%"  stop-color="#4ECDC4"/>
+          <stop offset="58%"  stop-color="#6AEDE4"/>
+          <stop offset="80%"  stop-color="#40BAB2"/>
+          <stop offset="100%" stop-color="#106860"/>
+        </linearGradient>
+
+        <!-- ARM GRADIENTS -->
+        <linearGradient id="a1aL" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"  stop-color="#FF9B7A"/>
+          <stop offset="100%" stop-color="#D05030"/>
+        </linearGradient>
+        <linearGradient id="a1aR" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#6AEDE4"/>
+          <stop offset="100%" stop-color="#208880"/>
+        </linearGradient>
+
+        <!-- CENTER WARMTH -->
+        <radialGradient id="a1warm" cx="50%" cy="52%" r="38%">
+          <stop offset="0%"   stop-color="#FFE8A0" stop-opacity=".45"/>
+          <stop offset="55%"  stop-color="#FFB060" stop-opacity=".15"/>
+          <stop offset="100%" stop-color="#FF7040" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- GLOW FILTER -->
+        <filter id="a1glow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="4" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="a1soft" x="-25%" y="-25%" width="150%" height="150%">
+          <feGaussianBlur stdDeviation="2.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- Warm aura at center -->
+      <ellipse cx="100" cy="108" rx="64" ry="60" fill="url(#a1warm)"/>
+
+      <!-- ── ARMS behind bodies (z below bodies) ── -->
+
+      <!-- Right figure's arm wrapping behind LEFT figure -->
+      <path d="M 112 64 C 94 52 70 54 59 70 C 50 84 51 104 53 122"
+            stroke="url(#a1aR)" stroke-width="13" stroke-linecap="round" fill="none"
+            filter="url(#a1soft)" opacity=".9"/>
+
+      <!-- Left figure's arm wrapping behind RIGHT figure -->
+      <path d="M 88 64 C 106 52 130 54 141 70 C 150 84 149 104 147 122"
+            stroke="url(#a1aL)" stroke-width="13" stroke-linecap="round" fill="none"
+            filter="url(#a1soft)" opacity=".9"/>
+
+      <!-- ── BODIES ── -->
+
+      <!-- Left body (coral) — flat-shoulder organic torso -->
+      <path d="M 50 60 L 90 60
+               C 92 68 92 80 90 94 C 88 110 84 126 78 136
+               C 74 142 72 145 70 145 C 68 145 66 142 62 136
+               C 56 126 52 110 50 94 C 48 80 48 68 50 60 Z"
+            fill="url(#a1bL)"/>
+      <!-- Left body highlight (inner light) -->
+      <ellipse cx="67" cy="88" rx="5" ry="22" fill="white" opacity=".07"/>
+
+      <!-- Right body (teal) — mirrored -->
+      <path d="M 110 60 L 150 60
+               C 152 68 152 80 150 94 C 148 110 144 126 138 136
+               C 134 142 132 145 130 145 C 128 145 126 142 122 136
+               C 116 126 112 110 110 94 C 108 80 108 68 110 60 Z"
+            fill="url(#a1bR)"/>
+      <!-- Right body highlight -->
+      <ellipse cx="127" cy="88" rx="5" ry="22" fill="white" opacity=".07"/>
+
+      <!-- ── NECKS ── -->
+      <path d="M 65 50 C 64 53 64 57 66 59 L 74 59 C 76 57 76 53 75 50 Z"
+            fill="#E06040" opacity=".75"/>
+      <path d="M 125 50 C 124 53 124 57 126 59 L 134 59 C 136 57 136 53 135 50 Z"
+            fill="#20A098" opacity=".75"/>
+
+      <!-- ── HEADS ── -->
+      <!-- Left head (coral) — slight tilt right -->
+      <ellipse cx="70" cy="31" rx="17" ry="19"
+               fill="url(#a1hL)" transform="rotate(-4,70,31)"
+               filter="url(#a1soft)"/>
+      <!-- Left head specular highlight -->
+      <ellipse cx="63" cy="23" rx="6" ry="8" fill="white" opacity=".14"
+               transform="rotate(-4,63,23)"/>
+
+      <!-- Right head (teal) — slight tilt left -->
+      <ellipse cx="130" cy="31" rx="17" ry="19"
+               fill="url(#a1hR)" transform="rotate(4,130,31)"
+               filter="url(#a1soft)"/>
+      <!-- Right head specular highlight -->
+      <ellipse cx="123" cy="23" rx="6" ry="8" fill="white" opacity=".14"
+               transform="rotate(4,123,23)"/>
+
+      <!-- ── CENTER GOLDEN SPARK ── -->
+      <circle cx="100" cy="96" r="5" fill="#FFE8A0" opacity=".9"
+              filter="url(#a1glow)">
+        <animate attributeName="opacity" values=".6;1;.6" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="100" cy="96" r="2.5" fill="white" opacity=".85"/>
+    </svg>
+  </div>
+
+  <div class="info">
+    <div class="logo-name">Abrazo Completo</div>
+    <div class="logo-desc">Los brazos se cruzan a la espalda del otro — el lenguaje visual más claro del abrazo. Iluminación esférica en las cabezas, gradiente cilíndrico en los cuerpos.</div>
+    <div class="icons">
+      <div class="icon-slot">
+        <svg class="ico ico-ios" style="background:linear-gradient(135deg,#1A0D28,#0A0616)" viewBox="0 0 56 56">
+          <defs>
+            <radialGradient id="i1hL" cx="38%" cy="30%" r="65%"><stop offset="0%" stop-color="#FFCFB8"/><stop offset="55%" stop-color="#FF8C6A"/><stop offset="100%" stop-color="#C43C1C"/></radialGradient>
+            <radialGradient id="i1hR" cx="62%" cy="30%" r="65%"><stop offset="0%" stop-color="#B8FFF8"/><stop offset="55%" stop-color="#4ECDC4"/><stop offset="100%" stop-color="#186860"/></radialGradient>
+          </defs>
+          <radialGradient id="i1warm" cx="50%" cy="55%" r="40%"><stop offset="0%" stop-color="#FFE0A0" stop-opacity=".4"/><stop offset="100%" stop-color="#FFE0A0" stop-opacity="0"/></radialGradient>
+          <ellipse cx="28" cy="30" rx="20" ry="18" fill="url(#i1warm)"/>
+          <path d="M 14 17 L 26 17 C 27 20 27 23 26 25 L 14 25 C 13 23 13 20 14 17Z" fill="#FF7B5A" opacity=".85"/>
+          <path d="M 30 17 L 42 17 C 43 20 43 23 42 25 L 30 25 C 29 23 29 20 30 17Z" fill="#4ECDC4" opacity=".85"/>
+          <path d="M 21 17 C 20 15 22 12 28 12 C 34 12 36 15 35 17" stroke="url(#i1aL)" stroke-width="3.5" stroke-linecap="round" fill="none" opacity=".9"/>
+          <path d="M 35 17 C 36 15 34 12 28 12" stroke="url(#i1aR)" stroke-width="3.5" stroke-linecap="round" fill="none" opacity=".9"/>
+          <ellipse cx="21" cy="9" rx="6" ry="7" fill="url(#i1hL)"/>
+          <ellipse cx="35" cy="9" rx="6" ry="7" fill="url(#i1hR)"/>
+          <circle cx="28" cy="22" r="2" fill="#FFE8A0" opacity=".9"/>
+          <linearGradient id="i1aL" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF9B7A"/><stop offset="100%" stop-color="#D05030"/></linearGradient>
+          <linearGradient id="i1aR" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6AEDE4"/><stop offset="100%" stop-color="#208880"/></linearGradient>
+        </svg>
+        <div class="icon-lbl">iOS</div>
+      </div>
+      <div class="icon-slot">
+        <svg class="ico ico-android" style="background:linear-gradient(135deg,#1A0D28,#0A0616)" viewBox="0 0 52 52">
+          <ellipse cx="26" cy="28" rx="19" ry="17" fill="rgba(255,179,71,.12)"/>
+          <path d="M 13 16 L 23 16 C 24 19 24 22 23 24 L 13 24 C 12 22 12 19 13 16Z" fill="#FF7B5A" opacity=".9"/>
+          <path d="M 29 16 L 39 16 C 40 19 40 22 39 24 L 29 24 C 28 22 28 19 29 16Z" fill="#4ECDC4" opacity=".9"/>
+          <ellipse cx="19" cy="9" rx="5.5" ry="6.5" fill="#FF8C6A"/>
+          <ellipse cx="33" cy="9" rx="5.5" ry="6.5" fill="#4ECDC4"/>
+          <circle cx="26" cy="20" r="2" fill="#FFE8A0" opacity=".9"/>
+        </svg>
+        <div class="icon-lbl">Android</div>
+      </div>
+      <div class="icon-slot" style="margin-left:4px">
+        <div class="hs">
+          <div class="hs-ico" style="background:linear-gradient(135deg,#1A0D28,#0A0616)">
+            <svg width="40" height="38" viewBox="0 0 200 192" fill="none">
+              <path d="M 50 60 L 90 60 C 92 68 92 80 90 94 C 88 110 84 126 78 136 C 74 142 72 145 70 145 C 68 145 66 142 62 136 C 56 126 52 110 50 94 C 48 80 48 68 50 60 Z" fill="#FF7B5A" opacity=".9"/>
+              <path d="M 110 60 L 150 60 C 152 68 152 80 150 94 C 148 110 144 126 138 136 C 134 142 132 145 130 145 C 128 145 126 142 122 136 C 116 126 112 110 110 94 C 108 80 108 68 110 60 Z" fill="#4ECDC4" opacity=".9"/>
+              <path d="M 112 64 C 94 52 70 54 59 70 C 50 84 51 104 53 122" stroke="#4ECDC4" stroke-width="13" stroke-linecap="round" fill="none" opacity=".85"/>
+              <path d="M 88 64 C 106 52 130 54 141 70 C 150 84 149 104 147 122" stroke="#FF7B5A" stroke-width="13" stroke-linecap="round" fill="none" opacity=".85"/>
+              <ellipse cx="70" cy="31" rx="17" ry="19" fill="#FF8C6A"/>
+              <ellipse cx="130" cy="31" rx="17" ry="19" fill="#4ECDC4"/>
+              <circle cx="100" cy="96" r="5" fill="#FFE8A0"/>
+            </svg>
+          </div>
+          <div class="hs-name">Mi<br>Psicólogo</div>
+          <div class="hs-bar"><div class="hs-dot"></div><div class="hs-dot a"></div><div class="hs-dot"></div></div>
+        </div>
+        <div class="icon-lbl">Home</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     LOGO 2 · SILUETA FUNDIDA
+═══════════════════════════════════════════ -->
+<div class="card">
+  <div class="pstrip">
+    <div class="ps" style="background:#FF7B5A"></div>
+    <div class="ps" style="background:#E87060"></div>
+    <div class="ps" style="background:#D86080"></div>
+    <div class="ps" style="background:#6070C8"></div>
+    <div class="ps" style="background:#4ECDC4"></div>
+  </div>
+
+  <div class="stage" style="background:radial-gradient(ellipse at 50% 45%,#0D0A22 0%,#07060F 70%)">
+    <svg width="210" height="200" viewBox="0 0 200 180" fill="none"
+         style="animation:breathe 4s ease-in-out infinite;filter:drop-shadow(0 6px 20px rgba(0,0,0,.5))">
+      <defs>
+        <!-- Gradient that flows coral→teal across the merged shape -->
+        <linearGradient id="a2grad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stop-color="#C43020"/>
+          <stop offset="28%"  stop-color="#FF7B5A"/>
+          <stop offset="50%"  stop-color="#FFD080" stop-opacity=".9"/>
+          <stop offset="72%"  stop-color="#4ECDC4"/>
+          <stop offset="100%" stop-color="#18807A"/>
+        </linearGradient>
+        <!-- Same gradient for head / arm elements -->
+        <linearGradient id="a2gradH" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"  stop-color="#FF9B7A"/>
+          <stop offset="100%" stop-color="#6AEDE4"/>
+        </linearGradient>
+        <!-- Warm center -->
+        <radialGradient id="a2warm" cx="50%" cy="55%" r="30%">
+          <stop offset="0%"   stop-color="#FFE8C0" stop-opacity=".5"/>
+          <stop offset="100%" stop-color="#FFD080" stop-opacity="0"/>
+        </radialGradient>
+        <!-- Glow -->
+        <filter id="a2glow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="3.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="a2gsm" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <!-- Clip for the merged silhouette -->
+        <clipPath id="a2clip">
+          <path d="M 55 50
+            C 38 52 28 70 28 92 C 28 116 38 136 52 148
+            C 58 153 64 156 70 156 C 78 156 88 152 96 145
+            C 100 142 100 142 104 145 C 112 152 122 156 130 156
+            C 136 156 142 153 148 148 C 162 136 172 116 172 92
+            C 172 70 162 52 145 50
+            C 138 48 132 50 126 54 C 118 58 110 62 100 62
+            C 90 62 82 58 74 54 C 68 50 62 48 55 50 Z"/>
+        </clipPath>
+      </defs>
+
+      <!-- Warm center aura -->
+      <ellipse cx="100" cy="108" rx="55" ry="52" fill="url(#a2warm)"/>
+
+      <!-- The unified merged silhouette (gradient coral→teal) -->
+      <path d="M 55 50
+               C 38 52 28 70 28 92 C 28 116 38 136 52 148
+               C 58 153 64 156 70 156 C 78 156 88 152 96 145
+               C 100 142 100 142 104 145 C 112 152 122 156 130 156
+               C 136 156 142 153 148 148 C 162 136 172 116 172 92
+               C 172 70 162 52 145 50
+               C 138 48 132 50 126 54 C 118 58 110 62 100 62
+               C 90 62 82 58 74 54 C 68 50 62 48 55 50 Z"
+            fill="url(#a2grad)"/>
+
+      <!-- Inner highlight (top of bodies) -->
+      <ellipse cx="70" cy="95" rx="12" ry="28" fill="white" opacity=".07" clip-path="url(#a2clip)"/>
+      <ellipse cx="130" cy="95" rx="12" ry="28" fill="white" opacity=".07" clip-path="url(#a2clip)"/>
+
+      <!-- Center seam / connection glow -->
+      <path d="M 100 62 C 96 80 96 108 98 140 M 100 62 C 104 80 104 108 102 140"
+            stroke="rgba(255,230,150,.15)" stroke-width="1" fill="none"/>
+
+      <!-- Left arm visible outside (coral side) -->
+      <path d="M 28 88 C 22 98 20 112 22 125"
+            stroke="#C84020" stroke-width="10" stroke-linecap="round" fill="none" opacity=".7"/>
+
+      <!-- Right arm visible outside (teal side) -->
+      <path d="M 172 88 C 178 98 180 112 178 125"
+            stroke="#18807A" stroke-width="10" stroke-linecap="round" fill="none" opacity=".7"/>
+
+      <!-- LEFT HEAD (coral) — slightly outside/above left shoulder area -->
+      <ellipse cx="68" cy="30" rx="17" ry="19"
+               fill="#FF7B5A" filter="url(#a2gsm)"/>
+      <ellipse cx="68" cy="30" rx="17" ry="19"
+               fill="url(#a2gradH)" opacity=".6" filter="url(#a2gsm)"/>
+      <radialGradient id="a2hLlight" cx="35%" cy="28%" r="60%"><stop offset="0%" stop-color="white" stop-opacity=".25"/><stop offset="100%" stop-color="white" stop-opacity="0"/></radialGradient>
+      <ellipse cx="68" cy="30" rx="17" ry="19" fill="url(#a2hLlight)" filter="url(#a2gsm)"/>
+
+      <!-- RIGHT HEAD (teal) -->
+      <ellipse cx="132" cy="30" rx="17" ry="19"
+               fill="#4ECDC4" filter="url(#a2gsm)"/>
+      <radialGradient id="a2hRlight" cx="65%" cy="28%" r="60%"><stop offset="0%" stop-color="white" stop-opacity=".25"/><stop offset="100%" stop-color="white" stop-opacity="0"/></radialGradient>
+      <ellipse cx="132" cy="30" rx="17" ry="19" fill="url(#a2hRlight)" filter="url(#a2gsm)"/>
+
+      <!-- Heads slightly tilted toward center -->
+      <!-- Connecting glow between heads (intimacy) -->
+      <path d="M 84 28 C 90 24 110 24 116 28"
+            stroke="rgba(255,230,150,.35)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+
+      <!-- Golden spark center -->
+      <circle cx="100" cy="105" r="5.5" fill="#FFE8A0" opacity=".85" filter="url(#a2glow)">
+        <animate attributeName="opacity" values=".5;.95;.5" dur="2.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="100" cy="105" r="2.5" fill="white" opacity=".9"/>
+    </svg>
+  </div>
+
+  <div class="info">
+    <div class="logo-name">Silueta Fundida</div>
+    <div class="logo-desc">Dos cuerpos que forman una sola silueta. El degradado coral→dorado→teal atraviesa la forma unida como una aurora — visualmente el abrazo más íntimo.</div>
+    <div class="icons">
+      <div class="icon-slot">
+        <svg class="ico ico-ios" style="background:linear-gradient(145deg,#0D0A22,#060410)" viewBox="0 0 56 56">
+          <defs>
+            <linearGradient id="i2g" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#FF7B5A"/><stop offset="50%" stop-color="#FFD080"/><stop offset="100%" stop-color="#4ECDC4"/>
+            </linearGradient>
+          </defs>
+          <path d="M 17 16 C 10 18 8 26 8 33 C 8 41 12 47 18 50 C 20 51 22 52 25 52 C 27 52 29 51 28 50 C 27 49 28 50 29 51 C 30 52 32 51 34 50 C 40 47 48 41 48 33 C 48 26 46 18 39 16 C 36 15 33 16 30 18 C 29 19 28 19 27 18 C 24 16 21 15 17 16Z" fill="url(#i2g)" opacity=".95"/>
+          <ellipse cx="22" cy="10" rx="7" ry="8" fill="#FF8C6A"/>
+          <ellipse cx="34" cy="10" rx="7" ry="8" fill="#4ECDC4"/>
+          <circle cx="28" cy="34" r="3" fill="#FFE8A0" opacity=".9"/>
+        </svg>
+        <div class="icon-lbl">iOS</div>
+      </div>
+      <div class="icon-slot">
+        <svg class="ico ico-android" style="background:linear-gradient(145deg,#0D0A22,#060410)" viewBox="0 0 52 52">
+          <defs>
+            <linearGradient id="i2ga" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#FF7B5A"/><stop offset="50%" stop-color="#FFD080"/><stop offset="100%" stop-color="#4ECDC4"/>
+            </linearGradient>
+          </defs>
+          <path d="M 16 15 C 9 17 7 25 7 32 C 7 40 11 46 17 49 C 19 50 21 51 24 51 C 26 51 27 50 27 50 C 27 50 28 51 28 51 C 31 51 33 50 35 49 C 41 46 45 40 45 32 C 45 25 43 17 36 15 C 33 14 30 15 28 17 C 27 18 26 18 25 17 C 22 15 19 14 16 15Z" fill="url(#i2ga)" opacity=".95"/>
+          <ellipse cx="21" cy="9" rx="6.5" ry="7.5" fill="#FF8C6A"/>
+          <ellipse cx="31" cy="9" rx="6.5" ry="7.5" fill="#4ECDC4"/>
+          <circle cx="26" cy="32" r="2.5" fill="#FFE8A0" opacity=".9"/>
+        </svg>
+        <div class="icon-lbl">Android</div>
+      </div>
+      <div class="icon-slot" style="margin-left:4px">
+        <div class="hs">
+          <div class="hs-ico" style="background:linear-gradient(145deg,#0D0A22,#060410)">
+            <svg width="40" height="40" viewBox="0 0 56 56">
+              <defs><linearGradient id="i2ghs" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FF7B5A"/><stop offset="50%" stop-color="#FFD080"/><stop offset="100%" stop-color="#4ECDC4"/></linearGradient></defs>
+              <path d="M 17 16 C 10 18 8 26 8 33 C 8 41 12 47 18 50 C 21 52 23 52 25 52 C 27 52 29 51 28 50 C 29 51 31 52 33 50 C 40 47 48 41 48 33 C 48 26 46 18 39 16 C 36 15 33 16 30 18 C 29 19 27 18 26 17 C 23 15 20 15 17 16Z" fill="url(#i2ghs)"/>
+              <ellipse cx="22" cy="10" rx="7" ry="8" fill="#FF8C6A"/>
+              <ellipse cx="34" cy="10" rx="7" ry="8" fill="#4ECDC4"/>
+              <circle cx="28" cy="34" r="3" fill="#FFE8A0" opacity=".9"/>
+            </svg>
+          </div>
+          <div class="hs-name">Mi<br>Psicólogo</div>
+          <div class="hs-bar"><div class="hs-dot"></div><div class="hs-dot a"></div><div class="hs-dot"></div></div>
+        </div>
+        <div class="icon-lbl">Home</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     LOGO 3 · COBIJO (PROTECTIVE HUG)
+═══════════════════════════════════════════ -->
+<div class="card">
+  <div class="pstrip">
+    <div class="ps" style="background:#FF7B5A"></div>
+    <div class="ps" style="background:#FF9870"></div>
+    <div class="ps" style="background:#FFBE80"></div>
+    <div class="ps" style="background:#50C8C0"></div>
+    <div class="ps" style="background:#2AA8A0"></div>
+  </div>
+
+  <div class="stage" style="background:radial-gradient(ellipse at 48% 55%,#140E22 0%,#080610 70%)">
+    <svg width="215" height="205" viewBox="0 0 190 185" fill="none"
+         style="animation:glow 4s ease-in-out infinite;filter:drop-shadow(0 6px 22px rgba(0,0,0,.5))">
+      <defs>
+        <!-- Therapist (coral, larger, slightly behind) -->
+        <radialGradient id="a3hBig" cx="40%" cy="28%" r="62%">
+          <stop offset="0%"  stop-color="#FFD0B8"/>
+          <stop offset="42%" stop-color="#FF8060"/>
+          <stop offset="100%" stop-color="#B83018"/>
+        </radialGradient>
+        <linearGradient id="a3bBig" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stop-color="#9A2010"/>
+          <stop offset="30%"  stop-color="#FF7050"/>
+          <stop offset="60%"  stop-color="#FF9878"/>
+          <stop offset="100%" stop-color="#9A2010"/>
+        </linearGradient>
+        <!-- Patient (teal, smaller, front) -->
+        <radialGradient id="a3hSml" cx="55%" cy="30%" r="62%">
+          <stop offset="0%"  stop-color="#C8FFF8"/>
+          <stop offset="42%" stop-color="#4ECDC4"/>
+          <stop offset="100%" stop-color="#1A7872"/>
+        </radialGradient>
+        <linearGradient id="a3bSml" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stop-color="#157070"/>
+          <stop offset="30%"  stop-color="#4ECDC4"/>
+          <stop offset="60%"  stop-color="#6AEDE4"/>
+          <stop offset="100%" stop-color="#157070"/>
+        </linearGradient>
+        <!-- Arms -->
+        <linearGradient id="a3arm1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"  stop-color="#FF9870"/>
+          <stop offset="100%" stop-color="#C84030"/>
+        </linearGradient>
+        <linearGradient id="a3arm2" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%"  stop-color="#FF9870"/>
+          <stop offset="100%" stop-color="#C84030"/>
+        </linearGradient>
+        <!-- Warmth aura -->
+        <radialGradient id="a3warm" cx="50%" cy="55%" r="38%">
+          <stop offset="0%"   stop-color="#FFE8B0" stop-opacity=".4"/>
+          <stop offset="100%" stop-color="#FFD080" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="a3gsm" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="a3glow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- Warmth aura -->
+      <ellipse cx="95" cy="110" rx="60" ry="56" fill="url(#a3warm)"/>
+
+      <!-- THERAPIST (coral) — larger, behind, with big wrapping arms -->
+
+      <!-- Therapist LEFT arm wrapping around patient's back — BACK layer -->
+      <path d="M 56 68 C 42 78 38 96 40 118 C 41 128 44 135 48 140"
+            stroke="url(#a3arm1)" stroke-width="14" stroke-linecap="round" fill="none"
+            filter="url(#a3gsm)" opacity=".85"/>
+
+      <!-- Therapist RIGHT arm wrapping around patient's front/side -->
+      <path d="M 126 68 C 138 78 142 96 140 118 C 139 128 136 136 132 140"
+            stroke="url(#a3arm2)" stroke-width="14" stroke-linecap="round" fill="none"
+            filter="url(#a3gsm)" opacity=".85"/>
+
+      <!-- THERAPIST BODY (coral, larger) -->
+      <path d="M 40 62 L 140 62
+               C 143 72 143 88 141 104 C 139 122 134 140 128 152
+               C 122 160 116 165 110 165 C 102 165 94 162 90 158
+               C 86 162 78 165 70 165 C 64 165 58 160 52 152
+               C 46 140 41 122 39 104 C 37 88 37 72 40 62 Z"
+            fill="url(#a3bBig)" opacity=".88"/>
+      <!-- Therapist body highlight -->
+      <ellipse cx="76" cy="105" rx="7" ry="28" fill="white" opacity=".06"/>
+      <ellipse cx="114" cy="105" rx="7" ry="28" fill="white" opacity=".06"/>
+
+      <!-- PATIENT (teal, smaller, front center) -->
+      <path d="M 70 68 L 118 68
+               C 120 76 120 88 118 100 C 116 114 112 128 108 140
+               C 105 147 102 151 95 151 C 88 151 85 147 82 140
+               C 78 128 74 114 72 100 C 70 88 70 76 70 68 Z"
+            fill="url(#a3bSml)"/>
+      <!-- Patient body highlight -->
+      <ellipse cx="90" cy="108" rx="6" ry="24" fill="white" opacity=".08"/>
+
+      <!-- THERAPIST NECK + HEAD -->
+      <!-- Two heads visible: therapist slightly behind/above, patient in front -->
+      <!-- Therapist neck -->
+      <path d="M 83 52 C 82 56 82 60 84 62 L 96 62 C 98 60 98 56 97 52Z"
+            fill="#E06040" opacity=".7"/>
+      <!-- Therapist head (coral, slightly to left/behind) -->
+      <ellipse cx="82" cy="32" rx="18" ry="20"
+               fill="url(#a3hBig)" filter="url(#a3gsm)"
+               transform="rotate(-6,82,32)"/>
+      <ellipse cx="76" cy="24" rx="6" ry="8" fill="white" opacity=".13"
+               transform="rotate(-6,76,24)"/>
+
+      <!-- PATIENT NECK + HEAD -->
+      <path d="M 89 52 C 88 56 88 60 90 62 L 100 62 C 102 60 102 56 101 52Z"
+            fill="#20A098" opacity=".7"/>
+      <!-- Patient head (teal, slightly to right/front) -->
+      <ellipse cx="108" cy="34" rx="16" ry="18"
+               fill="url(#a3hSml)" filter="url(#a3gsm)"
+               transform="rotate(5,108,34)"/>
+      <ellipse cx="102" cy="26" rx="5" ry="7" fill="white" opacity=".15"
+               transform="rotate(5,102,26)"/>
+
+      <!-- Golden glow at center of embrace -->
+      <circle cx="90" cy="108" r="6" fill="#FFE8A0" opacity=".8" filter="url(#a3glow)">
+        <animate attributeName="opacity" values=".5;.9;.5" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="5;7;5" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="90" cy="108" r="2.8" fill="white" opacity=".85"/>
+    </svg>
+  </div>
+
+  <div class="info">
+    <div class="logo-name">Cobijo</div>
+    <div class="logo-desc">El terapeuta (coral, mayor) envuelve con ambos brazos al paciente (teal). Transmite protección, contención y calor — el núcleo del vínculo terapéutico.</div>
+    <div class="icons">
+      <div class="icon-slot">
+        <svg class="ico ico-ios" style="background:linear-gradient(145deg,#140E22,#080610)" viewBox="0 0 56 56">
+          <defs>
+            <radialGradient id="i3hB" cx="38%" cy="30%" r="62%"><stop offset="0%" stop-color="#FFCFB8"/><stop offset="55%" stop-color="#FF8060"/><stop offset="100%" stop-color="#B83018"/></radialGradient>
+            <radialGradient id="i3hS" cx="58%" cy="30%" r="62%"><stop offset="0%" stop-color="#C8FFF8"/><stop offset="55%" stop-color="#4ECDC4"/><stop offset="100%" stop-color="#1A7872"/></radialGradient>
+          </defs>
+          <ellipse cx="28" cy="30" rx="16" ry="15" fill="rgba(255,179,71,.1)"/>
+          <path d="M 12 17 L 44 17 C 45 22 45 28 44 34 C 43 40 40 46 36 49 C 33 51 30 52 28 52 C 26 52 23 51 20 49 C 16 46 13 40 12 34 C 11 28 11 22 12 17Z" fill="#FF7050" opacity=".85"/>
+          <path d="M 18 17 L 38 17 C 39 22 39 28 38 33 C 37 39 34 44 30 47 C 29 48 28 48 27 47 C 23 44 20 39 19 33 C 18 28 18 22 18 17Z" fill="#4ECDC4" opacity=".92"/>
+          <ellipse cx="23" cy="10" rx="6" ry="7" fill="#FF8060"/>
+          <ellipse cx="33" cy="10" rx="5.5" ry="6.5" fill="#4ECDC4"/>
+          <circle cx="26" cy="34" r="2.5" fill="#FFE8A0" opacity=".9"/>
+        </svg>
+        <div class="icon-lbl">iOS</div>
+      </div>
+      <div class="icon-slot">
+        <svg class="ico ico-android" style="background:linear-gradient(145deg,#140E22,#080610)" viewBox="0 0 52 52">
+          <path d="M 11 16 L 41 16 C 42 21 42 27 41 33 C 40 39 37 45 33 48 C 31 49 28 50 26 50 C 24 50 21 49 19 48 C 15 45 12 39 11 33 C 10 27 10 21 11 16Z" fill="#FF7050" opacity=".85"/>
+          <path d="M 17 16 L 35 16 C 36 21 36 27 35 32 C 34 38 31 43 28 46 C 27 47 26 47 25 46 C 22 43 19 38 18 32 C 17 27 17 21 17 16Z" fill="#4ECDC4" opacity=".92"/>
+          <ellipse cx="21" cy="9" rx="5.5" ry="6.5" fill="#FF8060"/>
+          <ellipse cx="31" cy="9" rx="5" ry="6" fill="#4ECDC4"/>
+          <circle cx="24" cy="32" r="2" fill="#FFE8A0" opacity=".9"/>
+        </svg>
+        <div class="icon-lbl">Android</div>
+      </div>
+      <div class="icon-slot" style="margin-left:4px">
+        <div class="hs">
+          <div class="hs-ico" style="background:linear-gradient(145deg,#140E22,#080610)">
+            <svg width="40" height="38" viewBox="0 0 56 56">
+              <path d="M 12 17 L 44 17 C 45 22 45 28 44 34 C 43 40 40 46 36 49 C 33 51 30 52 28 52 C 26 52 23 51 20 49 C 16 46 13 40 12 34 C 11 28 11 22 12 17Z" fill="#FF7050" opacity=".85"/>
+              <path d="M 18 17 L 38 17 C 39 22 39 28 38 33 C 37 39 34 44 30 47 C 29 48 28 48 27 47 C 23 44 20 39 19 33 C 18 28 18 22 18 17Z" fill="#4ECDC4" opacity=".92"/>
+              <ellipse cx="23" cy="10" rx="6" ry="7" fill="#FF8060"/>
+              <ellipse cx="33" cy="10" rx="5.5" ry="6.5" fill="#4ECDC4"/>
+              <circle cx="26" cy="34" r="2.5" fill="#FFE8A0" opacity=".9"/>
+            </svg>
+          </div>
+          <div class="hs-name">Mi<br>Psicólogo</div>
+          <div class="hs-bar"><div class="hs-dot"></div><div class="hs-dot a"></div><div class="hs-dot"></div></div>
+        </div>
+        <div class="icon-lbl">Home</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     LOGO 4 · TRAZO NOBLE (Elegant line art)
+═══════════════════════════════════════════ -->
+<div class="card">
+  <div class="pstrip">
+    <div class="ps" style="background:#FF7B5A"></div>
+    <div class="ps" style="background:#FFCBA0"></div>
+    <div class="ps" style="background:#FFE8C0"></div>
+    <div class="ps" style="background:#A0F0E8"></div>
+    <div class="ps" style="background:#4ECDC4"></div>
+  </div>
+
+  <div class="stage" style="background:radial-gradient(ellipse at 50% 50%,#0E0C20 0%,#070610 70%)">
+    <svg width="210" height="200" viewBox="0 0 190 180" fill="none"
+         style="animation:breathe 5s ease-in-out infinite;filter:drop-shadow(0 4px 18px rgba(0,0,0,.5))">
+      <defs>
+        <!-- Line art gradients — thin strokes with maximum elegance -->
+        <linearGradient id="a4bodyL" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#FF9B7A"/>
+          <stop offset="100%" stop-color="#FF6040" stop-opacity=".5"/>
+        </linearGradient>
+        <linearGradient id="a4bodyR" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#6AEDE4"/>
+          <stop offset="100%" stop-color="#2090A0" stop-opacity=".5"/>
+        </linearGradient>
+        <linearGradient id="a4armL" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"  stop-color="#FF9B7A"/>
+          <stop offset="50%" stop-color="#FFE0A0"/>
+          <stop offset="100%" stop-color="#FF6040" stop-opacity=".6"/>
+        </linearGradient>
+        <linearGradient id="a4armR" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#6AEDE4"/>
+          <stop offset="50%" stop-color="#FFE0A0"/>
+          <stop offset="100%" stop-color="#2090A0" stop-opacity=".6"/>
+        </linearGradient>
+        <!-- Glow -->
+        <filter id="a4glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="a4soft" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="1.8" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <radialGradient id="a4warm" cx="50%" cy="55%" r="30%">
+          <stop offset="0%"  stop-color="#FFE8B0" stop-opacity=".6"/>
+          <stop offset="100%" stop-color="#FFD080" stop-opacity="0"/>
+        </radialGradient>
+        <!-- Filled head gradients with proper 3D -->
+        <radialGradient id="a4hL" cx="35%" cy="28%" r="65%">
+          <stop offset="0%"  stop-color="#FFD8C0"/>
+          <stop offset="45%" stop-color="#FF8060"/>
+          <stop offset="100%" stop-color="#C03018"/>
+        </radialGradient>
+        <radialGradient id="a4hR" cx="65%" cy="28%" r="65%">
+          <stop offset="0%"  stop-color="#C0FFF8"/>
+          <stop offset="45%" stop-color="#4ECDC4"/>
+          <stop offset="100%" stop-color="#186860"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Warm center -->
+      <ellipse cx="95" cy="105" rx="50" ry="46" fill="url(#a4warm)"/>
+
+      <!-- ── BODY OUTLINES (line art, thick strokes, filled) ── -->
+
+      <!-- Left body outline (coral lines with fill) -->
+      <!-- Outer border stroke for 3D depth -->
+      <path d="M 46 60 L 88 60
+               C 90 70 90 84 88 98 C 86 114 82 130 76 142
+               C 72 148 70 151 68 151 C 66 151 64 148 60 142
+               C 54 130 50 114 48 98 C 46 84 46 70 46 60 Z"
+            stroke="rgba(255,90,50,.18)" stroke-width="2" fill="rgba(255,100,60,.08)"/>
+      <!-- Main body fill -->
+      <path d="M 48 62 L 86 62
+               C 88 72 88 85 86 99 C 84 115 80 131 74 143
+               C 70 149 68 152 67 152 C 66 152 64 149 60 143
+               C 56 131 52 115 50 99 C 48 85 48 72 48 62 Z"
+            fill="url(#a4bodyL)" opacity=".22"/>
+      <!-- Body center highlight line -->
+      <line x1="67" y1="62" x2="67" y2="148" stroke="rgba(255,160,100,.3)" stroke-width="1"/>
+
+      <!-- Right body outline (teal) -->
+      <path d="M 102 60 L 144 60
+               C 146 70 146 84 144 98 C 142 114 138 130 132 142
+               C 128 148 126 151 124 151 C 122 151 120 148 116 142
+               C 110 130 106 114 104 98 C 102 84 102 70 102 60 Z"
+            stroke="rgba(40,200,200,.18)" stroke-width="2" fill="rgba(40,200,200,.08)"/>
+      <path d="M 104 62 L 142 62
+               C 144 72 144 85 142 99 C 140 115 136 131 130 143
+               C 126 149 124 152 123 152 C 122 152 120 149 116 143
+               C 112 131 108 115 106 99 C 104 85 104 72 104 62 Z"
+            fill="url(#a4bodyR)" opacity=".22"/>
+      <line x1="123" y1="62" x2="123" y2="148" stroke="rgba(80,220,210,.3)" stroke-width="1"/>
+
+      <!-- ── ARMS — the signature cross-hug ── -->
+      <!-- Right figure's arm behind left (teal, drawn under) -->
+      <path d="M 104 65 C 85 53 62 55 52 72 C 43 87 44 109 46 130"
+            stroke="url(#a4armR)" stroke-width="10" stroke-linecap="round" fill="none"
+            filter="url(#a4soft)" opacity=".82"/>
+
+      <!-- Left figure's arm behind right (coral, drawn over) -->
+      <path d="M 86 65 C 105 53 128 55 138 72 C 147 87 146 109 144 130"
+            stroke="url(#a4armL)" stroke-width="10" stroke-linecap="round" fill="none"
+            filter="url(#a4soft)" opacity=".82"/>
+
+      <!-- ── HEADS — filled spheres with 3D lighting ── -->
+
+      <!-- Neck left -->
+      <path d="M 63 50 C 62 54 62 58 64 60 L 72 60 C 74 58 74 54 73 50Z"
+            fill="#E05030" opacity=".65"/>
+      <!-- Left head (coral sphere) -->
+      <ellipse cx="67" cy="30" rx="17" ry="19"
+               fill="url(#a4hL)" filter="url(#a4soft)"
+               transform="rotate(-3,67,30)"/>
+      <!-- Specular highlight -->
+      <ellipse cx="61" cy="22" rx="5.5" ry="7.5" fill="white" opacity=".16"
+               transform="rotate(-3,61,22)"/>
+
+      <!-- Neck right -->
+      <path d="M 117 50 C 116 54 116 58 118 60 L 126 60 C 128 58 128 54 127 50Z"
+            fill="#20A098" opacity=".65"/>
+      <!-- Right head (teal sphere) -->
+      <ellipse cx="123" cy="30" rx="17" ry="19"
+               fill="url(#a4hR)" filter="url(#a4soft)"
+               transform="rotate(3,123,30)"/>
+      <!-- Specular highlight -->
+      <ellipse cx="117" cy="22" rx="5.5" ry="7.5" fill="white" opacity=".16"
+               transform="rotate(3,117,22)"/>
+
+      <!-- ── CENTER CONNECTION ── -->
+      <!-- Golden spark at cross-arm intersection -->
+      <circle cx="95" cy="90" r="6" fill="#FFE8A0" opacity=".9" filter="url(#a4glow)">
+        <animate attributeName="opacity" values=".6;1;.6" dur="2.2s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="5;7.5;5" dur="2.2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="95" cy="90" r="3" fill="white" opacity=".85"/>
+
+      <!-- Subtle line connecting the two heads (intimacy arc) -->
+      <path d="M 82 25 C 88 20 102 20 108 25"
+            stroke="rgba(255,220,140,.28)" stroke-width="1.5"
+            stroke-linecap="round" fill="none"/>
+    </svg>
+  </div>
+
+  <div class="info">
+    <div class="logo-name">Trazo Noble</div>
+    <div class="logo-desc">Formas sólidas con iluminación volumétrica y trazo elegante. Brazos que se cruzan con gradiente cálido. El punto dorado donde se encuentran los dos.</div>
+    <div class="icons">
+      <div class="icon-slot">
+        <svg class="ico ico-ios" style="background:linear-gradient(145deg,#0E0C20,#070610)" viewBox="0 0 56 56">
+          <defs>
+            <radialGradient id="i4hL" cx="35%" cy="28%" r="65%"><stop offset="0%" stop-color="#FFD8C0"/><stop offset="45%" stop-color="#FF8060"/><stop offset="100%" stop-color="#C03018"/></radialGradient>
+            <radialGradient id="i4hR" cx="65%" cy="28%" r="65%"><stop offset="0%" stop-color="#C0FFF8"/><stop offset="45%" stop-color="#4ECDC4"/><stop offset="100%" stop-color="#186860"/></radialGradient>
+            <linearGradient id="i4aL" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF9B7A"/><stop offset="100%" stop-color="#FF6040" stop-opacity=".6"/></linearGradient>
+            <linearGradient id="i4aR" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6AEDE4"/><stop offset="100%" stop-color="#2090A0" stop-opacity=".6"/></linearGradient>
+          </defs>
+          <ellipse cx="28" cy="30" rx="18" ry="17" fill="rgba(255,179,71,.08)"/>
+          <path d="M 14 17 L 26 17 C 27 22 27 28 26 33 C 25 38 23 43 20 46 C 18 48 16 49 15 49 C 14 48 12 46 10 41 C 8 35 8 25 14 17Z" fill="rgba(255,100,60,.25)"/>
+          <path d="M 30 17 L 42 17 C 43 22 43 28 42 33 C 41 38 39 43 36 46 C 34 48 32 49 31 49 C 30 48 28 46 26 41" fill="rgba(40,200,200,.25)"/>
+          <path d="M 30 19 C 22 14 16 16 13 24 C 10 33 11 44 14 49" stroke="url(#i4aR)" stroke-width="4" stroke-linecap="round" fill="none" opacity=".85"/>
+          <path d="M 26 19 C 34 14 40 16 43 24 C 46 33 45 44 42 49" stroke="url(#i4aL)" stroke-width="4" stroke-linecap="round" fill="none" opacity=".85"/>
+          <ellipse cx="20" cy="9" rx="7" ry="8" fill="url(#i4hL)"/>
+          <ellipse cx="36" cy="9" rx="7" ry="8" fill="url(#i4hR)"/>
+          <circle cx="28" cy="30" r="3" fill="#FFE8A0" opacity=".9"/>
+        </svg>
+        <div class="icon-lbl">iOS</div>
+      </div>
+      <div class="icon-slot">
+        <svg class="ico ico-android" style="background:linear-gradient(145deg,#0E0C20,#070610)" viewBox="0 0 52 52">
+          <defs>
+            <linearGradient id="i4aLa" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF9B7A"/><stop offset="100%" stop-color="#FF6040" stop-opacity=".6"/></linearGradient>
+            <linearGradient id="i4aRa" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6AEDE4"/><stop offset="100%" stop-color="#2090A0" stop-opacity=".6"/></linearGradient>
+          </defs>
+          <path d="M 28 18 C 20 13 14 15 11 23 C 8 32 9 43 12 48" stroke="url(#i4aRa)" stroke-width="3.5" stroke-linecap="round" fill="none" opacity=".85"/>
+          <path d="M 24 18 C 32 13 38 15 41 23 C 44 32 43 43 40 48" stroke="url(#i4aLa)" stroke-width="3.5" stroke-linecap="round" fill="none" opacity=".85"/>
+          <ellipse cx="19" cy="9" rx="6" ry="7" fill="#FF8060"/>
+          <ellipse cx="33" cy="9" rx="6" ry="7" fill="#4ECDC4"/>
+          <circle cx="26" cy="28" r="2.5" fill="#FFE8A0" opacity=".9"/>
+        </svg>
+        <div class="icon-lbl">Android</div>
+      </div>
+      <div class="icon-slot" style="margin-left:4px">
+        <div class="hs">
+          <div class="hs-ico" style="background:linear-gradient(145deg,#0E0C20,#070610)">
+            <svg width="38" height="38" viewBox="0 0 52 52">
+              <defs>
+                <linearGradient id="i4aLhs" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF9B7A"/><stop offset="100%" stop-color="#FF6040" stop-opacity=".6"/></linearGradient>
+                <linearGradient id="i4aRhs" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6AEDE4"/><stop offset="100%" stop-color="#2090A0" stop-opacity=".6"/></linearGradient>
+              </defs>
+              <path d="M 28 18 C 20 13 14 15 11 23 C 8 32 9 43 12 48" stroke="url(#i4aRhs)" stroke-width="3.5" stroke-linecap="round" fill="none" opacity=".85"/>
+              <path d="M 24 18 C 32 13 38 15 41 23 C 44 32 43 43 40 48" stroke="url(#i4aLhs)" stroke-width="3.5" stroke-linecap="round" fill="none" opacity=".85"/>
+              <ellipse cx="19" cy="9" rx="6" ry="7" fill="#FF8060"/>
+              <ellipse cx="33" cy="9" rx="6" ry="7" fill="#4ECDC4"/>
+              <circle cx="26" cy="28" r="2.5" fill="#FFE8A0" opacity=".9"/>
+            </svg>
+          </div>
+          <div class="hs-name">Mi<br>Psicólogo</div>
+          <div class="hs-bar"><div class="hs-dot"></div><div class="hs-dot a"></div><div class="hs-dot"></div></div>
+        </div>
+        <div class="icon-lbl">Home</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /grid -->
+</div><!-- /wrap -->
+
+<script>
+/* ── Ambient background canvas ── */
+const cv = document.getElementById('bg');
+const ctx = cv.getContext('2d');
+let W, H, pts = [];
+
+function resize(){
+  W = cv.width = window.innerWidth;
+  H = cv.height = window.innerHeight;
+}
+
+function initPts(){
+  pts = [];
+  const n = Math.min(55, Math.floor(W*H/18000));
+  for(let i=0;i<n;i++){
+    pts.push({
+      x:Math.random()*W, y:Math.random()*H,
+      vx:(Math.random()-.5)*.28, vy:(Math.random()-.5)*.28,
+      r:Math.random()*1.8+.6,
+      c:Math.random()>.5?`rgba(255,123,90,`:`rgba(78,205,196,`,
+      a:Math.random()*.45+.08
+    });
+  }
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  /* connection lines */
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<140){
+        ctx.beginPath();
+        ctx.moveTo(pts[i].x,pts[i].y);
+        ctx.lineTo(pts[j].x,pts[j].y);
+        const a=(1-d/140)*.06;
+        ctx.strokeStyle=`rgba(255,200,150,${a})`;
+        ctx.lineWidth=.6;
+        ctx.stroke();
+      }
+    }
+  }
+  /* dots */
+  pts.forEach(p=>{
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=p.c+p.a+')';
+    ctx.fill();
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0||p.x>W) p.vx*=-1;
+    if(p.y<0||p.y>H) p.vy*=-1;
+  });
+  requestAnimationFrame(draw);
+}
+
+resize(); initPts(); draw();
+window.addEventListener('resize',()=>{resize();initPts()});
+</script>
+</body>
+</html>

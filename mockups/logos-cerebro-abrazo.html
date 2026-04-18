@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Psicólogo · Logos Cerebro & Abrazo</title>
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --coral:  #FF7B5A;
+  --teal:   #4ECDC4;
+  --amber:  #FFB347;
+  --bg:     #080714;
+  --bg2:    #0F0D22;
+  --text:   #FFF0EC;
+  --mid:    rgba(255,240,236,0.5);
+  --low:    rgba(255,240,236,0.22);
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-thumb { background:rgba(255,123,90,0.2); border-radius:2px; }
+
+/* ── header ── */
+.hdr {
+  text-align:center;
+  padding:56px 24px 8px;
+}
+.hdr .eye {
+  font-size:10px; font-weight:700; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--low); margin-bottom:14px;
+}
+.hdr h1 {
+  font-size:clamp(26px,5vw,46px); font-weight:900;
+  background:linear-gradient(135deg,#FF7B5A 0%,#FFB347 45%,#4ECDC4 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; line-height:1.1; margin-bottom:10px;
+}
+.hdr p { font-size:13px; color:var(--mid); }
+
+/* ── tab bar ── */
+.tabs {
+  display:flex; justify-content:center; gap:8px;
+  padding:28px 20px 0; flex-wrap:wrap;
+}
+.tab {
+  padding:9px 22px; border-radius:50px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.03);
+  color:var(--low); font-size:12px; font-weight:600;
+  cursor:pointer; transition:.2s; font-family:inherit;
+}
+.tab.on { border-color:rgba(255,123,90,0.4); background:rgba(255,123,90,0.1); color:var(--coral); }
+
+/* ── section ── */
+.sec { display:none; }
+.sec.on { display:block; }
+
+/* ── divider ── */
+.div-row {
+  display:flex; align-items:center; gap:16px;
+  padding:48px 32px 24px; max-width:1100px; margin:0 auto;
+}
+.div-row .line { flex:1; height:1px; background:rgba(255,255,255,0.05); }
+.div-row .lbl {
+  font-size:10px; font-weight:700; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--low);
+}
+
+/* ── grid ── */
+.grid {
+  display:flex; flex-wrap:wrap;
+  justify-content:center; gap:32px;
+  padding:0 24px 80px; max-width:1200px; margin:0 auto;
+}
+
+/* ── logo card ── */
+.card {
+  width:320px;
+  background:rgba(255,255,255,0.025);
+  border:1px solid rgba(255,255,255,0.055);
+  border-radius:28px; overflow:hidden;
+  transition:.25s ease; cursor:default;
+}
+.card:hover {
+  border-color:rgba(255,123,90,0.22);
+  transform:translateY(-5px);
+  box-shadow:0 20px 56px rgba(0,0,0,0.45),0 0 28px rgba(255,123,90,0.06);
+}
+.card.star::before {
+  content:'★  Favorita';
+  position:absolute; top:12px; right:12px;
+  background:linear-gradient(90deg,#FF7B5A,#FFB347);
+  color:#fff; font-size:9px; font-weight:700;
+  letter-spacing:.06em; padding:3px 10px;
+  border-radius:20px; z-index:20;
+}
+.card { position:relative; }
+
+/* ── preview area ── */
+.prev {
+  height:200px;
+  display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+}
+.prev canvas {
+  position:absolute; inset:0; z-index:0;
+}
+.prev .inner { position:relative; z-index:10; }
+.prev .glow-ring {
+  position:absolute;
+  border-radius:50%;
+  z-index:1;
+}
+
+/* ── details ── */
+.det { padding:22px 22px 20px; }
+.det-name { font-size:16px; font-weight:800; color:var(--text); margin-bottom:5px; }
+.det-desc { font-size:12px; color:var(--mid); line-height:1.6; margin-bottom:18px; }
+
+/* ── icon previews ── */
+.icon-row { display:flex; gap:12px; align-items:flex-end; }
+.ip { display:flex; flex-direction:column; align-items:center; gap:5px; }
+.ip-lbl { font-size:9px; color:var(--low); letter-spacing:.05em; }
+
+.app-ico {
+  display:flex; align-items:center; justify-content:center;
+  border-radius:22%; position:relative; overflow:hidden;
+}
+.app-ico::after {
+  content:''; position:absolute; inset:0; border-radius:inherit;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.2);
+  pointer-events:none;
+}
+
+/* homescreen thumb */
+.hs {
+  width:88px; height:138px;
+  background:#0A0916; border-radius:14px;
+  border:1px solid rgba(255,255,255,0.07);
+  display:flex; flex-direction:column;
+  align-items:center; padding:14px 8px 10px; gap:7px;
+}
+.hs-ico {
+  width:54px; height:54px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+}
+.hs-lbl {
+  font-size:7.5px; color:rgba(255,255,255,0.55);
+  text-align:center; line-height:1.3;
+}
+.hs-dots { display:flex; gap:3px; margin-top:auto; }
+.hs-dot { width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,0.12); }
+.hs-dot.on { background:rgba(255,255,255,0.55); }
+
+/* ── color palette strip ── */
+.palette {
+  display:flex; gap:0; height:4px;
+  border-radius:0 0 28px 28px; overflow:hidden;
+}
+.pal-seg { flex:1; }
+
+/* ── all-sizes view ── */
+.sizes-view {
+  display:flex; flex-direction:column;
+  gap:20px; align-items:flex-start;
+}
+.sz-row { display:flex; align-items:center; gap:16px; }
+.sz-lbl { font-size:10px; color:var(--low); width:52px; text-align:right; letter-spacing:.04em; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="eye">Mi Psicólogo · Logos Conceptuales</div>
+  <h1>Cerebro & Abrazo</h1>
+  <p>Paleta Aurora Cálida · Coral · Teal · Amber</p>
+</div>
+
+<div class="tabs">
+  <button class="tab on"  onclick="show('cerebro',this)">🧠 Cerebro (3)</button>
+  <button class="tab"     onclick="show('abrazo',this)">🤝 Abrazo (3)</button>
+  <button class="tab"     onclick="show('compare',this)">↔ Comparar todos</button>
+</div>
+
+<!-- ════════════════════════════════════════
+     CEREBROS
+════════════════════════════════════════ -->
+<div id="sec-cerebro" class="sec on">
+  <div class="div-row"><div class="line"></div><div class="lbl">3 Conceptos · Cerebro</div><div class="line"></div></div>
+  <div class="grid">
+
+    <!-- ─── C1: Cerebro Dual ─── -->
+    <div class="card star">
+      <div class="prev" style="background:linear-gradient(145deg,#0E0B20,#180F2A)">
+        <div class="glow-ring" style="width:160px;height:160px;background:radial-gradient(circle,rgba(255,123,90,0.1) 0%,rgba(78,205,196,0.06) 50%,transparent 70%);top:20px;left:50%;transform:translateX(-50%)"></div>
+        <canvas id="cv1" style="position:absolute;inset:0;z-index:0"></canvas>
+        <div class="inner">
+          <svg width="140" height="140" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Hemisferio izquierdo (coral = lógica/ciencia) -->
+            <path d="M50 78
+              C50 78 36 78 30 72
+              C24 66 20 58 20 50
+              C20 42 22 36 27 31
+              C30 27 34 24 38 23
+              C40 22 42 22 44 22
+              C46 22 48 22 50 22
+              L50 78Z"
+              fill="url(#cdL)" opacity="0.85"/>
+            <!-- Surcos izquierdo -->
+            <path d="M30 42 C34 40 38 39 42 40" stroke="rgba(255,123,90,0.4)" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M26 54 C30 52 35 51 40 52" stroke="rgba(255,123,90,0.35)" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M28 64 C33 62 38 62 43 63" stroke="rgba(255,123,90,0.3)" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M33 32 C37 30 41 30 45 31" stroke="rgba(255,123,90,0.3)" stroke-width="1" stroke-linecap="round" fill="none"/>
+
+            <!-- Hemisferio derecho (teal = emoción/arte) -->
+            <path d="M50 78
+              C50 78 64 78 70 72
+              C76 66 80 58 80 50
+              C80 42 78 36 73 31
+              C70 27 66 24 62 23
+              C60 22 58 22 56 22
+              C54 22 52 22 50 22
+              L50 78Z"
+              fill="url(#cdR)" opacity="0.85"/>
+            <!-- Surcos derecho -->
+            <path d="M70 42 C66 40 62 39 58 40" stroke="rgba(78,205,196,0.4)" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M74 54 C70 52 65 51 60 52" stroke="rgba(78,205,196,0.35)" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M72 64 C67 62 62 62 57 63" stroke="rgba(78,205,196,0.3)" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M67 32 C63 30 59 30 55 31" stroke="rgba(78,205,196,0.3)" stroke-width="1" stroke-linecap="round" fill="none"/>
+
+            <!-- Línea divisoria central con glow -->
+            <line x1="50" y1="22" x2="50" y2="78" stroke="url(#cdMid)" stroke-width="1.5"/>
+
+            <!-- Tallo cerebral -->
+            <path d="M44 78 C44 84 46 87 50 88 C54 87 56 84 56 78" fill="url(#cdStem)" opacity="0.5"/>
+
+            <!-- Destellos neuronales izquierda -->
+            <circle cx="35" cy="48" r="1.5" fill="#FF7B5A" opacity="0.8">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.1s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="28" cy="58" r="1" fill="#FFB347" opacity="0.7">
+              <animate attributeName="opacity" values="0.2;0.9;0.2" dur="2.8s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="40" cy="34" r="1.2" fill="#FF7B5A" opacity="0.6">
+              <animate attributeName="opacity" values="0.4;1;0.4" dur="1.7s" repeatCount="indefinite"/>
+            </circle>
+
+            <!-- Destellos neuronales derecha -->
+            <circle cx="65" cy="48" r="1.5" fill="#4ECDC4" opacity="0.8">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="1.9s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="72" cy="58" r="1" fill="#4ECDC4" opacity="0.7">
+              <animate attributeName="opacity" values="0.2;0.8;0.2" dur="2.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="60" cy="34" r="1.2" fill="#4ECDC4" opacity="0.6">
+              <animate attributeName="opacity" values="0.4;1;0.4" dur="3.1s" repeatCount="indefinite"/>
+            </circle>
+
+            <!-- Punto de conexión en la base -->
+            <circle cx="50" cy="88" r="2.5" fill="url(#cdDot)"/>
+            <circle cx="50" cy="88" r="5" fill="url(#cdDotG)" opacity="0.4"/>
+
+            <defs>
+              <linearGradient id="cdL" x1="20" y1="22" x2="50" y2="78" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FF9B6A"/>
+                <stop offset="100%" stop-color="#FF5A3A"/>
+              </linearGradient>
+              <linearGradient id="cdR" x1="80" y1="22" x2="50" y2="78" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#6EE8E0"/>
+                <stop offset="100%" stop-color="#2EADA5"/>
+              </linearGradient>
+              <linearGradient id="cdMid" x1="50" y1="22" x2="50" y2="78" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FFB347" stop-opacity="0.8"/>
+                <stop offset="50%" stop-color="#FFF0EC" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#FFB347" stop-opacity="0.3"/>
+              </linearGradient>
+              <linearGradient id="cdStem" x1="44" y1="78" x2="56" y2="88" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FF7B5A" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#4ECDC4" stop-opacity="0.4"/>
+              </linearGradient>
+              <radialGradient id="cdDot">
+                <stop offset="0%" stop-color="#FFF0EC"/>
+                <stop offset="100%" stop-color="#FFB347"/>
+              </radialGradient>
+              <radialGradient id="cdDotG">
+                <stop offset="0%" stop-color="#FFB347"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </radialGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+      <div class="palette">
+        <div class="pal-seg" style="background:#FF7B5A"></div>
+        <div class="pal-seg" style="background:#FFB347"></div>
+        <div class="pal-seg" style="background:#FFF0EC"></div>
+        <div class="pal-seg" style="background:#4ECDC4"></div>
+      </div>
+      <div class="det">
+        <div class="det-name">Cerebro Dual</div>
+        <div class="det-desc">Dos hemisferios, dos mundos: coral (lógica, ciencia) y teal (emoción, arte). La línea dorada que los une es el psicólogo. Neurodestellos animados.</div>
+        <div class="icon-row">
+          <div class="ip">
+            <div class="app-ico" style="width:60px;height:60px;background:linear-gradient(145deg,#130B22,#1E1030);box-shadow:0 6px 20px rgba(255,123,90,0.28)">
+              <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+                <path d="M50 78 C50 78 36 78 30 72 C24 66 20 58 20 50 C20 42 22 36 27 31 C30 27 34 24 38 23 C42 22 46 22 50 22 L50 78Z" fill="url(#ic1L)" opacity="0.9"/>
+                <path d="M50 78 C50 78 64 78 70 72 C76 66 80 58 80 50 C80 42 78 36 73 31 C70 27 66 24 62 23 C58 22 54 22 50 22 L50 78Z" fill="url(#ic1R)" opacity="0.9"/>
+                <line x1="50" y1="22" x2="50" y2="78" stroke="rgba(255,240,236,0.5)" stroke-width="1.5"/>
+                <circle cx="50" cy="88" r="3" fill="#FFB347"/>
+                <defs>
+                  <linearGradient id="ic1L" x1="20" y1="22" x2="50" y2="78" gradientUnits="userSpaceOnUse"><stop stop-color="#FF9B6A"/><stop offset="1" stop-color="#FF5A3A"/></linearGradient>
+                  <linearGradient id="ic1R" x1="80" y1="22" x2="50" y2="78" gradientUnits="userSpaceOnUse"><stop stop-color="#6EE8E0"/><stop offset="1" stop-color="#2EADA5"/></linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="ip-lbl">iOS 60px</div>
+          </div>
+          <div class="ip">
+            <div class="app-ico" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(145deg,#130B22,#1E1030);box-shadow:0 4px 14px rgba(255,123,90,0.22)">
+              <svg width="30" height="30" viewBox="0 0 100 100" fill="none">
+                <path d="M50 80 C50 80 34 80 26 70 C18 60 18 40 26 30 C32 22 40 20 50 20 L50 80Z" fill="#FF7B5A" opacity="0.85"/>
+                <path d="M50 80 C50 80 66 80 74 70 C82 60 82 40 74 30 C68 22 60 20 50 20 L50 80Z" fill="#4ECDC4" opacity="0.85"/>
+                <line x1="50" y1="20" x2="50" y2="80" stroke="rgba(255,240,236,0.6)" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="ip-lbl">Android</div>
+          </div>
+          <div class="hs">
+            <div class="hs-ico" style="background:linear-gradient(145deg,#130B22,#1E1030)">
+              <svg width="34" height="34" viewBox="0 0 100 100" fill="none">
+                <path d="M50 80 C50 80 34 80 26 70 C18 60 18 40 26 30 C32 22 40 20 50 20 L50 80Z" fill="#FF7B5A" opacity="0.9"/>
+                <path d="M50 80 C50 80 66 80 74 70 C82 60 82 40 74 30 C68 22 60 20 50 20 L50 80Z" fill="#4ECDC4" opacity="0.9"/>
+                <line x1="50" y1="20" x2="50" y2="80" stroke="rgba(255,240,236,0.6)" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="hs-lbl">Mi Psicólogo</div>
+            <div class="hs-dots"><div class="hs-dot on"></div><div class="hs-dot"></div><div class="hs-dot"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── C2: Cerebro Cosmos ─── -->
+    <div class="card">
+      <div class="prev" style="background:linear-gradient(145deg,#080B1E,#0E1228)">
+        <div class="glow-ring" style="width:180px;height:180px;background:radial-gradient(circle,rgba(78,205,196,0.08) 0%,rgba(255,123,90,0.05) 50%,transparent 70%);top:10px;left:50%;transform:translateX(-50%)"></div>
+        <canvas id="cv2" style="position:absolute;inset:0;z-index:0"></canvas>
+        <div class="inner">
+          <svg width="140" height="140" viewBox="0 0 100 100" fill="none">
+            <!-- Silueta del cerebro completo (suave, redondeado) -->
+            <path d="M50 20
+              C44 20 38 21 33 24
+              C27 27 22 32 21 38
+              C19 44 20 50 22 55
+              C19 58 18 62 19 66
+              C20 72 26 76 32 76
+              C36 80 42 82 48 82
+              L52 82
+              C58 82 64 80 68 76
+              C74 76 80 72 81 66
+              C82 62 81 58 78 55
+              C80 50 81 44 79 38
+              C78 32 73 27 67 24
+              C62 21 56 20 50 20Z"
+              fill="url(#ccBody)" opacity="0.3" stroke="url(#ccOutline)" stroke-width="1"/>
+
+            <!-- Surcos / pliegues (gyrification) -->
+            <path d="M32 38 C36 35 41 34 46 35 C49 36 50 38 50 38" stroke="rgba(255,123,90,0.4)" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <path d="M50 38 C51 38 54 36 58 35 C63 34 68 35 72 38" stroke="rgba(78,205,196,0.4)" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <path d="M25 52 C29 49 34 48 38 49" stroke="rgba(255,123,90,0.35)" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M62 49 C66 48 71 49 75 52" stroke="rgba(78,205,196,0.35)" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M28 63 C33 61 38 61 43 62" stroke="rgba(255,123,90,0.3)" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M57 62 C62 61 67 61 72 63" stroke="rgba(78,205,196,0.3)" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M35 73 C40 71 45 71 50 72" stroke="rgba(255,179,71,0.35)" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M50 72 C55 71 60 71 65 73" stroke="rgba(255,179,71,0.35)" stroke-width="1" stroke-linecap="round" fill="none"/>
+
+            <!-- Red neuronal interna -->
+            <circle cx="38" cy="42" r="1.5" fill="#FF7B5A" opacity="0.9">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="50" cy="36" r="2" fill="#FFB347" opacity="0.9">
+              <animate attributeName="opacity" values="0.5;1;0.5" dur="1.8s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="62" cy="42" r="1.5" fill="#4ECDC4" opacity="0.9">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.6s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="33" cy="56" r="1.2" fill="#FF7B5A" opacity="0.7">
+              <animate attributeName="opacity" values="0.2;0.9;0.2" dur="3.1s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="67" cy="56" r="1.2" fill="#4ECDC4" opacity="0.7">
+              <animate attributeName="opacity" values="0.2;0.9;0.2" dur="2.4s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="45" cy="62" r="1" fill="#FFB347" opacity="0.7">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.0s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="55" cy="62" r="1" fill="#FFB347" opacity="0.7">
+              <animate attributeName="opacity" values="0.4;1;0.4" dur="2.7s" repeatCount="indefinite"/>
+            </circle>
+
+            <!-- Conexiones neuronales animadas -->
+            <line x1="38" y1="42" x2="50" y2="36" stroke="rgba(255,123,90,0.3)" stroke-width="0.8"/>
+            <line x1="50" y1="36" x2="62" y2="42" stroke="rgba(78,205,196,0.3)" stroke-width="0.8"/>
+            <line x1="38" y1="42" x2="33" y2="56" stroke="rgba(255,123,90,0.2)" stroke-width="0.8"/>
+            <line x1="62" y1="42" x2="67" y2="56" stroke="rgba(78,205,196,0.2)" stroke-width="0.8"/>
+            <line x1="33" y1="56" x2="45" y2="62" stroke="rgba(255,179,71,0.2)" stroke-width="0.8"/>
+            <line x1="67" y1="56" x2="55" y2="62" stroke="rgba(78,205,196,0.2)" stroke-width="0.8"/>
+            <line x1="45" y1="62" x2="55" y2="62" stroke="rgba(255,179,71,0.25)" stroke-width="0.8"/>
+
+            <!-- Halo exterior / aura -->
+            <circle cx="50" cy="50" r="36" stroke="url(#ccAura)" stroke-width="0.8" fill="none" stroke-dasharray="3 4" opacity="0.5"/>
+
+            <defs>
+              <linearGradient id="ccBody" x1="18" y1="20" x2="82" y2="82" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FF7B5A" stop-opacity="0.5"/>
+                <stop offset="50%" stop-color="#FFB347" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#4ECDC4" stop-opacity="0.5"/>
+              </linearGradient>
+              <linearGradient id="ccOutline" x1="18" y1="20" x2="82" y2="82" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FF9B6A" stop-opacity="0.7"/>
+                <stop offset="50%" stop-color="#FFB347" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#4ECDC4" stop-opacity="0.7"/>
+              </linearGradient>
+              <linearGradient id="ccAura" x1="14" y1="14" x2="86" y2="86" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FF7B5A" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#4ECDC4" stop-opacity="0.5"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+      <div class="palette">
+        <div class="pal-seg" style="background:#FF7B5A"></div>
+        <div class="pal-seg" style="background:#FFB347"></div>
+        <div class="pal-seg" style="background:#4ECDC4"></div>
+        <div class="pal-seg" style="background:rgba(255,240,236,0.4)"></div>
+      </div>
+      <div class="det">
+        <div class="det-name">Cerebro Cosmos</div>
+        <div class="det-desc">El cerebro completo como universo: aura exterior, red neuronal interna viva. Estética cósmica. Nodos que pulsan solos.</div>
+        <div class="icon-row">
+          <div class="ip">
+            <div class="app-ico" style="width:60px;height:60px;background:linear-gradient(145deg,#080B1E,#0E1228);box-shadow:0 6px 20px rgba(78,205,196,0.18)">
+              <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+                <path d="M50 20 C44 20 38 21 33 24 C27 27 22 32 21 38 C19 44 20 50 22 55 C19 58 18 62 19 66 C20 72 26 76 32 76 C36 80 42 82 50 82 C58 82 64 80 68 76 C74 76 80 72 81 66 C82 62 81 58 78 55 C80 50 81 44 79 38 C78 32 73 27 67 24 C62 21 56 20 50 20Z" fill="url(#ic2B)" opacity="0.35" stroke="url(#ic2O)" stroke-width="1.5"/>
+                <circle cx="38" cy="42" r="2" fill="#FF7B5A"/>
+                <circle cx="50" cy="36" r="2.5" fill="#FFB347"/>
+                <circle cx="62" cy="42" r="2" fill="#4ECDC4"/>
+                <circle cx="35" cy="57" r="1.5" fill="#FF7B5A" opacity="0.7"/>
+                <circle cx="65" cy="57" r="1.5" fill="#4ECDC4" opacity="0.7"/>
+                <circle cx="50" cy="64" r="1.5" fill="#FFB347" opacity="0.8"/>
+                <line x1="38" y1="42" x2="50" y2="36" stroke="rgba(255,123,90,0.4)" stroke-width="1"/>
+                <line x1="50" y1="36" x2="62" y2="42" stroke="rgba(78,205,196,0.4)" stroke-width="1"/>
+                <line x1="38" y1="42" x2="35" y2="57" stroke="rgba(255,123,90,0.25)" stroke-width="0.8"/>
+                <line x1="62" y1="42" x2="65" y2="57" stroke="rgba(78,205,196,0.25)" stroke-width="0.8"/>
+                <defs>
+                  <linearGradient id="ic2B" x1="18" y1="20" x2="82" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A" stop-opacity=".5"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".5"/></linearGradient>
+                  <linearGradient id="ic2O" x1="18" y1="20" x2="82" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#FF9B6A" stop-opacity=".7"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".7"/></linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="ip-lbl">iOS 60px</div>
+          </div>
+          <div class="ip">
+            <div class="app-ico" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(145deg,#080B1E,#0E1228);box-shadow:0 4px 14px rgba(78,205,196,0.16)">
+              <svg width="30" height="30" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="52" r="28" fill="none" stroke="url(#ic2Oc)" stroke-width="1.5"/>
+                <circle cx="38" cy="44" r="3" fill="#FF7B5A"/>
+                <circle cx="50" cy="36" r="3.5" fill="#FFB347"/>
+                <circle cx="62" cy="44" r="3" fill="#4ECDC4"/>
+                <line x1="38" y1="44" x2="50" y2="36" stroke="rgba(255,123,90,0.5)" stroke-width="1.2"/>
+                <line x1="50" y1="36" x2="62" y2="44" stroke="rgba(78,205,196,0.5)" stroke-width="1.2"/>
+                <defs>
+                  <linearGradient id="ic2Oc" x1="22" y1="24" x2="78" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A" stop-opacity=".6"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".6"/></linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="ip-lbl">Android</div>
+          </div>
+          <div class="hs">
+            <div class="hs-ico" style="background:linear-gradient(145deg,#080B1E,#0E1228)">
+              <svg width="34" height="34" viewBox="0 0 100 100" fill="none">
+                <path d="M50 20 C38 20 26 28 21 38 C18 44 19 52 22 58 C19 63 19 70 24 74 C30 80 40 82 50 82 C60 82 70 80 76 74 C81 70 81 63 78 58 C81 52 82 44 79 38 C74 28 62 20 50 20Z" fill="url(#ic2Bh)" opacity="0.4" stroke="url(#ic2Oh)" stroke-width="1.2"/>
+                <circle cx="38" cy="44" r="2.5" fill="#FF7B5A"/>
+                <circle cx="50" cy="36" r="3" fill="#FFB347"/>
+                <circle cx="62" cy="44" r="2.5" fill="#4ECDC4"/>
+                <line x1="38" y1="44" x2="50" y2="36" stroke="rgba(255,123,90,0.4)" stroke-width="1"/>
+                <line x1="50" y1="36" x2="62" y2="44" stroke="rgba(78,205,196,0.4)" stroke-width="1"/>
+                <defs>
+                  <linearGradient id="ic2Bh" x1="18" y1="20" x2="82" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A" stop-opacity=".5"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".5"/></linearGradient>
+                  <linearGradient id="ic2Oh" x1="18" y1="20" x2="82" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#FF9B6A" stop-opacity=".7"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".7"/></linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="hs-lbl">Mi Psicólogo</div>
+            <div class="hs-dots"><div class="hs-dot on"></div><div class="hs-dot"></div><div class="hs-dot"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── C3: Cerebro Minimalista ─── -->
+    <div class="card">
+      <div class="prev" style="background:linear-gradient(145deg,#0C0A1A,#151020)">
+        <div class="glow-ring" style="width:160px;height:160px;background:radial-gradient(circle,rgba(255,179,71,0.1) 0%,transparent 70%);top:20px;left:50%;transform:translateX(-50%)"></div>
+        <div class="inner">
+          <svg width="140" height="140" viewBox="0 0 100 100" fill="none">
+            <!-- Cerebro minimalista: puro contorno + relleno sutil + una chispa central -->
+
+            <!-- Forma cerebro izquierda (lóbulo frontal + temporal) -->
+            <path d="
+              M50 22
+              C46 22 40 23 36 26
+              C30 29 25 35 23 41
+              C21 47 22 53 25 58
+              C22 61 21 66 23 70
+              C25 75 30 78 36 78
+              C40 80 44 81 48 81
+              L50 81 L50 22Z"
+              fill="url(#cmL)" opacity="0.8"/>
+
+            <!-- Forma cerebro derecha -->
+            <path d="
+              M50 22
+              C54 22 60 23 64 26
+              C70 29 75 35 77 41
+              C79 47 78 53 75 58
+              C78 61 79 66 77 70
+              C75 75 70 78 64 78
+              C60 80 56 81 52 81
+              L50 81 L50 22Z"
+              fill="url(#cmR)" opacity="0.8"/>
+
+            <!-- Línea divisoria ultrafina -->
+            <line x1="50" y1="22" x2="50" y2="81" stroke="rgba(255,240,236,0.35)" stroke-width="1" stroke-dasharray="2 3"/>
+
+            <!-- Surcos mínimos – líneas curvas limpias -->
+            <path d="M30 44 Q38 40 46 43" stroke="rgba(255,240,236,0.2)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M25 56 Q33 52 39 54" stroke="rgba(255,240,236,0.15)" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <path d="M70 44 Q62 40 54 43" stroke="rgba(255,240,236,0.2)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M75 56 Q67 52 61 54" stroke="rgba(255,240,236,0.15)" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+
+            <!-- Chispa central: la mente encendida -->
+            <circle cx="50" cy="51" r="4" fill="url(#cmCore)"/>
+            <circle cx="50" cy="51" r="9" fill="url(#cmGlow)" opacity="0.4"/>
+            <circle cx="50" cy="51" r="15" fill="url(#cmGlow2)" opacity="0.15"/>
+
+            <!-- Rayos de chispa -->
+            <line x1="50" y1="40" x2="50" y2="35" stroke="rgba(255,179,71,0.6)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="50" y1="62" x2="50" y2="67" stroke="rgba(255,179,71,0.6)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="39" y1="51" x2="34" y2="51" stroke="rgba(255,179,71,0.5)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="61" y1="51" x2="66" y2="51" stroke="rgba(255,179,71,0.5)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="43" y1="43" x2="40" y2="40" stroke="rgba(255,179,71,0.35)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="57" y1="43" x2="60" y2="40" stroke="rgba(255,179,71,0.35)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="43" y1="59" x2="40" y2="62" stroke="rgba(255,179,71,0.35)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="57" y1="59" x2="60" y2="62" stroke="rgba(255,179,71,0.35)" stroke-width="1" stroke-linecap="round"/>
+
+            <!-- Tallo cerebral -->
+            <rect x="44" y="81" width="12" height="8" rx="4" fill="url(#cmStem)" opacity="0.6"/>
+
+            <defs>
+              <linearGradient id="cmL" x1="21" y1="22" x2="50" y2="81" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FF9B6A" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#FF5A3A" stop-opacity="0.5"/>
+              </linearGradient>
+              <linearGradient id="cmR" x1="79" y1="22" x2="50" y2="81" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#6EE8E0" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#2EADA5" stop-opacity="0.5"/>
+              </linearGradient>
+              <radialGradient id="cmCore">
+                <stop offset="0%" stop-color="#FFF8E7"/>
+                <stop offset="50%" stop-color="#FFB347"/>
+                <stop offset="100%" stop-color="#FF7B5A"/>
+              </radialGradient>
+              <radialGradient id="cmGlow">
+                <stop offset="0%" stop-color="#FFB347"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </radialGradient>
+              <radialGradient id="cmGlow2">
+                <stop offset="0%" stop-color="#FFB347"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </radialGradient>
+              <linearGradient id="cmStem" x1="44" y1="81" x2="56" y2="89" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#FF7B5A" stop-opacity="0.7"/>
+                <stop offset="1" stop-color="#4ECDC4" stop-opacity="0.4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+      <div class="palette">
+        <div class="pal-seg" style="background:#FF7B5A"></div>
+        <div class="pal-seg" style="background:#FFB347"></div>
+        <div class="pal-seg" style="background:#FFF8E7"></div>
+        <div class="pal-seg" style="background:#4ECDC4"></div>
+      </div>
+      <div class="det">
+        <div class="det-name">Cerebro Encendido</div>
+        <div class="det-desc">El momento del insight: cerebro minimalista con una chispa dorada en el centro. Dual, limpio, poderoso. El aha-moment del proceso terapéutico.</div>
+        <div class="icon-row">
+          <div class="ip">
+            <div class="app-ico" style="width:60px;height:60px;background:linear-gradient(145deg,#0C0A1A,#181030);box-shadow:0 6px 20px rgba(255,179,71,0.22)">
+              <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+                <path d="M50 22 C40 22 28 30 23 42 C20 50 22 58 26 64 C23 68 22 74 26 78 C30 82 38 84 50 84 C62 84 70 82 74 78 C78 74 77 68 74 64 C78 58 80 50 77 42 C72 30 60 22 50 22Z" fill="url(#ic3B)" opacity="0.4"/>
+                <path d="M50 22 L50 84" stroke="rgba(255,240,236,0.2)" stroke-width="0.8" stroke-dasharray="2 3"/>
+                <circle cx="50" cy="53" r="6" fill="url(#ic3C)"/>
+                <circle cx="50" cy="53" r="12" fill="url(#ic3G)" opacity="0.35"/>
+                <line x1="50" y1="40" x2="50" y2="35" stroke="rgba(255,179,71,0.7)" stroke-width="1.2" stroke-linecap="round"/>
+                <line x1="50" y1="66" x2="50" y2="71" stroke="rgba(255,179,71,0.7)" stroke-width="1.2" stroke-linecap="round"/>
+                <line x1="37" y1="53" x2="32" y2="53" stroke="rgba(255,179,71,0.6)" stroke-width="1.2" stroke-linecap="round"/>
+                <line x1="63" y1="53" x2="68" y2="53" stroke="rgba(255,179,71,0.6)" stroke-width="1.2" stroke-linecap="round"/>
+                <defs>
+                  <linearGradient id="ic3B" x1="20" y1="22" x2="80" y2="84" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A" stop-opacity=".6"/><stop offset=".5" stop-color="#FFB347" stop-opacity=".4"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".6"/></linearGradient>
+                  <radialGradient id="ic3C"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF7B5A"/></radialGradient>
+                  <radialGradient id="ic3G"><stop stop-color="#FFB347"/><stop offset="1" stop-color="transparent"/></radialGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="ip-lbl">iOS 60px</div>
+          </div>
+          <div class="ip">
+            <div class="app-ico" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(145deg,#0C0A1A,#181030);box-shadow:0 4px 14px rgba(255,179,71,0.18)">
+              <svg width="30" height="30" viewBox="0 0 100 100" fill="none">
+                <path d="M50 22 C34 22 22 34 21 48 C20 58 25 66 32 72 C38 78 44 80 50 80 C56 80 62 78 68 72 C75 66 80 58 79 48 C78 34 66 22 50 22Z" fill="url(#ic3Bb)" opacity="0.45"/>
+                <circle cx="50" cy="52" r="8" fill="url(#ic3Cb)"/>
+                <circle cx="50" cy="52" r="14" fill="url(#ic3Gb)" opacity="0.3"/>
+                <defs>
+                  <linearGradient id="ic3Bb" x1="20" y1="22" x2="80" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A" stop-opacity=".6"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".6"/></linearGradient>
+                  <radialGradient id="ic3Cb"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF7B5A"/></radialGradient>
+                  <radialGradient id="ic3Gb"><stop stop-color="#FFB347"/><stop offset="1" stop-color="transparent"/></radialGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="ip-lbl">Android</div>
+          </div>
+          <div class="hs">
+            <div class="hs-ico" style="background:linear-gradient(145deg,#0C0A1A,#181030)">
+              <svg width="34" height="34" viewBox="0 0 100 100" fill="none">
+                <path d="M50 22 C34 22 22 34 21 48 C20 58 25 66 32 72 C38 78 44 80 50 80 C56 80 62 78 68 72 C75 66 80 58 79 48 C78 34 66 22 50 22Z" fill="url(#ic3Bhs)" opacity="0.4"/>
+                <circle cx="50" cy="52" r="7" fill="url(#ic3Chs)"/>
+                <defs>
+                  <linearGradient id="ic3Bhs" x1="20" y1="22" x2="80" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A" stop-opacity=".6"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".6"/></linearGradient>
+                  <radialGradient id="ic3Chs"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF7B5A"/></radialGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="hs-lbl">Mi Psicólogo</div>
+            <div class="hs-dots"><div class="hs-dot on"></div><div class="hs-dot"></div><div class="hs-dot"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid cerebros -->
+</div><!-- /sec-cerebro -->
+
+
+<!-- ════════════════════════════════════════
+     ABRAZOS
+════════════════════════════════════════ -->
+<div id="sec-abrazo" class="sec">
+  <div class="div-row"><div class="line"></div><div class="lbl">3 Conceptos · Dos Personas</div><div class="line"></div></div>
+  <div class="grid">
+
+    <!-- ─── A1: Abrazo Siluetas ─── -->
+    <div class="card star">
+      <div class="prev" style="background:linear-gradient(145deg,#0E0A1C,#1A1028)">
+        <div class="glow-ring" style="width:170px;height:170px;background:radial-gradient(circle,rgba(255,123,90,0.1) 0%,rgba(255,179,71,0.05) 50%,transparent 70%);top:15px;left:50%;transform:translateX(-50%)"></div>
+        <canvas id="cv3" style="position:absolute;inset:0;z-index:0"></canvas>
+        <div class="inner">
+          <svg width="140" height="140" viewBox="0 0 100 100" fill="none">
+            <!-- Figura izquierda: psicólogo (guía) -->
+            <!-- Cabeza -->
+            <circle cx="32" cy="24" r="9" fill="url(#as1HeadL)" opacity="0.9"/>
+            <!-- Cuerpo -->
+            <path d="M22 62 C22 48 24 40 32 36 C40 32 44 34 46 40 L46 70" fill="url(#as1BodyL)" opacity="0.8"/>
+            <!-- Brazo extendido hacia adentro (abrazo) -->
+            <path d="M22 50 C26 48 30 47 34 48 C40 49 45 52 48 56" stroke="url(#as1ArmL)" stroke-width="4" stroke-linecap="round" fill="none"/>
+            <!-- Piernas -->
+            <path d="M28 70 L25 86" stroke="url(#as1LegL)" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M36 70 L38 86" stroke="url(#as1LegL)" stroke-width="3.5" stroke-linecap="round"/>
+
+            <!-- Figura derecha: paciente (siendo sostenido) -->
+            <!-- Cabeza -->
+            <circle cx="68" cy="24" r="9" fill="url(#as1HeadR)" opacity="0.9"/>
+            <!-- Cuerpo -->
+            <path d="M78 62 C78 48 76 40 68 36 C60 32 56 34 54 40 L54 70" fill="url(#as1BodyR)" opacity="0.8"/>
+            <!-- Brazo extendido hacia adentro -->
+            <path d="M78 50 C74 48 70 47 66 48 C60 49 55 52 52 56" stroke="url(#as1ArmR)" stroke-width="4" stroke-linecap="round" fill="none"/>
+            <!-- Piernas -->
+            <path d="M72 70 L75 86" stroke="url(#as1LegR)" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M64 70 L62 86" stroke="url(#as1LegR)" stroke-width="3.5" stroke-linecap="round"/>
+
+            <!-- Corazón / luz central del abrazo -->
+            <circle cx="50" cy="56" r="5" fill="url(#as1Heart)"/>
+            <circle cx="50" cy="56" r="10" fill="url(#as1HeartGlow)" opacity="0.4"/>
+            <circle cx="50" cy="56" r="18" fill="url(#as1HeartGlow)" opacity="0.12"/>
+
+            <!-- Destellos de conexión -->
+            <circle cx="50" cy="56" r="2" fill="white" opacity="0.8">
+              <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.8;0.2;0.8" dur="2s" repeatCount="indefinite"/>
+            </circle>
+
+            <defs>
+              <radialGradient id="as1HeadL"><stop stop-color="#FFC4A8"/><stop offset="1" stop-color="#FF7B5A"/></radialGradient>
+              <linearGradient id="as1BodyL" x1="22" y1="36" x2="46" y2="70" gradientUnits="userSpaceOnUse"><stop stop-color="#FF9B6A"/><stop offset="1" stop-color="#FF5A3A" stop-opacity=".7"/></linearGradient>
+              <linearGradient id="as1ArmL" x1="22" y1="50" x2="48" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A"/><stop offset="1" stop-color="#FFB347"/></linearGradient>
+              <linearGradient id="as1LegL" x1="0" y1="70" x2="0" y2="86" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A"/><stop offset="1" stop-color="#FF5A3A" stop-opacity=".5"/></linearGradient>
+              <radialGradient id="as1HeadR"><stop stop-color="#A8EEE9"/><stop offset="1" stop-color="#4ECDC4"/></radialGradient>
+              <linearGradient id="as1BodyR" x1="78" y1="36" x2="54" y2="70" gradientUnits="userSpaceOnUse"><stop stop-color="#6EE8E0"/><stop offset="1" stop-color="#2EADA5" stop-opacity=".7"/></linearGradient>
+              <linearGradient id="as1ArmR" x1="78" y1="50" x2="52" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#4ECDC4"/><stop offset="1" stop-color="#FFB347"/></linearGradient>
+              <linearGradient id="as1LegR" x1="0" y1="70" x2="0" y2="86" gradientUnits="userSpaceOnUse"><stop stop-color="#4ECDC4"/><stop offset="1" stop-color="#2EADA5" stop-opacity=".5"/></linearGradient>
+              <radialGradient id="as1Heart"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF7B5A"/></radialGradient>
+              <radialGradient id="as1HeartGlow"><stop stop-color="#FFB347"/><stop offset="1" stop-color="transparent"/></radialGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+      <div class="palette">
+        <div class="pal-seg" style="background:#FF7B5A"></div>
+        <div class="pal-seg" style="background:#FFB347"></div>
+        <div class="pal-seg" style="background:#FFF8E7"></div>
+        <div class="pal-seg" style="background:#4ECDC4"></div>
+      </div>
+      <div class="det">
+        <div class="det-name">Abrazo — Siluetas</div>
+        <div class="det-desc">Psicólogo (coral) y paciente (teal) en un abrazo real. El punto de luz dorado central es la conexión terapéutica. Pulso animado en el centro.</div>
+        <div class="icon-row">
+          <div class="ip">
+            <div class="app-ico" style="width:60px;height:60px;background:linear-gradient(145deg,#0E0A1C,#1A1028);box-shadow:0 6px 20px rgba(255,123,90,0.25)">
+              <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+                <circle cx="32" cy="22" r="8" fill="#FF7B5A" opacity="0.9"/>
+                <path d="M22 60 C22 46 26 38 32 34 C38 30 44 32 46 38 L46 68" fill="#FF7B5A" opacity="0.75"/>
+                <path d="M22 48 C28 46 34 46 40 48 C44 50 46 53 48 57" stroke="#FFB347" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                <circle cx="68" cy="22" r="8" fill="#4ECDC4" opacity="0.9"/>
+                <path d="M78 60 C78 46 74 38 68 34 C62 30 56 32 54 38 L54 68" fill="#4ECDC4" opacity="0.75"/>
+                <path d="M78 48 C72 46 66 46 60 48 C56 50 54 53 52 57" stroke="#FFB347" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                <circle cx="50" cy="55" r="5" fill="url(#ia1H)"/>
+                <defs><radialGradient id="ia1H"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF7B5A"/></radialGradient></defs>
+              </svg>
+            </div>
+            <div class="ip-lbl">iOS 60px</div>
+          </div>
+          <div class="ip">
+            <div class="app-ico" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(145deg,#0E0A1C,#1A1028);box-shadow:0 4px 14px rgba(255,123,90,0.2)">
+              <svg width="30" height="30" viewBox="0 0 100 100" fill="none">
+                <circle cx="32" cy="22" r="9" fill="#FF7B5A" opacity="0.9"/>
+                <circle cx="68" cy="22" r="9" fill="#4ECDC4" opacity="0.9"/>
+                <path d="M22 56 C22 42 28 36 32 34 C36 32 42 32 46 38 C48 50 48 60 48 60" fill="#FF7B5A" opacity="0.65"/>
+                <path d="M78 56 C78 42 72 36 68 34 C64 32 58 32 54 38 C52 50 52 60 52 60" fill="#4ECDC4" opacity="0.65"/>
+                <circle cx="50" cy="58" r="5" fill="#FFB347"/>
+              </svg>
+            </div>
+            <div class="ip-lbl">Android</div>
+          </div>
+          <div class="hs">
+            <div class="hs-ico" style="background:linear-gradient(145deg,#0E0A1C,#1A1028)">
+              <svg width="34" height="34" viewBox="0 0 100 100" fill="none">
+                <circle cx="32" cy="22" r="9" fill="#FF7B5A" opacity="0.85"/>
+                <circle cx="68" cy="22" r="9" fill="#4ECDC4" opacity="0.85"/>
+                <path d="M24 58 C24 44 28 36 32 34 C38 30 44 32 46 40 L46 68" fill="#FF7B5A" opacity="0.65"/>
+                <path d="M76 58 C76 44 72 36 68 34 C62 30 56 32 54 40 L54 68" fill="#4ECDC4" opacity="0.65"/>
+                <circle cx="50" cy="54" r="5" fill="#FFB347"/>
+              </svg>
+            </div>
+            <div class="hs-lbl">Mi Psicólogo</div>
+            <div class="hs-dots"><div class="hs-dot on"></div><div class="hs-dot"></div><div class="hs-dot"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── A2: Abrazo Arcos Fluidos ─── -->
+    <div class="card">
+      <div class="prev" style="background:linear-gradient(145deg,#0A0918,#140E24)">
+        <div class="glow-ring" style="width:180px;height:180px;background:radial-gradient(circle,rgba(255,123,90,0.08) 0%,rgba(78,205,196,0.06) 50%,transparent 70%);top:10px;left:50%;transform:translateX(-50%)"></div>
+        <canvas id="cv4" style="position:absolute;inset:0;z-index:0"></canvas>
+        <div class="inner">
+          <svg width="140" height="140" viewBox="0 0 100 100" fill="none">
+
+            <!-- Figura izquierda fluida: arco orgánico -->
+            <!-- Cabeza circular -->
+            <circle cx="28" cy="22" r="10" fill="url(#af2HL)" opacity="0.85"/>
+            <!-- Cuerpo como arco fluyendo hacia el centro -->
+            <path d="M18 40
+              C16 50 18 60 22 68
+              C26 74 30 78 36 78
+              C42 78 46 74 48 68
+              C50 62 50 56 50 52"
+              stroke="url(#af2BL)" stroke-width="7" stroke-linecap="round" fill="none"/>
+            <!-- Brazo envolvente curvo -->
+            <path d="M18 52 C24 46 34 44 44 50 C48 53 50 56 50 60"
+              stroke="url(#af2AL)" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+
+            <!-- Figura derecha fluida -->
+            <circle cx="72" cy="22" r="10" fill="url(#af2HR)" opacity="0.85"/>
+            <path d="M82 40
+              C84 50 82 60 78 68
+              C74 74 70 78 64 78
+              C58 78 54 74 52 68
+              C50 62 50 56 50 52"
+              stroke="url(#af2BR)" stroke-width="7" stroke-linecap="round" fill="none"/>
+            <path d="M82 52 C76 46 66 44 56 50 C52 53 50 56 50 60"
+              stroke="url(#af2AR)" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+
+            <!-- Punto de encuentro luminoso -->
+            <circle cx="50" cy="56" r="6" fill="url(#af2Core)"/>
+            <circle cx="50" cy="56" r="12" fill="url(#af2Glow)" opacity="0.35"/>
+            <circle cx="50" cy="56" r="20" fill="url(#af2Glow)" opacity="0.1"/>
+
+            <!-- Partícula de luz subiendo del abrazo -->
+            <circle cx="50" cy="36" r="1.5" fill="rgba(255,240,236,0.6)" opacity="0.6">
+              <animate attributeName="cy" values="56;28;56" dur="3s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0;0.8;0" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="44" cy="36" r="1" fill="rgba(255,179,71,0.7)" opacity="0.5">
+              <animate attributeName="cy" values="52;24;52" dur="4s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0;0.6;0" dur="4s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="56" cy="36" r="1" fill="rgba(78,205,196,0.7)" opacity="0.5">
+              <animate attributeName="cy" values="52;26;52" dur="3.5s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0;0.6;0" dur="3.5s" repeatCount="indefinite"/>
+            </circle>
+
+            <defs>
+              <radialGradient id="af2HL"><stop stop-color="#FFC4A8"/><stop offset="1" stop-color="#FF7B5A"/></radialGradient>
+              <linearGradient id="af2BL" x1="18" y1="40" x2="50" y2="78" gradientUnits="userSpaceOnUse"><stop stop-color="#FF9B6A"/><stop offset="1" stop-color="#FF5A3A" stop-opacity=".6"/></linearGradient>
+              <linearGradient id="af2AL" x1="18" y1="52" x2="50" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A"/><stop offset="1" stop-color="#FFB347"/></linearGradient>
+              <radialGradient id="af2HR"><stop stop-color="#A8EEE9"/><stop offset="1" stop-color="#4ECDC4"/></radialGradient>
+              <linearGradient id="af2BR" x1="82" y1="40" x2="50" y2="78" gradientUnits="userSpaceOnUse"><stop stop-color="#6EE8E0"/><stop offset="1" stop-color="#2EADA5" stop-opacity=".6"/></linearGradient>
+              <linearGradient id="af2AR" x1="82" y1="52" x2="50" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#4ECDC4"/><stop offset="1" stop-color="#FFB347"/></linearGradient>
+              <radialGradient id="af2Core"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF9B6A"/></radialGradient>
+              <radialGradient id="af2Glow"><stop stop-color="#FFB347"/><stop offset="1" stop-color="transparent"/></radialGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+      <div class="palette">
+        <div class="pal-seg" style="background:#FF7B5A"></div>
+        <div class="pal-seg" style="background:#FFB347"></div>
+        <div class="pal-seg" style="background:#FFF8E7"></div>
+        <div class="pal-seg" style="background:#4ECDC4"></div>
+      </div>
+      <div class="det">
+        <div class="det-name">Abrazo Fluido</div>
+        <div class="det-desc">Dos cuerpos fluyendo el uno hacia el otro. Líneas orgánicas, movimiento suave. Partículas de luz que suben del centro del abrazo.</div>
+        <div class="icon-row">
+          <div class="ip">
+            <div class="app-ico" style="width:60px;height:60px;background:linear-gradient(145deg,#0A0918,#140E24);box-shadow:0 6px 20px rgba(255,179,71,0.2)">
+              <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+                <circle cx="28" cy="22" r="9" fill="#FF9B6A" opacity="0.9"/>
+                <circle cx="72" cy="22" r="9" fill="#6EE8E0" opacity="0.9"/>
+                <path d="M18 40 C16 52 20 64 28 74 C34 80 42 80 48 72 C50 66 50 58 50 54" stroke="#FF7B5A" stroke-width="6" stroke-linecap="round" fill="none"/>
+                <path d="M82 40 C84 52 80 64 72 74 C66 80 58 80 52 72 C50 66 50 58 50 54" stroke="#4ECDC4" stroke-width="6" stroke-linecap="round" fill="none"/>
+                <circle cx="50" cy="54" r="6" fill="url(#ia2C)"/>
+                <defs><radialGradient id="ia2C"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF9B6A"/></radialGradient></defs>
+              </svg>
+            </div>
+            <div class="ip-lbl">iOS 60px</div>
+          </div>
+          <div class="ip">
+            <div class="app-ico" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(145deg,#0A0918,#140E24);box-shadow:0 4px 14px rgba(255,179,71,0.16)">
+              <svg width="30" height="30" viewBox="0 0 100 100" fill="none">
+                <circle cx="28" cy="22" r="9" fill="#FF7B5A" opacity="0.9"/>
+                <circle cx="72" cy="22" r="9" fill="#4ECDC4" opacity="0.9"/>
+                <path d="M18 42 C16 54 22 66 30 74 C38 80 46 78 50 68 C54 78 62 80 70 74 C78 66 84 54 82 42" stroke="url(#ia2Bb)" stroke-width="5" stroke-linecap="round" fill="none"/>
+                <circle cx="50" cy="62" r="5" fill="#FFB347"/>
+                <defs><linearGradient id="ia2Bb" x1="18" y1="42" x2="82" y2="74" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A"/><stop offset="1" stop-color="#4ECDC4"/></linearGradient></defs>
+              </svg>
+            </div>
+            <div class="ip-lbl">Android</div>
+          </div>
+          <div class="hs">
+            <div class="hs-ico" style="background:linear-gradient(145deg,#0A0918,#140E24)">
+              <svg width="34" height="34" viewBox="0 0 100 100" fill="none">
+                <circle cx="28" cy="22" r="9" fill="#FF7B5A" opacity="0.85"/>
+                <circle cx="72" cy="22" r="9" fill="#4ECDC4" opacity="0.85"/>
+                <path d="M18 42 C16 54 22 66 30 74 C38 80 46 78 50 68 C54 78 62 80 70 74 C78 66 84 54 82 42" stroke="url(#ia2Bhs)" stroke-width="5" stroke-linecap="round" fill="none"/>
+                <circle cx="50" cy="60" r="5" fill="#FFB347"/>
+                <defs><linearGradient id="ia2Bhs" x1="18" y1="42" x2="82" y2="74" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A"/><stop offset="1" stop-color="#4ECDC4"/></linearGradient></defs>
+              </svg>
+            </div>
+            <div class="hs-lbl">Mi Psicólogo</div>
+            <div class="hs-dots"><div class="hs-dot on"></div><div class="hs-dot"></div><div class="hs-dot"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── A3: Abrazo Minimalista geométrico ─── -->
+    <div class="card">
+      <div class="prev" style="background:linear-gradient(145deg,#0D0B1E,#171228)">
+        <div class="glow-ring" style="width:160px;height:160px;background:radial-gradient(circle,rgba(78,205,196,0.09) 0%,rgba(255,123,90,0.06) 50%,transparent 70%);top:20px;left:50%;transform:translateX(-50%)"></div>
+        <div class="inner">
+          <svg width="140" height="140" viewBox="0 0 100 100" fill="none">
+            <!-- Versión ultra limpia: dos semírculos que forman un abrazo -->
+
+            <!-- Persona izquierda: líneas geométricas puras -->
+            <!-- Cabeza: círculo limpio -->
+            <circle cx="30" cy="20" r="9" fill="none" stroke="url(#ag3HL)" stroke-width="2.5"/>
+            <circle cx="30" cy="20" r="5" fill="url(#ag3HLFill)"/>
+
+            <!-- Cuerpo vertical -->
+            <line x1="30" y1="29" x2="30" y2="60" stroke="url(#ag3BL)" stroke-width="3" stroke-linecap="round"/>
+            <!-- Piernas -->
+            <line x1="30" y1="60" x2="24" y2="82" stroke="url(#ag3LL)" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="30" y1="60" x2="36" y2="82" stroke="url(#ag3LL)" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Brazo envolvente: arco -->
+            <path d="M30 38 C34 36 40 36 46 40 C50 44 50 50 50 54" stroke="url(#ag3AL)" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+            <!-- Persona derecha -->
+            <circle cx="70" cy="20" r="9" fill="none" stroke="url(#ag3HR)" stroke-width="2.5"/>
+            <circle cx="70" cy="20" r="5" fill="url(#ag3HRFill)"/>
+            <line x1="70" y1="29" x2="70" y2="60" stroke="url(#ag3BR)" stroke-width="3" stroke-linecap="round"/>
+            <line x1="70" y1="60" x2="76" y2="82" stroke="url(#ag3LR)" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="70" y1="60" x2="64" y2="82" stroke="url(#ag3LR)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M70 38 C66 36 60 36 54 40 C50 44 50 50 50 54" stroke="url(#ag3AR)" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+            <!-- Centro: punto de contacto, forma de diamante / chispa -->
+            <path d="M50 46 L54 54 L50 62 L46 54 Z" fill="url(#ag3Diamond)"/>
+            <circle cx="50" cy="54" r="10" fill="url(#ag3Glow)" opacity="0.3"/>
+
+            <defs>
+              <linearGradient id="ag3HL" x1="21" y1="11" x2="39" y2="29" gradientUnits="userSpaceOnUse"><stop stop-color="#FF9B6A"/><stop offset="1" stop-color="#FF7B5A"/></linearGradient>
+              <radialGradient id="ag3HLFill"><stop stop-color="#FF9B6A"/><stop offset="1" stop-color="#FF5A3A"/></radialGradient>
+              <linearGradient id="ag3BL" x1="30" y1="29" x2="30" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A"/><stop offset="1" stop-color="#FFB347" stop-opacity=".7"/></linearGradient>
+              <linearGradient id="ag3LL" x1="27" y1="60" x2="27" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#FFB347" stop-opacity=".6"/><stop offset="1" stop-color="#FF7B5A" stop-opacity=".3"/></linearGradient>
+              <linearGradient id="ag3AL" x1="30" y1="38" x2="50" y2="54" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A"/><stop offset="1" stop-color="#FFB347"/></linearGradient>
+
+              <linearGradient id="ag3HR" x1="61" y1="11" x2="79" y2="29" gradientUnits="userSpaceOnUse"><stop stop-color="#6EE8E0"/><stop offset="1" stop-color="#4ECDC4"/></linearGradient>
+              <radialGradient id="ag3HRFill"><stop stop-color="#6EE8E0"/><stop offset="1" stop-color="#2EADA5"/></radialGradient>
+              <linearGradient id="ag3BR" x1="70" y1="29" x2="70" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#4ECDC4"/><stop offset="1" stop-color="#FFB347" stop-opacity=".7"/></linearGradient>
+              <linearGradient id="ag3LR" x1="70" y1="60" x2="70" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#FFB347" stop-opacity=".6"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".3"/></linearGradient>
+              <linearGradient id="ag3AR" x1="70" y1="38" x2="50" y2="54" gradientUnits="userSpaceOnUse"><stop stop-color="#4ECDC4"/><stop offset="1" stop-color="#FFB347"/></linearGradient>
+
+              <linearGradient id="ag3Diamond" x1="46" y1="46" x2="54" y2="62" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF9B6A"/></linearGradient>
+              <radialGradient id="ag3Glow"><stop stop-color="#FFB347"/><stop offset="1" stop-color="transparent"/></radialGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+      <div class="palette">
+        <div class="pal-seg" style="background:#FF7B5A"></div>
+        <div class="pal-seg" style="background:#FFB347"></div>
+        <div class="pal-seg" style="background:#FFF8E7"></div>
+        <div class="pal-seg" style="background:#4ECDC4"></div>
+      </div>
+      <div class="det">
+        <div class="det-name">Abrazo Geométrico</div>
+        <div class="det-desc">Dos figuras geométricas puras — líneas y círculos — con un diamante de luz en el punto de contacto. Elegante, moderno, atemporal.</div>
+        <div class="icon-row">
+          <div class="ip">
+            <div class="app-ico" style="width:60px;height:60px;background:linear-gradient(145deg,#0D0B1E,#171228);box-shadow:0 6px 20px rgba(255,179,71,0.18)">
+              <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+                <circle cx="30" cy="18" r="9" fill="none" stroke="#FF7B5A" stroke-width="2.5"/>
+                <circle cx="30" cy="18" r="4.5" fill="#FF9B6A"/>
+                <line x1="30" y1="27" x2="30" y2="56" stroke="#FF7B5A" stroke-width="3" stroke-linecap="round"/>
+                <path d="M30 36 C36 33 42 34 47 38 C50 42 50 48 50 52" stroke="#FFB347" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <circle cx="70" cy="18" r="9" fill="none" stroke="#4ECDC4" stroke-width="2.5"/>
+                <circle cx="70" cy="18" r="4.5" fill="#6EE8E0"/>
+                <line x1="70" y1="27" x2="70" y2="56" stroke="#4ECDC4" stroke-width="3" stroke-linecap="round"/>
+                <path d="M70 36 C64 33 58 34 53 38 C50 42 50 48 50 52" stroke="#FFB347" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <path d="M50 44 L54 52 L50 60 L46 52 Z" fill="url(#ia3D)"/>
+                <defs><linearGradient id="ia3D" x1="46" y1="44" x2="54" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF9B6A"/></linearGradient></defs>
+              </svg>
+            </div>
+            <div class="ip-lbl">iOS 60px</div>
+          </div>
+          <div class="ip">
+            <div class="app-ico" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(145deg,#0D0B1E,#171228);box-shadow:0 4px 14px rgba(255,179,71,0.15)">
+              <svg width="30" height="30" viewBox="0 0 100 100" fill="none">
+                <circle cx="30" cy="18" r="8" fill="none" stroke="#FF7B5A" stroke-width="2"/>
+                <circle cx="30" cy="18" r="4" fill="#FF7B5A"/>
+                <circle cx="70" cy="18" r="8" fill="none" stroke="#4ECDC4" stroke-width="2"/>
+                <circle cx="70" cy="18" r="4" fill="#4ECDC4"/>
+                <line x1="30" y1="26" x2="30" y2="58" stroke="#FF7B5A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="70" y1="26" x2="70" y2="58" stroke="#4ECDC4" stroke-width="3" stroke-linecap="round"/>
+                <path d="M30 38 C36 34 44 34 50 40 C56 34 64 34 70 38" stroke="#FFB347" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <circle cx="50" cy="46" r="4" fill="#FFB347"/>
+              </svg>
+            </div>
+            <div class="ip-lbl">Android</div>
+          </div>
+          <div class="hs">
+            <div class="hs-ico" style="background:linear-gradient(145deg,#0D0B1E,#171228)">
+              <svg width="34" height="34" viewBox="0 0 100 100" fill="none">
+                <circle cx="30" cy="18" r="8" fill="none" stroke="#FF7B5A" stroke-width="2"/>
+                <circle cx="30" cy="18" r="4" fill="#FF7B5A"/>
+                <circle cx="70" cy="18" r="8" fill="none" stroke="#4ECDC4" stroke-width="2"/>
+                <circle cx="70" cy="18" r="4" fill="#4ECDC4"/>
+                <line x1="30" y1="26" x2="30" y2="58" stroke="#FF7B5A" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="70" y1="26" x2="70" y2="58" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M30 38 C38 34 46 35 50 42 C54 35 62 34 70 38" stroke="#FFB347" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <circle cx="50" cy="44" r="4" fill="#FFB347"/>
+              </svg>
+            </div>
+            <div class="hs-lbl">Mi Psicólogo</div>
+            <div class="hs-dots"><div class="hs-dot on"></div><div class="hs-dot"></div><div class="hs-dot"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid abrazos -->
+</div><!-- /sec-abrazo -->
+
+
+<!-- ════════════════════════════════════════
+     COMPARE ALL
+════════════════════════════════════════ -->
+<div id="sec-compare" class="sec">
+  <div class="div-row"><div class="line"></div><div class="lbl">Los 6 en pantalla de inicio real</div><div class="line"></div></div>
+  <div style="display:flex;justify-content:center;padding:0 24px 80px">
+    <div style="width:320px;min-height:600px;background:linear-gradient(160deg,#0C0A1E,#13102A);border-radius:44px;border:1.5px solid rgba(255,255,255,0.08);overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,0.6);position:relative">
+      <canvas id="cv-compare" style="position:absolute;inset:0;z-index:0;opacity:.45"></canvas>
+      <!-- status -->
+      <div style="position:relative;z-index:10;padding:14px 26px 0;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.7)">9:41</span>
+        <div style="width:80px;height:22px;background:#000;border-radius:12px"></div>
+        <span style="font-size:10px;color:rgba(255,255,255,0.5)">⚡100%</span>
+      </div>
+      <!-- icons grid -->
+      <div style="position:relative;z-index:10;padding:32px 20px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:20px 10px">
+
+        <!-- C1 Dual -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(145deg,#130B22,#1E1030);box-shadow:0 4px 16px rgba(255,123,90,0.25);display:flex;align-items:center;justify-content:center">
+            <svg width="40" height="40" viewBox="0 0 100 100" fill="none"><path d="M50 78 C50 78 34 78 26 68 C18 58 19 40 28 30 C34 22 42 20 50 20 L50 78Z" fill="#FF7B5A" opacity="0.85"/><path d="M50 78 C50 78 66 78 74 68 C82 58 81 40 72 30 C66 22 58 20 50 20 L50 78Z" fill="#4ECDC4" opacity="0.85"/><line x1="50" y1="20" x2="50" y2="78" stroke="rgba(255,240,236,0.5)" stroke-width="1.5"/></svg>
+          </div>
+          <span style="font-size:8px;color:rgba(255,255,255,0.55);text-align:center">Cerebro Dual</span>
+        </div>
+
+        <!-- C2 Cosmos -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(145deg,#080B1E,#0E1228);box-shadow:0 4px 16px rgba(78,205,196,0.16);display:flex;align-items:center;justify-content:center">
+            <svg width="40" height="40" viewBox="0 0 100 100" fill="none"><path d="M50 20 C38 20 26 28 21 38 C18 44 19 52 22 58 C19 63 19 70 24 74 C30 80 40 82 50 82 C60 82 70 80 76 74 C81 70 81 63 78 58 C81 52 82 44 79 38 C74 28 62 20 50 20Z" fill="url(#cmp2B)" opacity="0.35" stroke="url(#cmp2O)" stroke-width="1.5"/><circle cx="38" cy="42" r="2.5" fill="#FF7B5A"/><circle cx="50" cy="34" r="3" fill="#FFB347"/><circle cx="62" cy="42" r="2.5" fill="#4ECDC4"/><line x1="38" y1="42" x2="50" y2="34" stroke="rgba(255,123,90,0.5)" stroke-width="1.2"/><line x1="50" y1="34" x2="62" y2="42" stroke="rgba(78,205,196,0.5)" stroke-width="1.2"/><defs><linearGradient id="cmp2B" x1="20" y1="20" x2="80" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A" stop-opacity=".5"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".5"/></linearGradient><linearGradient id="cmp2O" x1="20" y1="20" x2="80" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#FF9B6A" stop-opacity=".7"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".7"/></linearGradient></defs></svg>
+          </div>
+          <span style="font-size:8px;color:rgba(255,255,255,0.55);text-align:center">Cosmos</span>
+        </div>
+
+        <!-- C3 Encendido -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(145deg,#0C0A1A,#181030);box-shadow:0 4px 16px rgba(255,179,71,0.18);display:flex;align-items:center;justify-content:center">
+            <svg width="40" height="40" viewBox="0 0 100 100" fill="none"><path d="M50 20 C34 20 22 32 21 46 C20 56 25 64 32 70 C38 76 44 78 50 78 C56 78 62 76 68 70 C75 64 80 56 79 46 C78 32 66 20 50 20Z" fill="url(#cmp3B)" opacity="0.45"/><line x1="50" y1="20" x2="50" y2="78" stroke="rgba(255,240,236,0.15)" stroke-width="0.8" stroke-dasharray="2 3"/><circle cx="50" cy="50" r="8" fill="url(#cmp3C)"/><line x1="50" y1="38" x2="50" y2="32" stroke="rgba(255,179,71,0.8)" stroke-width="1.5" stroke-linecap="round"/><line x1="50" y1="62" x2="50" y2="68" stroke="rgba(255,179,71,0.8)" stroke-width="1.5" stroke-linecap="round"/><line x1="36" y1="50" x2="30" y2="50" stroke="rgba(255,179,71,0.7)" stroke-width="1.5" stroke-linecap="round"/><line x1="64" y1="50" x2="70" y2="50" stroke="rgba(255,179,71,0.7)" stroke-width="1.5" stroke-linecap="round"/><defs><linearGradient id="cmp3B" x1="20" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A" stop-opacity=".6"/><stop offset=".5" stop-color="#FFB347" stop-opacity=".4"/><stop offset="1" stop-color="#4ECDC4" stop-opacity=".6"/></linearGradient><radialGradient id="cmp3C"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF7B5A"/></radialGradient></defs></svg>
+          </div>
+          <span style="font-size:8px;color:rgba(255,255,255,0.55);text-align:center">Encendido</span>
+        </div>
+
+        <!-- A1 Siluetas -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(145deg,#0E0A1C,#1A1028);box-shadow:0 4px 16px rgba(255,123,90,0.22);display:flex;align-items:center;justify-content:center">
+            <svg width="40" height="40" viewBox="0 0 100 100" fill="none"><circle cx="30" cy="20" r="8" fill="#FF9B6A" opacity="0.9"/><circle cx="70" cy="20" r="8" fill="#6EE8E0" opacity="0.9"/><path d="M20 58 C20 44 26 36 30 34 C36 30 42 32 46 40 L46 68" fill="#FF7B5A" opacity="0.7"/><path d="M80 58 C80 44 74 36 70 34 C64 30 58 32 54 40 L54 68" fill="#4ECDC4" opacity="0.7"/><circle cx="50" cy="54" r="6" fill="url(#cmpA1H)"/><defs><radialGradient id="cmpA1H"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF9B6A"/></radialGradient></defs></svg>
+          </div>
+          <span style="font-size:8px;color:rgba(255,255,255,0.55);text-align:center">Siluetas</span>
+        </div>
+
+        <!-- A2 Fluido -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(145deg,#0A0918,#140E24);box-shadow:0 4px 16px rgba(255,179,71,0.18);display:flex;align-items:center;justify-content:center">
+            <svg width="40" height="40" viewBox="0 0 100 100" fill="none"><circle cx="28" cy="20" r="8" fill="#FF9B6A" opacity="0.9"/><circle cx="72" cy="20" r="8" fill="#6EE8E0" opacity="0.9"/><path d="M18 38 C16 50 20 64 30 72 C38 78 46 78 50 68 C54 78 62 78 70 72 C80 64 84 50 82 38" stroke="url(#cmpA2L)" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="50" cy="62" r="6" fill="#FFB347"/><defs><linearGradient id="cmpA2L" x1="18" y1="38" x2="82" y2="72" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7B5A"/><stop offset="1" stop-color="#4ECDC4"/></linearGradient></defs></svg>
+          </div>
+          <span style="font-size:8px;color:rgba(255,255,255,0.55);text-align:center">Fluido</span>
+        </div>
+
+        <!-- A3 Geométrico -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(145deg,#0D0B1E,#171228);box-shadow:0 4px 16px rgba(255,179,71,0.15);display:flex;align-items:center;justify-content:center">
+            <svg width="40" height="40" viewBox="0 0 100 100" fill="none"><circle cx="30" cy="18" r="7" fill="none" stroke="#FF7B5A" stroke-width="2.5"/><circle cx="30" cy="18" r="3.5" fill="#FF9B6A"/><circle cx="70" cy="18" r="7" fill="none" stroke="#4ECDC4" stroke-width="2.5"/><circle cx="70" cy="18" r="3.5" fill="#6EE8E0"/><line x1="30" y1="25" x2="30" y2="56" stroke="#FF7B5A" stroke-width="2.5" stroke-linecap="round"/><line x1="70" y1="25" x2="70" y2="56" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/><path d="M30 36 C38 32 46 34 50 40 C54 34 62 32 70 36" stroke="#FFB347" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M50 42 L54 50 L50 58 L46 50 Z" fill="url(#cmpA3D)"/><defs><linearGradient id="cmpA3D" x1="46" y1="42" x2="54" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF8E7"/><stop offset=".5" stop-color="#FFB347"/><stop offset="1" stop-color="#FF9B6A"/></linearGradient></defs></svg>
+          </div>
+          <span style="font-size:8px;color:rgba(255,255,255,0.55);text-align:center">Geométrico</span>
+        </div>
+
+      </div>
+      <!-- page dot -->
+      <div style="position:relative;z-index:10;display:flex;justify-content:center;margin-top:24px;gap:5px">
+        <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.55)"></div>
+        <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15)"></div>
+        <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('sec-'+id).classList.add('on');
+  btn.classList.add('on');
+  if (id==='compare') initCompare();
+}
+
+function makeParticles(canvasId, c1, c2) {
+  const cv = document.getElementById(canvasId);
+  if (!cv || cv._go) return; cv._go = true;
+  const p = cv.parentElement;
+  cv.width = p.offsetWidth||340; cv.height = p.offsetHeight||200;
+  const ctx = cv.getContext('2d');
+  const W=cv.width, H=cv.height;
+  const pts = Array.from({length:18},()=>({
+    x:Math.random()*W, y:Math.random()*H,
+    vx:(Math.random()-.5)*.2, vy:(Math.random()-.5)*.2,
+    r:Math.random()*1+.3, o:Math.random()*.35+.1,
+    c:Math.random()>.5?c1:c2
+  }));
+  function f(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y, d=Math.hypot(dx,dy);
+      if(d<70){ctx.beginPath();ctx.strokeStyle=`rgba(255,123,90,${(1-d/70)*.08})`;ctx.lineWidth=.5;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}
+    }
+    pts.forEach(pt=>{
+      ctx.beginPath();ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2);
+      ctx.fillStyle=pt.c;ctx.globalAlpha=pt.o;ctx.fill();ctx.globalAlpha=1;
+      pt.x+=pt.vx;pt.y+=pt.vy;
+      if(pt.x<0||pt.x>W)pt.vx*=-1;if(pt.y<0||pt.y>H)pt.vy*=-1;
+    });
+    requestAnimationFrame(f);
+  }f();
+}
+
+function initCompare(){
+  const cv=document.getElementById('cv-compare');
+  if(!cv||cv._go)return;cv._go=true;
+  cv.width=cv.parentElement.offsetWidth;cv.height=cv.parentElement.offsetHeight;
+  const ctx=cv.getContext('2d');const W=cv.width,H=cv.height;
+  const stars=Array.from({length:50},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*.8+.2,o:Math.random()*.3+.05}));
+  function f(){
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(s=>{ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,240,236,${s.o})`;ctx.fill();});
+    requestAnimationFrame(f);
+  }f();
+}
+
+window.addEventListener('load',()=>{
+  makeParticles('cv1','rgba(255,123,90,.9)','rgba(78,205,196,.9)');
+  makeParticles('cv2','rgba(255,179,71,.8)','rgba(78,205,196,.8)');
+  makeParticles('cv3','rgba(255,123,90,.9)','rgba(78,205,196,.8)');
+  makeParticles('cv4','rgba(255,179,71,.8)','rgba(78,205,196,.8)');
+});
+</script>
+</body>
+</html>
