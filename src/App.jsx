@@ -4005,14 +4005,14 @@ const styles = `
               background:`linear-gradient(135deg,${COMPANEROS[companeroSeleccionando].color},${COMPANEROS[companeroSeleccionando].color}CC)`,
               color:"white", fontSize:15, fontWeight:800,
             })}
-            <div style={{textAlign:"center",fontSize:11,color:"rgba(58,42,28,0.35)",marginTop:10}}>
+            <div style={{textAlign:"center",fontSize:11,color:"rgba(245,238,232,0.35)",marginTop:10}}>
               Podrás cambiarlo en 30 días
             </div>
           </div>
         ) : (
           <div style={{textAlign:"center",padding:"14px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
             <div style={{fontSize:20,opacity:.25}}>☝️</div>
-            <div style={{fontSize:12,color:"rgba(58,42,28,0.3)"}}>Toca un compañero para seleccionarlo</div>
+            <div style={{fontSize:12,color:"rgba(245,238,232,0.30)"}}>Toca un compañero para seleccionarlo</div>
           </div>
         )}
       </div>
@@ -4341,8 +4341,8 @@ const styles = `
           )}
           {insights.map(n => (
             <div key={n.id} onClick={() => setNotaAbierta({ ...n, tipo:"insight" })}
-              style={{ background:n.shared?"#F5FAF7":"#0D0B1E", borderRadius:14, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.shared?"rgba(74,138,114,0.2)":"rgba(255,123,90,0.10)"}`, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
-              <div style={{ width:32, height:32, borderRadius:9, background:n.shared?`${C.sageDark}15`:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:1 }}>
+              style={{ background:n.shared?"rgba(78,205,196,.10)":"#0D0B1E", borderRadius:14, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.shared?"rgba(78,205,196,.30)":"rgba(255,123,90,0.10)"}`, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+              <div style={{ width:32, height:32, borderRadius:9, background:n.shared?"rgba(78,205,196,.18)":`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:1 }}>
                 {n.shared
                   ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.sageDark} strokeWidth="1.75" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -4359,7 +4359,7 @@ const styles = `
                 <div style={{ fontSize:11, color:C.light, lineHeight:1.5, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{n.text}</div>
                 <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:6 }}>
                   <div style={{ fontSize:10, color:C.light }}>{n.date}</div>
-                  {n.shared && <span style={{ background:`${C.sageDark}15`, color:C.sageDark, fontSize:9, fontWeight:600, padding:"1px 7px", borderRadius:10 }}>Compartida con psicólogo</span>}
+                  {n.shared && <span style={{ background:"rgba(78,205,196,.18)", color:"#4ECDC4", fontSize:9, fontWeight:700, padding:"2px 8px", borderRadius:10 }}>👁 Compartida con psicólogo</span>}
                 </div>
               </div>
             </div>
@@ -5733,6 +5733,28 @@ const styles = `
                 setJuegoData(prev => ({ ...prev, ...update }));
                 if (win) showToast("🏆 ¡Ganaste esta partida!");
                 if (empate) showToast("🤝 " + FRASES_EMPATE[Math.floor(Math.random()*FRASES_EMPATE.length)]);
+
+                // Recordatorio 4pm para el oponente si la partida sigue
+                if (!win && !empate) {
+                  const oponenteId = miRol === "pac" ? juegoData.psicologoId : juegoData.pacienteId;
+                  const miNombre = usuarioActual?.nombre || (miRol === "pac" ? "Tu paciente" : "Tu psicólogo");
+                  const now = new Date();
+                  const at4pm = new Date(now);
+                  at4pm.setHours(16, 0, 0, 0);
+                  if (now.getHours() >= 16) at4pm.setDate(at4pm.getDate() + 1);
+                  const fechaKey = at4pm.toISOString().split("T")[0];
+                  const remId = `juego_turno_${juegoId}_${fechaKey}`;
+                  setDoc(doc(db, "notificaciones_programadas", remId), {
+                    pacienteId: oponenteId,
+                    title: "🎮 Tu turno en el mini juego",
+                    body: `${miNombre} ya jugó. ¡Es tu momento, no olvides tu movimiento de hoy!`,
+                    scheduledAt: at4pm.toISOString(),
+                    enviada: false,
+                    creadaEn: now.toISOString(),
+                    tipo: "juego_turno",
+                    juegoId,
+                  }).catch(() => {});
+                }
               } catch(e) { showToast("Error al jugar ❌"); }
             };
 
@@ -6601,21 +6623,8 @@ const styles = `
                 {btn(() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }, "⭐ Escribir reseña", { width:"100%", padding:10, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginTop:8, display:"block" })}
 
                 {/* MÉTODOS DE PAGO del psicólogo */}
-                {/* ACCESO A MIS HÁBITOS desde perfil del psicólogo */}
-                <div onClick={() => { cargarHabitos(usuarioActual.uid); cargarRegistrosHabito(usuarioActual.uid); setHabitosPacienteId(usuarioActual.uid); setScreenHabitos(true); }}
-                  style={{ background:"linear-gradient(135deg,#F5EDE0,#EDE0D0)", borderRadius:16, padding:"14px 16px", marginBottom:14, border:"1px solid rgba(255,255,255,.08)", cursor:"pointer", display:"flex", alignItems:"center", gap:14 }}>
-                  <div style={{ width:40, height:40, borderRadius:12, background:"linear-gradient(135deg,#8B5A3A,#6A3E28)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
-                  </div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Mis hábitos</div>
-                    <div style={{ fontSize:11, color:C.light, marginTop:1 }}>Ver y registrar tu seguimiento diario</div>
-                  </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-
                 {pagosPsicologo.length > 0 && (() => {
-                  const METODOS_INFO = { nequi:{nombre:"Nequi",color:"#7B2D8B",bg:"#F5E8FA"}, bancolombia:{nombre:"Bancolombia",color:"#F5A800",bg:"#FFF8E6"}, davivienda:{nombre:"Davivienda",color:"#E30613",bg:"#FDE8EA"}, daviplata:{nombre:"Daviplata",color:"#FF6B00",bg:"#FFF0E6"}, breve:{nombre:"Breve",color:"#00B4A0",bg:"#E6FAF8"}, transferencia:{nombre:"Transferencia",color:"#3A7BD5",bg:"#E8F0FB"} };
+                  const METODOS_INFO = { nequi:{nombre:"Nequi",color:"#C47FD8",bg:"rgba(196,127,216,.14)"}, bancolombia:{nombre:"Bancolombia",color:"#F5A800",bg:"rgba(245,168,0,.12)"}, davivienda:{nombre:"Davivienda",color:"#FF6B6B",bg:"rgba(255,107,107,.12)"}, daviplata:{nombre:"Daviplata",color:"#FF7B5A",bg:"rgba(255,123,90,.12)"}, breve:{nombre:"Breve",color:"#4ECDC4",bg:"rgba(78,205,196,.12)"}, transferencia:{nombre:"Transferencia",color:"#6EEDDF",bg:"rgba(110,237,223,.12)"} };
                   return (
                     <div style={{ marginTop:20 }}>
                       <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12 }}>💳 Métodos de pago</div>
