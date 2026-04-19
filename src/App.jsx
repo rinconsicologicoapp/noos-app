@@ -4022,19 +4022,17 @@ const styles = `
 {/* ── PANTALLA NOTA/TAREA ABIERTA (estilo bloc nativo) ── */}
 {notaAbierta && (
   <div style={{ position:"absolute", inset:0, zIndex:800, display:"flex", flexDirection:"column",
-    background: notaAbierta.tipo === "tarea" ? "#FFFDF5" :
-                notaAbierta.tipo === "clinica" ? "#F5F0FB" : "#FFFEF8",
+    background:"#07060F",
     animation:"slideInRight 0.25s ease" }}>
 
     {/* HEADER */}
     <div style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 16px",
       paddingTop:"max(14px, env(safe-area-inset-top, 14px))",
-      background: notaAbierta.tipo === "tarea" ? "#FFF8E6" :
-                  notaAbierta.tipo === "clinica" ? "#EDE8F5" : "#FFFEF8",
-      borderBottom:"0.5px solid rgba(0,0,0,0.06)" }}>
+      background:"rgba(7,6,15,.98)", backdropFilter:"blur(20px)",
+      borderBottom:"0.5px solid rgba(255,255,255,.08)" }}>
       <div onClick={() => { setNotaAbierta(null); setNotaEditando(false); }}
         style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center",
-          borderRadius:10, background:"rgba(0,0,0,0.05)", cursor:"pointer", flexShrink:0 }}>
+          borderRadius:10, background:"rgba(255,255,255,.08)", cursor:"pointer", flexShrink:0 }}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
       </div>
       <div style={{ flex:1, minWidth:0 }}>
@@ -4075,12 +4073,12 @@ const styles = `
           }} style={{ padding:"6px 14px", background:C.plum, color:"white", borderRadius:20,
             fontSize:12, fontWeight:700, cursor:"pointer" }}>Guardar</div>
           <div onClick={() => setNotaEditando(false)}
-            style={{ padding:"6px 14px", background:"rgba(0,0,0,0.06)", color:C.text,
+            style={{ padding:"6px 14px", background:"rgba(255,255,255,.08)", color:C.text,
               borderRadius:20, fontSize:12, fontWeight:700, cursor:"pointer" }}>Cancelar</div>
         </>) : (
           notaAbierta.tipo !== "tarea" && (
             <div onClick={() => { setNotaEditando(true); setNotaTextoEdit(notaAbierta.text || notaAbierta.texto || ""); setNotaTituloEdit(notaAbierta.titulo || notaAbierta.title || ""); }}
-              style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,0.05)",
+              style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,.08)",
                 display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
             </div>
@@ -4184,8 +4182,8 @@ const styles = `
 
     {/* FOOTER — acciones */}
     <div style={{ padding:"12px 16px", paddingBottom:"max(12px, env(safe-area-inset-bottom, 12px))",
-      background:"rgba(255,255,255,0.9)", backdropFilter:"blur(8px)",
-      borderTop:"0.5px solid rgba(0,0,0,0.06)", display:"flex", gap:10, alignItems:"center" }}>
+      background:"rgba(7,6,15,.96)", backdropFilter:"blur(20px)",
+      borderTop:"0.5px solid rgba(255,255,255,.08)", display:"flex", gap:10, alignItems:"center" }}>
 
       {/* Tarea: botón enviar respuesta */}
       {notaAbierta.tipo === "tarea" && !notaAbierta.completada && (
@@ -4242,7 +4240,7 @@ const styles = `
             showToast(nuevoShared ? "👁 Compartida con tu psicólogo" : "🔒 Solo visible para ti");
           } catch(e) {}
         }} style={{ width:44, height:44, borderRadius:12,
-          background: notaAbierta.shared ? `${C.sageDark}20` : "rgba(0,0,0,0.05)",
+          background: notaAbierta.shared ? `${C.sageDark}20` : "rgba(255,255,255,.08)",
           display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={notaAbierta.shared ? C.sageDark : C.light} strokeWidth="1.75" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
@@ -7155,9 +7153,9 @@ const styles = `
   const pacId = habitosPacienteId || usuarioActual?.uid;
   const habitosActivos = habitos.filter(h => h.activo && h.titulo);
   const ESTADOS = [
-    { k:"si",      label:"Sí",      color:"#1E8880", bg:"#E8F5EE", darkColor:"#3A7A62" },
-    { k:"parcial", label:"Parcial", color:"#FF7B5A", bg:"#FFF3E8", darkColor:"#D04428" },
-    { k:"no",      label:"No",      color:"#C0524A", bg:"#FFE8E8", darkColor:"#A04038" },
+    { k:"si",      label:"Sí",      color:"#1E8880", bg:"rgba(78,205,196,.14)", darkColor:"#3A7A62" },
+    { k:"parcial", label:"Parcial", color:"#FF7B5A", bg:"rgba(255,123,90,.12)", darkColor:"#D04428" },
+    { k:"no",      label:"No",      color:"#C0524A", bg:"rgba(192,82,74,.12)",  darkColor:"#A04038" },
   ];
 
   // Últimos 14 días (timezone del dispositivo)
@@ -7301,7 +7299,7 @@ const styles = `
                     {!h.activo && <div style={{ fontSize:11, color:C.light, marginTop:2 }}>Toca el toggle para activar</div>}
                   </div>
                   <div onClick={() => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, activo:!x.activo } : x))}
-                    style={{ width:48, height:28, borderRadius:14, background:h.activo?"#FF7B5A":"rgba(0,0,0,0.1)",
+                    style={{ width:48, height:28, borderRadius:14, background:h.activo?"#FF7B5A":"rgba(255,255,255,.12)",
                       position:"relative", cursor:"pointer", transition:"background 0.25s", flexShrink:0 }}>
                     <div style={{ position:"absolute", top:4, left: h.activo ? 24 : 4, width:20, height:20,
                       borderRadius:"50%", background:"white", transition:"left 0.25s",
@@ -7363,7 +7361,7 @@ const styles = `
           <div style={{ padding:16 }}>
             {totalActivos === 0 ? (
               <div style={{ textAlign:"center", padding:"60px 24px" }}>
-                <div style={{ width:64, height:64, borderRadius:20, background:"rgba(139,90,58,0.1)",
+                <div style={{ width:64, height:64, borderRadius:20, background:"rgba(255,123,90,.10)",
                   display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.5" strokeLinecap="round">
                     <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/>
@@ -7399,7 +7397,7 @@ const styles = `
                           </g>
                         );
                       })}
-                      <text x="70" y="66" textAnchor="middle" fill="#0D0B1E" fontSize="22" fontWeight="700">{completadosHoy}/{totalActivos}</text>
+                      <text x="70" y="66" textAnchor="middle" fill="#F5EEE8" fontSize="22" fontWeight="700">{completadosHoy}/{totalActivos}</text>
                       <text x="70" y="80" textAnchor="middle" fill="#7A6E8A" fontSize="10">hoy</text>
                     </svg>
                   </div>
@@ -7424,7 +7422,7 @@ const styles = `
                           </div>
                         </div>
                         {racha > 0 && (
-                          <div style={{ background: racha >= 7 ? "#FF7B5A" : "rgba(139,90,58,0.12)",
+                          <div style={{ background: racha >= 7 ? "#FF7B5A" : "rgba(255,123,90,.12)",
                             borderRadius:20, padding:"3px 10px", flexShrink:0 }}>
                             <span style={{ fontSize:11, fontWeight:700, color: racha >= 7 ? "white" : "#FF7B5A" }}>🔥 {racha}d</span>
                           </div>
@@ -7438,7 +7436,7 @@ const styles = `
                           const esHoyF = f === hoy;
                           return (
                             <div key={f} style={{ flex:1, height:6, borderRadius:3,
-                              background: est === "si" ? "#1E8880" : est === "parcial" ? "#FF7B5A" : est === "no" ? "rgba(192,82,74,0.3)" : "rgba(0,0,0,0.06)",
+                              background: est === "si" ? "#1E8880" : est === "parcial" ? "#FF7B5A" : est === "no" ? "rgba(192,82,74,0.3)" : "rgba(255,255,255,.10)",
                               outline: esHoyF ? "1.5px solid #C4845A" : "none",
                               outlineOffset: "1px" }}/>
                           );
@@ -7538,7 +7536,7 @@ const styles = `
                           </div>
                           <span style={{ fontSize:14, fontWeight:700, color }}>{pct}%</span>
                         </div>
-                        <div style={{ height:10, background:"rgba(0,0,0,0.06)", borderRadius:5, overflow:"hidden" }}>
+                        <div style={{ height:10, background:"rgba(255,255,255,.08)", borderRadius:5, overflow:"hidden" }}>
                           <div style={{ height:"100%", width:`${pct}%`, background:color, borderRadius:5,
                             transition:"width 0.6s ease" }}/>
                         </div>
@@ -7550,14 +7548,14 @@ const styles = `
                 {/* STATS GRID */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:12 }}>
                   <div style={{ background:"rgba(78,205,196,.12)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
-                    <div style={{ fontSize:22, fontWeight:700, color:"#2A4A36" }}>{diasPerfectos}</div>
-                    <div style={{ fontSize:10, color:"#1E8880", marginTop:2 }}>días perfectos</div>
-                    <div style={{ fontSize:9, color:"rgba(74,138,114,0.6)", marginTop:1 }}>todos los hábitos</div>
+                    <div style={{ fontSize:22, fontWeight:700, color:"#4ECDC4" }}>{diasPerfectos}</div>
+                    <div style={{ fontSize:10, color:"#4ECDC4", marginTop:2 }}>días perfectos</div>
+                    <div style={{ fontSize:9, color:"rgba(78,205,196,.55)", marginTop:1 }}>todos los hábitos</div>
                   </div>
-                  <div style={{ background:"rgba(139,90,58,0.1)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
+                  <div style={{ background:"rgba(255,123,90,.10)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:700, color:"#F5EEE8" }}>{mejorRacha}</div>
                     <div style={{ fontSize:10, color:"#FF7B5A", marginTop:2 }}>racha actual</div>
-                    <div style={{ fontSize:9, color:"rgba(139,90,58,0.5)", marginTop:1 }}>días seguidos</div>
+                    <div style={{ fontSize:9, color:"rgba(255,123,90,.45)", marginTop:1 }}>días seguidos</div>
                   </div>
                   <div style={{ background:"rgba(255,123,90,0.08)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:700, color:"#FF7B5A" }}>
@@ -7567,17 +7565,17 @@ const styles = `
                       }, 0) / habitosActivos.length) : 0}%
                     </div>
                     <div style={{ fontSize:10, color:"#FF7B5A", marginTop:2 }}>adherencia global</div>
-                    <div style={{ fontSize:9, color:"rgba(139,90,58,0.5)", marginTop:1 }}>promedio todos</div>
+                    <div style={{ fontSize:9, color:"rgba(255,123,90,.45)", marginTop:1 }}>promedio todos</div>
                   </div>
-                  <div style={{ background:"rgba(74,138,114,0.08)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
-                    <div style={{ fontSize:22, fontWeight:700, color:"#2A4A36" }}>
+                  <div style={{ background:"rgba(78,205,196,.10)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
+                    <div style={{ fontSize:22, fontWeight:700, color:"#4ECDC4" }}>
                       {diasMes.filter(f => habitosActivos.some(h => {
                         const key = `${pacId}_slot${h.slot || h.id}`;
                         return (registrosHabito[key] || {})[f];
                       })).length}
                     </div>
-                    <div style={{ fontSize:10, color:"#1E8880", marginTop:2 }}>días registrados</div>
-                    <div style={{ fontSize:9, color:"rgba(74,138,114,0.5)", marginTop:1 }}>de {diasEnMes} en el mes</div>
+                    <div style={{ fontSize:10, color:"#4ECDC4", marginTop:2 }}>días registrados</div>
+                    <div style={{ fontSize:9, color:"rgba(78,205,196,.45)", marginTop:1 }}>de {diasEnMes} en el mes</div>
                   </div>
                 </div>
 
@@ -7595,11 +7593,11 @@ const styles = `
                       const est = (registrosHabito[key] || {})[f];
                       const esHoy = f === hoy;
                       const esFuturo = f > hoy;
-                      const bg = esFuturo ? "rgba(0,0,0,0.03)"
+                      const bg = esFuturo ? "rgba(255,255,255,.03)"
                         : est === "si" ? "#1E8880"
                         : est === "parcial" ? "#FF7B5A"
                         : est === "no" ? "rgba(192,82,74,0.35)"
-                        : "rgba(0,0,0,0.06)";
+                        : "rgba(255,255,255,.08)";
                       return (
                         <div key={f} style={{ aspectRatio:"1", borderRadius:4, background:bg,
                           outline: esHoy ? "2px solid #C4845A" : "none",
@@ -7609,7 +7607,7 @@ const styles = `
                     })}
                   </div>
                   <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-                    {[["#1E8880","Sí"],["#FF7B5A","Parcial"],["rgba(192,82,74,0.35)","No"],["rgba(0,0,0,0.06)","Sin registro"]].map(([color,label]) => (
+                    {[["#1E8880","Sí"],["#FF7B5A","Parcial"],["rgba(192,82,74,0.35)","No"],["rgba(255,255,255,.20)","Sin registro"]].map(([color,label]) => (
                       <div key={label} style={{ display:"flex", alignItems:"center", gap:4 }}>
                         <div style={{ width:8, height:8, borderRadius:2, background:color }}/>
                         <span style={{ fontSize:9, color:C.light }}>{label}</span>
@@ -7620,11 +7618,11 @@ const styles = `
 
                 {/* NOTA DEL PSICÓLOGO */}
                 {notaPsicologo ? (
-                  <div style={{ background:"rgba(139,90,58,0.07)", borderRadius:14, padding:"12px 14px",
-                    border:"0.5px solid rgba(139,90,58,0.15)" }}>
+                  <div style={{ background:"rgba(255,123,90,.08)", borderRadius:14, padding:"12px 14px",
+                    border:"0.5px solid rgba(255,123,90,.18)" }}>
                     <div style={{ fontSize:10, fontWeight:700, color:"#FF7B5A", marginBottom:6,
                       textTransform:"uppercase", letterSpacing:0.5 }}>Tu psicólogo dice</div>
-                    <div style={{ fontSize:13, color:"#5A3A20", lineHeight:1.6, fontStyle:"italic" }}>
+                    <div style={{ fontSize:13, color:"#F5EEE8", lineHeight:1.6, fontStyle:"italic" }}>
                       "{notaPsicologo}"
                     </div>
                   </div>
@@ -7650,12 +7648,12 @@ const styles = `
 
   // ── MÉTODOS DE PAGO ────────────────────────────────────────────────────
   const METODOS_DISPONIBLES = [
-    { id:"nequi",        nombre:"Nequi",         color:"#7B2D8B", bg:"#F5E8FA" },
-    { id:"bancolombia",  nombre:"Bancolombia",   color:"#F5A800", bg:"#FFF8E6" },
-    { id:"davivienda",   nombre:"Davivienda",    color:"#E30613", bg:"#FDE8EA" },
-    { id:"daviplata",    nombre:"Daviplata",     color:"#FF6B00", bg:"#FFF0E6" },
-    { id:"transferencia",nombre:"Transferencia", color:"#3A7BD5", bg:"#E8F0FB" },
-    { id:"efectivo",     nombre:"Efectivo",      color:"#5A8A62", bg:"#E8F5EA" },
+    { id:"nequi",        nombre:"Nequi",         color:"#C47FD8", bg:"rgba(196,127,216,.12)" },
+    { id:"bancolombia",  nombre:"Bancolombia",   color:"#F5A800", bg:"rgba(245,168,0,.12)" },
+    { id:"davivienda",   nombre:"Davivienda",    color:"#FF6B6B", bg:"rgba(255,107,107,.12)" },
+    { id:"daviplata",    nombre:"Daviplata",     color:"#FF7B5A", bg:"rgba(255,123,90,.12)" },
+    { id:"transferencia",nombre:"Transferencia", color:"#6EEDDF", bg:"rgba(110,237,223,.12)" },
+    { id:"efectivo",     nombre:"Efectivo",      color:"#4ECDC4", bg:"rgba(78,205,196,.12)" },
   ];
   const cargarMetodos = async () => {
     try {
