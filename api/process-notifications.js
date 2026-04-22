@@ -24,8 +24,8 @@ async function getTokenDeUsuario(db, uid) {
 // Esto evita la doble notificación: con notification+data, el navegador muestra
 // la notif automáticamente Y el SW también la muestra = 2 notificaciones.
 // Con solo data, el SW es el único que controla el display.
-async function enviarFCM(db, token, titulo, mensaje, data = {}) {
-  if (!token) return false;
+async function enviarFCM(db, token, titulo, mensaje, data = {}, stats = null) {
+  if (!token) { if (stats) stats.tokenNulo++; return false; }
   try {
     await getMessaging().send({
       token,
@@ -77,6 +77,7 @@ async function enviarFCM(db, token, titulo, mensaje, data = {}) {
       } catch {}
     }
     console.error('FCM error:', e.code || e.message);
+    if (stats) stats.errorFCM++;
     return false;
   }
 }
@@ -90,7 +91,7 @@ module.exports = async function handler(req, res) {
   const db = getFirestore();
   const ahora = new Date();
   const ahoraISO = ahora.toISOString();
-  const stats = { recordatoriosCita: 0, programadas: 0, generales: 0, recurrentes: 0, errores: 0, errorStage2: null };
+  const stats = { recordatoriosCita: 0, programadas: 0, generales: 0, recurrentes: 0, errores: 0, tokenNulo: 0, errorFCM: 0, errorStage2: null };
  
   // ── Lock global (TTL 90s para no bloquear cron de 2 min) ─────────────────
   const lockRef = db.collection('_cronLock').doc('process-notifications');
@@ -141,7 +142,7 @@ module.exports = async function handler(req, res) {
         tag: rec.citaId || docSnap.id,
         requireInteraction: rec.tipo === '5m' ? 'true' : 'false',
         destinatarioId: rec.pacienteId || '',
-      });
+      }, stats);
       if (ok) {
         stats.recordatoriosCita++;
         await db.collection('notificaciones').doc(`rec_${docSnap.id}`).set({
@@ -203,7 +204,7 @@ module.exports = async function handler(req, res) {
         link: notif.link || '',
         tag: `prog_${docSnap.id}`,
         destinatarioId: recipientId || '',
-      });
+      }, stats);
       if (ok) stats.programadas++;
       else stats.errores++;
     }
@@ -247,7 +248,7 @@ module.exports = async function handler(req, res) {
         tag: docSnap.id,
         requireInteraction: notif.tipo === 'demora' ? 'true' : 'false',
         destinatarioId: notif.pacienteId || '',
-      });
+      }, stats);
       if (ok) stats.generales++;
       else stats.errores++;
     }
