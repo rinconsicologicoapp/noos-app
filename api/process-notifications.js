@@ -90,21 +90,23 @@ module.exports = async function handler(req, res) {
   const db = getFirestore();
   const ahora = new Date();
   const ahoraISO = ahora.toISOString();
-  const stats = { recordatoriosCita: 0, programadas: 0, generales: 0, recurrentes: 0, errores: 0 };
+  const stats = { recordatoriosCita: 0, programadas: 0, generales: 0, recurrentes: 0, errores: 0, errorStage2: null };
  
-  // ── Lock global ───────────────────────────────────────────────────────────
+  // ── Lock global (TTL 90s para no bloquear cron de 2 min) ─────────────────
   const lockRef = db.collection('_cronLock').doc('process-notifications');
   try {
     let lockAdquirido = false;
+    let lockAge = 0;
     await db.runTransaction(async (t) => {
       const lockDoc = await t.get(lockRef);
       const ahoraMs = Date.now();
-      if (lockDoc.exists && (ahoraMs - (lockDoc.data().ts || 0)) < 2 * 60 * 1000) return;
+      lockAge = lockDoc.exists ? ahoraMs - (lockDoc.data().ts || 0) : 999999;
+      if (lockDoc.exists && lockAge < 90 * 1000) return; // TTL: 90s
       t.set(lockRef, { ts: ahoraMs, iso: ahoraISO });
       lockAdquirido = true;
     });
     if (!lockAdquirido) {
-      return res.status(200).json({ ok: true, skipped: true, reason: 'lock activo' });
+      return res.status(200).json({ ok: true, skipped: true, reason: 'lock activo', lockAgeSeconds: Math.round(lockAge / 1000) });
     }
   } catch(lockErr) {
     console.error('Lock error:', lockErr.message);
@@ -151,10 +153,19 @@ module.exports = async function handler(req, res) {
     }
  
     // ── 2. NOTIFICACIONES PROGRAMADAS ─────────────────────────────────────
-    const snapProg = await db.collection('notificaciones_programadas')
-      .where('enviada', '==', false)
-      .where('scheduledAt', '<=', ahoraISO)
-      .limit(50).get();
+    let snapProg;
+    try {
+      snapProg = await db.collection('notificaciones_programadas')
+        .where('enviada', '==', false)
+        .where('scheduledAt', '<=', ahoraISO)
+        .limit(50).get();
+    } catch(indexErr) {
+      // Falla si no existe el índice compuesto en Firestore:
+      // Firebase Console → Firestore → Indexes → crear índice: enviada ASC + scheduledAt ASC
+      console.error('Stage2 index error:', indexErr.message);
+      stats.errorStage2 = indexErr.message;
+      snapProg = { docs: [] };
+    }
  
     for (const docSnap of snapProg.docs) {
       const notif = docSnap.data();
