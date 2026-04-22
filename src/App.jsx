@@ -1255,30 +1255,40 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
     if (nuevoStatus === "confirmada") {
       showNotif("Cita confirmada ✅", "Tu psicólogo fue notificado", "✅");
       if (cita?.psicologoId) {
+        setDoc(doc(db, "notificaciones_programadas", `conf_cita_${citaId}`), {
+          pacienteId: cita.psicologoId,
+          title: "Cita confirmada ✅",
+          body: `${usuarioActual.nombre} confirmó la sesión del ${cita.fecha} a las ${cita.hora}`,
+          scheduledAt: new Date(Date.now() + 3000).toISOString(),
+          enviada: false, creadaEn: new Date().toISOString(), tipo: "cita_confirmada",
+          citaId,
+        }).catch(()=>{});
         setDoc(doc(db, "notificaciones", `conf_cita_${citaId}`), {
           pacienteId: cita.psicologoId,
           titulo: "Cita confirmada ✅",
           mensaje: `${usuarioActual.nombre} confirmó la sesión del ${cita.fecha} a las ${cita.hora}`,
-          icon: "✅",
-          tipo: "cita_confirmada",
-          leida: false,
-          pushEnviada: false,
-          creadoEn: new Date().toISOString(),
+          icon: "✅", tipo: "cita_confirmada", leida: false,
+          pushEnviada: true, creadoEn: new Date().toISOString(),
         }).catch(()=>{});
       }
     }
     if (nuevoStatus === "cancelada") {
       showNotif("Cita cancelada", "Tu psicólogo fue notificado", "❌");
       if (cita?.psicologoId) {
+        setDoc(doc(db, "notificaciones_programadas", `canc_cita_${citaId}`), {
+          pacienteId: cita.psicologoId,
+          title: "Cita cancelada ❌",
+          body: `${usuarioActual.nombre} canceló la sesión del ${cita.fecha} a las ${cita.hora}`,
+          scheduledAt: new Date(Date.now() + 3000).toISOString(),
+          enviada: false, creadaEn: new Date().toISOString(), tipo: "cita_cancelada",
+          citaId,
+        }).catch(()=>{});
         setDoc(doc(db, "notificaciones", `canc_cita_${citaId}`), {
           pacienteId: cita.psicologoId,
           titulo: "Cita cancelada ❌",
           mensaje: `${usuarioActual.nombre} canceló la sesión del ${cita.fecha} a las ${cita.hora}`,
-          icon: "❌",
-          tipo: "cita_cancelada",
-          leida: false,
-          pushEnviada: false,
-          creadoEn: new Date().toISOString(),
+          icon: "❌", tipo: "cita_cancelada", leida: false,
+          pushEnviada: true, creadoEn: new Date().toISOString(),
         }).catch(()=>{});
       }
     }
@@ -1824,7 +1834,17 @@ const crearTarea = async () => {
     };
     await setDoc(doc(db, "tareas", id), nuevaTarea);
     setTareasPsicologo(prev => [nuevaTarea, ...prev]);
-    // Notificación push al paciente
+    // Push al paciente via notificaciones_programadas (flujo confiable, misma ruta que cita_nueva)
+    setDoc(doc(db, "notificaciones_programadas", `tarea_nueva_${id}`), {
+      pacienteId:  pacienteSeleccionado.id,
+      title:       "📋 Nueva tarea de tu psicólogo",
+      body:        `"${tareaTitulo}" — revísala en tu app`,
+      scheduledAt: new Date(Date.now() + 3000).toISOString(),
+      enviada:     false,
+      creadaEn:    new Date().toISOString(),
+      tipo:        "tarea_nueva",
+    }).catch(()=>{});
+    // Panel in-app (sin push duplicado)
     setDoc(doc(db, "notificaciones", `tarea_nueva_${id}`), {
       pacienteId:  pacienteSeleccionado.id,
       titulo:      "📋 Nueva tarea de tu psicólogo",
@@ -1832,7 +1852,7 @@ const crearTarea = async () => {
       icon:        "📋",
       tipo:        "tarea_nueva",
       leida:       false,
-      pushEnviada: false,
+      pushEnviada: true,
       creadoEn:    new Date().toISOString(),
     }).catch(()=>{});
     setTareaTitulo("");
@@ -4197,11 +4217,19 @@ const styles = `
             sumarXP(notaAbierta.xp || 80, "Tarea completada ✅");
             setCelebrando(true); setTimeout(() => setCelebrando(false), 1500);
             if (notaAbierta.psicologoId) {
-              setDoc(doc(db, "notificaciones", `tarea_resp_${notaAbierta.id}`), {
+              const _trid = `tarea_resp_${notaAbierta.id}`;
+              setDoc(doc(db, "notificaciones_programadas", _trid), {
+                pacienteId: notaAbierta.psicologoId,
+                title: "Tarea completada 🎯",
+                body: `${usuarioActual.nombre} completó: "${notaAbierta.titulo}"`,
+                scheduledAt: new Date(Date.now() + 3000).toISOString(),
+                enviada: false, creadaEn: new Date().toISOString(), tipo: "tarea_completada",
+              }).catch(()=>{});
+              setDoc(doc(db, "notificaciones", _trid), {
                 pacienteId: notaAbierta.psicologoId,
                 titulo: "Tarea completada 🎯",
                 mensaje: `${usuarioActual.nombre} completó: "${notaAbierta.titulo}"`,
-                icon: "🎯", tipo: "tarea_completada", leida: false, pushEnviada: false,
+                icon: "🎯", tipo: "tarea_completada", leida: false, pushEnviada: true,
                 creadoEn: new Date().toISOString(),
               }).catch(()=>{});
             }
@@ -4531,12 +4559,20 @@ const styles = `
                   if(navigator.vibrate) navigator.vibrate([10,50,10,50,30]);
                   setCelebrando(true); setTimeout(() => setCelebrando(false), 1500);
                   if (t.psicologoId) {
-                    setDoc(doc(db, "notificaciones", `tarea_check_${t.id}`), {
+                    const _tchid = `tarea_check_${t.id}`;
+                    setDoc(doc(db, "notificaciones_programadas", _tchid), {
+                      pacienteId: t.psicologoId,
+                      title: "Tarea completada ✅",
+                      body: `${usuarioActual.nombre} marcó como completada: "${t.titulo}"`,
+                      scheduledAt: new Date(Date.now() + 3000).toISOString(),
+                      enviada: false, creadaEn: new Date().toISOString(), tipo: "tarea_completada",
+                    }).catch(()=>{});
+                    setDoc(doc(db, "notificaciones", _tchid), {
                       pacienteId: t.psicologoId,
                       titulo: "Tarea completada ✅",
                       mensaje: `${usuarioActual.nombre} marcó como completada: "${t.titulo}"`,
                       icon: "✅", tipo: "tarea_completada", leida: false,
-                      pushEnviada: false, creadoEn: new Date().toISOString(),
+                      pushEnviada: true, creadoEn: new Date().toISOString(),
                     }).catch(()=>{});
                   }
                 }
@@ -4582,18 +4618,21 @@ const styles = `
               setTareasPsicologo(prev => prev.map(t => t.id === tareaRespondiendo.id ? { ...t, respuesta: respuestaTarea, completada: true } : t));
               sumarXP(tareaRespondiendo.xp || 80, "Tarea completada ✅");
               if (tareaRespondiendo.psicologoId) {
-                try {
-                  await setDoc(doc(db, "notificaciones", `tarea_resp_${tareaRespondiendo.id}`), {
-                    pacienteId: tareaRespondiendo.psicologoId,
-                    titulo: "Tarea completada 🎯",
-                    mensaje: `${usuarioActual.nombre} completó: "${tareaRespondiendo.titulo}"`,
-                    icon: "🎯",
-                    tipo: "tarea_completada",
-                    leida: false,
-                    pushEnviada: false,
-                    creadoEn: new Date().toISOString(),
-                  });
-                } catch(e) {}
+                const _trespid = `tarea_resp_${tareaRespondiendo.id}`;
+                setDoc(doc(db, "notificaciones_programadas", _trespid), {
+                  pacienteId: tareaRespondiendo.psicologoId,
+                  title: "Tarea completada 🎯",
+                  body: `${usuarioActual.nombre} completó: "${tareaRespondiendo.titulo}"`,
+                  scheduledAt: new Date(Date.now() + 3000).toISOString(),
+                  enviada: false, creadaEn: new Date().toISOString(), tipo: "tarea_completada",
+                }).catch(()=>{});
+                setDoc(doc(db, "notificaciones", _trespid), {
+                  pacienteId: tareaRespondiendo.psicologoId,
+                  titulo: "Tarea completada 🎯",
+                  mensaje: `${usuarioActual.nombre} completó: "${tareaRespondiendo.titulo}"`,
+                  icon: "🎯", tipo: "tarea_completada", leida: false,
+                  pushEnviada: true, creadoEn: new Date().toISOString(),
+                }).catch(()=>{});
               }
               setRespuestaTarea(""); setTareaRespondiendo(null);
               setModal(null);

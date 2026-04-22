@@ -196,11 +196,19 @@ module.exports = async function handler(req, res) {
     }
  
     // ── 3. NOTIFICACIONES GENERALES ───────────────────────────────────────
-    // Ventana de 10 min para dar margen al cron (que corre cada 2 min)
     const hace10 = new Date(ahora.getTime() - 10 * 60 * 1000).toISOString();
     const snapGeneral = await db.collection('notificaciones')
       .where('pushEnviada', '==', false)
-      .limit(50).get();
+      .limit(200).get();
+
+    // Expirar docs atascados (>10 min sin procesar) para que no bloqueen slots del limit
+    const stuckDocs = snapGeneral.docs.filter(d => (d.data().creadoEn || '') < hace10);
+    if (stuckDocs.length > 0) {
+      const batchExpire = db.batch();
+      stuckDocs.forEach(d => batchExpire.update(d.ref, { pushEnviada: true, expirada: true }));
+      await batchExpire.commit().catch(()=>{});
+    }
+
     const docsGenerales = snapGeneral.docs.filter(d => (d.data().creadoEn || '') >= hace10);
  
     for (const docSnap of docsGenerales) {

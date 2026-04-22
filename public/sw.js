@@ -14,7 +14,11 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 // ─── Tipos que SIEMPRE muestran notificación aunque la app esté abierta ────────
-const TIPOS_CRITICOS = ['cita_nueva','recordatorio_cita','demora','cita_cancelada','notif_programada'];
+const TIPOS_CRITICOS = [
+  'cita_nueva','recordatorio_cita','cita_confirmada','cita_cancelada',
+  'tarea_nueva','tarea_completada','demora','nueva_resena',
+  'notif_programada','recordatorio_recurrente','juego_turno',
+];
 
 // ─── Track para evitar doble notificación entre push y onBackgroundMessage ─────
 const shownTags = new Set();
