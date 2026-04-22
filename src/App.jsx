@@ -1197,6 +1197,8 @@ const crearCita = async () => {
       psicologoId: usuarioActual.uid,
       title:       `🧠 Sesión psicológica agendada`,
       body:        `${citaFecha} a las ${citaHora} — ${citaModalidad === "virtual" ? "Virtual 💻" : "Presencial 🏥"}`,
+      fechaUTC,
+      modalidad:   citaModalidad,
       scheduledAt,
       enviada:     false,
       creadaEn:    new Date().toISOString(),

@@ -44,7 +44,17 @@ async function enviarFCM(db, token, titulo, mensaje, data = {}) {
       },
       apns: {
         payload: {
-          aps: { sound: 'default', badge: 1, 'content-available': 1 },
+          aps: {
+            alert: { title: titulo, body: mensaje },
+            sound: 'default',
+            badge: 1,
+            'content-available': 1,
+            'mutable-content': 1,
+          },
+        },
+        headers: {
+          'apns-priority': '10',
+          'apns-push-type': 'alert',
         },
       },
       webpush: {
@@ -158,9 +168,23 @@ module.exports = async function handler(req, res) {
         });
       } catch(e) { stats.errores++; continue; }
       if (!debeEnviar) continue;
- 
+
+      // Para citas nuevas, formatear fecha en la zona horaria del paciente
+      let bodyFinal = notif.body;
+      if (notif.tipo === 'cita_nueva' && notif.fechaUTC && notif.pacienteId) {
+        try {
+          const pacSnap = await db.collection('usuarios').doc(notif.pacienteId).get();
+          const tz = pacSnap.exists ? (pacSnap.data()?.timezone || 'America/Bogota') : 'America/Bogota';
+          const fecha = new Date(notif.fechaUTC);
+          const fechaStr = fecha.toLocaleDateString('es-CO', { timeZone: tz, weekday: 'long', day: 'numeric', month: 'long' });
+          const horaStr  = fecha.toLocaleTimeString('es-CO', { timeZone: tz, hour: '2-digit', minute: '2-digit' });
+          const modalidad = notif.modalidad === 'virtual' ? 'Virtual 💻' : 'Presencial 🏥';
+          bodyFinal = `${fechaStr} a las ${horaStr} — ${modalidad}`;
+        } catch(_) { /* usar body original si falla */ }
+      }
+
       const token = await getTokenDeUsuario(db, notif.pacienteId);
-      const ok = await enviarFCM(db, token, notif.title, notif.body, {
+      const ok = await enviarFCM(db, token, notif.title, bodyFinal, {
         tipo: notif.tipo || 'notif_programada',
         citaId: notif.citaId || '',
         link: notif.link || '',
@@ -172,11 +196,12 @@ module.exports = async function handler(req, res) {
     }
  
     // ── 3. NOTIFICACIONES GENERALES ───────────────────────────────────────
-    const hace2 = new Date(ahora.getTime() - 2.5 * 60 * 1000).toISOString();
+    // Ventana de 10 min para dar margen al cron (que corre cada 2 min)
+    const hace10 = new Date(ahora.getTime() - 10 * 60 * 1000).toISOString();
     const snapGeneral = await db.collection('notificaciones')
       .where('pushEnviada', '==', false)
       .limit(50).get();
-    const docsGenerales = snapGeneral.docs.filter(d => (d.data().creadoEn || '') >= hace2);
+    const docsGenerales = snapGeneral.docs.filter(d => (d.data().creadoEn || '') >= hace10);
  
     for (const docSnap of docsGenerales) {
       const notif = docSnap.data();

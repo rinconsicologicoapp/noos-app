@@ -49,5 +49,12 @@
 
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+
+  "crons": [
+    {
+      "path": "/api/process-notifications",
+      "schedule": "* * * * *"
+    }
   ]
 }
