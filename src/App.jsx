@@ -9355,6 +9355,26 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, flex:1 }}>Notificaciones</div>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
+                  <div style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
+                    <div style={{ width:32, height:32, background:"rgba(255,123,90,.10)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Notificaciones push</div>
+                      <div style={{ fontSize:10, color:C.light, marginTop:1 }}>{usuarioActual?.fcmToken ? "✅ Activadas" : "❌ Desactivadas"}</div>
+                    </div>
+                    <div onClick={async () => {
+                      if (usuarioActual?.fcmToken) {
+                        await updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: "" });
+                        setUsuarioActual(prev => ({ ...prev, fcmToken: "" }));
+                        showToast("🔕 Notificaciones desactivadas");
+                      } else {
+                        await activarNotificaciones();
+                      }
+                    }} style={{ width:48, height:26, borderRadius:13, background:usuarioActual?.fcmToken ? C.plum : C.light, position:"relative", cursor:"pointer", transition:"background 0.3s", flexShrink:0 }}>
+                      <div style={{ width:20, height:20, borderRadius:"50%", background:"white", position:"absolute", top:3, left:usuarioActual?.fcmToken ? 25 : 3, transition:"left 0.3s", boxShadow:"0 2px 4px rgba(0,0,0,0.2)" }}/>
+                    </div>
+                  </div>
                   <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
                     <div style={{ width:32, height:32, background:"rgba(255,123,90,.10)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>

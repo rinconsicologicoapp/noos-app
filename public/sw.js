@@ -85,21 +85,28 @@ self.addEventListener('push', (event) => {
   if (!event.data) return;
 
   let data = {};
+  let tieneNotificationField = false;
   try {
     const raw = event.data.json();
-    // FCM Web Push pone los campos en el root, NO en un sub-objeto .data
-    // onBackgroundMessage sí los envuelve en .data, pero el push event no
     data = raw.data || raw;
+    // Si el payload tiene notification field, Chrome ya mostró la notif automáticamente
+    tieneNotificationField = !!(raw.notification);
   } catch {}
 
   const tipo = data.tipo || 'general';
+  const tag  = data.tag || data.citaId || tipo;
 
   event.waitUntil(
-    clients.matchAll({ type:'window', includeUncontrolled:true }).then((list) => {
+    clients.matchAll({ type:'window', includeUncontrolled:true }).then(async (list) => {
       const appVisible = list.some(c => c.visibilityState === 'visible');
-      // Tipos críticos: siempre mostrar
-      // Otros: solo si la app NO está visible
       if (!TIPOS_CRITICOS.includes(tipo) && appVisible) return;
+
+      // Si Chrome ya mostró la notif via notification field, solo mostrar si app visible
+      // para el caso foreground. En background Chrome la maneja sola.
+      if (tieneNotificationField) {
+        const existing = await self.registration.getNotifications({ tag });
+        if (existing.length > 0) return; // ya está visible, no duplicar
+      }
       return mostrarNotificacion(data);
     })
   );

@@ -59,6 +59,18 @@ async function enviarFCM(db, token, titulo, mensaje, data = {}, stats = null) {
       },
       webpush: {
         headers: { Urgency: 'high' },
+        // notification field hace que Chrome en Android muestre la notif
+        // incluso en Doze mode sin necesitar que el SW esté activo.
+        // El SW usa shownTags para evitar el doble display.
+        notification: {
+          title: titulo,
+          body:  mensaje,
+          icon:  '/icon-192.png',
+          badge: '/icon-192.png',
+          tag:   data.tag || data.citaId || data.tipo || 'general',
+          requireInteraction: data.requireInteraction === 'true',
+          data,
+        },
         fcmOptions: {
           link: data.link || 'https://mipsicologo.vercel.app',
         },
