@@ -3,7 +3,7 @@ importScripts('https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/11.6.0/firebase-messaging-compat.js');
 
 firebase.initializeApp({
-  apiKey:            "AIzaSyBEGQkQ-0KOKVIeCieayUWZ-4yDiw3U8hQ",
+  apiKey:            "AIzaSyAMxJlSS7b4elSZea3NaSn7DfiE7G2d2xY",
   authDomain:        "mipsicologo-13044.firebaseapp.com",
   projectId:         "mipsicologo-13044",
   storageBucket:     "mipsicologo-13044.firebasestorage.app",

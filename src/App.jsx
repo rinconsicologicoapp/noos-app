@@ -1306,7 +1306,12 @@ const activarNotificaciones = async () => {
     }
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
-      const swReg = await navigator.serviceWorker.ready;      
+      const swReg = await navigator.serviceWorker.ready;
+      // Borrar suscripción push obsoleta — causa "push service error" en Android PWA instalada
+      try {
+        const oldSub = await swReg.pushManager.getSubscription();
+        if (oldSub) await oldSub.unsubscribe();
+      } catch (_) {}
       const token = await getToken(messaging, {
         vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
         serviceWorkerRegistration: swReg,
