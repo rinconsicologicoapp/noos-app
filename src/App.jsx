@@ -6882,7 +6882,7 @@ const styles = `
               <div onClick={() => eliminarRecordatorio(r.id)} style={{ fontSize:16, cursor:"pointer" }}>🗑️</div>
             </div>
           </div>
-          <div style={{ fontSize:11, color:C.light }}>
+          <div style={{ fontSize:11, color:C.text }}>
             🕐 {r.hora} · {["D","L","M","X","J","V","S"].filter((_,i) => (r.diasSemana||[]).includes(i)).join(", ")}
           </div>
           <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{r.mensaje}</div>
@@ -8700,13 +8700,16 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
       </div>
     ) : null}
     <div style={{ display:"flex", justifyContent:"flex-end", marginTop:8 }}>
-      {btn(async () => {
+      <div onClick={async (e) => {
+        e.stopPropagation();
         try {
           await deleteDoc(doc(db, "tareas", t.id));
           setTareasPsicologo(prev => prev.filter(x => x.id !== t.id));
           showToast("🗑️ Tarea eliminada");
-        } catch(e) { showToast("Error al eliminar ❌"); }
-      }, "🗑️ Eliminar", { padding:"5px 10px", borderRadius:8, background:"rgba(255,107,107,.15)", color:C.red, fontSize:11, fontWeight:800 })}
+        } catch(err) { showToast("Error al eliminar ❌"); }
+      }} style={{ padding:"5px 10px", borderRadius:8, background:"rgba(255,107,107,.15)", color:C.red, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+        🗑️ Eliminar
+      </div>
     </div>
   </div>
 ))}
