@@ -183,13 +183,15 @@ module.exports = async function handler(req, res) {
         } catch(_) { /* usar body original si falla */ }
       }
 
-      const token = await getTokenDeUsuario(db, notif.pacienteId);
+      // destinatarioId existe cuando el writer ≠ recipient (ej. paciente → psicólogo)
+      const recipientId = notif.destinatarioId || notif.pacienteId;
+      const token = await getTokenDeUsuario(db, recipientId);
       const ok = await enviarFCM(db, token, notif.title, bodyFinal, {
         tipo: notif.tipo || 'notif_programada',
         citaId: notif.citaId || '',
         link: notif.link || '',
         tag: `prog_${docSnap.id}`,
-        destinatarioId: notif.pacienteId || '',
+        destinatarioId: recipientId || '',
       });
       if (ok) stats.programadas++;
       else stats.errores++;

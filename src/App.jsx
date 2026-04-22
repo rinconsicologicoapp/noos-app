@@ -1256,13 +1256,14 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
       showNotif("Cita confirmada ✅", "Tu psicólogo fue notificado", "✅");
       if (cita?.psicologoId) {
         setDoc(doc(db, "notificaciones_programadas", `conf_cita_${citaId}`), {
-          pacienteId: cita.psicologoId,
+          pacienteId:    usuarioActual.uid,
+          destinatarioId: cita.psicologoId,
           title: "Cita confirmada ✅",
           body: `${usuarioActual.nombre} confirmó la sesión del ${cita.fecha} a las ${cita.hora}`,
           scheduledAt: new Date(Date.now() + 3000).toISOString(),
           enviada: false, creadaEn: new Date().toISOString(), tipo: "cita_confirmada",
           citaId,
-        }).catch(()=>{});
+        }).catch(e => console.error("notif cita_confirmada:", e.code || e.message));
         setDoc(doc(db, "notificaciones", `conf_cita_${citaId}`), {
           pacienteId: cita.psicologoId,
           titulo: "Cita confirmada ✅",
@@ -1276,13 +1277,14 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
       showNotif("Cita cancelada", "Tu psicólogo fue notificado", "❌");
       if (cita?.psicologoId) {
         setDoc(doc(db, "notificaciones_programadas", `canc_cita_${citaId}`), {
-          pacienteId: cita.psicologoId,
+          pacienteId:    usuarioActual.uid,
+          destinatarioId: cita.psicologoId,
           title: "Cita cancelada ❌",
           body: `${usuarioActual.nombre} canceló la sesión del ${cita.fecha} a las ${cita.hora}`,
           scheduledAt: new Date(Date.now() + 3000).toISOString(),
           enviada: false, creadaEn: new Date().toISOString(), tipo: "cita_cancelada",
           citaId,
-        }).catch(()=>{});
+        }).catch(e => console.error("notif cita_cancelada:", e.code || e.message));
         setDoc(doc(db, "notificaciones", `canc_cita_${citaId}`), {
           pacienteId: cita.psicologoId,
           titulo: "Cita cancelada ❌",
@@ -1833,17 +1835,18 @@ const crearTarea = async () => {
       creadaEn: new Date().toISOString(),
     };
     await setDoc(doc(db, "tareas", id), nuevaTarea);
-    setTareasPsicologo(prev => [nuevaTarea, ...prev]);
+    // onSnapshot actualiza tareasPsicologo automáticamente — no añadir manualmente (causaría duplicado)
     // Push al paciente via notificaciones_programadas (flujo confiable, misma ruta que cita_nueva)
     setDoc(doc(db, "notificaciones_programadas", `tarea_nueva_${id}`), {
       pacienteId:  pacienteSeleccionado.id,
+      psicologoId: usuarioActual.uid,
       title:       "📋 Nueva tarea de tu psicólogo",
       body:        `"${tareaTitulo}" — revísala en tu app`,
       scheduledAt: new Date(Date.now() + 3000).toISOString(),
       enviada:     false,
       creadaEn:    new Date().toISOString(),
       tipo:        "tarea_nueva",
-    }).catch(()=>{});
+    }).catch(e => console.error("notif tarea_nueva:", e.code || e.message));
     // Panel in-app (sin push duplicado)
     setDoc(doc(db, "notificaciones", `tarea_nueva_${id}`), {
       pacienteId:  pacienteSeleccionado.id,
@@ -4219,12 +4222,13 @@ const styles = `
             if (notaAbierta.psicologoId) {
               const _trid = `tarea_resp_${notaAbierta.id}`;
               setDoc(doc(db, "notificaciones_programadas", _trid), {
-                pacienteId: notaAbierta.psicologoId,
+                pacienteId:    usuarioActual.uid,
+                destinatarioId: notaAbierta.psicologoId,
                 title: "Tarea completada 🎯",
                 body: `${usuarioActual.nombre} completó: "${notaAbierta.titulo}"`,
                 scheduledAt: new Date(Date.now() + 3000).toISOString(),
                 enviada: false, creadaEn: new Date().toISOString(), tipo: "tarea_completada",
-              }).catch(()=>{});
+              }).catch(e => console.error("notif tarea_completada:", e.code || e.message));
               setDoc(doc(db, "notificaciones", _trid), {
                 pacienteId: notaAbierta.psicologoId,
                 titulo: "Tarea completada 🎯",
@@ -4561,12 +4565,13 @@ const styles = `
                   if (t.psicologoId) {
                     const _tchid = `tarea_check_${t.id}`;
                     setDoc(doc(db, "notificaciones_programadas", _tchid), {
-                      pacienteId: t.psicologoId,
+                      pacienteId:    usuarioActual.uid,
+                      destinatarioId: t.psicologoId,
                       title: "Tarea completada ✅",
                       body: `${usuarioActual.nombre} marcó como completada: "${t.titulo}"`,
                       scheduledAt: new Date(Date.now() + 3000).toISOString(),
                       enviada: false, creadaEn: new Date().toISOString(), tipo: "tarea_completada",
-                    }).catch(()=>{});
+                    }).catch(e => console.error("notif tarea_completada:", e.code || e.message));
                     setDoc(doc(db, "notificaciones", _tchid), {
                       pacienteId: t.psicologoId,
                       titulo: "Tarea completada ✅",
@@ -4620,12 +4625,13 @@ const styles = `
               if (tareaRespondiendo.psicologoId) {
                 const _trespid = `tarea_resp_${tareaRespondiendo.id}`;
                 setDoc(doc(db, "notificaciones_programadas", _trespid), {
-                  pacienteId: tareaRespondiendo.psicologoId,
+                  pacienteId:    usuarioActual.uid,
+                  destinatarioId: tareaRespondiendo.psicologoId,
                   title: "Tarea completada 🎯",
                   body: `${usuarioActual.nombre} completó: "${tareaRespondiendo.titulo}"`,
                   scheduledAt: new Date(Date.now() + 3000).toISOString(),
                   enviada: false, creadaEn: new Date().toISOString(), tipo: "tarea_completada",
-                }).catch(()=>{});
+                }).catch(e => console.error("notif tarea_completada:", e.code || e.message));
                 setDoc(doc(db, "notificaciones", _trespid), {
                   pacienteId: tareaRespondiendo.psicologoId,
                   titulo: "Tarea completada 🎯",
