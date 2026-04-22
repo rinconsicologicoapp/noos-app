@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { messaging, getToken, onMessage } from "./firebase";
+import { messaging, getToken, onMessage, deleteToken } from "./firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc, query, where, onSnapshot } from "firebase/firestore";
@@ -1299,35 +1299,42 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
 };
 const activarNotificaciones = async () => {
   try {
-    // Si ya está bloqueado, no podemos pedir de nuevo — instruir al usuario
     if (Notification.permission === "denied") {
-      showToast("⚙️ Ve a Ajustes del navegador y activa notificaciones para esta app");
+      showToast("⚙️ Ve a Ajustes > Apps > Chrome > Notificaciones y actívalas");
       return;
     }
     const permission = await Notification.requestPermission();
-    if (permission === "granted") {
-      const swReg = await navigator.serviceWorker.ready;
-      // Borrar suscripción push obsoleta — causa "push service error" en Android PWA instalada
-      try {
-        const oldSub = await swReg.pushManager.getSubscription();
-        if (oldSub) await oldSub.unsubscribe();
-      } catch (_) {}
-      const token = await getToken(messaging, {
-        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-        serviceWorkerRegistration: swReg,
-      });
-      if (token) {
-        await updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: token });
-        setUsuarioActual(prev => ({ ...prev, fcmToken: token }));
-        showToast("✅ Notificaciones activadas — recibirás avisos aunque el celular esté bloqueado");
-      } else {
-        showToast("⚠️ No se pudo obtener el token — intenta de nuevo");
-      }
-    } else {
+    if (permission !== "granted") {
       showToast("⚙️ Permiso denegado — actívalas desde Ajustes del navegador");
+      return;
+    }
+    const swReg = await navigator.serviceWorker.ready;
+    // Reset completo: Firebase IDB + suscripción del browser
+    // Necesario en Android PWA — sin esto queda estado corrupto que bloquea PushManager
+    try { await deleteToken(messaging); } catch (_) {}
+    try {
+      const oldSub = await swReg.pushManager.getSubscription();
+      if (oldSub) await oldSub.unsubscribe();
+    } catch (_) {}
+    // Pausa obligatoria en Android — el PushManager necesita un tick tras el unsubscribe
+    await new Promise(r => setTimeout(r, 600));
+    const token = await getToken(messaging, {
+      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+      serviceWorkerRegistration: swReg,
+    });
+    if (token) {
+      await updateDoc(doc(db, "usuarios", usuarioActual.uid), { fcmToken: token });
+      setUsuarioActual(prev => ({ ...prev, fcmToken: token }));
+      showToast("✅ Notificaciones activadas — recibirás avisos aunque el celular esté bloqueado");
+    } else {
+      showToast("⚠️ No se pudo obtener el token — intenta de nuevo");
     }
   } catch(e) {
-    showToast("❌ Error: " + e.message);
+    if (e.message?.includes('push service') || e.message?.includes('Registration failed')) {
+      showToast("⚠️ Android: ve a Ajustes > Apps > Chrome > Batería > 'Sin restricciones', luego intenta de nuevo");
+    } else {
+      showToast("❌ Error activando notificaciones: " + e.message);
+    }
   }
 };
 const cargarHabitos = async (pacienteId) => {
