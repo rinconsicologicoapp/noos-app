@@ -94,13 +94,44 @@ async function enviarFCM(db, token, titulo, mensaje, data = {}, stats = null) {
   }
 }
  
+// ─── Rate limiting por IP (max 30 req/min) ────────────────────────────────────
+async function rateLimitOk(db, ip) {
+  const key = `ip_${String(ip).replace(/[^a-z0-9]/gi, '_').slice(0, 60)}`;
+  const ref  = db.collection('_security').doc(key);
+  const now  = Date.now();
+  const WIN  = 60_000;
+  const MAX  = 30;
+  try {
+    let ok = true;
+    await db.runTransaction(async t => {
+      const snap = await t.get(ref);
+      if (!snap.exists || now - (snap.data().ts || 0) >= WIN) {
+        t.set(ref, { ts: now, n: 1 });
+      } else {
+        const n = (snap.data().n || 0) + 1;
+        if (n > MAX) { ok = false; return; }
+        t.update(ref, { n });
+      }
+    });
+    return ok;
+  } catch { return true; }
+}
+
 module.exports = async function handler(req, res) {
+  if (!['GET', 'POST'].includes(req.method)) {
+    return res.status(405).end();
+  }
+
   const auth = req.headers['authorization'] || '';
   if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).end();
   }
- 
+
   const db = getFirestore();
+
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+  const allowed = await rateLimitOk(db, ip);
+  if (!allowed) return res.status(429).end();
   const ahora = new Date();
   const ahoraISO = ahora.toISOString();
   const stats = { recordatoriosCita: 0, programadas: 0, generales: 0, recurrentes: 0, errores: 0, tokenNulo: 0, errorFCM: 0, errorStage2: null };
