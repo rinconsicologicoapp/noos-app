@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Psicólogo — Pantallas</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #030208;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 56px 40px 80px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+}
+
+.gallery-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+.gallery-header .brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.gallery-header h1 {
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #FF9B7A 0%, #FFD080 40%, #6EEDDF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gallery-header p {
+  font-size: 15px;
+  color: rgba(245,238,232,0.38);
+  letter-spacing: -0.005em;
+}
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,155,122,0.6);
+  border: 1px solid rgba(255,123,90,0.2);
+  border-radius: 20px;
+  padding: 4px 12px;
+  margin-top: 10px;
+  display: inline-block;
+}
+
+.phones-row {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.phone-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.phone-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(245,238,232,0.28);
+}
+
+.phone {
+  width: 268px;
+  height: 580px;
+  border-radius: 48px;
+  border: 8px solid #1C1730;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.07),
+    0 40px 100px rgba(0,0,0,.95),
+    0 8px 24px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.05);
+  flex-shrink: 0;
+}
+.notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 26px;
+  background: #1C1730;
+  border-radius: 0 0 16px 16px;
+  z-index: 50;
+}
+.status-bar {
+  position: absolute;
+  top: 0;
+  left: 0; right: 0;
+  height: 44px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 20px 6px;
+  z-index: 40;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(245,238,232,0.7);
+}
+
+/* ─── SCREEN 1: LOGIN ─── */
+.s-login {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse 140% 90% at 50% -5%, #2A0E3A 0%, #09070F 50%, #04030C 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 52px 22px 28px;
+  position: relative;
+  overflow: hidden;
+}
+.s-login::before {
+  content: '';
+  position: absolute;
+  top: 60px; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(255,123,90,.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.login-logo {
+  margin-bottom: 18px;
+  margin-top: 8px;
+}
+.login-title {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #FF9B7A 0%, #FFD080 50%, #6EEDDF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+.login-subtitle {
+  font-size: 12px;
+  color: rgba(245,238,232,0.38);
+  margin-bottom: 28px;
+  letter-spacing: -0.005em;
+}
+.input-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.inp {
+  width: 100%;
+  height: 46px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 13px;
+  color: rgba(245,238,232,0.7);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.inp .inp-icon { font-size: 14px; opacity: 0.4; }
+.inp .inp-text { font-size: 13px; color: rgba(245,238,232,0.4); }
+.inp.filled .inp-text { color: rgba(245,238,232,0.85); }
+
+.btn-primary {
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(135deg, #FF8B6A 0%, #FF5A36 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 20px rgba(255,90,54,.35), inset 0 1px 0 rgba(255,255,255,.2);
+  margin-bottom: 14px;
+}
+.login-link {
+  font-size: 11px;
+  color: rgba(245,238,232,0.3);
+  text-align: center;
+  margin-bottom: 20px;
+}
+.login-link span { color: rgba(255,155,122,0.7); }
+.btn-install {
+  padding: 7px 18px;
+  background: rgba(255,123,90,0.07);
+  border: 1px solid rgba(255,123,90,0.15);
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,155,122,0.5);
+}
+.login-footer {
+  position: absolute;
+  bottom: 20px;
+  font-size: 10px;
+  color: rgba(245,238,232,0.18);
+  text-align: center;
+}
+
+/* ─── SCREEN 2: DASHBOARD PSICÓLOGO ─── */
+.s-dash {
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse 120% 60% at 50% -5%, #14082A 0%, #07060F 55%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.dash-header {
+  padding: 48px 18px 16px;
+}
+.dash-greeting {
+  font-size: 11px;
+  color: rgba(245,238,232,0.35);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.dash-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #F5EEE8;
+  letter-spacing: -0.02em;
+  margin-bottom: 2px;
+}
+.dash-date {
+  font-size: 11px;
+  color: rgba(245,238,232,0.3);
+}
+.stats-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 18px;
+  margin-bottom: 18px;
+}
+.stat-card {
+  flex: 1;
+  background: rgba(255,255,255,.028);
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 14px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-number {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #F5EEE8;
+}
+.stat-label {
+  font-size: 9px;
+  color: rgba(245,238,232,0.35);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.stat-card.coral .stat-number { color: #FF9B7A; }
+.stat-card.teal .stat-number { color: #4ECDC4; }
+.stat-card.gold .stat-number { color: #FFD080; }
+
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(245,238,232,0.25);
+  padding: 0 18px;
+  margin-bottom: 10px;
+}
+.appt-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0 18px;
+  gap: 6px;
+  flex: 1;
+  overflow: hidden;
+}
+.appt-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.055);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.appt-time {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(245,238,232,0.5);
+  width: 36px;
+  flex-shrink: 0;
+}
+.appt-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.appt-info { flex: 1; }
+.appt-name { font-size: 12px; font-weight: 600; color: #F5EEE8; }
+.appt-type { font-size: 10px; color: rgba(245,238,232,0.35); }
+.appt-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bottom-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 0 16px;
+  border-top: 1px solid rgba(255,255,255,.055);
+  background: rgba(7,6,15,.9);
+  backdrop-filter: blur(20px);
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.nav-icon { font-size: 18px; }
+.nav-text { font-size: 9px; color: rgba(245,238,232,0.3); font-weight: 500; }
+.nav-item.active .nav-text { color: #FF9B7A; }
+
+/* ─── SCREEN 3: AGENDA ─── */
+.s-agenda {
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse 120% 60% at 50% -5%, #0A0820 0%, #07060F 55%);
+  display: flex;
+  flex-direction: column;
+}
+.agenda-header {
+  padding: 48px 18px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.agenda-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #F5EEE8;
+  letter-spacing: -0.02em;
+}
+.agenda-add {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #FF8B6A, #FF5A36);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #fff;
+  font-weight: 300;
+  box-shadow: 0 4px 12px rgba(255,90,54,.4);
+}
+.week-pills {
+  display: flex;
+  gap: 4px;
+  padding: 0 18px;
+  margin-bottom: 16px;
+}
+.day-pill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 0;
+  border-radius: 12px;
+}
+.day-letter { font-size: 9px; font-weight: 600; color: rgba(245,238,232,0.3); text-transform: uppercase; }
+.day-num { font-size: 13px; font-weight: 700; color: rgba(245,238,232,0.4); }
+.day-pill.active { background: linear-gradient(135deg, #FF8B6A, #FF5A36); }
+.day-pill.active .day-letter { color: rgba(255,255,255,0.7); }
+.day-pill.active .day-num { color: #fff; }
+.day-pill.has-dot .day-num::after { content: '·'; color: #4ECDC4; position: absolute; bottom: 2px; }
+
+.time-slots {
+  flex: 1;
+  padding: 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+.slot {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+.slot-time {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(245,238,232,0.25);
+  width: 34px;
+  padding-top: 8px;
+  flex-shrink: 0;
+}
+.slot-block {
+  flex: 1;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.slot-block.teal {
+  background: rgba(78,205,196,.12);
+  border: 1px solid rgba(78,205,196,.2);
+}
+.slot-block.coral {
+  background: rgba(255,123,90,.12);
+  border: 1px solid rgba(255,123,90,.2);
+}
+.slot-block.empty {
+  background: rgba(255,255,255,.025);
+  border: 1px dashed rgba(255,255,255,.06);
+  height: 36px;
+}
+.slot-name { font-size: 12px; font-weight: 600; color: #F5EEE8; }
+.slot-type { font-size: 10px; color: rgba(245,238,232,0.4); }
+.slot-now {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(255,123,90,.2);
+  color: #FF9B7A;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+/* ─── SCREEN 4: CHECK-IN PACIENTE ─── */
+.s-checkin {
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse 140% 80% at 50% 10%, #0D1A1C 0%, #07060F 60%);
+  display: flex;
+  flex-direction: column;
+  padding: 52px 22px 24px;
+  align-items: center;
+}
+.checkin-icon {
+  width: 56px; height: 56px;
+  background: rgba(78,205,196,.1);
+  border: 1px solid rgba(78,205,196,.2);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 14px;
+}
+.checkin-greeting {
+  font-size: 11px;
+  color: rgba(245,238,232,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 4px;
+}
+.checkin-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #F5EEE8;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+.checkin-question {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(245,238,232,0.8);
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+.mood-scale {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  justify-content: center;
+}
+.mood-emoji {
+  width: 44px; height: 44px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.mood-emoji.active {
+  background: rgba(78,205,196,.12);
+  border: 1px solid rgba(78,205,196,.3);
+  box-shadow: 0 0 16px rgba(78,205,196,.2);
+  transform: scale(1.1);
+}
+.checkin-label {
+  font-size: 11px;
+  color: rgba(245,238,232,0.35);
+  text-align: center;
+  margin-bottom: 12px;
+  letter-spacing: -0.005em;
+}
+.checkin-textarea {
+  width: 100%;
+  height: 68px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 12px;
+  color: rgba(245,238,232,0.45);
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.btn-teal {
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(135deg, #6AEDE4 0%, #28B0A8 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #04200E;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 20px rgba(78,205,196,.35), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.session-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+.session-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ECDC4; }
+.session-text { font-size: 10px; color: rgba(245,238,232,0.3); }
+
+@keyframes breathe {
+  0%,100% { opacity: .85; }
+  50% { opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<div class="gallery-header">
+  <div class="brand">
+    <svg width="48" height="48" viewBox="0 0 200 200">
+      <defs>
+        <radialGradient id="hc" cx="35%" cy="28%" r="70%">
+          <stop offset="0%" stop-color="#FFCFB8"/>
+          <stop offset="45%" stop-color="#FF7B5A"/>
+          <stop offset="100%" stop-color="#C03418"/>
+        </radialGradient>
+        <radialGradient id="ht" cx="35%" cy="28%" r="70%">
+          <stop offset="0%" stop-color="#A8F5F0"/>
+          <stop offset="45%" stop-color="#4ECDC4"/>
+          <stop offset="100%" stop-color="#1E7870"/>
+        </radialGradient>
+        <radialGradient id="gold" cx="50%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#FFE8A0"/>
+          <stop offset="100%" stop-color="#FFB347"/>
+        </radialGradient>
+        <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <circle cx="72" cy="64" r="34" fill="url(#hc)"/>
+      <ellipse cx="72" cy="64" rx="10" ry="14" transform="rotate(-20 72 64)" fill="rgba(255,255,255,.18)"/>
+      <circle cx="128" cy="64" r="34" fill="url(#ht)"/>
+      <ellipse cx="128" cy="64" rx="10" ry="14" transform="rotate(-20 128 64)" fill="rgba(255,255,255,.18)"/>
+      <path d="M 40 100 Q 100 155 162 100" stroke="#FF7B5A" stroke-width="18" fill="none" stroke-linecap="round" opacity=".85"/>
+      <path d="M 160 100 Q 100 148 40 100" stroke="#4ECDC4" stroke-width="16" fill="none" stroke-linecap="round" opacity=".85"/>
+      <circle cx="100" cy="134" r="10" fill="url(#gold)" filter="url(#glow)"/>
+    </svg>
+    <h1>Mi Psicólogo</h1>
+  </div>
+  <p>Tu consultorio, en un solo lugar.</p>
+  <span class="badge">PWA · iOS y Android · Sin App Store</span>
+</div>
+
+<div class="phones-row">
+
+  <!-- PHONE 1: LOGIN -->
+  <div class="phone-wrapper">
+    <div class="phone-label">Login</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s-login">
+        <div class="status-bar"><span>9:41</span><span>●●● 100%</span></div>
+
+        <div class="login-logo" style="margin-top:12px;">
+          <svg width="64" height="64" viewBox="0 0 200 200">
+            <defs>
+              <radialGradient id="lhc" cx="35%" cy="28%" r="70%">
+                <stop offset="0%" stop-color="#FFCFB8"/>
+                <stop offset="45%" stop-color="#FF7B5A"/>
+                <stop offset="100%" stop-color="#C03418"/>
+              </radialGradient>
+              <radialGradient id="lht" cx="35%" cy="28%" r="70%">
+                <stop offset="0%" stop-color="#A8F5F0"/>
+                <stop offset="45%" stop-color="#4ECDC4"/>
+                <stop offset="100%" stop-color="#1E7870"/>
+              </radialGradient>
+              <radialGradient id="lgold" cx="50%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#FFE8A0"/>
+                <stop offset="100%" stop-color="#FFB347"/>
+              </radialGradient>
+              <filter id="lglow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <circle cx="72" cy="64" r="34" fill="url(#lhc)"/>
+            <ellipse cx="72" cy="64" rx="10" ry="14" transform="rotate(-20 72 64)" fill="rgba(255,255,255,.18)"/>
+            <circle cx="128" cy="64" r="34" fill="url(#lht)"/>
+            <ellipse cx="128" cy="64" rx="10" ry="14" transform="rotate(-20 128 64)" fill="rgba(255,255,255,.18)"/>
+            <path d="M 40 100 Q 100 155 162 100" stroke="#FF7B5A" stroke-width="18" fill="none" stroke-linecap="round" opacity=".85"/>
+            <path d="M 160 100 Q 100 148 40 100" stroke="#4ECDC4" stroke-width="16" fill="none" stroke-linecap="round" opacity=".85"/>
+            <circle cx="100" cy="134" r="10" fill="url(#lgold)" filter="url(#lglow)"/>
+          </svg>
+        </div>
+
+        <div class="login-title">Mi Psicólogo</div>
+        <div class="login-subtitle">Tu espacio terapéutico</div>
+
+        <div class="input-group">
+          <div class="inp filled">
+            <span class="inp-icon">✉</span>
+            <span class="inp-text">paciente@email.com</span>
+          </div>
+          <div class="inp">
+            <span class="inp-icon">🔒</span>
+            <span class="inp-text">••••••••</span>
+          </div>
+        </div>
+
+        <div class="btn-primary">Iniciar sesión</div>
+
+        <div class="login-link">¿Primera vez? <span>Regístrate aquí</span></div>
+
+        <div class="btn-install">⬇ Descargar App</div>
+
+        <div class="login-footer">¿Problemas? Contacta a tu psicólogo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 2: DASHBOARD PSICÓLOGO -->
+  <div class="phone-wrapper">
+    <div class="phone-label">Dashboard psicólogo</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s-dash">
+        <div class="status-bar"><span>9:41</span><span>●●● 100%</span></div>
+        <div class="dash-header">
+          <div class="dash-greeting">Buenos días 👋</div>
+          <div class="dash-name">Dr. Rincón</div>
+          <div class="dash-date">Jueves 1 Mayo · Bogotá</div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card coral">
+            <div class="stat-number">4</div>
+            <div class="stat-label">Hoy</div>
+          </div>
+          <div class="stat-card teal">
+            <div class="stat-number">2:30</div>
+            <div class="stat-label">Próxima</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-number">38</div>
+            <div class="stat-label">Mes</div>
+          </div>
+        </div>
+
+        <div class="section-label">Citas de hoy</div>
+
+        <div class="appt-list">
+          <div class="appt-item">
+            <div class="appt-time">10:00</div>
+            <div class="appt-avatar" style="background:rgba(255,123,90,.15);color:#FF9B7A;">AM</div>
+            <div class="appt-info">
+              <div class="appt-name">Ana Martínez</div>
+              <div class="appt-type">Sesión individual</div>
+            </div>
+            <div class="appt-dot" style="background:#4ECDC4;"></div>
+          </div>
+          <div class="appt-item">
+            <div class="appt-time">12:00</div>
+            <div class="appt-avatar" style="background:rgba(78,205,196,.15);color:#4ECDC4;">CR</div>
+            <div class="appt-info">
+              <div class="appt-name">Carlos Ruiz</div>
+              <div class="appt-type">Seguimiento</div>
+            </div>
+            <div class="appt-dot" style="background:#4ECDC4;"></div>
+          </div>
+          <div class="appt-item" style="border-color:rgba(255,123,90,.2);background:rgba(255,123,90,.06);">
+            <div class="appt-time">2:30</div>
+            <div class="appt-avatar" style="background:rgba(255,208,128,.15);color:#FFD080;">ML</div>
+            <div class="appt-info">
+              <div class="appt-name">María López</div>
+              <div class="appt-type">Próxima · ahora</div>
+            </div>
+            <div class="appt-dot" style="background:#FF9B7A;animation:breathe 2s ease-in-out infinite;"></div>
+          </div>
+          <div class="appt-item">
+            <div class="appt-time">4:00</div>
+            <div class="appt-avatar" style="background:rgba(255,255,255,.06);color:rgba(245,238,232,.5);">JP</div>
+            <div class="appt-info">
+              <div class="appt-name">Juan Pablo</div>
+              <div class="appt-type">Evaluación</div>
+            </div>
+            <div class="appt-dot" style="background:rgba(255,255,255,.2);"></div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item active">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-text" style="color:#FF9B7A;">Inicio</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon" style="opacity:.35;">👥</div>
+            <div class="nav-text">Pacientes</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon" style="opacity:.35;">📅</div>
+            <div class="nav-text">Agenda</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon" style="opacity:.35;">🔔</div>
+            <div class="nav-text">Alertas</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon" style="opacity:.35;">👤</div>
+            <div class="nav-text">Perfil</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 3: AGENDA -->
+  <div class="phone-wrapper">
+    <div class="phone-label">Agenda semanal</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s-agenda">
+        <div class="status-bar"><span>9:41</span><span>●●● 100%</span></div>
+        <div class="agenda-header">
+          <div class="agenda-title">Agenda</div>
+          <div class="agenda-add">+</div>
+        </div>
+
+        <div class="week-pills">
+          <div class="day-pill">
+            <div class="day-letter">L</div>
+            <div class="day-num">28</div>
+          </div>
+          <div class="day-pill">
+            <div class="day-letter">M</div>
+            <div class="day-num">29</div>
+          </div>
+          <div class="day-pill">
+            <div class="day-letter">X</div>
+            <div class="day-num">30</div>
+          </div>
+          <div class="day-pill active">
+            <div class="day-letter">J</div>
+            <div class="day-num">1</div>
+          </div>
+          <div class="day-pill">
+            <div class="day-letter">V</div>
+            <div class="day-num">2</div>
+          </div>
+          <div class="day-pill">
+            <div class="day-letter">S</div>
+            <div class="day-num">3</div>
+          </div>
+          <div class="day-pill">
+            <div class="day-letter">D</div>
+            <div class="day-num">4</div>
+          </div>
+        </div>
+
+        <div class="time-slots">
+          <div class="slot">
+            <div class="slot-time">10:00</div>
+            <div class="slot-block teal">
+              <div class="slot-name">Ana Martínez</div>
+              <div class="slot-type">Sesión individual · 50 min</div>
+            </div>
+          </div>
+          <div class="slot">
+            <div class="slot-time">11:00</div>
+            <div class="slot-block empty"></div>
+          </div>
+          <div class="slot">
+            <div class="slot-time">12:00</div>
+            <div class="slot-block teal">
+              <div class="slot-name">Carlos Ruiz</div>
+              <div class="slot-type">Seguimiento · 50 min</div>
+            </div>
+          </div>
+          <div class="slot">
+            <div class="slot-time">2:30</div>
+            <div class="slot-block coral">
+              <div class="slot-name">María López</div>
+              <div class="slot-type">Próxima sesión</div>
+              <div class="slot-now">Ahora</div>
+            </div>
+          </div>
+          <div class="slot">
+            <div class="slot-time">4:00</div>
+            <div class="slot-block teal">
+              <div class="slot-name">Juan Pablo</div>
+              <div class="slot-type">Evaluación · 60 min</div>
+            </div>
+          </div>
+          <div class="slot">
+            <div class="slot-time">5:30</div>
+            <div class="slot-block empty"></div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item"><div class="nav-icon" style="opacity:.35;">🏠</div><div class="nav-text">Inicio</div></div>
+          <div class="nav-item"><div class="nav-icon" style="opacity:.35;">👥</div><div class="nav-text">Pacientes</div></div>
+          <div class="nav-item active"><div class="nav-icon">📅</div><div class="nav-text" style="color:#FF9B7A;">Agenda</div></div>
+          <div class="nav-item"><div class="nav-icon" style="opacity:.35;">🔔</div><div class="nav-text">Alertas</div></div>
+          <div class="nav-item"><div class="nav-icon" style="opacity:.35;">👤</div><div class="nav-text">Perfil</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 4: CHECK-IN PACIENTE -->
+  <div class="phone-wrapper">
+    <div class="phone-label">Check-in paciente</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s-checkin">
+        <div class="status-bar"><span>9:41</span><span>●●● 100%</span></div>
+
+        <div class="checkin-icon">🌿</div>
+        <div class="checkin-greeting">Bienvenido de nuevo</div>
+        <div class="checkin-name">Carlos 👋</div>
+
+        <div class="checkin-question">¿Cómo llegaste<br/>a esta sesión?</div>
+
+        <div class="mood-scale">
+          <div class="mood-emoji">😔</div>
+          <div class="mood-emoji">😐</div>
+          <div class="mood-emoji active">🙂</div>
+          <div class="mood-emoji">😊</div>
+          <div class="mood-emoji">😁</div>
+        </div>
+
+        <div class="checkin-label">¿Algo en particular que quieras trabajar hoy?</div>
+        <div class="checkin-textarea">Quiero hablar sobre la situación con mi trabajo, me ha costado mucho...</div>
+
+        <div class="btn-teal">Enviar check-in</div>
+
+        <div class="session-info">
+          <div class="session-dot"></div>
+          <div class="session-text">Sesión #12 con Dr. Rincón · Hoy 2:30pm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

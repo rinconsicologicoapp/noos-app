@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psicólogo Docs — Pantallas</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #02020E;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 56px 40px 80px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+}
+
+.gallery-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+.gallery-header .brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.gallery-header h1 {
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #6EE7B7 0%, #10B981 50%, #34D399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gallery-header p {
+  font-size: 15px;
+  color: rgba(241,245,249,0.35);
+  letter-spacing: -0.005em;
+}
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(52,211,153,0.6);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 20px;
+  padding: 4px 12px;
+  margin-top: 10px;
+  display: inline-block;
+}
+
+.phones-row {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.phone-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.phone-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(241,245,249,0.25);
+}
+.phone {
+  width: 268px;
+  height: 580px;
+  border-radius: 48px;
+  border: 8px solid #0D1117;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.06),
+    0 40px 100px rgba(0,0,0,.95),
+    0 8px 24px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.04);
+  flex-shrink: 0;
+}
+.notch {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 90px; height: 26px;
+  background: #0D1117;
+  border-radius: 0 0 16px 16px;
+  z-index: 50;
+}
+.status-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 44px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 20px 6px;
+  z-index: 40;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(241,245,249,0.6);
+}
+
+/* ─── SCREEN 1: LOGIN ─── */
+.s-login {
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse 160% 80% at 50% -10%, #04200E 0%, #060614 55%, #02020E 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 22px 28px;
+  position: relative;
+  overflow: hidden;
+}
+.s-login::before {
+  content: '';
+  position: absolute;
+  top: 80px; left: 50%;
+  transform: translateX(-50%);
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(16,185,129,.12) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.psi-logo {
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+.login-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  color: #F1F5F9;
+  margin-bottom: 3px;
+}
+.login-sub {
+  font-size: 12px;
+  color: rgba(241,245,249,0.38);
+  margin-bottom: 6px;
+}
+.cert-badge {
+  font-size: 9px;
+  color: rgba(16,185,129,0.6);
+  border: 1px solid rgba(16,185,129,0.15);
+  border-radius: 8px;
+  padding: 3px 9px;
+  margin-bottom: 24px;
+  letter-spacing: 0.06em;
+}
+.inp {
+  width: 100%;
+  height: 46px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.inp .icon { font-size: 13px; opacity: 0.35; }
+.inp .text { font-size: 13px; color: rgba(241,245,249,0.4); }
+.inp.filled .text { color: rgba(241,245,249,0.8); }
+.btn-green {
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #023020;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 20px rgba(16,185,129,.35), inset 0 1px 0 rgba(255,255,255,.25);
+  margin-top: 4px;
+  margin-bottom: 16px;
+}
+.login-link {
+  font-size: 11px;
+  color: rgba(241,245,249,0.28);
+  text-align: center;
+}
+.login-link span { color: rgba(52,211,153,0.6); }
+.login-footer {
+  position: absolute;
+  bottom: 20px;
+  font-size: 9px;
+  color: rgba(241,245,249,0.15);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ─── SCREEN 2: DASHBOARD ─── */
+.s-dash {
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, #060614 0%, #040410 100%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.dash-header {
+  padding: 48px 18px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.dash-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(52,211,153,0.5);
+  margin-bottom: 4px;
+}
+.dash-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #F1F5F9;
+  letter-spacing: -0.02em;
+  margin-bottom: 2px;
+}
+.dash-sub {
+  font-size: 11px;
+  color: rgba(241,245,249,0.3);
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 14px 18px;
+}
+.stat-box {
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.055);
+  border-radius: 12px;
+  padding: 12px 10px;
+}
+.stat-num { font-size: 22px; font-weight: 900; color: #F1F5F9; letter-spacing: -0.02em; }
+.stat-label { font-size: 9px; color: rgba(241,245,249,0.3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+.stat-box.green .stat-num { color: #10B981; }
+.stat-box.indigo .stat-num { color: #818CF8; }
+.stat-box.amber .stat-num { color: #FBBF24; }
+
+.section-hdr {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(241,245,249,0.22);
+  padding: 0 18px;
+  margin-bottom: 10px;
+}
+.quick-list {
+  padding: 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  overflow: hidden;
+}
+.quick-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 11px;
+  padding: 10px 12px;
+}
+.quick-icon {
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.quick-info { flex: 1; }
+.quick-name { font-size: 12px; font-weight: 600; color: #F1F5F9; }
+.quick-meta { font-size: 10px; color: rgba(241,245,249,0.35); }
+.quick-arrow { font-size: 12px; color: rgba(241,245,249,0.2); }
+
+.bottom-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 0 16px;
+  border-top: 1px solid rgba(255,255,255,.05);
+  background: rgba(6,6,20,.95);
+  backdrop-filter: blur(20px);
+}
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.nav-icon { font-size: 18px; }
+.nav-text { font-size: 9px; color: rgba(241,245,249,0.28); font-weight: 500; }
+.nav-item.active .nav-text { color: #10B981; }
+
+/* ─── SCREEN 3: DOCUMENTOS ─── */
+.s-docs {
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, #060614 0%, #040410 100%);
+  display: flex;
+  flex-direction: column;
+}
+.docs-header {
+  padding: 48px 18px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.docs-title { font-size: 19px; font-weight: 800; color: #F1F5F9; letter-spacing: -0.02em; }
+.docs-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(16,185,129,0.7);
+  background: rgba(16,185,129,.08);
+  border: 1px solid rgba(16,185,129,.15);
+  border-radius: 8px;
+  padding: 3px 9px;
+}
+.doc-list {
+  flex: 1;
+  padding: 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow: hidden;
+}
+.doc-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 11px;
+  padding: 9px 12px;
+}
+.doc-icon-box {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.doc-info { flex: 1; }
+.doc-name { font-size: 11px; font-weight: 600; color: #F1F5F9; }
+.doc-law { font-size: 9px; color: rgba(241,245,249,0.3); }
+.doc-gen {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(52,211,153,0.7);
+  background: rgba(16,185,129,.08);
+  border: 1px solid rgba(16,185,129,.12);
+  border-radius: 7px;
+  padding: 3px 8px;
+  flex-shrink: 0;
+}
+
+/* ─── SCREEN 4: GENERADOR PDF ─── */
+.s-gen {
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, #060614 0%, #040410 100%);
+  display: flex;
+  flex-direction: column;
+}
+.gen-header {
+  padding: 48px 18px 14px;
+}
+.gen-back {
+  font-size: 11px;
+  color: rgba(52,211,153,0.6);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.gen-title { font-size: 18px; font-weight: 800; color: #F1F5F9; letter-spacing: -0.02em; margin-bottom: 4px; }
+.gen-badge {
+  font-size: 9px;
+  color: rgba(52,211,153,0.6);
+  background: rgba(16,185,129,.07);
+  border: 1px solid rgba(16,185,129,.12);
+  border-radius: 7px;
+  padding: 2px 8px;
+  display: inline-block;
+}
+.gen-form {
+  flex: 1;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.field-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(241,245,249,0.3);
+}
+.field-inp {
+  height: 38px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 12px;
+  color: rgba(241,245,249,0.75);
+  display: flex;
+  align-items: center;
+}
+.field-inp.green-focus {
+  border-color: rgba(16,185,129,.35);
+  background: rgba(16,185,129,.04);
+  color: #F1F5F9;
+}
+.pdf-preview {
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pdf-icon { font-size: 22px; }
+.pdf-info { flex: 1; }
+.pdf-name { font-size: 11px; font-weight: 600; color: #F1F5F9; }
+.pdf-sub { font-size: 9px; color: rgba(241,245,249,0.3); }
+.pdf-sig {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(52,211,153,0.7);
+  background: rgba(16,185,129,.07);
+  border: 1px solid rgba(16,185,129,.12);
+  border-radius: 6px;
+  padding: 2px 7px;
+}
+.btn-gen {
+  height: 48px;
+  background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #023020;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 20px rgba(16,185,129,.3), inset 0 1px 0 rgba(255,255,255,.25);
+}
+</style>
+</head>
+<body>
+
+<div class="gallery-header">
+  <div class="brand">
+    <!-- Ψ Logo -->
+    <svg width="52" height="52" viewBox="0 0 120 120">
+      <defs>
+        <radialGradient id="gbg" cx="30%" cy="25%" r="75%">
+          <stop offset="0%" stop-color="#1A3A2A"/>
+          <stop offset="100%" stop-color="#060614"/>
+        </radialGradient>
+        <filter id="gglow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <rect width="120" height="120" rx="28" fill="url(#gbg)"/>
+      <rect width="120" height="120" rx="28" fill="none" stroke="rgba(16,185,129,.25)" stroke-width="1.5"/>
+      <!-- Ψ character -->
+      <text x="60" y="82" text-anchor="middle" font-size="68" font-weight="900" fill="url(#psiGrad)" font-family="serif" filter="url(#gglow)">Ψ</text>
+      <defs>
+        <linearGradient id="psiGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#6EE7B7"/>
+          <stop offset="100%" stop-color="#10B981"/>
+        </linearGradient>
+      </defs>
+      <!-- Corner markers -->
+      <path d="M 10 10 L 10 22 M 10 10 L 22 10" stroke="rgba(52,211,153,.4)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M 110 10 L 110 22 M 110 10 L 98 10" stroke="rgba(52,211,153,.4)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M 10 110 L 10 98 M 10 110 L 22 110" stroke="rgba(52,211,153,.4)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M 110 110 L 110 98 M 110 110 L 98 110" stroke="rgba(52,211,153,.4)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- Pulsing dot -->
+      <circle cx="84" cy="32" r="5" fill="#10B981" filter="url(#gglow)" opacity=".9"/>
+    </svg>
+    <h1>Psicólogo Docs</h1>
+  </div>
+  <p>Documenta como profesional. Sin papeles, sin estrés.</p>
+  <span class="badge">Res. 1995/1999 · Ley 1090 · Colombia · Firma digital</span>
+</div>
+
+<div class="phones-row">
+
+  <!-- PHONE 1: LOGIN -->
+  <div class="phone-wrapper">
+    <div class="phone-label">Login</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s-login">
+        <div class="status-bar"><span>9:41</span><span>●●● 100%</span></div>
+
+        <div class="psi-logo" style="margin-top:14px;">
+          <svg width="62" height="62" viewBox="0 0 120 120">
+            <defs>
+              <radialGradient id="lbg" cx="30%" cy="25%" r="75%">
+                <stop offset="0%" stop-color="#1A3A2A"/>
+                <stop offset="100%" stop-color="#060614"/>
+              </radialGradient>
+              <filter id="lgw"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <rect width="120" height="120" rx="28" fill="url(#lbg)"/>
+            <rect width="120" height="120" rx="28" fill="none" stroke="rgba(16,185,129,.2)" stroke-width="1.5"/>
+            <text x="60" y="82" text-anchor="middle" font-size="68" font-weight="900" fill="url(#lpg)" font-family="serif" filter="url(#lgw)">Ψ</text>
+            <defs>
+              <linearGradient id="lpg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#6EE7B7"/>
+                <stop offset="100%" stop-color="#10B981"/>
+              </linearGradient>
+            </defs>
+            <path d="M 10 10 L 10 22 M 10 10 L 22 10" stroke="rgba(52,211,153,.35)" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M 110 10 L 110 22 M 110 10 L 98 10" stroke="rgba(52,211,153,.35)" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M 10 110 L 10 98 M 10 110 L 22 110" stroke="rgba(52,211,153,.35)" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M 110 110 L 110 98 M 110 110 L 98 110" stroke="rgba(52,211,153,.35)" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <circle cx="84" cy="32" r="5" fill="#10B981" filter="url(#lgw)" opacity=".85"/>
+          </svg>
+        </div>
+
+        <div class="login-title">Psicólogo Docs</div>
+        <div class="login-sub">Gestión clínica profesional</div>
+        <div class="cert-badge">Plataforma certificada · Res. 1995/1999 · Ley 1581/2012</div>
+
+        <div class="inp filled">
+          <span class="icon">✉</span>
+          <span class="text">psicólogo@correo.com</span>
+        </div>
+        <div class="inp">
+          <span class="icon">🔒</span>
+          <span class="text">••••••••</span>
+        </div>
+
+        <div class="btn-green">Ingresar al panel</div>
+        <div class="login-link">¿Nuevo aquí? <span>Solicitar acceso</span></div>
+
+        <div class="login-footer">
+          Conexión cifrada · Datos protegidos<br/>
+          Acceso exclusivo para psicólogos con tarjeta Colpsic
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 2: DASHBOARD -->
+  <div class="phone-wrapper">
+    <div class="phone-label">Dashboard clínico</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s-dash">
+        <div class="status-bar"><span>9:41</span><span>●●● 100%</span></div>
+        <div class="dash-header">
+          <div class="dash-tag">Panel clínico</div>
+          <div class="dash-title">Resumen de actividad</div>
+          <div class="dash-sub">Aquí tienes un resumen de tu práctica clínica</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box green">
+            <div class="stat-num">24</div>
+            <div class="stat-label">Docs este mes</div>
+          </div>
+          <div class="stat-box indigo">
+            <div class="stat-num">12</div>
+            <div class="stat-label">Pacientes</div>
+          </div>
+          <div class="stat-box amber">
+            <div class="stat-num">38</div>
+            <div class="stat-label">Sesiones</div>
+          </div>
+        </div>
+
+        <div class="section-hdr">Acceso rápido</div>
+        <div class="quick-list">
+          <div class="quick-item">
+            <div class="quick-icon" style="background:rgba(16,185,129,.1);">📋</div>
+            <div class="quick-info">
+              <div class="quick-name">Historia Clínica</div>
+              <div class="quick-meta">Res. 1995/1999</div>
+            </div>
+            <div class="quick-arrow">›</div>
+          </div>
+          <div class="quick-item">
+            <div class="quick-icon" style="background:rgba(99,102,241,.1);">🧠</div>
+            <div class="quick-info">
+              <div class="quick-name">Evolución SOAP</div>
+              <div class="quick-meta">Formato de sesión</div>
+            </div>
+            <div class="quick-arrow">›</div>
+          </div>
+          <div class="quick-item">
+            <div class="quick-icon" style="background:rgba(251,191,36,.1);">📝</div>
+            <div class="quick-info">
+              <div class="quick-name">Consentimiento</div>
+              <div class="quick-meta">Adultos · Menores</div>
+            </div>
+            <div class="quick-arrow">›</div>
+          </div>
+          <div class="quick-item">
+            <div class="quick-icon" style="background:rgba(248,113,113,.1);">📊</div>
+            <div class="quick-info">
+              <div class="quick-name">RIPS</div>
+              <div class="quick-meta">Res. 3374/2000</div>
+            </div>
+            <div class="quick-arrow">›</div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item active"><div class="nav-icon">🏠</div><div class="nav-text" style="color:#10B981;">Inicio</div></div>
+          <div class="nav-item"><div class="nav-icon" style="opacity:.35;">📄</div><div class="nav-text">Documentos</div></div>
+          <div class="nav-item"><div class="nav-icon" style="opacity:.35;">👥</div><div class="nav-text">Pacientes</div></div>
+          <div class="nav-item"><div class="nav-icon" style="opacity:.35;">📚</div><div class="nav-text">Recursos</div></div>
+          <div class="nav-item"><div class="nav-icon" style="opacity:.35;">👤</div><div class="nav-text">Perfil</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 3: LISTA DOCUMENTOS -->
+  <div class="phone-wrapper">
+    <div class="phone-label">11 Formatos clínicos</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s-docs">
+        <div class="status-bar"><span>9:41</span><span>●●● 100%</span></div>
+        <div class="docs-header">
+          <div class="docs-title">Documentos</div>
+          <div class="docs-count">11 formatos</div>
+        </div>
+
+        <div class="doc-list">
+          <div class="doc-item">
+            <div class="doc-icon-box" style="background:rgba(16,185,129,.1);">📋</div>
+            <div class="doc-info">
+              <div class="doc-name">Historia Clínica</div>
+              <div class="doc-law">Res. 1995/1999</div>
+            </div>
+            <div class="doc-gen">Generar</div>
+          </div>
+          <div class="doc-item" style="border-color:rgba(16,185,129,.15);background:rgba(16,185,129,.04);">
+            <div class="doc-icon-box" style="background:rgba(16,185,129,.12);">🧠</div>
+            <div class="doc-info">
+              <div class="doc-name">Evolución SOAP</div>
+              <div class="doc-law">Sesión de seguimiento</div>
+            </div>
+            <div class="doc-gen">Generar</div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon-box" style="background:rgba(99,102,241,.1);">✍️</div>
+            <div class="doc-info">
+              <div class="doc-name">Consentimiento Adultos</div>
+              <div class="doc-law">Ley 1090/2006</div>
+            </div>
+            <div class="doc-gen">Generar</div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon-box" style="background:rgba(251,191,36,.1);">👶</div>
+            <div class="doc-info">
+              <div class="doc-name">Consentimiento Menores</div>
+              <div class="doc-law">Ley 1098/2006</div>
+            </div>
+            <div class="doc-gen">Generar</div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon-box" style="background:rgba(248,113,113,.1);">📊</div>
+            <div class="doc-info">
+              <div class="doc-name">Informe Psicológico</div>
+              <div class="doc-law">Ley 1090 Art. 49</div>
+            </div>
+            <div class="doc-gen">Generar</div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon-box" style="background:rgba(167,139,250,.1);">🏫</div>
+            <div class="doc-info">
+              <div class="doc-name">Informe para Colegio</div>
+              <div class="doc-law">Ley 115/1994</div>
+            </div>
+            <div class="doc-gen">Generar</div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon-box" style="background:rgba(52,211,153,.08);">🧾</div>
+            <div class="doc-info">
+              <div class="doc-name">Facturación</div>
+              <div class="doc-law">Art. 615 E.T.</div>
+            </div>
+            <div class="doc-gen">Generar</div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon-box" style="background:rgba(251,191,36,.08);">📈</div>
+            <div class="doc-info">
+              <div class="doc-name">RIPS</div>
+              <div class="doc-law">Res. 3374/2000</div>
+            </div>
+            <div class="doc-gen">Generar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 4: GENERADOR PDF -->
+  <div class="phone-wrapper">
+    <div class="phone-label">Generador PDF</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s-gen">
+        <div class="status-bar"><span>9:41</span><span>●●● 100%</span></div>
+        <div class="gen-header">
+          <div class="gen-back">← Documentos</div>
+          <div class="gen-title">Historia Clínica</div>
+          <div class="gen-badge">Res. 1995/1999 · Con firma digital</div>
+        </div>
+
+        <div class="gen-form">
+          <div class="field-group">
+            <div class="field-label">Nombre del paciente</div>
+            <div class="field-inp green-focus">María Alejandra López Ruiz</div>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Fecha de sesión</div>
+            <div class="field-inp">01 / 05 / 2026</div>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Motivo de consulta</div>
+            <div class="field-inp" style="height:52px; align-items:flex-start; padding-top:10px; font-size:11px; color:rgba(241,245,249,.5);">Ansiedad generalizada y dificultades en relaciones interpersonales...</div>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Diagnóstico (CIE-11)</div>
+            <div class="field-inp">F41.1 — Trastorno de ansiedad generalizada</div>
+          </div>
+
+          <div class="pdf-preview">
+            <div class="pdf-icon">📄</div>
+            <div class="pdf-info">
+              <div class="pdf-name">HistoriaClinica_Lopez_2026.pdf</div>
+              <div class="pdf-sub">Listo para generar · Firma automática</div>
+            </div>
+            <div class="pdf-sig">✓ Firma</div>
+          </div>
+
+          <div class="btn-gen">
+            <span>📥</span>
+            Generar PDF
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
