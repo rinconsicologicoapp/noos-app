@@ -914,23 +914,54 @@ const [darkMode, setDarkMode] = useState(() => {
 });
 const [installPrompt, setInstallPrompt] = useState(null);
 const [showInstall, setShowInstall] = useState(false);
+const [installing, setInstalling] = useState(false);
+const [showIOSHint, setShowIOSHint] = useState(() => {
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  return isIOS && !isStandalone;
+});
 
 useEffect(() => {
-  const handler = (e) => {
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+  if (isStandalone) return;
+
+  const onBeforeInstall = (e) => {
     e.preventDefault();
     setInstallPrompt(e);
     setShowInstall(true);
   };
-  window.addEventListener("beforeinstallprompt", handler);
-  return () => window.removeEventListener("beforeinstallprompt", handler);
+  const onInstalled = () => {
+    setShowInstall(false);
+    setInstallPrompt(null);
+    setInstalling(false);
+  };
+  window.addEventListener('beforeinstallprompt', onBeforeInstall);
+  window.addEventListener('appinstalled', onInstalled);
+  return () => {
+    window.removeEventListener('beforeinstallprompt', onBeforeInstall);
+    window.removeEventListener('appinstalled', onInstalled);
+  };
 }, []);
 
 const handleInstall = async () => {
-  if (!installPrompt) return;
-  installPrompt.prompt();
-  const { outcome } = await installPrompt.userChoice;
-  if (outcome === "accepted") setShowInstall(false);
+  if (!installPrompt || installing) return;
+  setInstalling(true);
+  const savedPrompt = installPrompt;
   setInstallPrompt(null);
+  setShowInstall(false);
+  try {
+    await savedPrompt.prompt();
+    const { outcome } = await savedPrompt.userChoice;
+    if (outcome !== 'accepted') {
+      setShowInstall(false);
+    }
+  } catch {
+    setShowInstall(false);
+  } finally {
+    setInstalling(false);
+  }
 };
   const [navOpen, setNavOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
@@ -3513,9 +3544,24 @@ const styles = `
     </div>
 
     {showInstall && (
-      <button onClick={handleInstall} style={{ marginTop:14, padding:"8px 20px", background:"rgba(255,123,90,0.08)", color:"rgba(255,155,122,0.5)", borderRadius:20, fontSize:11, fontWeight:600, border:"1px solid rgba(255,123,90,0.14)", cursor:"pointer", fontFamily:"inherit" }}>
-        ⬇ Descargar App
+      <button
+        onClick={handleInstall}
+        disabled={installing}
+        style={{ marginTop:14, padding:"8px 20px", background:"rgba(255,123,90,0.08)", color: installing ? "rgba(255,155,122,0.25)" : "rgba(255,155,122,0.5)", borderRadius:20, fontSize:11, fontWeight:600, border:"1px solid rgba(255,123,90,0.14)", cursor: installing ? "not-allowed" : "pointer", fontFamily:"inherit", transition:"color 200ms ease", touchAction:"manipulation" }}
+      >
+        {installing ? 'Instalando…' : '⬇ Descargar App'}
       </button>
+    )}
+    {showIOSHint && (
+      <div style={{ marginTop:14, padding:"12px 16px", background:"rgba(255,123,90,0.06)", border:"1px solid rgba(255,123,90,0.14)", borderRadius:14, textAlign:"center", maxWidth:260 }}>
+        <p style={{ fontSize:11, color:"rgba(255,155,122,0.7)", margin:0, lineHeight:1.6 }}>
+          Para instalar en iPhone: toca <strong style={{color:"rgba(255,155,122,1)"}}>⬆</strong> en Safari<br/>
+          y luego <strong style={{color:"rgba(255,155,122,1)"}}>"Agregar a pantalla de inicio"</strong>
+        </p>
+        <button onClick={() => setShowIOSHint(false)} style={{ marginTop:8, fontSize:10, color:"rgba(245,238,232,0.3)", background:"none", border:"none", cursor:"pointer", fontFamily:"inherit" }}>
+          Entendido
+        </button>
+      </div>
     )}
 
   </div>
