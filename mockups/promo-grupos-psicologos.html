@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Psicólogo — Promo grupos</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #010008;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  gap: 16px;
+}
+
+.hint {
+  font-size: 11px;
+  color: rgba(255,255,255,.2);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ─── POST CONTAINER 1080×1080 ─── */
+.post {
+  width: 1080px;
+  height: 1080px;
+  position: relative;
+  overflow: hidden;
+  background: #07060F;
+  flex-shrink: 0;
+}
+
+/* Atmospheric background */
+.bg-base {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 70% at 15% 0%, rgba(42,14,58,.95) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 100%, rgba(8,28,24,.8) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, #07060F 0%, #04030C 100%);
+}
+/* Glow coral left */
+.glow-coral {
+  position: absolute;
+  top: -120px; left: -80px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,123,90,.10) 0%, transparent 70%);
+  border-radius: 50%;
+}
+/* Glow teal right */
+.glow-teal {
+  position: absolute;
+  bottom: -100px; right: -80px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(78,205,196,.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+/* Subtle grid */
+.grid-overlay {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: -1px -1px;
+}
+/* Noise texture */
+.noise {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: .5;
+}
+
+/* ─── LAYOUT ─── */
+.layout {
+  position: relative;
+  z-index: 10;
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 64px 72px 64px 72px;
+  gap: 0;
+}
+
+/* ─── LEFT PANEL ─── */
+.left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  padding-right: 48px;
+}
+
+/* Brand badge */
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
+  padding: 7px 16px;
+  margin-bottom: 28px;
+  width: fit-content;
+}
+.badge-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #FF9B7A;
+  box-shadow: 0 0 8px rgba(255,155,122,.6);
+  animation: pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: .7; transform: scale(1); box-shadow: 0 0 6px rgba(255,155,122,.5); }
+  50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 14px rgba(255,155,122,.8); }
+}
+.badge-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(245,238,232,.45);
+  letter-spacing: 0.04em;
+}
+
+/* Headline */
+.eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,155,122,.5);
+  margin-bottom: 14px;
+}
+.headline {
+  font-size: 58px;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1.0;
+  color: #F5EEE8;
+  margin-bottom: 16px;
+}
+.headline em {
+  font-style: normal;
+  background: linear-gradient(135deg, #FF9B7A 0%, #FFD080 40%, #6EEDDF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.subhead {
+  font-size: 16px;
+  color: rgba(245,238,232,.4);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  margin-bottom: 36px;
+  max-width: 400px;
+}
+
+/* Feature list */
+.features-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245,238,232,.22);
+  margin-bottom: 16px;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+  margin-bottom: 40px;
+}
+.feat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.feat-icon {
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.feat-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(245,238,232,.65);
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+}
+.feat-text strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(245,238,232,.85);
+  margin-bottom: 1px;
+}
+.feat-text span {
+  font-size: 11px;
+  color: rgba(245,238,232,.35);
+  font-weight: 400;
+}
+
+/* Bottom area */
+.bottom-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.cta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 24px;
+  background: linear-gradient(135deg, #FF8B6A 0%, #FF5A36 100%);
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 20px rgba(255,90,54,.35), inset 0 1px 0 rgba(255,255,255,.2);
+}
+.url-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(245,238,232,.25);
+  letter-spacing: 0.02em;
+}
+.separator { color: rgba(255,255,255,.1); font-size: 20px; }
+
+/* ─── RIGHT PANEL — PHONE ─── */
+.right {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Outer glow ring */
+.phone-glow {
+  position: absolute;
+  width: 380px; height: 700px;
+  border-radius: 60px;
+  background: radial-gradient(ellipse, rgba(255,123,90,.12) 0%, rgba(78,205,196,.06) 50%, transparent 70%);
+  filter: blur(30px);
+}
+
+.phone {
+  width: 300px;
+  height: 648px;
+  border-radius: 52px;
+  border: 8px solid #1E1830;
+  overflow: hidden;
+  position: relative;
+  transform: perspective(1200px) rotateY(-8deg) rotateX(2deg);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.07),
+    -20px 40px 80px rgba(0,0,0,.8),
+    -4px 8px 24px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.06);
+}
+.notch {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100px; height: 28px;
+  background: #1E1830;
+  border-radius: 0 0 18px 18px;
+  z-index: 100;
+}
+
+/* ─── LOGIN SCREEN ─── */
+.s-login {
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse 160% 90% at 50% -5%, #2A0E3A 0%, #09070F 52%, #04030C 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 52px 24px 30px;
+  position: relative;
+  overflow: hidden;
+}
+.s-login::before {
+  content: '';
+  position: absolute;
+  top: 50px; left: 50%;
+  transform: translateX(-50%);
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(255,123,90,.12) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.status-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 44px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 22px 7px;
+  z-index: 40;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(245,238,232,.6);
+}
+
+.login-logo { margin-top: 14px; margin-bottom: 16px; }
+
+.login-title {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #FF9B7A 0%, #FFD080 50%, #6EEDDF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+.login-subtitle {
+  font-size: 12px;
+  color: rgba(245,238,232,.32);
+  margin-bottom: 28px;
+  letter-spacing: -0.005em;
+}
+.input-group { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.inp {
+  width: 100%;
+  height: 50px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 0 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.inp .icon { font-size: 15px; opacity: .35; }
+.inp .txt { font-size: 14px; color: rgba(245,238,232,.38); }
+.inp.filled { border-color: rgba(255,123,90,.25); background: rgba(255,123,90,.04); }
+.inp.filled .txt { color: rgba(245,238,232,.75); }
+
+.btn-login {
+  width: 100%;
+  height: 52px;
+  background: linear-gradient(135deg, #FF8B6A 0%, #FF5A36 100%);
+  border-radius: 15px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 800; color: #fff;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 20px rgba(255,90,54,.4), inset 0 1px 0 rgba(255,255,255,.2);
+  margin-bottom: 16px;
+}
+
+.login-link {
+  font-size: 12px;
+  color: rgba(245,238,232,.25);
+  margin-bottom: 20px;
+}
+.login-link span { color: rgba(255,155,122,.65); }
+
+.install-btn {
+  padding: 8px 20px;
+  background: rgba(255,123,90,.07);
+  border: 1px solid rgba(255,123,90,.15);
+  border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  color: rgba(255,155,122,.5);
+}
+.login-footer {
+  position: absolute;
+  bottom: 20px;
+  font-size: 10px;
+  color: rgba(245,238,232,.15);
+  text-align: center;
+}
+
+/* Floating badge on phone */
+.phone-badge {
+  position: absolute;
+  bottom: 60px;
+  right: -20px;
+  background: rgba(18,14,32,.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.5), 0 1px 0 rgba(255,255,255,.06);
+  white-space: nowrap;
+}
+.badge-icon { font-size: 20px; }
+.badge-info { display: flex; flex-direction: column; gap: 1px; }
+.badge-label { font-size: 11px; font-weight: 700; color: #F5EEE8; letter-spacing: -0.005em; }
+.badge-sub { font-size: 9px; color: rgba(245,238,232,.4); }
+
+.phone-badge2 {
+  position: absolute;
+  top: 100px;
+  right: -30px;
+  background: rgba(78,205,196,.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(78,205,196,.25);
+  border-radius: 12px;
+  padding: 8px 14px;
+  box-shadow: 0 0 20px rgba(78,205,196,.12);
+  white-space: nowrap;
+}
+.badge2-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4ECDC4;
+  letter-spacing: -0.005em;
+}
+.badge2-sub {
+  font-size: 9px;
+  color: rgba(78,205,196,.55);
+  margin-top: 1px;
+}
+
+/* Top bar */
+.top-bar {
+  position: absolute;
+  top: 40px; left: 72px; right: 72px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 20;
+}
+.top-logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.top-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(245,238,232,.5);
+  letter-spacing: -0.01em;
+}
+.top-tag {
+  font-size: 11px;
+  color: rgba(245,238,232,.2);
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="hint">Captura con: Chrome → F12 → Ctrl+Shift+P → "Capture full size screenshot" (zoom al 100%)</div>
+
+<div class="post">
+  <!-- BG Layers -->
+  <div class="bg-base"></div>
+  <div class="glow-coral"></div>
+  <div class="glow-teal"></div>
+  <div class="grid-overlay"></div>
+  <div class="noise"></div>
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="top-logo">
+      <svg width="28" height="28" viewBox="0 0 200 200">
+        <defs>
+          <radialGradient id="thc" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#FFCFB8"/><stop offset="45%" stop-color="#FF7B5A"/><stop offset="100%" stop-color="#C03418"/></radialGradient>
+          <radialGradient id="tht" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#A8F5F0"/><stop offset="45%" stop-color="#4ECDC4"/><stop offset="100%" stop-color="#1E7870"/></radialGradient>
+          <radialGradient id="tgold" cx="50%" cy="30%" r="70%"><stop offset="0%" stop-color="#FFE8A0"/><stop offset="100%" stop-color="#FFB347"/></radialGradient>
+          <filter id="tglow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <circle cx="72" cy="64" r="34" fill="url(#thc)"/>
+        <circle cx="128" cy="64" r="34" fill="url(#tht)"/>
+        <path d="M 40 100 Q 100 155 162 100" stroke="#FF7B5A" stroke-width="18" fill="none" stroke-linecap="round" opacity=".85"/>
+        <path d="M 160 100 Q 100 148 40 100" stroke="#4ECDC4" stroke-width="16" fill="none" stroke-linecap="round" opacity=".85"/>
+        <circle cx="100" cy="134" r="10" fill="url(#tgold)" filter="url(#tglow)"/>
+      </svg>
+      <span class="top-name">Mi Psicólogo</span>
+    </div>
+    <div class="top-tag">🇨🇴 Hecho para Colombia</div>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="layout">
+
+    <!-- LEFT PANEL -->
+    <div class="left">
+
+      <div class="brand-badge">
+        <div class="badge-dot"></div>
+        <span class="badge-text">App clínica para psicólogos · Colombia</span>
+      </div>
+
+      <div class="eyebrow">Digitaliza tu consulta</div>
+
+      <h1 class="headline">
+        Tu consultorio,<br>
+        <em>en un solo lugar.</em>
+      </h1>
+
+      <p class="subhead">
+        Todo lo que necesitas para gestionar pacientes, citas y sesiones — en una app que se instala en segundos.
+      </p>
+
+      <div class="features-title">Funciones incluidas</div>
+
+      <div class="features-grid">
+
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(255,123,90,.1);">📅</div>
+          <div class="feat-text">
+            <strong>Agenda de citas</strong>
+            <span>Calendario visual completo</span>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(78,205,196,.1);">🔔</div>
+          <div class="feat-text">
+            <strong>Recordatorios push</strong>
+            <span>Automáticos, iOS y Android</span>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(255,208,128,.1);">✅</div>
+          <div class="feat-text">
+            <strong>Check-in del paciente</strong>
+            <span>Estado antes de cada sesión</span>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(255,123,90,.1);">👥</div>
+          <div class="feat-text">
+            <strong>Gestión de pacientes</strong>
+            <span>Panel con todos tus casos</span>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(78,205,196,.1);">📊</div>
+          <div class="feat-text">
+            <strong>Estadísticas clínicas</strong>
+            <span>Actividad, sesiones y más</span>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(255,208,128,.1);">📝</div>
+          <div class="feat-text">
+            <strong>Notas por sesión</strong>
+            <span>Historial de cada paciente</span>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(130,100,255,.12);">📱</div>
+          <div class="feat-text">
+            <strong>Sin App Store</strong>
+            <span>Instala directo desde el navegador</span>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(78,205,196,.1);">🔒</div>
+          <div class="feat-text">
+            <strong>Datos seguros en la nube</strong>
+            <span>Ley 1581/2012 · Cifrado</span>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(255,123,90,.1);">💬</div>
+          <div class="feat-text">
+            <strong>Espacio del paciente</strong>
+            <span>Acceso privado con su psicólogo</span>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(255,208,128,.1);">🌐</div>
+          <div class="feat-text">
+            <strong>Multi-dispositivo</strong>
+            <span>Celular, tablet o computador</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="bottom-row">
+        <div class="cta-pill">
+          Conoce la app →
+        </div>
+        <div class="separator">·</div>
+        <div class="url-text">mipsicologo.vercel.app</div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT PANEL — PHONE -->
+    <div class="right">
+      <div class="phone-glow"></div>
+
+      <div class="phone">
+        <div class="notch"></div>
+
+        <div class="s-login">
+          <div class="status-bar">
+            <span>9:41</span>
+            <span>●●● 100%</span>
+          </div>
+
+          <!-- Logo -->
+          <div class="login-logo">
+            <svg width="72" height="72" viewBox="0 0 200 200">
+              <defs>
+                <radialGradient id="lhc" cx="35%" cy="28%" r="70%">
+                  <stop offset="0%" stop-color="#FFCFB8"/>
+                  <stop offset="45%" stop-color="#FF7B5A"/>
+                  <stop offset="100%" stop-color="#C03418"/>
+                </radialGradient>
+                <radialGradient id="lht" cx="35%" cy="28%" r="70%">
+                  <stop offset="0%" stop-color="#A8F5F0"/>
+                  <stop offset="45%" stop-color="#4ECDC4"/>
+                  <stop offset="100%" stop-color="#1E7870"/>
+                </radialGradient>
+                <radialGradient id="lgold" cx="50%" cy="30%" r="70%">
+                  <stop offset="0%" stop-color="#FFE8A0"/>
+                  <stop offset="100%" stop-color="#FFB347"/>
+                </radialGradient>
+                <filter id="lglow">
+                  <feGaussianBlur stdDeviation="3" result="b"/>
+                  <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              <circle cx="72" cy="64" r="34" fill="url(#lhc)"/>
+              <ellipse cx="68" cy="56" rx="9" ry="12" transform="rotate(-20 68 56)" fill="rgba(255,255,255,.18)"/>
+              <circle cx="128" cy="64" r="34" fill="url(#lht)"/>
+              <ellipse cx="124" cy="56" rx="9" ry="12" transform="rotate(-20 124 56)" fill="rgba(255,255,255,.18)"/>
+              <path d="M 40 100 Q 100 158 162 100" stroke="#FF7B5A" stroke-width="18" fill="none" stroke-linecap="round" opacity=".88"/>
+              <path d="M 160 100 Q 100 150 40 100" stroke="#4ECDC4" stroke-width="16" fill="none" stroke-linecap="round" opacity=".88"/>
+              <circle cx="100" cy="136" r="11" fill="url(#lgold)" filter="url(#lglow)"/>
+            </svg>
+          </div>
+
+          <div class="login-title">Mi Psicólogo</div>
+          <div class="login-subtitle">Tu espacio terapéutico</div>
+
+          <div class="input-group">
+            <div class="inp filled">
+              <span class="icon">✉</span>
+              <span class="txt">paciente@correo.com</span>
+            </div>
+            <div class="inp">
+              <span class="icon">🔒</span>
+              <span class="txt">••••••••</span>
+            </div>
+          </div>
+
+          <div class="btn-login">Iniciar sesión</div>
+
+          <div class="login-link">¿Primera vez? <span>Regístrate aquí</span></div>
+
+          <div class="install-btn">⬇ Descargar App</div>
+
+          <div class="login-footer">¿Problemas? Contacta a tu psicólogo</div>
+        </div>
+      </div>
+
+      <!-- Floating badge 1 — iOS & Android -->
+      <div class="phone-badge">
+        <div class="badge-icon">📱</div>
+        <div class="badge-info">
+          <div class="badge-label">iOS y Android</div>
+          <div class="badge-sub">Sin pasar por App Store</div>
+        </div>
+      </div>
+
+      <!-- Floating badge 2 — price -->
+      <div class="phone-badge2">
+        <div class="badge2-text">$33.000 / mes</div>
+        <div class="badge2-sub">Sin permanencia · Cancela cuando quieras</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="hint">1080 × 1080px · Listo para Instagram, Facebook y LinkedIn</div>
+
+</body>
+</html>
