@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Bundle — 3 Promos</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #010008;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 40px 20px; gap: 32px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+}
+.hint { font-size:10px; color:rgba(255,255,255,.2); letter-spacing:.08em; text-transform:uppercase; }
+.post { width:1080px; height:1080px; position:relative; overflow:hidden; flex-shrink:0; display:flex; flex-direction:column; }
+.bg { position:absolute; inset:0; z-index:0; }
+.grid { position:absolute; inset:0; z-index:1;
+  background-image: linear-gradient(rgba(255,255,255,.013) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.013) 1px, transparent 1px);
+  background-size:54px 54px; }
+.content { position:relative; z-index:10; width:100%; height:100%; }
+.bottom-bar {
+  position:absolute; bottom:0; left:0; right:0; height:72px;
+  display:flex; align-items:center; justify-content:space-between; padding:0 64px;
+  border-top:1px solid rgba(255,255,255,.06); background:rgba(6,6,20,.85); backdrop-filter:blur(20px);
+}
+.bottom-name { font-size:13px; font-weight:800; color:rgba(241,245,249,.38); }
+.cta-combo {
+  height:42px; padding:0 24px;
+  background:linear-gradient(135deg,#FF8B6A 0%,#FF5A36 45%,#10B981 100%);
+  border-radius:12px; font-size:13px; font-weight:800; color:#fff;
+  display:flex; align-items:center; gap:7px;
+  box-shadow:0 4px 20px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.15);
+}
+
+/* phone frames */
+.pframe { border-radius:38px; border:6px solid #1A1428; overflow:hidden; position:relative; box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 30px 70px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.05); }
+.pnotch { position:absolute; top:0; left:50%; transform:translateX(-50%); background:#1A1428; border-radius:0 0 12px 12px; z-index:50; }
+.pstatus { display:flex; justify-content:space-between; align-items:flex-end; padding:0 14px; font-size:9px; font-weight:600; }
+
+/* logos */
+.logo-hug { display:inline-block; }
+.logo-psi { display:inline-block; }
+
+/* ═══════ BUNDLE 1: Tu práctica completa ═══════ */
+.b1 .bg {
+  background:
+    radial-gradient(ellipse 70% 60% at 0% 50%, rgba(42,14,58,.85) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 60% at 100% 50%, rgba(4,32,14,.85) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 80% at 50% 50%, #07060F 0%, #04030C 100%);
+}
+.b1 .glow-l { position:absolute; top:50%; left:-40px; transform:translateY(-50%); width:400px; height:600px; background:radial-gradient(circle, rgba(255,123,90,.09) 0%, transparent 65%); border-radius:50%; z-index:0; }
+.b1 .glow-r { position:absolute; top:50%; right:-40px; transform:translateY(-50%); width:400px; height:600px; background:radial-gradient(circle, rgba(16,185,129,.08) 0%, transparent 65%); border-radius:50%; z-index:0; }
+
+.b1 .center-text { position:absolute; top:0; left:50%; transform:translateX(-50%); width:360px; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 0 80px; }
+.b1 .small-eyebrow { font-size:10px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:16px; }
+.b1 .main-headline { font-size:46px; font-weight:900; letter-spacing:-.03em; line-height:1.05; color:#F5EEE8; margin-bottom:14px; }
+.b1 .main-sub { font-size:15px; color:rgba(255,255,255,.38); line-height:1.6; margin-bottom:24px; }
+.b1 .price-pill { display:flex; align-items:baseline; gap:6px; background:rgba(255,208,128,.06); border:1px solid rgba(255,208,128,.18); border-radius:20px; padding:10px 22px; }
+.b1 .price-amount { font-size:32px; font-weight:900; background:linear-gradient(135deg,#FF9B7A,#FFD080,#6EEDDF); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.b1 .price-detail { font-size:12px; color:rgba(255,255,255,.3); }
+.b1 .savings { font-size:11px; font-weight:700; color:#34D399; background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.18); border-radius:8px; padding:4px 12px; margin-top:12px; }
+
+.b1 .phone-l { position:absolute; left:48px; top:50%; transform:translateY(-50%) perspective(800px) rotateY(12deg) rotateX(1deg); width:224px; height:486px; }
+.b1 .phone-r { position:absolute; right:48px; top:50%; transform:translateY(-50%) perspective(800px) rotateY(-12deg) rotateX(1deg); width:224px; height:486px; }
+
+/* App screen left (Mi Psicólogo) */
+.app-screen { width:100%; height:100%; background:radial-gradient(ellipse 160% 90% at 50% -5%, #2A0E3A 0%, #09070F 52%, #04030C 100%); display:flex; flex-direction:column; align-items:center; padding:30px 14px 16px; }
+.app-screen .as-logo { margin-bottom:8px; }
+.app-screen .as-title { font-size:14px; font-weight:900; background:linear-gradient(135deg,#FF9B7A,#FFD080,#6EEDDF); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:2px; }
+.app-screen .as-sub { font-size:9px; color:rgba(245,238,232,.3); margin-bottom:14px; }
+.app-stat { width:100%; display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin-bottom:10px; }
+.app-stat-box { background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.055); border-radius:8px; padding:8px 6px; text-align:center; }
+.app-stat-num { font-size:16px; font-weight:900; color:#F5EEE8; }
+.app-stat-lbl { font-size:6px; color:rgba(245,238,232,.3); text-transform:uppercase; letter-spacing:.06em; }
+.app-appt { width:100%; display:flex; flex-direction:column; gap:5px; }
+.app-appt-item { display:flex; align-items:center; gap:7px; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05); border-radius:8px; padding:7px 9px; }
+.app-av { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; flex-shrink:0; }
+.app-nm { font-size:9px; font-weight:600; color:#F5EEE8; }
+.app-tm { font-size:7px; color:rgba(245,238,232,.3); }
+.app-dot { width:6px; height:6px; border-radius:50%; margin-left:auto; }
+
+/* Docs screen right (Psicólogo Docs) */
+.docs-screen { width:100%; height:100%; background:linear-gradient(180deg,#060614,#040410); display:flex; flex-direction:column; padding:30px 12px 12px; }
+.docs-screen .ds-tag { font-size:7px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:rgba(52,211,153,.5); margin-bottom:3px; }
+.docs-screen .ds-title { font-size:13px; font-weight:800; color:#F1F5F9; margin-bottom:10px; }
+.ds-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin-bottom:8px; }
+.ds-stat { background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.05); border-radius:7px; padding:7px 5px; text-align:center; }
+.ds-stat-num { font-size:14px; font-weight:900; }
+.ds-stat-lbl { font-size:6px; color:rgba(241,245,249,.3); text-transform:uppercase; letter-spacing:.05em; }
+.ds-doc { display:flex; align-items:center; gap:7px; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.045); border-radius:7px; padding:7px 8px; margin-bottom:4px; }
+.ds-doc-icon { width:20px; height:20px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:10px; }
+.ds-doc-name { font-size:9px; font-weight:600; color:#F1F5F9; }
+.ds-doc-law { font-size:7px; color:rgba(241,245,249,.3); }
+.ds-doc-gen { font-size:7px; font-weight:700; color:rgba(52,211,153,.7); background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.12); border-radius:4px; padding:2px 5px; margin-left:auto; }
+
+/* ═══════ BUNDLE 2: El psicólogo moderno ═══════ */
+.b2 .bg {
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 0%, rgba(30,8,50,.9) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(2,20,10,.85) 0%, transparent 50%),
+    #07060F;
+}
+.b2-layout { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:64px 64px 80px; }
+.b2-eyebrow { font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.22); margin-bottom:20px; }
+.b2-headline { font-size:68px; font-weight:900; letter-spacing:-.04em; line-height:.96; text-align:center; margin-bottom:18px; }
+.b2-hl-1 { color:#F5EEE8; }
+.b2-hl-2 { background:linear-gradient(135deg,#FF9B7A,#FFD080); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.b2-hl-3 { background:linear-gradient(135deg,#6EE7B7,#10B981); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.b2-sub { font-size:18px; color:rgba(255,255,255,.38); text-align:center; max-width:680px; line-height:1.55; margin-bottom:44px; }
+.features-2col { display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; max-width:840px; }
+.feat2 { display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.055); border-radius:14px; padding:16px 18px; }
+.feat2-icon { font-size:20px; flex-shrink:0; }
+.feat2-text strong { font-size:14px; font-weight:700; color:#F5EEE8; display:block; margin-bottom:2px; }
+.feat2-text span { font-size:12px; color:rgba(255,255,255,.35); }
+.feat2.coral { border-color:rgba(255,123,90,.15); background:rgba(255,123,90,.04); }
+.feat2.teal { border-color:rgba(16,185,129,.15); background:rgba(16,185,129,.04); }
+
+/* ═══════ BUNDLE 3: Por el valor de una sesión ═══════ */
+.b3 .bg {
+  background:
+    radial-gradient(ellipse 80% 70% at 50% -5%, rgba(20,10,5,.9) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 50% 110%, rgba(2,10,5,.8) 0%, transparent 50%),
+    #07060F;
+}
+.b3 .glow-gold { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:600px; height:600px; border-radius:50%; background:radial-gradient(circle, rgba(255,208,128,.06) 0%, transparent 60%); z-index:0; }
+
+.b3-layout { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:64px 64px 80px; }
+.b3-eyebrow { font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,208,128,.4); margin-bottom:20px; }
+.b3-headline { font-size:60px; font-weight:900; letter-spacing:-.035em; line-height:1.0; text-align:center; color:#F5EEE8; margin-bottom:16px; }
+.b3-headline em { font-style:normal; background:linear-gradient(135deg,#FFD080,#FFB347); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.b3-sub { font-size:18px; color:rgba(255,255,255,.38); text-align:center; max-width:680px; line-height:1.55; margin-bottom:48px; }
+
+.value-cards { display:flex; gap:16px; align-items:center; margin-bottom:44px; }
+.vcard { flex:1; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:20px; padding:24px 22px; text-align:center; }
+.vcard.feature-card { border-color:rgba(255,208,128,.15); background:rgba(255,208,128,.04); }
+.vcard-icon { font-size:28px; margin-bottom:10px; }
+.vcard-price { font-size:40px; font-weight:900; letter-spacing:-.03em; margin-bottom:4px; }
+.vcard-label { font-size:13px; color:rgba(255,255,255,.4); margin-bottom:14px; }
+.vcard-features { display:flex; flex-direction:column; gap:6px; text-align:left; }
+.vf { display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,.5); }
+.vf-check { font-size:12px; font-weight:700; }
+.plus-sign { font-size:36px; color:rgba(255,255,255,.15); font-weight:200; flex-shrink:0; }
+.equals-sign { font-size:28px; color:rgba(255,255,255,.15); font-weight:200; flex-shrink:0; }
+.vcard.total-card { border-color:rgba(255,208,128,.25); background:linear-gradient(135deg, rgba(255,208,128,.06), rgba(255,123,90,.04)); }
+.vcard-total-price { font-size:52px; font-weight:900; letter-spacing:-.04em; background:linear-gradient(135deg,#FFD080,#FF9B7A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.vcard-savings { font-size:13px; font-weight:700; color:#34D399; background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.2); border-radius:8px; padding:5px 14px; display:inline-block; margin-top:8px; }
+.session-note { font-size:14px; color:rgba(255,255,255,.35); text-align:center; font-style:italic; }
+</style>
+</head>
+<body>
+<div class="hint">3 artes · Bundle Mi Psicólogo + Docs · 1080×1080px</div>
+
+<!-- ══════════════ BUNDLE 1: Tu práctica completa ══════════════ -->
+<div class="post b1">
+  <div class="bg"></div>
+  <div class="glow-l"></div>
+  <div class="glow-r"></div>
+  <div class="grid"></div>
+
+  <!-- Teléfono izquierda: Mi Psicólogo -->
+  <div class="pframe phone-l b1" style="position:absolute;left:48px;top:50%;transform:translateY(-50%) perspective(800px) rotateY(12deg) rotateX(1deg);width:224px;height:486px;">
+    <div class="pnotch" style="width:65px;height:18px;"></div>
+    <div class="app-screen">
+      <div class="pstatus" style="height:28px;color:rgba(245,238,232,.5);width:100%;padding:0 10px;"><span>9:41</span><span>●●●</span></div>
+      <div class="as-logo">
+        <svg width="36" height="36" viewBox="0 0 200 200"><defs><radialGradient id="lhc1" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#FFCFB8"/><stop offset="45%" stop-color="#FF7B5A"/><stop offset="100%" stop-color="#C03418"/></radialGradient><radialGradient id="lht1" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#A8F5F0"/><stop offset="45%" stop-color="#4ECDC4"/><stop offset="100%" stop-color="#1E7870"/></radialGradient><radialGradient id="lgold1" cx="50%" cy="30%" r="70%"><stop offset="0%" stop-color="#FFE8A0"/><stop offset="100%" stop-color="#FFB347"/></radialGradient><filter id="lglow1"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="72" cy="64" r="34" fill="url(#lhc1)"/><circle cx="128" cy="64" r="34" fill="url(#lht1)"/><path d="M 40 100 Q 100 155 162 100" stroke="#FF7B5A" stroke-width="18" fill="none" stroke-linecap="round" opacity=".85"/><path d="M 160 100 Q 100 148 40 100" stroke="#4ECDC4" stroke-width="16" fill="none" stroke-linecap="round" opacity=".85"/><circle cx="100" cy="134" r="10" fill="url(#lgold1)" filter="url(#lglow1)"/></svg>
+      </div>
+      <div class="as-title">Mi Psicólogo</div>
+      <div class="as-sub">Panel del psicólogo</div>
+      <div class="app-stat">
+        <div class="app-stat-box"><div class="app-stat-num" style="color:#FF9B7A;">4</div><div class="app-stat-lbl">Hoy</div></div>
+        <div class="app-stat-box"><div class="app-stat-num" style="color:#4ECDC4;">12</div><div class="app-stat-lbl">Pacientes</div></div>
+        <div class="app-stat-box"><div class="app-stat-num" style="color:#FFD080;">38</div><div class="app-stat-lbl">Mes</div></div>
+      </div>
+      <div class="app-appt">
+        <div class="app-appt-item"><div class="app-av" style="background:rgba(255,123,90,.15);color:#FF9B7A;">AM</div><div><div class="app-nm">Ana Martínez</div><div class="app-tm">10:00 · Sesión</div></div><div class="app-dot" style="background:#4ECDC4;"></div></div>
+        <div class="app-appt-item" style="border-color:rgba(255,123,90,.15);background:rgba(255,123,90,.04);"><div class="app-av" style="background:rgba(255,208,128,.15);color:#FFD080;">ML</div><div><div class="app-nm">María López</div><div class="app-tm">2:30 · Ahora</div></div><div class="app-dot" style="background:#FF9B7A;"></div></div>
+        <div class="app-appt-item"><div class="app-av" style="background:rgba(78,205,196,.15);color:#4ECDC4;">CR</div><div><div class="app-nm">Carlos Ruiz</div><div class="app-tm">4:00 · Hoy</div></div><div class="app-dot" style="background:rgba(255,255,255,.15);"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Centro texto -->
+  <div class="b1 center-text" style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:380px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 0 80px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:20px;">Ecosistema completo</div>
+    <h1 style="font-size:46px;font-weight:900;letter-spacing:-.03em;line-height:1.05;color:#F5EEE8;margin-bottom:14px;">Tu práctica,<br>de principio<br>a fin.</h1>
+    <p style="font-size:14px;color:rgba(255,255,255,.35);line-height:1.6;margin-bottom:24px;">Agenda citas.<br>Documenta sesiones.<br>Todo en un solo ecosistema.</p>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+      <div style="font-size:30px;font-weight:900;background:linear-gradient(135deg,#FF9B7A,#FFD080,#6EEDDF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">$50.000</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.28);">/mes · Ambas plataformas</div>
+      <div style="font-size:11px;font-weight:700;color:#34D399;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.18);border-radius:8px;padding:4px 12px;margin-top:4px;">Ahorrás $16.000/mes vs separados</div>
+    </div>
+  </div>
+
+  <!-- Teléfono derecha: Psicólogo Docs -->
+  <div class="pframe" style="position:absolute;right:48px;top:50%;transform:translateY(-50%) perspective(800px) rotateY(-12deg) rotateX(1deg);width:224px;height:486px;">
+    <div class="pnotch" style="width:65px;height:18px;background:#0D1117;"></div>
+    <div class="docs-screen">
+      <div class="pstatus" style="height:28px;color:rgba(241,245,249,.45);width:100%;padding:0 10px;"><span>9:41</span><span>●●●</span></div>
+      <div class="ds-tag">Psicólogo Docs</div>
+      <div class="ds-title">Documentos clínicos</div>
+      <div class="ds-stats">
+        <div class="ds-stat"><div class="ds-stat-num" style="color:#10B981;">24</div><div class="ds-stat-lbl">Docs</div></div>
+        <div class="ds-stat"><div class="ds-stat-num" style="color:#818CF8;">12</div><div class="ds-stat-lbl">Pacientes</div></div>
+        <div class="ds-stat"><div class="ds-stat-num" style="color:#FBBF24;">38</div><div class="ds-stat-lbl">Sesiones</div></div>
+      </div>
+      <div class="ds-doc"><div class="ds-doc-icon" style="background:rgba(16,185,129,.1);">📋</div><div><div class="ds-doc-name">Historia Clínica</div><div class="ds-doc-law">Res. 1995/1999</div></div><div class="ds-doc-gen">PDF ✓</div></div>
+      <div class="ds-doc" style="border-color:rgba(16,185,129,.14);background:rgba(16,185,129,.04);"><div class="ds-doc-icon" style="background:rgba(16,185,129,.12);">🧠</div><div><div class="ds-doc-name">Evolución SOAP</div><div class="ds-doc-law">Sesión #14</div></div><div class="ds-doc-gen">PDF ✓</div></div>
+      <div class="ds-doc"><div class="ds-doc-icon" style="background:rgba(99,102,241,.1);">✍️</div><div><div class="ds-doc-name">Consentimiento</div><div class="ds-doc-law">Ley 1090/2006</div></div><div class="ds-doc-gen">PDF ✓</div></div>
+      <div class="ds-doc"><div class="ds-doc-icon" style="background:rgba(251,191,36,.1);">📊</div><div><div class="ds-doc-name">RIPS</div><div class="ds-doc-law">Res. 3374/2000</div></div><div class="ds-doc-gen">PDF ✓</div></div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <svg width="20" height="20" viewBox="0 0 200 200"><defs><radialGradient id="blhc" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#FFCFB8"/><stop offset="45%" stop-color="#FF7B5A"/><stop offset="100%" stop-color="#C03418"/></radialGradient><radialGradient id="blht" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#A8F5F0"/><stop offset="45%" stop-color="#4ECDC4"/><stop offset="100%" stop-color="#1E7870"/></radialGradient></defs><circle cx="72" cy="64" r="34" fill="url(#blhc)"/><circle cx="128" cy="64" r="34" fill="url(#blht)"/><path d="M 40 100 Q 100 155 162 100" stroke="#FF7B5A" stroke-width="18" fill="none" stroke-linecap="round" opacity=".85"/><path d="M 160 100 Q 100 148 40 100" stroke="#4ECDC4" stroke-width="16" fill="none" stroke-linecap="round" opacity=".85"/></svg>
+      <span class="bottom-name">Mi Psicólogo</span>
+      <span style="color:rgba(255,255,255,.15);">+</span>
+      <svg width="20" height="20" viewBox="0 0 120 120"><defs><radialGradient id="blpbg" cx="30%" cy="25%" r="75%"><stop offset="0%" stop-color="#1A3A2A"/><stop offset="100%" stop-color="#060614"/></radialGradient><filter id="blpg"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="blppg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6EE7B7"/><stop offset="100%" stop-color="#10B981"/></linearGradient></defs><rect width="120" height="120" rx="28" fill="url(#blpbg)"/><text x="60" y="82" text-anchor="middle" font-size="68" font-weight="900" fill="url(#blppg)" font-family="serif" filter="url(#blpg)">Ψ</text></svg>
+      <span class="bottom-name">Psicólogo Docs</span>
+    </div>
+    <div style="font-size:12px;color:rgba(255,255,255,.22);">Sin permanencia · Activación en menos de 24h</div>
+    <div class="cta-combo">Suscribirme →</div>
+  </div>
+</div>
+
+<!-- ══════════════ BUNDLE 2: El psicólogo moderno ══════════════ -->
+<div class="post b2">
+  <div class="bg"></div>
+  <div class="grid"></div>
+  <div style="position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(255,123,90,.05) 0%,rgba(16,185,129,.04) 50%,transparent 70%);z-index:0;"></div>
+
+  <div class="content">
+    <div class="b2-layout">
+      <div class="b2-eyebrow">Para psicólogos que evolucionan</div>
+      <h1 class="b2-headline">
+        <div class="b2-hl-1">El psicólogo moderno</div>
+        <div class="b2-hl-2">no usa papel.</div>
+        <div class="b2-hl-3">Usa las dos.</div>
+      </h1>
+      <p class="b2-sub">Gestiona pacientes y citas con Mi Psicólogo. Documenta cada sesión con Psicólogo Docs. Un ecosistema diseñado para ti.</p>
+
+      <div class="features-2col">
+        <div class="feat2 coral">
+          <div class="feat2-icon">📅</div>
+          <div class="feat2-text"><strong>Mi Psicólogo</strong><span>Agenda, citas, check-in, hábitos, emociones y mini-juego</span></div>
+        </div>
+        <div class="feat2 teal">
+          <div class="feat2-icon">📋</div>
+          <div class="feat2-text"><strong>Psicólogo Docs</strong><span>11 documentos clínicos con firma digital y cumplimiento legal</span></div>
+        </div>
+        <div class="feat2">
+          <div class="feat2-icon">🔒</div>
+          <div class="feat2-text"><strong>100% seguro y legal</strong><span>Ley 1581/2012 · Cifrado · Colpsic</span></div>
+        </div>
+        <div class="feat2">
+          <div class="feat2-icon">💬</div>
+          <div class="feat2-text"><strong>Soporte prioritario</strong><span>WhatsApp directo con el equipo</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div style="font-size:12px;color:rgba(255,255,255,.22);">Bundle todo incluido</div>
+    <div style="font-size:22px;font-weight:900;background:linear-gradient(135deg,#FF9B7A,#FFD080,#6EEDDF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">$50.000 / mes</div>
+    <div class="cta-combo">Conocer el bundle →</div>
+  </div>
+</div>
+
+<!-- ══════════════ BUNDLE 3: Por el valor de una sesión ══════════════ -->
+<div class="post b3">
+  <div class="bg"></div>
+  <div class="glow-gold"></div>
+  <div class="grid"></div>
+
+  <div class="content">
+    <div class="b3-layout">
+      <div class="b3-eyebrow">Relación costo / beneficio</div>
+      <h1 class="b3-headline">Por el valor de<br>una sola sesión,<br>tienes el mes<br><em>completo.</em></h1>
+      <p class="b3-sub">$50.000/mes. Lo que cobras en una cita cubre un mes entero de gestión clínica y documentación legal.</p>
+
+      <div class="value-cards">
+        <div class="vcard">
+          <div class="vcard-icon">📱</div>
+          <div class="vcard-price" style="color:#FF9B7A;">$33.000</div>
+          <div class="vcard-label">Mi Psicólogo / mes</div>
+          <div class="vcard-features">
+            <div class="vf"><span class="vf-check" style="color:#FF9B7A;">✓</span>Agenda de citas</div>
+            <div class="vf"><span class="vf-check" style="color:#FF9B7A;">✓</span>Notificaciones push</div>
+            <div class="vf"><span class="vf-check" style="color:#FF9B7A;">✓</span>Hábitos y emociones</div>
+            <div class="vf"><span class="vf-check" style="color:#FF9B7A;">✓</span>Mini-juego</div>
+          </div>
+        </div>
+        <div class="plus-sign">+</div>
+        <div class="vcard">
+          <div class="vcard-icon">📋</div>
+          <div class="vcard-price" style="color:#10B981;">$33.000</div>
+          <div class="vcard-label">Psicólogo Docs / mes</div>
+          <div class="vcard-features">
+            <div class="vf"><span class="vf-check" style="color:#10B981;">✓</span>11 documentos clínicos</div>
+            <div class="vf"><span class="vf-check" style="color:#10B981;">✓</span>Firma digital</div>
+            <div class="vf"><span class="vf-check" style="color:#10B981;">✓</span>RIPS y Facturación</div>
+            <div class="vf"><span class="vf-check" style="color:#10B981;">✓</span>CIE-11 y DSM-5</div>
+          </div>
+        </div>
+        <div class="equals-sign">=</div>
+        <div class="vcard total-card feature-card">
+          <div class="vcard-icon">⭐</div>
+          <div class="vcard-total-price">$50.000</div>
+          <div class="vcard-label">Bundle / mes</div>
+          <div class="vcard-savings">Ahorrás $16.000</div>
+          <div class="vcard-features" style="margin-top:10px;">
+            <div class="vf"><span class="vf-check" style="color:#FFD080;">✓</span>Todo incluido</div>
+            <div class="vf"><span class="vf-check" style="color:#FFD080;">✓</span>Sin permanencia</div>
+            <div class="vf"><span class="vf-check" style="color:#FFD080;">✓</span>WhatsApp soporte</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="session-note">"En una consulta de $50.000 cubres un mes entero. El ROI es inmediato."</div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div style="font-size:12px;color:rgba(255,255,255,.22);">Pago con Nequi · PSE · Tarjeta · Sin permanencia</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.22);">Activación en menos de 24 horas</div>
+    <div class="cta-combo">Empezar ahora →</div>
+  </div>
+</div>
+
+<div class="hint">Captura cada imagen por separado · Chrome → zoom 100% → F12 → Ctrl+Shift+P → Capture full size screenshot</div>
+</body>
+</html>

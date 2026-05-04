@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mi Psicólogo App — 2 Promos</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #010008;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 40px 20px; gap: 32px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+}
+.hint { font-size:10px; color:rgba(255,255,255,.2); letter-spacing:.08em; text-transform:uppercase; }
+.post { width:1080px; height:1080px; position:relative; overflow:hidden; flex-shrink:0; display:flex; flex-direction:column; }
+.bg { position:absolute; inset:0; z-index:0; }
+.grid { position:absolute; inset:0; z-index:1;
+  background-image: linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+  background-size:54px 54px; }
+.content { position:relative; z-index:10; width:100%; height:100%; }
+.bottom-bar {
+  position:absolute; bottom:0; left:0; right:0; height:72px;
+  display:flex; align-items:center; justify-content:space-between; padding:0 64px;
+  border-top:1px solid rgba(255,255,255,.06); background:rgba(7,6,15,.88); backdrop-filter:blur(20px);
+}
+.cta-coral { height:42px; padding:0 24px; background:linear-gradient(135deg,#FF8B6A,#FF5A36); border-radius:12px; font-size:13px; font-weight:800; color:#fff; display:flex; align-items:center; gap:7px; box-shadow:0 4px 18px rgba(255,90,54,.35),inset 0 1px 0 rgba(255,255,255,.2); }
+
+/* ═══════════════════════════════════════════
+   APP IMAGE 1: Deja de agendar citas por WhatsApp
+   Impacto visual: teléfono centrado + callouts laterales
+═══════════════════════════════════════════ */
+.a1 .bg {
+  background:
+    radial-gradient(ellipse 80% 70% at 50% -10%, #2A0E3A 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 0% 100%, rgba(8,20,24,.8) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(20,8,24,.8) 0%, transparent 50%),
+    #07060F;
+}
+.a1-layout { width:100%; height:100%; display:flex; align-items:center; justify-content:center; padding:64px 60px 80px; gap:0; }
+
+/* Left callouts */
+.callouts-l { width:260px; flex-shrink:0; display:flex; flex-direction:column; gap:14px; padding-right:10px; }
+.callouts-r { width:260px; flex-shrink:0; display:flex; flex-direction:column; gap:14px; padding-left:10px; }
+.callout {
+  background:rgba(255,255,255,.028); border:1px solid rgba(255,255,255,.065);
+  border-radius:16px; padding:16px;
+  display:flex; flex-direction:column; gap:6px;
+  backdrop-filter:blur(20px);
+}
+.callout.coral { background:rgba(255,123,90,.06); border-color:rgba(255,123,90,.18); }
+.callout.teal { background:rgba(78,205,196,.06); border-color:rgba(78,205,196,.18); }
+.callout.gold { background:rgba(255,208,128,.06); border-color:rgba(255,208,128,.18); }
+.callout-icon { font-size:22px; }
+.callout-title { font-size:14px; font-weight:800; color:#F5EEE8; letter-spacing:-.01em; }
+.callout-sub { font-size:12px; color:rgba(245,238,232,.38); line-height:1.4; }
+
+/* Center phone */
+.a1-phone-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
+.a1-headline { font-size:22px; font-weight:900; letter-spacing:-.025em; color:#F5EEE8; text-align:center; line-height:1.15; }
+.a1-headline em { font-style:normal; background:linear-gradient(135deg,#FF9B7A,#FFD080); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.a1-sub { font-size:13px; color:rgba(245,238,232,.38); text-align:center; max-width:260px; line-height:1.5; }
+
+.phone-c { width:240px; height:520px; border-radius:42px; border:6px solid #1E1830; overflow:hidden; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,.07), 0 40px 80px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.06); }
+.pnotch-c { position:absolute; top:0; left:50%; transform:translateX(-50%); width:80px; height:22px; background:#1E1830; border-radius:0 0 15px 15px; z-index:50; }
+
+/* Agenda screen */
+.agenda-screen { width:100%; height:100%; background:radial-gradient(ellipse 120% 60% at 50% -5%, #140828 0%, #07060F 55%); display:flex; flex-direction:column; }
+.ag-hdr { padding:36px 16px 12px; display:flex; align-items:center; justify-content:space-between; }
+.ag-title { font-size:18px; font-weight:800; color:#F5EEE8; letter-spacing:-.015em; }
+.ag-add { width:30px; height:30px; background:linear-gradient(135deg,#FF8B6A,#FF5A36); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:16px; color:#fff; box-shadow:0 3px 10px rgba(255,90,54,.4); }
+.ag-week { display:flex; gap:4px; padding:0 16px; margin-bottom:14px; }
+.ag-day { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 0; border-radius:10px; }
+.ag-day.active { background:linear-gradient(135deg,#FF8B6A,#FF5A36); }
+.ag-dl { font-size:8px; font-weight:600; color:rgba(245,238,232,.3); text-transform:uppercase; }
+.ag-dn { font-size:12px; font-weight:700; color:rgba(245,238,232,.4); }
+.ag-day.active .ag-dl { color:rgba(255,255,255,.7); }
+.ag-day.active .ag-dn { color:#fff; }
+.ag-slots { flex:1; padding:0 16px; display:flex; flex-direction:column; gap:7px; overflow:hidden; }
+.ag-slot { display:flex; gap:8px; }
+.ag-time { font-size:9px; font-weight:600; color:rgba(245,238,232,.25); width:30px; padding-top:7px; flex-shrink:0; }
+.ag-block { flex:1; border-radius:10px; padding:8px 10px; }
+.ag-block.teal { background:rgba(78,205,196,.1); border:1px solid rgba(78,205,196,.2); }
+.ag-block.coral { background:rgba(255,123,90,.1); border:1px solid rgba(255,123,90,.2); }
+.ag-block.empty { background:rgba(255,255,255,.02); border:1px dashed rgba(255,255,255,.06); height:32px; }
+.ag-pname { font-size:10px; font-weight:600; color:#F5EEE8; }
+.ag-ptype { font-size:8px; color:rgba(245,238,232,.38); }
+.ag-now { font-size:7px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#FF9B7A; background:rgba(255,123,90,.12); border-radius:4px; padding:1px 5px; display:inline-block; margin-top:2px; }
+
+/* ═══════════════════════════════════════════
+   APP IMAGE 2: Tu paciente llega preparado
+   Split: texto arriba / 3 mini-screens abajo
+═══════════════════════════════════════════ */
+.a2 .bg {
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 0%, rgba(8,22,20,.9) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 80% 0%, rgba(42,8,56,.8) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 80% at 50% 100%, #04030C 0%, transparent 60%),
+    #07060F;
+}
+
+.a2-top { padding:64px 80px 40px; display:flex; flex-direction:column; align-items:center; text-align:center; }
+.a2-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(78,205,196,.07); border:1px solid rgba(78,205,196,.2); border-radius:20px; padding:7px 16px; margin-bottom:24px; }
+.a2-badge .dot { width:6px; height:6px; border-radius:50%; background:#4ECDC4; box-shadow:0 0 8px rgba(78,205,196,.7); animation:gp2 2s ease-in-out infinite; }
+@keyframes gp2 { 0%,100%{opacity:.7;transform:scale(1);} 50%{opacity:1;transform:scale(1.2);} }
+.a2-badge span { font-size:11px; font-weight:700; color:rgba(78,205,196,.6); letter-spacing:.06em; }
+.a2-headline { font-size:60px; font-weight:900; letter-spacing:-.035em; line-height:1.0; color:#F5EEE8; margin-bottom:16px; }
+.a2-headline em { font-style:normal; background:linear-gradient(135deg,#6EEDDF,#4ECDC4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.a2-sub { font-size:17px; color:rgba(245,238,232,.38); max-width:600px; line-height:1.6; margin-bottom:8px; }
+
+.a2-phones-row { display:flex; gap:24px; align-items:flex-start; justify-content:center; padding:0 64px 80px; flex:1; }
+.a2-phone-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.a2-phone-label { font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:rgba(245,238,232,.25); }
+.a2-mini { width:220px; height:320px; border-radius:32px; border:5px solid #1E1830; overflow:hidden; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 24px 60px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.05); }
+.a2-notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:60px; height:16px; background:#1E1830; border-radius:0 0 10px 10px; z-index:50; }
+.a2-status { display:flex; justify-content:space-between; align-items:flex-end; padding:0 12px; height:24px; font-size:8px; font-weight:600; color:rgba(245,238,232,.45); }
+
+/* Check-in screen */
+.checkin-s { width:100%; height:100%; background:radial-gradient(ellipse 140% 80% at 50% 10%, #0D1A1C 0%, #07060F 60%); display:flex; flex-direction:column; align-items:center; padding:24px 14px 14px; }
+.ci-icon { width:40px; height:40px; background:rgba(78,205,196,.1); border:1px solid rgba(78,205,196,.2); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:8px; }
+.ci-name { font-size:13px; font-weight:800; color:#F5EEE8; letter-spacing:-.01em; margin-bottom:2px; }
+.ci-q { font-size:10px; color:rgba(245,238,232,.45); text-align:center; margin-bottom:12px; line-height:1.4; }
+.ci-moods { display:flex; gap:5px; margin-bottom:10px; }
+.ci-mood { width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); }
+.ci-mood.active { background:rgba(78,205,196,.12); border:1px solid rgba(78,205,196,.3); box-shadow:0 0 10px rgba(78,205,196,.2); transform:scale(1.08); }
+.ci-note { width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:8px 10px; font-size:9px; color:rgba(245,238,232,.4); line-height:1.4; margin-bottom:10px; }
+.ci-btn { width:100%; height:36px; background:linear-gradient(135deg,#6AEDE4,#28B0A8); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#04200E; }
+
+/* Emotion chart screen */
+.emo-s { width:100%; height:100%; background:radial-gradient(ellipse 140% 80% at 50% -5%, #1A0828 0%, #07060F 60%); display:flex; flex-direction:column; padding:24px 14px 12px; }
+.emo-s-title { font-size:13px; font-weight:800; color:#F5EEE8; margin-bottom:4px; }
+.emo-s-sub { font-size:9px; color:rgba(245,238,232,.3); margin-bottom:12px; }
+.emo-chart-full { flex:1; position:relative; }
+.emo-week-labels { display:flex; justify-content:space-between; padding:0 2px; margin-top:4px; }
+.emo-wl { font-size:7px; color:rgba(245,238,232,.22); font-weight:600; }
+.emo-stats-row { display:flex; gap:6px; margin-top:8px; }
+.emo-st { flex:1; background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.05); border-radius:8px; padding:6px; text-align:center; }
+.emo-st-num { font-size:13px; font-weight:800; }
+.emo-st-lbl { font-size:6.5px; color:rgba(245,238,232,.3); text-transform:uppercase; letter-spacing:.05em; }
+
+/* Habit rings screen -->
+.ring-s { width:100%; height:100%; background:radial-gradient(ellipse 120% 70% at 30% -10%, #0A1A10 0%, #07060F 60%); display:flex; flex-direction:column; align-items:center; padding:24px 14px 12px; }
+.ring-s-title { font-size:13px; font-weight:800; color:#F5EEE8; align-self:flex-start; margin-bottom:2px; }
+.ring-s-sub { font-size:9px; color:rgba(245,238,232,.3); align-self:flex-start; margin-bottom:8px; }
+.ring-legend { display:flex; flex-direction:column; gap:5px; align-self:stretch; margin-top:6px; }
+.rl-item { display:flex; align-items:center; gap:7px; }
+.rl-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.rl-name { font-size:9px; font-weight:600; color:rgba(245,238,232,.6); flex:1; }
+.rl-status { font-size:7.5px; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="hint">2 artes · Mi Psicólogo App · 1080×1080px</div>
+
+<!-- ══════════════ APP IMAGE 1: Deja de agendar citas por WhatsApp ══════════════ -->
+<div class="post a1">
+  <div class="bg"></div>
+  <div style="position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(255,123,90,.09) 0%,rgba(78,205,196,.05) 60%,transparent 70%);z-index:0;"></div>
+  <div class="grid"></div>
+
+  <div class="content">
+    <div class="a1-layout">
+
+      <!-- Callouts izquierda -->
+      <div class="callouts-l">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,155,122,.4);margin-bottom:4px;">Mi Psicólogo</div>
+        <h1 style="font-size:36px;font-weight:900;letter-spacing:-.03em;line-height:1.05;color:#F5EEE8;margin-bottom:16px;">Deja de agendar<br>citas por<br><span style="background:linear-gradient(135deg,#FF9B7A,#FFD080);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">WhatsApp.</span></h1>
+        <p style="font-size:14px;color:rgba(245,238,232,.38);line-height:1.55;margin-bottom:24px;">Agenda, recordatorios automáticos y gestión de pacientes — todo en una app que se instala sin pasar por tiendas.</p>
+        <div class="callout coral">
+          <div class="callout-icon">📅</div>
+          <div class="callout-title">Agenda visual</div>
+          <div class="callout-sub">Citas por semana, mes o día. El paciente recibe notificación automática.</div>
+        </div>
+        <div class="callout">
+          <div class="callout-icon">🔔</div>
+          <div class="callout-title">Recordatorios push</div>
+          <div class="callout-sub">Llegan al celular del paciente en iOS y Android. Sin necesidad de App Store.</div>
+        </div>
+        <div class="callout teal">
+          <div class="callout-icon">👥</div>
+          <div class="callout-title">Todos tus pacientes</div>
+          <div class="callout-sub">Panel centralizado con historial, notas y estado de cada caso.</div>
+        </div>
+        <div class="cta-coral" style="width:fit-content;margin-top:8px;">Descargar App →</div>
+      </div>
+
+      <!-- Teléfono central -->
+      <div class="a1-phone-wrap">
+        <div class="phone-c">
+          <div class="pnotch-c"></div>
+          <div class="agenda-screen">
+            <div class="ag-hdr">
+              <div class="ag-title">Agenda</div>
+              <div class="ag-add">+</div>
+            </div>
+            <div class="ag-week">
+              <div class="ag-day"><div class="ag-dl">L</div><div class="ag-dn">28</div></div>
+              <div class="ag-day"><div class="ag-dl">M</div><div class="ag-dn">29</div></div>
+              <div class="ag-day"><div class="ag-dl">X</div><div class="ag-dn">30</div></div>
+              <div class="ag-day active"><div class="ag-dl">J</div><div class="ag-dn">1</div></div>
+              <div class="ag-day"><div class="ag-dl">V</div><div class="ag-dn">2</div></div>
+              <div class="ag-day"><div class="ag-dl">S</div><div class="ag-dn">3</div></div>
+              <div class="ag-day"><div class="ag-dl">D</div><div class="ag-dn">4</div></div>
+            </div>
+            <div class="ag-slots">
+              <div class="ag-slot"><div class="ag-time">9:00</div><div class="ag-block teal"><div class="ag-pname">Ana Martínez</div><div class="ag-ptype">Sesión individual · 50 min</div></div></div>
+              <div class="ag-slot"><div class="ag-time">11:00</div><div class="ag-block empty"></div></div>
+              <div class="ag-slot"><div class="ag-time">2:30</div><div class="ag-block coral"><div class="ag-pname">María López</div><div class="ag-ptype">Seguimiento</div><div class="ag-now">Ahora</div></div></div>
+              <div class="ag-slot"><div class="ag-time">4:00</div><div class="ag-block teal"><div class="ag-pname">Carlos Ruiz</div><div class="ag-ptype">Evaluación · 60 min</div></div></div>
+              <div class="ag-slot"><div class="ag-time">5:30</div><div class="ag-block empty"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Callouts derecha -->
+      <div class="callouts-r">
+        <div class="callout gold">
+          <div class="callout-icon">😊</div>
+          <div class="callout-title">Check-in por sesión</div>
+          <div class="callout-sub">Antes de cada cita, el paciente registra cómo está. Tú ya sabes antes de empezar.</div>
+        </div>
+        <div class="callout">
+          <div class="callout-icon">📊</div>
+          <div class="callout-title">Estadísticas clínicas</div>
+          <div class="callout-sub">Sesiones, pacientes activos, ingresos del mes — todo en un solo panel.</div>
+        </div>
+        <div class="callout teal">
+          <div class="callout-icon">🎮</div>
+          <div class="callout-title">Mini-juego compartido</div>
+          <div class="callout-sub">Triki con tu paciente. Aumenta la adherencia al tratamiento de forma creativa.</div>
+        </div>
+        <div class="callout coral">
+          <div class="callout-icon">💰</div>
+          <div class="callout-title">Control de finanzas</div>
+          <div class="callout-sub">Ingresos automáticos al cerrar cada sesión. Sin hojas de cálculo.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <svg width="20" height="20" viewBox="0 0 200 200"><defs><radialGradient id="a1lhc" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#FFCFB8"/><stop offset="45%" stop-color="#FF7B5A"/><stop offset="100%" stop-color="#C03418"/></radialGradient><radialGradient id="a1lht" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#A8F5F0"/><stop offset="45%" stop-color="#4ECDC4"/><stop offset="100%" stop-color="#1E7870"/></radialGradient></defs><circle cx="72" cy="64" r="34" fill="url(#a1lhc)"/><circle cx="128" cy="64" r="34" fill="url(#a1lht)"/><path d="M 40 100 Q 100 155 162 100" stroke="#FF7B5A" stroke-width="18" fill="none" stroke-linecap="round" opacity=".85"/><path d="M 160 100 Q 100 148 40 100" stroke="#4ECDC4" stroke-width="16" fill="none" stroke-linecap="round" opacity=".85"/></svg>
+      <span style="font-size:13px;font-weight:800;color:rgba(245,238,232,.4);">Mi Psicólogo</span>
+    </div>
+    <div style="font-size:12px;color:rgba(245,238,232,.22);">PWA · iOS y Android · Sin App Store · $33.000/mes</div>
+    <div class="cta-coral">Probar ahora →</div>
+  </div>
+</div>
+
+<!-- ══════════════ APP IMAGE 2: Tu paciente llega preparado ══════════════ -->
+<div class="post a2">
+  <div class="bg"></div>
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(78,205,196,.07) 0%,rgba(255,123,90,.04) 50%,transparent 70%);z-index:0;border-radius:50%;"></div>
+  <div class="grid"></div>
+
+  <div class="content" style="display:flex;flex-direction:column;">
+    <div class="a2-top">
+      <div class="a2-badge"><div class="dot"></div><span>Seguimiento en tiempo real</span></div>
+      <h1 class="a2-headline">Tu paciente llega<br><em>preparado.</em><br>Tú ya sabes cómo está.</h1>
+      <p class="a2-sub">Check-in de bienestar, seguimiento de emociones y hábitos — todo antes de que empiece la sesión.</p>
+    </div>
+
+    <div class="a2-phones-row">
+
+      <!-- Phone 1: Check-in -->
+      <div class="a2-phone-wrap">
+        <div class="a2-mini">
+          <div class="a2-notch"></div>
+          <div class="checkin-s">
+            <div class="a2-status" style="color:rgba(245,238,232,.45);width:100%;"><span>9:41</span><span>●●●</span></div>
+            <div class="ci-icon">🌿</div>
+            <div class="ci-name">Carlos R.</div>
+            <div class="ci-q">¿Cómo llegaste a esta sesión?</div>
+            <div class="ci-moods">
+              <div class="ci-mood">😔</div>
+              <div class="ci-mood">😐</div>
+              <div class="ci-mood active">🙂</div>
+              <div class="ci-mood">😊</div>
+              <div class="ci-mood">😁</div>
+            </div>
+            <div class="ci-note">Quiero hablar sobre mi trabajo, ha sido una semana difícil...</div>
+            <div class="ci-btn">Enviar check-in</div>
+          </div>
+        </div>
+        <div class="a2-phone-label">Check-in</div>
+      </div>
+
+      <!-- Phone 2: Emoción chart -->
+      <div class="a2-phone-wrap">
+        <div class="a2-mini">
+          <div class="a2-notch"></div>
+          <div class="emo-s">
+            <div class="a2-status" style="color:rgba(245,238,232,.45);width:100%;"><span>9:41</span><span>●●●</span></div>
+            <div class="emo-s-title">😊 Emociones</div>
+            <div class="emo-s-sub">Últimas 4 semanas</div>
+            <div class="emo-chart-full">
+              <svg width="100%" height="100px" viewBox="0 0 190 100" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="eg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(255,155,122,.3)"/><stop offset="100%" stop-color="rgba(255,155,122,0)"/></linearGradient>
+                  <linearGradient id="eg2b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(78,205,196,.2)"/><stop offset="100%" stop-color="rgba(78,205,196,0)"/></linearGradient>
+                </defs>
+                <line x1="0" y1="20" x2="190" y2="20" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+                <line x1="0" y1="50" x2="190" y2="50" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+                <line x1="0" y1="80" x2="190" y2="80" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+                <path d="M0,75 L27,60 L54,45 L81,30 L108,50 L135,22 L162,18 L190,25 L190,100 L0,100 Z" fill="url(#eg1)" opacity=".7"/>
+                <polyline points="0,75 27,60 54,45 81,30 108,50 135,22 162,18 190,25" stroke="#FF9B7A" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M0,82 L27,78 L54,72 L81,68 L108,70 L135,62 L162,58 L190,55 L190,100 L0,100 Z" fill="url(#eg2b)" opacity=".5"/>
+                <polyline points="0,82 27,78 54,72 81,68 108,70 135,62 162,58 190,55" stroke="#4ECDC4" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="4,3"/>
+                <circle cx="135" cy="22" r="4" fill="#FFD080" stroke="#FF9B7A" stroke-width="1.5"/>
+                <circle cx="190" cy="25" r="3" fill="#FF9B7A"/>
+              </svg>
+            </div>
+            <div class="emo-week-labels">
+              <span class="emo-wl">S1</span><span class="emo-wl">S2</span><span class="emo-wl">S3</span><span class="emo-wl">S4</span>
+            </div>
+            <div class="emo-stats-row">
+              <div class="emo-st"><div class="emo-st-num" style="color:#FF9B7A;">↑18%</div><div class="emo-st-lbl">Bienestar</div></div>
+              <div class="emo-st"><div class="emo-st-num" style="color:#4ECDC4;">↓12%</div><div class="emo-st-lbl">Ansiedad</div></div>
+              <div class="emo-st"><div class="emo-st-num" style="color:#FFD080;">7.2</div><div class="emo-st-lbl">Promedio</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="a2-phone-label">Emociones</div>
+      </div>
+
+      <!-- Phone 3: Hábitos rings -->
+      <div class="a2-phone-wrap">
+        <div class="a2-mini">
+          <div class="a2-notch"></div>
+          <div class="ring-s">
+            <div class="a2-status" style="color:rgba(245,238,232,.45);width:100%;"><span>9:41</span><span>●●●</span></div>
+            <div class="ring-s-title">🌿 Hábitos</div>
+            <div class="ring-s-sub">Hoy · 2 de 3</div>
+            <svg width="140" height="140" viewBox="0 0 140 140" style="margin:0 auto;">
+              <circle cx="70" cy="70" r="56" fill="none" stroke="rgba(30,136,128,.18)" stroke-width="9"/>
+              <circle cx="70" cy="70" r="56" fill="none" stroke="#1E8880" stroke-width="9" stroke-dasharray="351.86 0" stroke-linecap="round" transform="rotate(-90 70 70)"/>
+              <circle cx="70" cy="70" r="42" fill="none" stroke="rgba(255,123,90,.18)" stroke-width="8"/>
+              <circle cx="70" cy="70" r="42" fill="none" stroke="#FF7B5A" stroke-width="8" stroke-dasharray="197.92 65.97" stroke-linecap="round" transform="rotate(-90 70 70)"/>
+              <circle cx="70" cy="70" r="28" fill="none" stroke="rgba(255,123,90,.12)" stroke-width="7"/>
+              <text x="70" y="66" text-anchor="middle" fill="#F5EEE8" font-size="22" font-weight="700" font-family="-apple-system,sans-serif">2/3</text>
+              <text x="70" y="80" text-anchor="middle" fill="#7A6E8A" font-size="10" font-family="-apple-system,sans-serif">hoy</text>
+            </svg>
+            <div class="ring-legend">
+              <div class="rl-item"><div class="rl-dot" style="background:#1E8880;box-shadow:0 0 5px rgba(30,136,128,.5);"></div><div class="rl-name">Gimnasio</div><div class="rl-status" style="color:#1E8880;">✓</div></div>
+              <div class="rl-item"><div class="rl-dot" style="background:#FF7B5A;"></div><div class="rl-name">Tomar agua</div><div class="rl-status" style="color:#FF9B7A;">75%</div></div>
+              <div class="rl-item"><div class="rl-dot" style="background:rgba(255,123,90,.2);border:1px solid rgba(255,123,90,.25);"></div><div class="rl-name">Pausas activas</div><div class="rl-status" style="color:rgba(245,238,232,.25);">—</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="a2-phone-label">Hábitos</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <svg width="20" height="20" viewBox="0 0 200 200"><defs><radialGradient id="a2lhc" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#FFCFB8"/><stop offset="45%" stop-color="#FF7B5A"/><stop offset="100%" stop-color="#C03418"/></radialGradient><radialGradient id="a2lht" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#A8F5F0"/><stop offset="45%" stop-color="#4ECDC4"/><stop offset="100%" stop-color="#1E7870"/></radialGradient></defs><circle cx="72" cy="64" r="34" fill="url(#a2lhc)"/><circle cx="128" cy="64" r="34" fill="url(#a2lht)"/><path d="M 40 100 Q 100 155 162 100" stroke="#FF7B5A" stroke-width="18" fill="none" stroke-linecap="round" opacity=".85"/><path d="M 160 100 Q 100 148 40 100" stroke="#4ECDC4" stroke-width="16" fill="none" stroke-linecap="round" opacity=".85"/></svg>
+      <span style="font-size:13px;font-weight:800;color:rgba(245,238,232,.4);">Mi Psicólogo</span>
+    </div>
+    <div style="font-size:12px;color:rgba(245,238,232,.22);">iOS · Android · Sin App Store · $33.000/mes · Sin permanencia</div>
+    <div class="cta-coral">Conoce la app →</div>
+  </div>
+</div>
+
+<div class="hint">Captura cada imagen por separado · Chrome → zoom 100% → F12 → Ctrl+Shift+P → Capture full size screenshot</div>
+</body>
+</html>

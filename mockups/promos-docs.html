@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Psicólogo Docs — 3 Promos</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #010008;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 40px 20px; gap: 32px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+}
+.hint { font-size:10px; color:rgba(255,255,255,.2); letter-spacing:.08em; text-transform:uppercase; }
+
+/* ─── POST BASE 1080×1080 ─── */
+.post {
+  width:1080px; height:1080px;
+  position:relative; overflow:hidden; flex-shrink:0;
+  display:flex; flex-direction:column;
+}
+.bg { position:absolute; inset:0; z-index:0; }
+.grid { position:absolute; inset:0; z-index:1;
+  background-image: linear-gradient(rgba(255,255,255,.014) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.014) 1px, transparent 1px);
+  background-size:54px 54px; }
+.content { position:relative; z-index:10; width:100%; height:100%; display:flex; }
+
+/* ── SHARED ELEMENTS ── */
+.brand-tag {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.2);
+  border-radius:20px; padding:6px 14px; width:fit-content;
+}
+.brand-tag .dot { width:6px; height:6px; border-radius:50%; background:#10B981; box-shadow:0 0 8px rgba(16,185,129,.7); animation:gp 2s ease-in-out infinite; }
+@keyframes gp { 0%,100%{opacity:.7;transform:scale(1);} 50%{opacity:1;transform:scale(1.2);} }
+.brand-tag span { font-size:11px; font-weight:700; color:rgba(52,211,153,.65); letter-spacing:.06em; }
+
+.eyebrow { font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:rgba(52,211,153,.45); }
+
+.bottom-bar {
+  position:absolute; bottom:0; left:0; right:0;
+  height:72px; display:flex; align-items:center; justify-content:space-between;
+  padding:0 64px;
+  border-top:1px solid rgba(255,255,255,.06);
+  background:rgba(6,6,20,.8); backdrop-filter:blur(20px);
+}
+.bottom-logo { display:flex; align-items:center; gap:10px; }
+.bottom-name { font-size:13px; font-weight:800; color:rgba(241,245,249,.4); }
+.bottom-cta {
+  height:40px; padding:0 22px;
+  background:linear-gradient(135deg,#34D399,#10B981);
+  border-radius:11px; font-size:13px; font-weight:800; color:#023020;
+  display:flex; align-items:center; gap:6px;
+  box-shadow:0 4px 16px rgba(16,185,129,.3);
+}
+
+/* Phone shared */
+.phone-frame {
+  border-radius:40px; border:6px solid #0D1117; overflow:hidden; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 30px 70px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.pnotch { position:absolute; top:0; left:50%; transform:translateX(-50%); background:#0D1117; border-radius:0 0 12px 12px; z-index:50; }
+.pstatus { display:flex; justify-content:space-between; align-items:flex-end; padding:0 14px; font-size:9px; font-weight:600; color:rgba(241,245,249,.5); }
+
+/* Ψ LOGO */
+.psi-logo-svg { display:block; }
+
+/* ═══════════════════════════════════════════
+   IMAGE 1: ¿Sigues firmando con lapicero?
+   Split: texto izquierda / phone derecha
+═══════════════════════════════════════════ */
+.post-1 .bg {
+  background:
+    radial-gradient(ellipse 70% 80% at 0% 50%, rgba(4,32,14,.95) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 100% 0%, rgba(2,20,30,.8) 0%, transparent 55%),
+    #060614;
+}
+.post-1 .glow-l { position:absolute; top:100px; left:-60px; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle, rgba(16,185,129,.1) 0%, transparent 70%); z-index:0; }
+
+.post-1 .left-panel {
+  width:560px; flex-shrink:0;
+  padding:80px 0 80px 64px;
+  display:flex; flex-direction:column; justify-content:center; gap:0;
+}
+.post-1 .right-panel {
+  flex:1; display:flex; align-items:center; justify-content:center; position:relative;
+}
+.post-1 .headline { font-size:62px; font-weight:900; letter-spacing:-.035em; line-height:1.0; color:#F1F5F9; margin:18px 0 20px; }
+.post-1 .headline em { font-style:normal; background:linear-gradient(135deg,#6EE7B7,#10B981); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.post-1 .subhead { font-size:17px; color:rgba(241,245,249,.42); line-height:1.6; letter-spacing:-.005em; margin-bottom:36px; max-width:420px; }
+.vs-list { display:flex; flex-direction:column; gap:10px; margin-bottom:40px; }
+.vs-item { display:flex; align-items:center; gap:0; }
+.vs-bad { font-size:13px; color:rgba(241,245,249,.3); background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); border-radius:8px 0 0 8px; padding:8px 14px; text-decoration:line-through; }
+.vs-arrow { font-size:14px; color:rgba(16,185,129,.5); padding:0 2px; background:rgba(255,255,255,.04); border-top:1px solid rgba(255,255,255,.06); border-bottom:1px solid rgba(255,255,255,.06); padding:8px 8px; }
+.vs-good { font-size:13px; font-weight:700; color:#34D399; background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.18); border-radius:0 8px 8px 0; padding:8px 14px; }
+
+/* Phone 1: documento list */
+.phone-1 { width:260px; height:560px; }
+.phone-1 .pnotch { width:70px; height:20px; }
+.phone-1 .pstatus { height:32px; }
+.p1-screen { width:100%; height:100%; background:linear-gradient(180deg,#060614,#040410); display:flex; flex-direction:column; padding:32px 12px 14px; }
+.p1-hdr { margin-bottom:12px; }
+.p1-tag { font-size:7px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:rgba(52,211,153,.5); margin-bottom:3px; }
+.p1-title { font-size:14px; font-weight:800; color:#F1F5F9; letter-spacing:-.01em; }
+.p1-docs { display:flex; flex-direction:column; gap:5px; flex:1; overflow:hidden; }
+.p1-doc { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.05); border-radius:8px; padding:8px 10px; }
+.p1-doc-icon { width:24px; height:24px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+.p1-doc-name { font-size:9px; font-weight:600; color:#F1F5F9; }
+.p1-doc-law { font-size:7px; color:rgba(241,245,249,.3); }
+.p1-doc-gen { font-size:7px; font-weight:700; color:rgba(52,211,153,.7); background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.15); border-radius:5px; padding:2px 6px; margin-left:auto; flex-shrink:0; }
+.p1-doc.active { background:rgba(16,185,129,.05); border-color:rgba(16,185,129,.18); }
+
+.badge-float {
+  position:absolute; top:60px; right:-10px;
+  background:rgba(18,14,32,.95); backdrop-filter:blur(20px);
+  border:1px solid rgba(16,185,129,.25); border-radius:12px;
+  padding:10px 14px; box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+.bf-num { font-size:28px; font-weight:900; color:#10B981; letter-spacing:-.02em; }
+.bf-lbl { font-size:9px; color:rgba(241,245,249,.4); font-weight:500; }
+
+/* ═══════════════════════════════════════════
+   IMAGE 2: ¿Qué pasa si el Minsalud te audita?
+   Centrada, impacto visual fuerte
+═══════════════════════════════════════════ */
+.post-2 .bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(4,20,10,.95) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 110%, rgba(10,2,20,.8) 0%, transparent 50%),
+    #060614;
+}
+.post-2 .glow-c { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:600px; height:600px; border-radius:50%; background:radial-gradient(circle, rgba(16,185,129,.07) 0%, transparent 60%); z-index:0; }
+
+.post-2 .center-panel {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:64px 80px 80px;
+  text-align:center;
+}
+.post-2 .big-q {
+  font-size:72px; font-weight:900; letter-spacing:-.04em; line-height:1.0;
+  color:#F1F5F9; margin-bottom:20px;
+}
+.post-2 .big-q em { font-style:normal; background:linear-gradient(135deg,#6EE7B7,#10B981); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.post-2 .sub2 { font-size:19px; color:rgba(241,245,249,.45); line-height:1.6; max-width:700px; margin-bottom:40px; }
+.docs-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; margin-bottom:36px; }
+.doc-chip {
+  background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);
+  border-radius:12px; padding:14px 16px;
+  display:flex; flex-direction:column; gap:4px;
+}
+.doc-chip.hi { background:rgba(16,185,129,.06); border-color:rgba(16,185,129,.18); }
+.doc-chip-icon { font-size:18px; margin-bottom:4px; }
+.doc-chip-name { font-size:12px; font-weight:700; color:#F1F5F9; }
+.doc-chip-law { font-size:10px; color:rgba(241,245,249,.3); }
+.doc-chip-check { font-size:11px; color:#10B981; font-weight:700; margin-top:2px; }
+.legal-strip {
+  display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;
+}
+.legal-badge { font-size:10px; font-weight:700; color:rgba(52,211,153,.55); background:rgba(16,185,129,.06); border:1px solid rgba(16,185,129,.12); border-radius:8px; padding:5px 12px; }
+
+/* ═══════════════════════════════════════════
+   IMAGE 3: Tu tiempo vale demasiado
+   Izquierda texto + derecha PDF preview grande
+═══════════════════════════════════════════ */
+.post-3 .bg {
+  background:
+    radial-gradient(ellipse 70% 80% at 5% 50%, rgba(15,10,2,.9) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 95% 50%, rgba(2,20,10,.8) 0%, transparent 55%),
+    #060614;
+}
+.post-3 .glow-r { position:absolute; right:-60px; top:50%; transform:translateY(-50%); width:400px; height:500px; border-radius:50%; background:radial-gradient(circle, rgba(16,185,129,.08) 0%, transparent 70%); z-index:0; }
+.post-3 .glow-amb { position:absolute; left:100px; bottom:100px; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle, rgba(245,158,11,.05) 0%, transparent 70%); z-index:0; }
+
+.post-3 .left-p { width:520px; flex-shrink:0; padding:80px 40px 80px 64px; display:flex; flex-direction:column; justify-content:center; }
+.post-3 .right-p { flex:1; display:flex; align-items:center; justify-content:center; position:relative; padding:60px 40px 60px 20px; }
+.post-3 .headline3 { font-size:56px; font-weight:900; letter-spacing:-.035em; line-height:1.05; color:#F1F5F9; margin:18px 0 22px; }
+.post-3 .headline3 em { font-style:normal; color:#F59E0B; }
+.post-3 .sub3 { font-size:16px; color:rgba(241,245,249,.4); line-height:1.6; margin-bottom:32px; }
+.time-stats { display:flex; gap:12px; margin-bottom:36px; }
+.ts { flex:1; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:16px 14px; }
+.ts-num { font-size:28px; font-weight:900; letter-spacing:-.02em; margin-bottom:4px; }
+.ts-lbl { font-size:10px; color:rgba(241,245,249,.35); line-height:1.3; }
+
+/* PDF card */
+.pdf-card {
+  width:320px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);
+  border-radius:20px; overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05), -20px 30px 60px rgba(0,0,0,.7), 0 0 40px rgba(16,185,129,.06);
+  transform:perspective(1000px) rotateY(6deg) rotateX(-2deg);
+}
+.pdf-header { background:linear-gradient(135deg,#1A3A2A,#0A2018); padding:20px 20px 16px; border-bottom:1px solid rgba(255,255,255,.06); }
+.pdf-logo-row { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.pdf-doc-title { font-size:16px; font-weight:800; color:#F1F5F9; margin-bottom:4px; }
+.pdf-doc-law { font-size:10px; color:rgba(52,211,153,.6); }
+.pdf-body { padding:16px 20px; }
+.pdf-field { margin-bottom:10px; }
+.pdf-field-label { font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(241,245,249,.3); margin-bottom:3px; }
+.pdf-field-value { font-size:12px; color:rgba(241,245,249,.75); padding:6px 10px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:7px; }
+.pdf-sig-row { display:flex; align-items:center; gap:10px; margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,.06); }
+.pdf-sig-icon { font-size:20px; }
+.pdf-sig-info { flex:1; }
+.pdf-sig-name { font-size:11px; font-weight:700; color:#F1F5F9; }
+.pdf-sig-sub { font-size:9px; color:rgba(52,211,153,.6); }
+.pdf-gen-btn { height:36px; padding:0 16px; background:linear-gradient(135deg,#34D399,#10B981); border-radius:9px; font-size:11px; font-weight:800; color:#023020; display:flex; align-items:center; gap:5px; }
+</style>
+</head>
+<body>
+<div class="hint">3 artes · Psicólogo Docs · 1080×1080px</div>
+
+<!-- ══════════════ IMAGE 1 ══════════════ -->
+<div class="post post-1">
+  <div class="bg"></div>
+  <div class="glow-l"></div>
+  <div class="grid"></div>
+
+  <div class="content">
+    <div class="left-panel">
+      <div class="brand-tag"><div class="dot"></div><span>Psicólogo Docs · Colombia</span></div>
+
+      <h1 class="headline">¿Sigues firmando<br><em>con lapicero?</em></h1>
+
+      <p class="subhead">Genera tu historia clínica, consentimientos y RIPS en segundos — con firma digital automática y cumplimiento legal colombiano.</p>
+
+      <div class="vs-list">
+        <div class="vs-item">
+          <div class="vs-bad">Word sin validez legal</div>
+          <div class="vs-arrow">→</div>
+          <div class="vs-good">Historia Clínica Res. 1995/1999</div>
+        </div>
+        <div class="vs-item">
+          <div class="vs-bad">Firma escaneada</div>
+          <div class="vs-arrow">→</div>
+          <div class="vs-good">Firma digital automática</div>
+        </div>
+        <div class="vs-item">
+          <div class="vs-bad">Horas de papeleo</div>
+          <div class="vs-arrow">→</div>
+          <div class="vs-good">2 minutos por documento</div>
+        </div>
+      </div>
+
+      <div class="bottom-cta" style="width:fit-content;">Empieza hoy · $33.000/mes →</div>
+    </div>
+
+    <div class="right-panel">
+      <!-- Phone -->
+      <div class="phone-frame phone-1">
+        <div class="pnotch" style="width:70px;height:20px;"></div>
+        <div class="p1-screen">
+          <div class="pstatus" style="height:32px;"><span>9:41</span><span>●●● 100%</span></div>
+          <div class="p1-hdr">
+            <div class="p1-tag">Documentos clínicos</div>
+            <div class="p1-title">Mis documentos</div>
+          </div>
+          <div class="p1-docs">
+            <div class="p1-doc active">
+              <div class="p1-doc-icon" style="background:rgba(16,185,129,.12);">📋</div>
+              <div><div class="p1-doc-name">Historia Clínica</div><div class="p1-doc-law">Res. 1995/1999</div></div>
+              <div class="p1-doc-gen">Generar</div>
+            </div>
+            <div class="p1-doc">
+              <div class="p1-doc-icon" style="background:rgba(99,102,241,.1);">🧠</div>
+              <div><div class="p1-doc-name">Evolución SOAP</div><div class="p1-doc-law">Sesión de seguimiento</div></div>
+              <div class="p1-doc-gen">Generar</div>
+            </div>
+            <div class="p1-doc">
+              <div class="p1-doc-icon" style="background:rgba(251,191,36,.1);">✍️</div>
+              <div><div class="p1-doc-name">Consentimiento</div><div class="p1-doc-law">Ley 1090/2006</div></div>
+              <div class="p1-doc-gen">Generar</div>
+            </div>
+            <div class="p1-doc">
+              <div class="p1-doc-icon" style="background:rgba(248,113,113,.1);">📊</div>
+              <div><div class="p1-doc-name">RIPS</div><div class="p1-doc-law">Res. 3374/2000</div></div>
+              <div class="p1-doc-gen">Generar</div>
+            </div>
+            <div class="p1-doc">
+              <div class="p1-doc-icon" style="background:rgba(167,139,250,.1);">🏫</div>
+              <div><div class="p1-doc-name">Informe Psicológico</div><div class="p1-doc-law">Ley 1090 Art. 49</div></div>
+              <div class="p1-doc-gen">Generar</div>
+            </div>
+            <div class="p1-doc">
+              <div class="p1-doc-icon" style="background:rgba(52,211,153,.08);">🧾</div>
+              <div><div class="p1-doc-name">Facturación</div><div class="p1-doc-law">Art. 615 E.T.</div></div>
+              <div class="p1-doc-gen">Generar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Badge flotante -->
+      <div class="badge-float">
+        <div class="bf-num">11</div>
+        <div class="bf-lbl">formatos<br>clínicos</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="bottom-logo">
+      <svg width="22" height="22" viewBox="0 0 120 120"><defs><radialGradient id="b1bg" cx="30%" cy="25%" r="75%"><stop offset="0%" stop-color="#1A3A2A"/><stop offset="100%" stop-color="#060614"/></radialGradient><filter id="b1g"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="b1pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6EE7B7"/><stop offset="100%" stop-color="#10B981"/></linearGradient></defs><rect width="120" height="120" rx="28" fill="url(#b1bg)"/><text x="60" y="82" text-anchor="middle" font-size="68" font-weight="900" fill="url(#b1pg)" font-family="serif" filter="url(#b1g)">Ψ</text></svg>
+      <span class="bottom-name">Psicólogo Docs</span>
+    </div>
+    <div style="font-size:12px;color:rgba(241,245,249,.25);">Plataforma certificada · Res. 1995/1999 · Ley 1581/2012</div>
+    <div class="bottom-cta">Crear cuenta gratis →</div>
+  </div>
+</div>
+
+<!-- ══════════════ IMAGE 2 ══════════════ -->
+<div class="post post-2">
+  <div class="bg"></div>
+  <div class="glow-c"></div>
+  <div class="grid"></div>
+
+  <div class="content">
+    <div class="center-panel">
+      <div class="brand-tag" style="margin-bottom:28px;"><div class="dot"></div><span>Para psicólogos con tarjeta Colpsic</span></div>
+
+      <h1 class="big-q">Si el Minsalud te audita<br>mañana, ¿qué<br><em>presentarías?</em></h1>
+
+      <p class="sub2">Con Psicólogo Docs tienes toda tu documentación clínica lista, firmada digitalmente y conforme a la normativa colombiana vigente.</p>
+
+      <div class="docs-grid">
+        <div class="doc-chip hi">
+          <div class="doc-chip-icon">📋</div>
+          <div class="doc-chip-name">Historia Clínica</div>
+          <div class="doc-chip-law">Res. 1995/1999</div>
+          <div class="doc-chip-check">✓ Incluido</div>
+        </div>
+        <div class="doc-chip hi">
+          <div class="doc-chip-icon">✍️</div>
+          <div class="doc-chip-name">Consentimiento</div>
+          <div class="doc-chip-law">Ley 1090/2006</div>
+          <div class="doc-chip-check">✓ Incluido</div>
+        </div>
+        <div class="doc-chip hi">
+          <div class="doc-chip-icon">📊</div>
+          <div class="doc-chip-name">RIPS</div>
+          <div class="doc-chip-law">Res. 3374/2000</div>
+          <div class="doc-chip-check">✓ Incluido</div>
+        </div>
+        <div class="doc-chip">
+          <div class="doc-chip-icon">🧠</div>
+          <div class="doc-chip-name">Evolución SOAP</div>
+          <div class="doc-chip-law">Formato clínico</div>
+          <div class="doc-chip-check" style="color:#10B981;">✓ Incluido</div>
+        </div>
+        <div class="doc-chip">
+          <div class="doc-chip-icon">🏫</div>
+          <div class="doc-chip-name">Informe Colegio</div>
+          <div class="doc-chip-law">Ley 115/1994</div>
+          <div class="doc-chip-check" style="color:#10B981;">✓ Incluido</div>
+        </div>
+        <div class="doc-chip">
+          <div class="doc-chip-icon">🧾</div>
+          <div class="doc-chip-name">Facturación</div>
+          <div class="doc-chip-law">Art. 615 E.T.</div>
+          <div class="doc-chip-check" style="color:#10B981;">✓ Incluido</div>
+        </div>
+      </div>
+
+      <div class="legal-strip">
+        <div class="legal-badge">Res. 1995/1999</div>
+        <div class="legal-badge">Ley 1090/2006</div>
+        <div class="legal-badge">Ley 1581/2012</div>
+        <div class="legal-badge">DSM-5-TR</div>
+        <div class="legal-badge">CIE-11</div>
+        <div class="legal-badge">Firma digital</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="bottom-logo">
+      <svg width="22" height="22" viewBox="0 0 120 120"><defs><radialGradient id="b2bg" cx="30%" cy="25%" r="75%"><stop offset="0%" stop-color="#1A3A2A"/><stop offset="100%" stop-color="#060614"/></radialGradient><filter id="b2g"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="b2pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6EE7B7"/><stop offset="100%" stop-color="#10B981"/></linearGradient></defs><rect width="120" height="120" rx="28" fill="url(#b2bg)"/><text x="60" y="82" text-anchor="middle" font-size="68" font-weight="900" fill="url(#b2pg)" font-family="serif" filter="url(#b2g)">Ψ</text></svg>
+      <span class="bottom-name">Psicólogo Docs</span>
+    </div>
+    <div style="font-size:12px;color:rgba(241,245,249,.25);">11 formatos · Firma digital · $33.000/mes</div>
+    <div class="bottom-cta">Ver planes →</div>
+  </div>
+</div>
+
+<!-- ══════════════ IMAGE 3 ══════════════ -->
+<div class="post post-3">
+  <div class="bg"></div>
+  <div class="glow-r"></div>
+  <div class="glow-amb"></div>
+  <div class="grid"></div>
+
+  <div class="content">
+    <div class="left-p">
+      <div class="brand-tag" style="margin-bottom:24px;"><div class="dot"></div><span>Psicólogo Docs</span></div>
+      <div class="eyebrow" style="margin-bottom:14px;">Eficiencia clínica</div>
+
+      <h1 class="headline3">Tu tiempo vale<br>demasiado para<br>llenarlo de<br><em>papeleo.</em></h1>
+
+      <p class="sub3">Genera tu historia clínica completa en 2 minutos. Con firma digital, conforme a Res. 1995/1999 y lista para enviar.</p>
+
+      <div class="time-stats">
+        <div class="ts">
+          <div class="ts-num" style="color:#F59E0B;">2 min</div>
+          <div class="ts-lbl">para generar tu historia clínica</div>
+        </div>
+        <div class="ts">
+          <div class="ts-num" style="color:#10B981;">100%</div>
+          <div class="ts-lbl">conforme a normativa colombiana</div>
+        </div>
+        <div class="ts">
+          <div class="ts-num" style="color:#34D399;">$33k</div>
+          <div class="ts-lbl">al mes sin permanencia</div>
+        </div>
+      </div>
+
+      <div class="bottom-cta" style="width:fit-content;">Empieza ahora →</div>
+    </div>
+
+    <div class="right-p">
+      <div class="pdf-card">
+        <div class="pdf-header">
+          <div class="pdf-logo-row">
+            <svg width="24" height="24" viewBox="0 0 120 120"><defs><radialGradient id="p3bg" cx="30%" cy="25%" r="75%"><stop offset="0%" stop-color="#1A3A2A"/><stop offset="100%" stop-color="#060614"/></radialGradient><filter id="p3g"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="p3pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6EE7B7"/><stop offset="100%" stop-color="#10B981"/></linearGradient></defs><rect width="120" height="120" rx="28" fill="url(#p3bg)"/><text x="60" y="82" text-anchor="middle" font-size="68" font-weight="900" fill="url(#p3pg)" font-family="serif" filter="url(#p3g)">Ψ</text></svg>
+            <div style="font-size:11px;font-weight:800;color:#F1F5F9;">Psicólogo Docs</div>
+          </div>
+          <div class="pdf-doc-title">Historia Clínica</div>
+          <div class="pdf-doc-law">Res. 1995/1999 · Ley 1090/2006</div>
+        </div>
+        <div class="pdf-body">
+          <div class="pdf-field">
+            <div class="pdf-field-label">Paciente</div>
+            <div class="pdf-field-value">María Alejandra López Ruiz</div>
+          </div>
+          <div class="pdf-field">
+            <div class="pdf-field-label">Fecha</div>
+            <div class="pdf-field-value">03 · 05 · 2026</div>
+          </div>
+          <div class="pdf-field">
+            <div class="pdf-field-label">Motivo de consulta</div>
+            <div class="pdf-field-value" style="font-size:10px;padding:8px 10px;line-height:1.4;">Ansiedad generalizada. Dificultades en relaciones interpersonales desde hace 6 meses...</div>
+          </div>
+          <div class="pdf-field">
+            <div class="pdf-field-label">Diagnóstico CIE-11</div>
+            <div class="pdf-field-value" style="font-size:10px;">F41.1 — Trastorno de ansiedad generalizada</div>
+          </div>
+          <div class="pdf-sig-row">
+            <div class="pdf-sig-icon">✍️</div>
+            <div class="pdf-sig-info">
+              <div class="pdf-sig-name">Dr. Danilo Rincón · TP-12345</div>
+              <div class="pdf-sig-sub">✓ Firma digital automática incluida</div>
+            </div>
+            <div class="pdf-gen-btn">📥 PDF</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="bottom-logo">
+      <svg width="22" height="22" viewBox="0 0 120 120"><defs><radialGradient id="b3bg" cx="30%" cy="25%" r="75%"><stop offset="0%" stop-color="#1A3A2A"/><stop offset="100%" stop-color="#060614"/></radialGradient><filter id="b3g"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="b3pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6EE7B7"/><stop offset="100%" stop-color="#10B981"/></linearGradient></defs><rect width="120" height="120" rx="28" fill="url(#b3bg)"/><text x="60" y="82" text-anchor="middle" font-size="68" font-weight="900" fill="url(#b3pg)" font-family="serif" filter="url(#b3g)">Ψ</text></svg>
+      <span class="bottom-name">Psicólogo Docs</span>
+    </div>
+    <div style="font-size:12px;color:rgba(241,245,249,.25);">Desde $33.000/mes · Sin permanencia · Activación en 24h</div>
+    <div class="bottom-cta">Suscribirme →</div>
+  </div>
+</div>
+
+<div class="hint">Captura cada imagen por separado · Chrome → zoom 100% → F12 → Ctrl+Shift+P → Capture full size screenshot</div>
+</body>
+</html>
