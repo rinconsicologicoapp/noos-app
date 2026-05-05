@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Temas de Navegación — 6 Opciones</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#020208;
+  min-height:100vh;
+  padding:48px 32px 72px;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0;
+}
+.hdr { text-align:center; margin-bottom:52px; }
+.hdr h1 { font-size:30px; font-weight:900; letter-spacing:-.03em; color:rgba(255,255,255,.88); margin-bottom:8px; }
+.hdr p  { font-size:14px; color:rgba(255,255,255,.28); }
+
+.grid { display:grid; grid-template-columns:repeat(3,1fr); gap:36px 28px; max-width:1080px; width:100%; }
+
+.theme-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.theme-name {
+  font-size:12px; font-weight:800; letter-spacing:.06em;
+  text-transform:uppercase; color:rgba(255,255,255,.55);
+  text-align:center;
+}
+.theme-sub { font-size:10px; color:rgba(255,255,255,.22); text-align:center; margin-top:-8px; }
+
+/* Phone frame */
+.phone {
+  width:100%;
+  aspect-ratio:9/19.5;
+  border-radius:44px;
+  border:6px solid #0A0A14;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 32px 80px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:28%; height:22px; border-radius:0 0 14px 14px; z-index:100; }
+.screen { width:100%; height:100%; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+
+/* Status bar */
+.sb { display:flex; justify-content:space-between; align-items:flex-end; padding:4px 14px 4px; height:30px; font-size:9px; font-weight:600; letter-spacing:.01em; flex-shrink:0; }
+
+/* Header */
+.scr-hdr { padding:8px 14px 12px; flex-shrink:0; }
+.scr-greet { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; opacity:.4; margin-bottom:2px; }
+.scr-name  { font-size:17px; font-weight:900; letter-spacing:-.02em; line-height:1; }
+.scr-date  { font-size:8px; opacity:.35; margin-top:2px; }
+
+/* Stat cards */
+.stats-row { display:flex; gap:6px; padding:0 14px; margin-bottom:10px; flex-shrink:0; }
+.stat { flex:1; border-radius:10px; padding:8px 6px; text-align:center; }
+.stat-num { font-size:17px; font-weight:900; letter-spacing:-.02em; }
+.stat-lbl { font-size:7px; text-transform:uppercase; letter-spacing:.06em; opacity:.4; margin-top:1px; }
+
+/* Section label */
+.sec-lbl { font-size:8px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; opacity:.25; padding:0 14px; margin-bottom:7px; flex-shrink:0; }
+
+/* Appointment items */
+.appts { display:flex; flex-direction:column; gap:5px; padding:0 14px; flex:1; overflow:hidden; }
+.appt { display:flex; align-items:center; gap:8px; border-radius:10px; padding:8px 10px; }
+.appt-av { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.appt-av-in { font-size:8px; font-weight:800; }
+.appt-info { flex:1; }
+.appt-nm  { font-size:10px; font-weight:700; }
+.appt-tm  { font-size:8px; opacity:.4; }
+.appt-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+
+/* Bottom nav */
+.bnav { display:flex; align-items:center; justify-content:space-around; border-top-width:1px; border-top-style:solid; padding:8px 4px 14px; flex-shrink:0; backdrop-filter:blur(20px); }
+.ni   { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.ni-lbl { font-size:7px; font-weight:600; }
+
+/* SVG icon wrapper */
+.ic { display:flex; align-items:center; justify-content:center; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>6 Paletas para las Pantallas Principales</h1>
+  <p>Misma estructura · Solo cambia la combinación de colores</p>
+</div>
+
+<div class="grid">
+
+<!-- ══════════════════════════════════
+     TEMA 1 — ÍNDIGO NOCTURNO
+     Dark void + indigo/violeta
+══════════════════════════════════ -->
+<div class="theme-col">
+  <div class="theme-name">Índigo Nocturno</div>
+  <div class="theme-sub">Oscuro · Violeta · Moderno</div>
+  <div class="phone" style="border-color:#0C0C1E;">
+    <div class="notch" style="background:#0C0C1E;"></div>
+    <div class="screen" style="background:radial-gradient(ellipse 100% 60% at 50% -5%,#16154A 0%,#0B0C1E 55%);">
+      <div class="sb" style="color:rgba(224,231,255,.6);"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="scr-hdr">
+        <div class="scr-greet" style="color:#E0E7FF;">Buenas tardes</div>
+        <div class="scr-name" style="color:#E0E7FF;">Dr. Rincón</div>
+        <div class="scr-date" style="color:#E0E7FF;">Jueves · 1 Mayo</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat" style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.22);">
+          <div class="stat-num" style="color:#818CF8;">4</div>
+          <div class="stat-lbl" style="color:#E0E7FF;">Hoy</div>
+        </div>
+        <div class="stat" style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.14);">
+          <div class="stat-num" style="color:#818CF8;">12</div>
+          <div class="stat-lbl" style="color:#E0E7FF;">Pacientes</div>
+        </div>
+        <div class="stat" style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.14);">
+          <div class="stat-num" style="color:#A5B4FC;">38</div>
+          <div class="stat-lbl" style="color:#E0E7FF;">Mes</div>
+        </div>
+      </div>
+      <div class="sec-lbl" style="color:#E0E7FF;">Citas de hoy</div>
+      <div class="appts">
+        <div class="appt" style="background:rgba(99,102,241,.10);border:1px solid rgba(99,102,241,.2);">
+          <div class="appt-av" style="background:rgba(99,102,241,.2);"><span class="appt-av-in" style="color:#818CF8;">AM</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#E0E7FF;">Ana Martínez</div><div class="appt-tm" style="color:#E0E7FF;">10:00 · Sesión</div></div>
+          <div class="appt-dot" style="background:#6366F1;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);">
+          <div class="appt-av" style="background:rgba(99,102,241,.12);"><span class="appt-av-in" style="color:#A5B4FC;">ML</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#E0E7FF;">María López</div><div class="appt-tm" style="color:#E0E7FF;">2:30 · Ahora</div></div>
+          <div class="appt-dot" style="background:#818CF8;animation:pulse 2s infinite;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);">
+          <div class="appt-av" style="background:rgba(255,255,255,.06);"><span class="appt-av-in" style="color:rgba(224,231,255,.4);">CR</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#E0E7FF;">Carlos Ruiz</div><div class="appt-tm" style="color:#E0E7FF;">4:00 · Hoy</div></div>
+          <div class="appt-dot" style="background:rgba(255,255,255,.2);"></div>
+        </div>
+      </div>
+      <div class="bnav" style="background:rgba(11,12,30,.95);border-top-color:rgba(99,102,241,.15);">
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div class="ni-lbl" style="color:#6366F1;">Inicio</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(224,231,255,.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(224,231,255,.3);">Agenda</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(224,231,255,.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(224,231,255,.3);">Notas</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(224,231,255,.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(224,231,255,.3);">Perfil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TEMA 2 — CARBÓN DORADO
+     Near-black + warm gold/amber
+══════════════════════════════════ -->
+<div class="theme-col">
+  <div class="theme-name">Carbón Dorado</div>
+  <div class="theme-sub">Editorial · Cálido · Elegante</div>
+  <div class="phone" style="border-color:#0F0E0C;">
+    <div class="notch" style="background:#0F0E0C;"></div>
+    <div class="screen" style="background:radial-gradient(ellipse 100% 55% at 50% -5%,#1E1A0A 0%,#0C0B08 55%);">
+      <div class="sb" style="color:rgba(254,243,199,.6);"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="scr-hdr">
+        <div class="scr-greet" style="color:#FEF3C7;">Buenas tardes</div>
+        <div class="scr-name" style="color:#FEF3C7;">Dr. Rincón</div>
+        <div class="scr-date" style="color:#FEF3C7;">Jueves · 1 Mayo</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat" style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.22);">
+          <div class="stat-num" style="color:#FBBF24;">4</div>
+          <div class="stat-lbl" style="color:#FEF3C7;">Hoy</div>
+        </div>
+        <div class="stat" style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.14);">
+          <div class="stat-num" style="color:#F59E0B;">12</div>
+          <div class="stat-lbl" style="color:#FEF3C7;">Pacientes</div>
+        </div>
+        <div class="stat" style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.14);">
+          <div class="stat-num" style="color:#FCD34D;">38</div>
+          <div class="stat-lbl" style="color:#FEF3C7;">Mes</div>
+        </div>
+      </div>
+      <div class="sec-lbl" style="color:#FEF3C7;">Citas de hoy</div>
+      <div class="appts">
+        <div class="appt" style="background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.2);">
+          <div class="appt-av" style="background:rgba(245,158,11,.2);"><span class="appt-av-in" style="color:#FBBF24;">AM</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#FEF3C7;">Ana Martínez</div><div class="appt-tm" style="color:#FEF3C7;">10:00 · Sesión</div></div>
+          <div class="appt-dot" style="background:#F59E0B;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);">
+          <div class="appt-av" style="background:rgba(245,158,11,.12);"><span class="appt-av-in" style="color:#FCD34D;">ML</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#FEF3C7;">María López</div><div class="appt-tm" style="color:#FEF3C7;">2:30 · Ahora</div></div>
+          <div class="appt-dot" style="background:#FBBF24;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);">
+          <div class="appt-av" style="background:rgba(255,255,255,.05);"><span class="appt-av-in" style="color:rgba(254,243,199,.4);">CR</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#FEF3C7;">Carlos Ruiz</div><div class="appt-tm" style="color:#FEF3C7;">4:00 · Hoy</div></div>
+          <div class="appt-dot" style="background:rgba(255,255,255,.2);"></div>
+        </div>
+      </div>
+      <div class="bnav" style="background:rgba(12,11,8,.96);border-top-color:rgba(245,158,11,.14);">
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div class="ni-lbl" style="color:#F59E0B;">Inicio</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(254,243,199,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(254,243,199,.28);">Agenda</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(254,243,199,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(254,243,199,.28);">Notas</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(254,243,199,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(254,243,199,.28);">Perfil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TEMA 3 — SLATE + CIAN
+     Dark slate + bright cyan/aqua
+══════════════════════════════════ -->
+<div class="theme-col">
+  <div class="theme-name">Slate + Cian</div>
+  <div class="theme-sub">Tecnológico · Fresco · Preciso</div>
+  <div class="phone" style="border-color:#080E12;">
+    <div class="notch" style="background:#080E12;"></div>
+    <div class="screen" style="background:radial-gradient(ellipse 100% 55% at 50% -5%,#0A1E24 0%,#060E12 55%);">
+      <div class="sb" style="color:rgba(207,250,254,.6);"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="scr-hdr">
+        <div class="scr-greet" style="color:#CFFAFE;">Buenas tardes</div>
+        <div class="scr-name" style="color:#CFFAFE;">Dr. Rincón</div>
+        <div class="scr-date" style="color:#CFFAFE;">Jueves · 1 Mayo</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat" style="background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.22);">
+          <div class="stat-num" style="color:#22D3EE;">4</div>
+          <div class="stat-lbl" style="color:#CFFAFE;">Hoy</div>
+        </div>
+        <div class="stat" style="background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.14);">
+          <div class="stat-num" style="color:#06B6D4;">12</div>
+          <div class="stat-lbl" style="color:#CFFAFE;">Pacientes</div>
+        </div>
+        <div class="stat" style="background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.14);">
+          <div class="stat-num" style="color:#67E8F9;">38</div>
+          <div class="stat-lbl" style="color:#CFFAFE;">Mes</div>
+        </div>
+      </div>
+      <div class="sec-lbl" style="color:#CFFAFE;">Citas de hoy</div>
+      <div class="appts">
+        <div class="appt" style="background:rgba(6,182,212,.10);border:1px solid rgba(6,182,212,.2);">
+          <div class="appt-av" style="background:rgba(6,182,212,.2);"><span class="appt-av-in" style="color:#22D3EE;">AM</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#CFFAFE;">Ana Martínez</div><div class="appt-tm" style="color:#CFFAFE;">10:00 · Sesión</div></div>
+          <div class="appt-dot" style="background:#06B6D4;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);">
+          <div class="appt-av" style="background:rgba(6,182,212,.12);"><span class="appt-av-in" style="color:#67E8F9;">ML</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#CFFAFE;">María López</div><div class="appt-tm" style="color:#CFFAFE;">2:30 · Ahora</div></div>
+          <div class="appt-dot" style="background:#22D3EE;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);">
+          <div class="appt-av" style="background:rgba(255,255,255,.05);"><span class="appt-av-in" style="color:rgba(207,250,254,.4);">CR</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#CFFAFE;">Carlos Ruiz</div><div class="appt-tm" style="color:#CFFAFE;">4:00 · Hoy</div></div>
+          <div class="appt-dot" style="background:rgba(255,255,255,.2);"></div>
+        </div>
+      </div>
+      <div class="bnav" style="background:rgba(6,14,18,.96);border-top-color:rgba(6,182,212,.15);">
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06B6D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div class="ni-lbl" style="color:#06B6D4;">Inicio</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(207,250,254,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(207,250,254,.28);">Agenda</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(207,250,254,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(207,250,254,.28);">Notas</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(207,250,254,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(207,250,254,.28);">Perfil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TEMA 4 — OBSIDIANA + ROSA
+     Near-black + warm rose/pink
+══════════════════════════════════ -->
+<div class="theme-col">
+  <div class="theme-name">Obsidiana + Rosa</div>
+  <div class="theme-sub">Salud mental · Cálido · Humano</div>
+  <div class="phone" style="border-color:#100810;">
+    <div class="notch" style="background:#100810;"></div>
+    <div class="screen" style="background:radial-gradient(ellipse 100% 55% at 50% -5%,#20082C 0%,#0E060F 55%);">
+      <div class="sb" style="color:rgba(255,228,230,.6);"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="scr-hdr">
+        <div class="scr-greet" style="color:#FFE4E6;">Buenas tardes</div>
+        <div class="scr-name" style="color:#FFE4E6;">Dr. Rincón</div>
+        <div class="scr-date" style="color:#FFE4E6;">Jueves · 1 Mayo</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat" style="background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.22);">
+          <div class="stat-num" style="color:#FB7185;">4</div>
+          <div class="stat-lbl" style="color:#FFE4E6;">Hoy</div>
+        </div>
+        <div class="stat" style="background:rgba(244,63,94,.07);border:1px solid rgba(244,63,94,.14);">
+          <div class="stat-num" style="color:#F43F5E;">12</div>
+          <div class="stat-lbl" style="color:#FFE4E6;">Pacientes</div>
+        </div>
+        <div class="stat" style="background:rgba(244,63,94,.07);border:1px solid rgba(244,63,94,.14);">
+          <div class="stat-num" style="color:#FDA4AF;">38</div>
+          <div class="stat-lbl" style="color:#FFE4E6;">Mes</div>
+        </div>
+      </div>
+      <div class="sec-lbl" style="color:#FFE4E6;">Citas de hoy</div>
+      <div class="appts">
+        <div class="appt" style="background:rgba(244,63,94,.10);border:1px solid rgba(244,63,94,.2);">
+          <div class="appt-av" style="background:rgba(244,63,94,.2);"><span class="appt-av-in" style="color:#FB7185;">AM</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#FFE4E6;">Ana Martínez</div><div class="appt-tm" style="color:#FFE4E6;">10:00 · Sesión</div></div>
+          <div class="appt-dot" style="background:#F43F5E;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);">
+          <div class="appt-av" style="background:rgba(244,63,94,.12);"><span class="appt-av-in" style="color:#FDA4AF;">ML</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#FFE4E6;">María López</div><div class="appt-tm" style="color:#FFE4E6;">2:30 · Ahora</div></div>
+          <div class="appt-dot" style="background:#FB7185;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);">
+          <div class="appt-av" style="background:rgba(255,255,255,.05);"><span class="appt-av-in" style="color:rgba(255,228,230,.4);">CR</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#FFE4E6;">Carlos Ruiz</div><div class="appt-tm" style="color:#FFE4E6;">4:00 · Hoy</div></div>
+          <div class="appt-dot" style="background:rgba(255,255,255,.2);"></div>
+        </div>
+      </div>
+      <div class="bnav" style="background:rgba(14,6,15,.96);border-top-color:rgba(244,63,94,.15);">
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F43F5E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div class="ni-lbl" style="color:#F43F5E;">Inicio</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,228,230,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(255,228,230,.28);">Agenda</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,228,230,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(255,228,230,.28);">Notas</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,228,230,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(255,228,230,.28);">Perfil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TEMA 5 — AZUL MEDIANOCHE
+     Deep navy + electric blue
+══════════════════════════════════ -->
+<div class="theme-col">
+  <div class="theme-name">Azul Medianoche</div>
+  <div class="theme-sub">Profundo · Eléctrico · Confiable</div>
+  <div class="phone" style="border-color:#050810;">
+    <div class="notch" style="background:#050810;"></div>
+    <div class="screen" style="background:radial-gradient(ellipse 100% 55% at 50% -5%,#0C1535 0%,#04070F 55%);">
+      <div class="sb" style="color:rgba(219,234,254,.6);"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="scr-hdr">
+        <div class="scr-greet" style="color:#DBEAFE;">Buenas tardes</div>
+        <div class="scr-name" style="color:#DBEAFE;">Dr. Rincón</div>
+        <div class="scr-date" style="color:#DBEAFE;">Jueves · 1 Mayo</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat" style="background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.25);">
+          <div class="stat-num" style="color:#60A5FA;">4</div>
+          <div class="stat-lbl" style="color:#DBEAFE;">Hoy</div>
+        </div>
+        <div class="stat" style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.16);">
+          <div class="stat-num" style="color:#3B82F6;">12</div>
+          <div class="stat-lbl" style="color:#DBEAFE;">Pacientes</div>
+        </div>
+        <div class="stat" style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.16);">
+          <div class="stat-num" style="color:#93C5FD;">38</div>
+          <div class="stat-lbl" style="color:#DBEAFE;">Mes</div>
+        </div>
+      </div>
+      <div class="sec-lbl" style="color:#DBEAFE;">Citas de hoy</div>
+      <div class="appts">
+        <div class="appt" style="background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.22);">
+          <div class="appt-av" style="background:rgba(59,130,246,.2);"><span class="appt-av-in" style="color:#60A5FA;">AM</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#DBEAFE;">Ana Martínez</div><div class="appt-tm" style="color:#DBEAFE;">10:00 · Sesión</div></div>
+          <div class="appt-dot" style="background:#3B82F6;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);">
+          <div class="appt-av" style="background:rgba(59,130,246,.12);"><span class="appt-av-in" style="color:#93C5FD;">ML</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#DBEAFE;">María López</div><div class="appt-tm" style="color:#DBEAFE;">2:30 · Ahora</div></div>
+          <div class="appt-dot" style="background:#60A5FA;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);">
+          <div class="appt-av" style="background:rgba(255,255,255,.05);"><span class="appt-av-in" style="color:rgba(219,234,254,.4);">CR</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#DBEAFE;">Carlos Ruiz</div><div class="appt-tm" style="color:#DBEAFE;">4:00 · Hoy</div></div>
+          <div class="appt-dot" style="background:rgba(255,255,255,.2);"></div>
+        </div>
+      </div>
+      <div class="bnav" style="background:rgba(4,7,15,.96);border-top-color:rgba(59,130,246,.16);">
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div class="ni-lbl" style="color:#3B82F6;">Inicio</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(219,234,254,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(219,234,254,.28);">Agenda</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(219,234,254,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(219,234,254,.28);">Notas</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(219,234,254,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(219,234,254,.28);">Perfil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TEMA 6 — GRAFITO + VIOLETA
+     Dark graphite + soft violet
+══════════════════════════════════ -->
+<div class="theme-col">
+  <div class="theme-name">Grafito + Violeta</div>
+  <div class="theme-sub">Sofisticado · Sutil · Premium</div>
+  <div class="phone" style="border-color:#0C0A14;">
+    <div class="notch" style="background:#0C0A14;"></div>
+    <div class="screen" style="background:radial-gradient(ellipse 100% 55% at 50% -5%,#160E2C 0%,#09070F 55%);">
+      <div class="sb" style="color:rgba(237,233,254,.6);"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="scr-hdr">
+        <div class="scr-greet" style="color:#EDE9FE;">Buenas tardes</div>
+        <div class="scr-name" style="color:#EDE9FE;">Dr. Rincón</div>
+        <div class="scr-date" style="color:#EDE9FE;">Jueves · 1 Mayo</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat" style="background:rgba(139,92,246,.13);border:1px solid rgba(139,92,246,.24);">
+          <div class="stat-num" style="color:#A78BFA;">4</div>
+          <div class="stat-lbl" style="color:#EDE9FE;">Hoy</div>
+        </div>
+        <div class="stat" style="background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.15);">
+          <div class="stat-num" style="color:#8B5CF6;">12</div>
+          <div class="stat-lbl" style="color:#EDE9FE;">Pacientes</div>
+        </div>
+        <div class="stat" style="background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.15);">
+          <div class="stat-num" style="color:#C4B5FD;">38</div>
+          <div class="stat-lbl" style="color:#EDE9FE;">Mes</div>
+        </div>
+      </div>
+      <div class="sec-lbl" style="color:#EDE9FE;">Citas de hoy</div>
+      <div class="appts">
+        <div class="appt" style="background:rgba(139,92,246,.11);border:1px solid rgba(139,92,246,.22);">
+          <div class="appt-av" style="background:rgba(139,92,246,.2);"><span class="appt-av-in" style="color:#A78BFA;">AM</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#EDE9FE;">Ana Martínez</div><div class="appt-tm" style="color:#EDE9FE;">10:00 · Sesión</div></div>
+          <div class="appt-dot" style="background:#8B5CF6;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);">
+          <div class="appt-av" style="background:rgba(139,92,246,.12);"><span class="appt-av-in" style="color:#C4B5FD;">ML</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#EDE9FE;">María López</div><div class="appt-tm" style="color:#EDE9FE;">2:30 · Ahora</div></div>
+          <div class="appt-dot" style="background:#A78BFA;"></div>
+        </div>
+        <div class="appt" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);">
+          <div class="appt-av" style="background:rgba(255,255,255,.05);"><span class="appt-av-in" style="color:rgba(237,233,254,.4);">CR</span></div>
+          <div class="appt-info"><div class="appt-nm" style="color:#EDE9FE;">Carlos Ruiz</div><div class="appt-tm" style="color:#EDE9FE;">4:00 · Hoy</div></div>
+          <div class="appt-dot" style="background:rgba(255,255,255,.2);"></div>
+        </div>
+      </div>
+      <div class="bnav" style="background:rgba(9,7,15,.96);border-top-color:rgba(139,92,246,.16);">
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div class="ni-lbl" style="color:#8B5CF6;">Inicio</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(237,233,254,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(237,233,254,.28);">Agenda</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(237,233,254,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(237,233,254,.28);">Notas</div>
+        </div>
+        <div class="ni">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(237,233,254,.28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
+          <div class="ni-lbl" style="color:rgba(237,233,254,.28);">Perfil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /grid -->
+
+<!-- Leyenda de accents -->
+<div style="margin-top:52px;max-width:1080px;width:100%;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;">
+  <div style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:10px;font-weight:800;color:#818CF8;margin-bottom:3px;">Índigo</div><div style="font-size:9px;color:rgba(255,255,255,.3);">#6366F1</div></div>
+  <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:10px;font-weight:800;color:#FBBF24;margin-bottom:3px;">Dorado</div><div style="font-size:9px;color:rgba(255,255,255,.3);">#F59E0B</div></div>
+  <div style="background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:10px;font-weight:800;color:#22D3EE;margin-bottom:3px;">Cian</div><div style="font-size:9px;color:rgba(255,255,255,.3);">#06B6D4</div></div>
+  <div style="background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.2);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:10px;font-weight:800;color:#FB7185;margin-bottom:3px;">Rosa</div><div style="font-size:9px;color:rgba(255,255,255,.3);">#F43F5E</div></div>
+  <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:10px;font-weight:800;color:#60A5FA;margin-bottom:3px;">Azul</div><div style="font-size:9px;color:rgba(255,255,255,.3);">#3B82F6</div></div>
+  <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:10px;font-weight:800;color:#A78BFA;margin-bottom:3px;">Violeta</div><div style="font-size:9px;color:rgba(255,255,255,.3);">#8B5CF6</div></div>
+</div>
+
+<div style="margin-top:14px;font-size:11px;color:rgba(255,255,255,.2);text-align:center;">
+  Dinos cuál te gusta y se aplica a toda la app en minutos.
+</div>
+
+</body>
+</html>
