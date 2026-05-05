@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Perfil Psicólogo — Propuesta de mejora</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#010008;
+  min-height:100vh;
+  padding:48px 32px 72px;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;
+  display:flex; flex-direction:column; align-items:center;
+}
+.hdr { text-align:center; margin-bottom:48px; }
+.hdr h1 { font-size:26px; font-weight:900; letter-spacing:-.03em; color:rgba(255,255,255,.88); margin-bottom:6px; }
+.hdr p { font-size:13px; color:rgba(255,255,255,.25); }
+
+.cols { display:flex; gap:48px; align-items:flex-start; justify-content:center; }
+
+.col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.col-label { font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; text-align:center; }
+
+.phone {
+  width:320px;
+  height:694px;
+  border-radius:52px;
+  border:6px solid #0A0A18;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 40px 100px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.04);
+  flex-shrink:0;
+}
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:100px; height:26px; border-radius:0 0 16px 16px; z-index:100; }
+.screen { width:100%; height:100%; overflow-y:auto; position:relative; }
+
+/* Status bar */
+.sb { position:sticky; top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:flex-end; padding:4px 20px 6px; height:38px; font-size:10px; font-weight:600; z-index:50; }
+
+/* ── ANTES ── */
+.before-screen { background:#07060F; }
+.before-hdr {
+  background:linear-gradient(180deg,#1A0D28 0%,#0D0B1E 100%);
+  padding:16px 20px 40px;
+  text-align:center; position:relative;
+}
+.before-hdr-line { position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,123,90,.35),transparent); }
+.before-back { position:absolute; top:16px; left:16px; width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center; }
+.before-avatar { width:76px; height:76px; border-radius:50%; background:linear-gradient(135deg,#FF7B5A,#D04428); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; border:3px solid rgba(255,123,90,.30); box-shadow:0 0 0 4px rgba(255,123,90,.10); }
+.before-name { font-size:21px; font-weight:900; color:white; margin-bottom:4px; display:flex; align-items:center; justify-content:center; gap:6px; }
+.before-spec { background:rgba(255,123,90,.12); border:1px solid rgba(255,123,90,.22); color:#FF7B5A; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; display:inline-block; }
+
+.before-content { padding:0 14px; margin-top:-20px; position:relative; z-index:10; }
+
+/* Card before */
+.before-card { border-radius:14px; overflow:hidden; margin-bottom:14px; border:1px solid rgba(255,255,255,.08); box-shadow:0 8px 24px rgba(0,0,0,.25); }
+.before-card-hdr { background:linear-gradient(135deg,rgba(255,123,90,.15),rgba(78,205,196,.08)); padding:11px 13px 9px; border-bottom:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; gap:8px; }
+.before-card-label { font-size:8px; font-weight:700; color:rgba(255,179,71,.65); letter-spacing:.14em; text-transform:uppercase; }
+.before-mini-row { display:flex; align-items:center; gap:8px; }
+.before-mini-av { width:32px; height:32px; border-radius:9px; background:rgba(255,123,90,.12); border:1px solid rgba(255,123,90,.20); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.before-mini-name { font-size:12px; font-weight:700; color:#F5EEE8; }
+.before-mini-email { font-size:9px; color:#7A6E8A; margin-top:1px; }
+.before-card-body { background:rgba(13,11,30,.95); }
+.before-row { display:flex; align-items:center; gap:10px; padding:10px 13px; border-bottom:1px solid rgba(255,255,255,.05); }
+.before-row-icon { width:28px; height:28px; border-radius:8px; background:rgba(255,123,90,.10); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.before-row-label { font-size:8px; font-weight:700; color:#7A6E8A; text-transform:uppercase; letter-spacing:.08em; }
+.before-row-val { font-size:12px; font-weight:700; color:#F5EEE8; margin-top:1px; }
+.before-spec-grid { padding:11px 13px; display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.before-spec-item { background:rgba(255,123,90,.06); border:1px solid rgba(255,123,90,.10); border-radius:9px; padding:8px 10px; }
+.before-spec-lbl { font-size:8px; font-weight:700; color:#FF7B5A; text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }
+.before-spec-val { font-size:11px; font-weight:600; color:#F5EEE8; }
+
+.before-reviews-lbl { font-size:13px; font-weight:700; color:#F5EEE8; margin-bottom:10px; margin-top:2px; }
+.before-rating-card { background:linear-gradient(135deg,#FF7B5A,#3D3055); border-radius:14px; padding:14px; margin-bottom:10px; text-align:center; }
+.before-rating-num { font-size:30px; font-weight:900; color:white; }
+.before-rating-count { font-size:11px; color:rgba(255,255,255,.7); margin-top:2px; }
+.before-review { background:#0D0B1E; border-radius:12px; padding:13px; margin-bottom:7px; border:1px solid rgba(255,255,255,.06); }
+.before-review-top { display:flex; justify-content:space-between; margin-bottom:5px; }
+.before-review-stars { font-size:13px; }
+.before-review-date { font-size:9px; color:#7A6E8A; }
+.before-review-text { font-size:12px; color:#F5EEE8; line-height:1.5; }
+.before-review-name { font-size:10px; color:#7A6E8A; margin-top:5px; font-style:italic; }
+.before-btn { width:100%; padding:10px; background:#FF7B5A; color:white; border-radius:11px; font-size:13px; font-weight:800; text-align:center; margin-top:6px; }
+
+/* ── DESPUÉS ── */
+.after-screen { background:radial-gradient(ellipse 100% 20% at 50% 108%, rgba(30,77,43,.06) 0%, transparent 60%), #07060F; }
+
+.after-hdr {
+  background:linear-gradient(180deg,#1A0D28 0%,#0D0B1E 100%);
+  padding:16px 20px 32px;
+  text-align:center; position:relative;
+}
+.after-hdr-line { position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,123,90,.3),rgba(255,179,71,.15),transparent); }
+.after-back { position:absolute; top:16px; left:16px; width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center; }
+
+/* Avatar mejorado: anillo más limpio */
+.after-avatar-wrap { position:relative; width:80px; height:80px; margin:0 auto 16px; }
+.after-avatar { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#FF7B5A,#D04428); display:flex; align-items:center; justify-content:center; border:2px solid rgba(255,123,90,.4); box-shadow:0 0 0 6px rgba(255,123,90,.08), 0 8px 24px rgba(0,0,0,.4); }
+/* Badge verificado sobre avatar */
+.after-verified-dot { position:absolute; bottom:2px; right:2px; width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,#60A5FA,#1D4ED8); border:2px solid #07060F; display:flex; align-items:center; justify-content:center; }
+
+.after-name { font-size:22px; font-weight:900; color:white; letter-spacing:-.02em; margin-bottom:4px; }
+.after-role { font-size:11px; color:rgba(255,255,255,.35); letter-spacing:.04em; text-transform:uppercase; font-weight:600; margin-bottom:10px; }
+.after-spec { background:rgba(255,123,90,.10); border:1px solid rgba(255,123,90,.2); color:rgba(255,155,122,.9); font-size:11px; font-weight:700; padding:4px 14px; border-radius:20px; display:inline-block; letter-spacing:.02em; }
+
+.after-content { padding:0 14px; margin-top:-18px; position:relative; z-index:10; }
+
+/* Info card — sin mini-foto, solo secciones limpias */
+.after-card { border-radius:16px; overflow:hidden; margin-bottom:12px; border:1px solid rgba(255,255,255,.07); box-shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 32px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06); background:rgba(13,11,30,.9); }
+.after-sec-label { font-size:8px; font-weight:700; color:rgba(255,255,255,.25); letter-spacing:.16em; text-transform:uppercase; padding:12px 14px 6px; display:flex; align-items:center; gap:6px; }
+.after-row { display:flex; align-items:center; gap:10px; padding:10px 14px; border-top:1px solid rgba(255,255,255,.05); }
+.after-row-icon { width:30px; height:30px; border-radius:9px; background:rgba(255,123,90,.08); border:1px solid rgba(255,123,90,.12); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.after-row-content { flex:1; }
+.after-row-label { font-size:8px; font-weight:700; color:rgba(255,255,255,.28); text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }
+.after-row-val { font-size:13px; font-weight:600; color:#F5EEE8; }
+
+/* Spec grid — más limpio */
+.after-spec-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; padding:8px 14px 12px; border-top:1px solid rgba(255,255,255,.05); }
+.after-spec-item { background:rgba(255,123,90,.05); border:1px solid rgba(255,123,90,.09); border-radius:10px; padding:9px 11px; }
+.after-spec-lbl { font-size:8px; font-weight:700; color:rgba(255,123,90,.6); text-transform:uppercase; letter-spacing:.08em; margin-bottom:3px; }
+.after-spec-val { font-size:12px; font-weight:600; color:#F5EEE8; }
+
+/* Bio */
+.after-bio { padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.05); }
+.after-bio-label { font-size:8px; font-weight:700; color:rgba(255,255,255,.25); letter-spacing:.14em; text-transform:uppercase; margin-bottom:7px; }
+.after-bio-text { font-size:12px; color:rgba(245,238,232,.7); line-height:1.75; }
+
+/* Rating — MUCHO más limpio */
+.after-rating-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:16px; padding:16px; margin-bottom:10px; display:flex; align-items:center; gap:16px; }
+.after-rating-num { font-size:40px; font-weight:900; letter-spacing:-.04em; color:#F5EEE8; line-height:1; }
+.after-rating-detail { flex:1; }
+.after-stars-row { display:flex; gap:2px; margin-bottom:4px; }
+.after-rating-count { font-size:11px; color:rgba(245,238,232,.4); }
+
+/* Reviews — más aireados */
+.after-review { background:rgba(255,255,255,.025); border-radius:12px; padding:13px 14px; margin-bottom:6px; border:1px solid rgba(255,255,255,.06); border-left:3px solid rgba(255,123,90,.5); }
+.after-review-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.after-review-stars { display:flex; gap:2px; }
+.after-review-date { font-size:9px; color:rgba(245,238,232,.28); }
+.after-review-text { font-size:12px; color:rgba(245,238,232,.7); line-height:1.6; }
+.after-review-name { font-size:10px; color:rgba(245,238,232,.3); margin-top:5px; }
+
+/* Botón reseña — más refinado */
+.after-btn { width:100%; height:44px; background:linear-gradient(135deg,#FF8B6A,#FF5A36); color:white; border-radius:12px; font-size:13px; font-weight:800; text-align:center; line-height:44px; margin-top:6px; box-shadow:0 4px 14px rgba(255,90,54,.28), inset 0 1px 0 rgba(255,255,255,.15); letter-spacing:-.005em; }
+
+/* Sección header */
+.section-header { display:flex; align-items:center; gap:6px; margin-top:18px; margin-bottom:10px; }
+.section-header span { font-size:12px; font-weight:800; color:#F5EEE8; letter-spacing:-.01em; }
+
+/* Payment — más minimalista */
+.after-payment { background:rgba(255,255,255,.025); border-radius:12px; padding:12px 14px; margin-bottom:6px; border:1px solid rgba(255,255,255,.06); display:flex; align-items:center; gap:12px; }
+.after-pay-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:10px; font-weight:800; }
+.after-pay-name { font-size:12px; font-weight:700; color:#F5EEE8; }
+.after-pay-num { font-size:11px; color:rgba(245,238,232,.4); margin-top:1px; }
+.after-pay-copy { padding:5px 12px; border-radius:20px; font-size:10px; font-weight:700; margin-left:auto; }
+
+/* Annotations */
+.annotation { background:rgba(255,123,90,.06); border:1px solid rgba(255,123,90,.15); border-radius:10px; padding:10px 14px; margin-top:10px; width:320px; }
+.ann-title { font-size:10px; font-weight:800; color:rgba(255,155,122,.8); letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
+.ann-item { font-size:11px; color:rgba(255,255,255,.45); line-height:1.6; display:flex; gap:6px; }
+.ann-item::before { content:"·"; color:rgba(255,123,90,.6); flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>Perfil del Psicólogo — Propuesta de mejora</h1>
+  <p>Mismos datos · Mejor organización · Más profesional</p>
+</div>
+
+<div class="cols">
+
+<!-- ═══════════════════ ANTES ═══════════════════ -->
+<div class="col">
+  <div class="col-label" style="color:rgba(255,255,255,.3);">Estado actual</div>
+
+  <div class="phone" style="border-color:#0A0A18;">
+    <div class="notch" style="background:#0A0A18;"></div>
+    <div class="screen before-screen">
+      <div class="sb" style="color:rgba(245,238,232,.5);padding-top:6px;"><span>9:41</span><span>●●● 100%</span></div>
+
+      <div class="before-hdr">
+        <div class="before-hdr-line"></div>
+        <div class="before-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </div>
+        <div class="before-avatar">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="before-name">
+          Dr. Rincón
+          <svg width="20" height="20" viewBox="0 0 24 24"><defs><linearGradient id="vg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60A5FA"/><stop offset="100%" stop-color="#1D4ED8"/></linearGradient></defs><circle cx="12" cy="12" r="11" fill="url(#vg1)"/><path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        </div>
+        <div class="before-spec">Psicología Clínica</div>
+      </div>
+
+      <div class="before-content">
+        <!-- Card con mini-foto DUPLICADA -->
+        <div class="before-card">
+          <div class="before-card-hdr">
+            <div class="before-card-label">Perfil profesional</div>
+            <!-- PROBLEMA: foto duplicada -->
+            <div class="before-mini-row">
+              <div class="before-mini-av">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" stroke-width="1.75" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <div class="before-mini-name">Dr. Danilo Rincón</div>
+                <div class="before-mini-email">psicologo@correo.com</div>
+              </div>
+            </div>
+          </div>
+          <div class="before-card-body">
+            <div class="before-row">
+              <div class="before-row-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" stroke-width="1.75" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+              <div><div class="before-row-label">Teléfono</div><div class="before-row-val">310 630 3533</div></div>
+            </div>
+            <div class="before-spec-grid">
+              <div class="before-spec-item"><div class="before-spec-lbl">Especialidad</div><div class="before-spec-val">Clínica</div></div>
+              <div class="before-spec-item"><div class="before-spec-lbl">Enfoque</div><div class="before-spec-val">TCC</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESEÑAS con emojis y gradiente pesado -->
+        <div class="before-reviews-lbl">⭐ Reseñas</div>
+        <div class="before-rating-card">
+          <div class="before-rating-num">4.8 ⭐</div>
+          <div class="before-rating-count">12 reseñas</div>
+        </div>
+        <div class="before-review">
+          <div class="before-review-top">
+            <div class="before-review-stars">⭐⭐⭐⭐⭐</div>
+            <div class="before-review-date">15 abr 2026</div>
+          </div>
+          <div class="before-review-text">Excelente profesional, muy empático y efectivo.</div>
+          <div class="before-review-name">— M. L.</div>
+        </div>
+        <div class="before-btn">⭐ Escribir reseña</div>
+
+        <!-- PAGOS con emojis -->
+        <div class="before-reviews-lbl" style="margin-top:16px;">💳 Métodos de pago</div>
+        <div style="background:#0D0B1E;border-radius:12px;padding:12px 14px;margin-bottom:7px;border:0.5px solid rgba(255,123,90,0.10);display:flex;align-items:center;gap:10px;">
+          <div style="width:38px;height:38px;border-radius:10px;background:rgba(196,127,216,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:10px;font-weight:800;color:#C47FD8;">NE</span></div>
+          <div style="flex:1;"><div style="font-size:12px;font-weight:700;color:#F5EEE8;">Nequi</div><div style="font-size:12px;color:#7A6E8A;margin-top:1px;">310 630 3533</div></div>
+          <div style="padding:6px 12px;background:rgba(196,127,216,.14);color:#C47FD8;border-radius:20px;font-size:10px;font-weight:700;">Copiar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotation">
+    <div class="ann-title">Problemas detectados</div>
+    <div class="ann-item">Mini-foto duplica el avatar del header</div>
+    <div class="ann-item">Gradiente coral→púrpura en rating disonante</div>
+    <div class="ann-item">Emojis como íconos en labels de sección</div>
+    <div class="ann-item">El header de la card "Perfil profesional" no aporta nada nuevo</div>
+    <div class="ann-item">El badge verificado solo aparece en el nombre (pequeño)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ DESPUÉS ═══════════════════ -->
+<div class="col">
+  <div class="col-label" style="color:rgba(255,155,122,.7);">Propuesta mejorada</div>
+
+  <div class="phone" style="border-color:#100C0A;box-shadow:0 0 0 1px rgba(255,123,90,.08), 0 40px 100px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.04);">
+    <div class="notch" style="background:#100C0A;"></div>
+    <div class="screen after-screen">
+      <div class="sb" style="color:rgba(245,238,232,.5);padding-top:6px;"><span>9:41</span><span>●●● 100%</span></div>
+
+      <!-- HEADER MEJORADO -->
+      <div class="after-hdr">
+        <div class="after-hdr-line"></div>
+        <div class="after-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </div>
+
+        <!-- Avatar con badge verificado integrado abajo a la derecha -->
+        <div class="after-avatar-wrap">
+          <div class="after-avatar">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <!-- Verificado: badge pequeño pero prominente -->
+          <div class="after-verified-dot">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+
+        <div class="after-name">Dr. Danilo Rincón</div>
+        <div class="after-role">Psicólogo · Colombia</div>
+        <div class="after-spec">Psicología Clínica</div>
+      </div>
+
+      <div class="after-content">
+
+        <!-- CARD INFO — sin mini-foto, solo secciones limpias -->
+        <div class="after-card">
+
+          <!-- Contacto -->
+          <div class="after-sec-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Contacto
+          </div>
+          <div class="after-row">
+            <div class="after-row-icon">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" stroke-width="1.75" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="after-row-content">
+              <div class="after-row-label">Teléfono</div>
+              <div class="after-row-val">310 630 3533</div>
+            </div>
+          </div>
+          <div class="after-row">
+            <div class="after-row-icon">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div class="after-row-content">
+              <div class="after-row-label">Correo</div>
+              <div class="after-row-val" style="font-size:11px;">psicologo@correo.com</div>
+            </div>
+          </div>
+
+          <!-- Especialización -->
+          <div class="after-sec-label" style="margin-top:4px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-linecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            Formación
+          </div>
+          <div class="after-spec-grid">
+            <div class="after-spec-item"><div class="after-spec-lbl">Especialidad</div><div class="after-spec-val">Psicología Clínica</div></div>
+            <div class="after-spec-item"><div class="after-spec-lbl">Enfoque</div><div class="after-spec-val">TCC</div></div>
+          </div>
+
+          <!-- Bio -->
+          <div class="after-bio">
+            <div class="after-bio-label">Sobre mí</div>
+            <div class="after-bio-text">Psicólogo con 8 años de experiencia en terapia cognitivo-conductual. Especializado en ansiedad y relaciones.</div>
+          </div>
+        </div>
+
+        <!-- RESEÑAS — sin emoji, rating card limpia -->
+        <div class="section-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,179,71,.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>Reseñas</span>
+        </div>
+
+        <!-- Rating card — limpia, sin gradiente pesado -->
+        <div class="after-rating-card">
+          <div class="after-rating-num">4.8</div>
+          <div class="after-rating-detail">
+            <div class="after-stars-row">
+              <!-- 5 SVG stars -->
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="rgba(255,179,71,.3)" stroke="rgba(255,179,71,.4)" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="after-rating-count">12 reseñas verificadas</div>
+          </div>
+        </div>
+
+        <!-- Reviews -->
+        <div class="after-review">
+          <div class="after-review-top">
+            <div class="after-review-stars">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="after-review-date">15 abr 2026</div>
+          </div>
+          <div class="after-review-text">Excelente profesional, muy empático y efectivo.</div>
+          <div class="after-review-name">— M. L.</div>
+        </div>
+
+        <!-- Botón reseña — más limpio, sin emoji -->
+        <div class="after-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Escribir reseña
+        </div>
+
+        <!-- PAGOS -->
+        <div class="section-header" style="margin-top:18px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span>Métodos de pago</span>
+        </div>
+        <div class="after-payment">
+          <div class="after-pay-icon" style="background:rgba(196,127,216,.1);border:1px solid rgba(196,127,216,.18);">
+            <span style="font-size:10px;font-weight:800;color:#C47FD8;">Ne</span>
+          </div>
+          <div>
+            <div class="after-pay-name">Nequi</div>
+            <div class="after-pay-num">310 630 3533</div>
+          </div>
+          <div class="after-pay-copy" style="background:rgba(196,127,216,.08);color:rgba(196,127,216,.8);border:1px solid rgba(196,127,216,.15);">Copiar</div>
+        </div>
+
+        <div style="height:20px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotation" style="background:rgba(78,205,196,.04);border-color:rgba(78,205,196,.15);">
+    <div class="ann-title" style="color:rgba(78,205,196,.8);">Cambios aplicados</div>
+    <div class="ann-item" style="color:rgba(255,255,255,.5);">Badge verificado: movido bajo el avatar (más visible)</div>
+    <div class="ann-item" style="color:rgba(255,255,255,.5);">Mini-foto del card eliminada (era redundante)</div>
+    <div class="ann-item" style="color:rgba(255,255,255,.5);">Rating card: glass limpio + SVG stars en lugar de gradiente pesado</div>
+    <div class="ann-item" style="color:rgba(255,255,255,.5);">Emojis reemplazados por SVG en todos los labels</div>
+    <div class="ann-item" style="color:rgba(255,255,255,.5);">Section headers consistentes: icono SVG + texto</div>
+    <div class="ann-item" style="color:rgba(255,255,255,.5);">Cards unificadas con mismo fondo glass</div>
+  </div>
+</div>
+
+</div><!-- /cols -->
+</body>
+</html>
