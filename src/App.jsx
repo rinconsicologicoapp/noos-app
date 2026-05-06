@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+﻿import React, { useState, useEffect, useRef, useCallback } from "react";
 import { messaging, getToken, onMessage, deleteToken } from "./firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "./firebase";
@@ -528,8 +528,8 @@ function BaseFlotante({ color }) {
         <ellipse cx="130" cy="45" rx="68" ry="9" fill="none" stroke={color} strokeWidth=".6" strokeDasharray="3 9" opacity=".3"/>
         <circle cx="62" cy="45" r="2.5" fill={color} opacity=".65"/>
       </g>
-      <path d="M46 45 L32 40 L32 50 Z" fill="#0D0B1E" stroke={color} strokeWidth=".8" opacity=".7"/>
-      <path d="M214 45 L228 40 L228 50 Z" fill="#0D0B1E" stroke={color} strokeWidth=".8" opacity=".7"/>
+      <path d="M46 45 L32 40 L32 50 Z" fill="#FFFFFF" stroke={color} strokeWidth=".8" opacity=".7"/>
+      <path d="M214 45 L228 40 L228 50 Z" fill="#FFFFFF" stroke={color} strokeWidth=".8" opacity=".7"/>
     </svg>
   );
 }
@@ -549,7 +549,7 @@ function NubeFrase({ frase, color }) {
         position:"relative",
         boxShadow:`0 4px 20px ${color}18`,
       }}>
-        <div style={{fontSize:12,color:"#0D0B1E",lineHeight:1.6,textAlign:"center",fontStyle:"italic"}}>
+        <div style={{fontSize:12,color:"#FFFFFF",lineHeight:1.6,textAlign:"center",fontStyle:"italic"}}>
           "{frase}"
         </div>
         {/* Colita de nube apuntando hacia abajo al compañero */}
@@ -2634,23 +2634,23 @@ const styles = `
 `;
   // Aurora Cálida — paleta unificada (dark-first)
   const C = {
-    plum:      "#FF7B5A",               // coral — acción principal
-    sage:      "#4ECDC4",               // teal — acción secundaria
-    sageDark:  "#1E8880",               // teal-deep
-    amber:     "#FFB347",               // amber
-    amberDark: "#D04428",               // coral-deep
-    cream:     "#07060F",               // bg-base (fondo principal)
-    warm:      "#0D0B1E",               // bg-surface (cards, headers)
-    text:      "#F5EEE8",               // texto primario
-    light:     "#7A6E8A",               // texto secundario
-    red:       "#FF6B6B",               // error/peligro
-    green:     "#4ECDC4",               // éxito (teal)
-    blue:      "#6EEDDF",               // info (teal-bright)
-    dark:      "#04030C",               // bg-void
-    gold:      "#FFD080",               // oro/spark
-    bg:        "#07060F",               // alias bg-base
-    cardBg:    "#131028",               // bg-raised (cards elevadas)
-    headerBg:  "rgba(7,6,15,0.98)",     // header blur
+    plum:      "#FF7B5A",               // coral — acción principal (KEEP)
+    sage:      "#4ECDC4",               // teal — acción secundaria (KEEP)
+    sageDark:  "#1E8880",               // teal-deep (KEEP)
+    amber:     "#FFB347",               // amber (KEEP)
+    amberDark: "#D04428",               // coral-deep (KEEP)
+    cream:     "#F5F4F9",               // bg-base — blanco ligeramente grisáceo
+    warm:      "#FFFFFF",               // bg-surface — blanco puro
+    text:      "#162A1C",               // texto primario — verde bosque oscuro
+    light:     "#94A3B8",               // texto secundario — slate neutro (funciona en dark y light)
+    red:       "#FF6B6B",               // error/peligro — NO CAMBIAR
+    green:     "#1E4D2B",               // éxito — forest green
+    blue:      "#6EEDDF",               // info (teal bright, KEEP)
+    dark:      "#0F2015",               // bg-void — verde muy oscuro para headers
+    gold:      "#FFD080",               // oro/spark (KEEP)
+    bg:        "#F5F4F9",               // bg-base alias
+    cardBg:    "#FFFFFF",               // bg-raised — blanco para cards
+    headerBg:  "rgba(245,244,249,0.98)", // header blur — blanco translúcido
   };
 
   const AvatarSVG = ({ id, size = 28 }) => {
@@ -2797,7 +2797,7 @@ const styles = `
 );
 
   const mitem = (icon, label, onClick, danger) => (
-    <div onClick={onClick} style={{ background:"rgba(255,255,255,.028)", border:"1px solid rgba(255,255,255,.065)", borderRadius:14, padding:"13px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:7, cursor:"pointer", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", boxShadow:"0 1px 2px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06)" }}>
+    <div onClick={onClick} style={{ background:"#FFFFFF", border:"1px solid rgba(255,255,255,.065)", borderRadius:14, padding:"13px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:7, cursor:"pointer", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", boxShadow:"0 1px 2px rgba(0,0,0,.05), inset 0 1px 0 rgba(0,0,0,.08)" }}>
       <div style={{ width:36, height:36, background:danger?"rgba(255,107,107,.12)":"rgba(255,123,90,.10)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{icon}</div>
       <div style={{ fontSize:14, fontWeight:600, color:danger?C.red:C.text, flex:1, letterSpacing:"-0.01em" }}>{label}</div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -2907,7 +2907,7 @@ const styles = `
   ];
   return (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200,
-      background:"#0D0B1E",
+      background:"#FFFFFF",
       backdropFilter:"blur(28px)", WebkitBackdropFilter:"blur(28px)",
       borderTop:`0.5px solid ${AMB_BORDER}`,
       paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)",
@@ -3010,7 +3010,7 @@ const styles = `
       ];
   return (
     <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:200,
-      background:"#0D0B1E",
+      background:"#FFFFFF",
       backdropFilter:"blur(28px)", WebkitBackdropFilter:"blur(28px)",
       borderTop:"0.5px solid rgba(255,155,122,0.2)",
       paddingBottom:"max(env(safe-area-inset-bottom, 10px), 10px)",
@@ -3193,7 +3193,7 @@ const styles = `
       </svg>
       <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:14 }}>
         <div style={{ fontSize:13, fontWeight:700, color:"rgba(245,238,232,.70)", letterSpacing:"2.5px", textTransform:"uppercase" }}>Mi Psicólogo</div>
-        <div style={{ height:1.5, width:60, background:"rgba(255,255,255,.08)", borderRadius:1, overflow:"hidden", position:"relative" }}>
+        <div style={{ height:1.5, width:60, background:"rgba(0,0,0,.09)", borderRadius:1, overflow:"hidden", position:"relative" }}>
           <div className="loading-line" style={{ position:"absolute", left:0, top:0, height:"100%", background:"linear-gradient(90deg,#FF7B5A,#FFD080)", borderRadius:1 }}/>
         </div>
       </div>
@@ -3206,7 +3206,7 @@ const styles = `
 
       {/* CONTENEDOR PRINCIPAL */}
       <div
-        style={{ width:"100%", maxWidth:430, height:"100%", background:"#07060F", overflow:"hidden", position:"relative", margin:"0 auto" }}
+        style={{ width:"100%", maxWidth:430, height:"100%", background:"#F5F4F9", overflow:"hidden", position:"relative", margin:"0 auto" }}
         onTouchStart={e => {
           const t = e.touches[0];
           window._swipeStartX = t.clientX;
@@ -3255,7 +3255,7 @@ const styles = `
           {/* NOTIFICACIÓN INTERACTIVA DE CITA */}
         {notifCitaActiva && (
           <div style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:12, right:12, zIndex:900, animation:"slideDown 0.35s cubic-bezier(0.34,1.56,0.64,1) both" }}>
-            <div style={{ background:"rgba(13,11,30,.95)", backdropFilter:"blur(32px)", WebkitBackdropFilter:"blur(32px)", borderRadius:18, padding:"14px 16px", boxShadow:"0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,123,90,.20)", border:"1px solid rgba(255,255,255,.08)" }}>
+            <div style={{ background:"#FFFFFF", backdropFilter:"blur(32px)", WebkitBackdropFilter:"blur(32px)", borderRadius:18, padding:"14px 16px", boxShadow:"0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,123,90,.20)", border:"1px solid rgba(0,0,0,.09)" }}>
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ width:44, height:44, borderRadius:12, background:"rgba(255,123,90,.15)", border:"1px solid rgba(255,123,90,.25)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -3264,7 +3264,7 @@ const styles = `
                   <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:2, letterSpacing:"-0.01em" }}>{notifCitaActiva.titulo}</div>
                   <div style={{ fontSize:11, color:C.light, lineHeight:1.5 }}>{notifCitaActiva.mensaje}</div>
                 </div>
-                <div onClick={() => setNotifCitaActiva(null)} style={{ width:28, height:28, borderRadius:8, background:"rgba(255,255,255,.06)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+                <div onClick={() => setNotifCitaActiva(null)} style={{ width:28, height:28, borderRadius:8, background:"rgba(0,0,0,.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </div>
               </div>
@@ -3277,7 +3277,7 @@ const styles = `
                   </a>
                 )}
                 <div onClick={() => { showScreen("calendario"); setNotifCitaActiva(null); }}
-                  style={{ flex:1, padding:"11px 0", background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,.08)", color:C.text, borderRadius:11, fontSize:12, fontWeight:600, textAlign:"center", cursor:"pointer" }}>
+                  style={{ flex:1, padding:"11px 0", background:"rgba(0,0,0,.08)", border:"1px solid rgba(0,0,0,.09)", color:C.text, borderRadius:11, fontSize:12, fontWeight:600, textAlign:"center", cursor:"pointer" }}>
                   Ver cita
                 </div>
               </div>
@@ -3309,14 +3309,14 @@ const styles = `
             return (
               <div onClick={() => { setHabitosPacienteId(usuarioActual.uid); setScreenHabitos(true); }}
                 style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:12, right:12, zIndex:200,
-                  background:"linear-gradient(135deg,#1A0D28,#0D0B1E)", borderRadius:16, padding:"12px 16px",
+                  background:"linear-gradient(135deg,#162A1C,#0F2015)", borderRadius:16, padding:"12px 16px",
                   border:"0.5px solid rgba(255,123,90,0.25)", cursor:"pointer", display:"flex", alignItems:"center", gap:12,
                   animation:"slideDown 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}>
                 <div style={{ width:36, height:36, borderRadius:10, background:"rgba(255,123,90,0.2)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:12, fontWeight:700, color:"#F5EEE8" }}>Registra tus hábitos de hoy</div>
+                  <div style={{ fontSize:12, fontWeight:700, color:C.text }}>Registra tus hábitos de hoy</div>
                   <div style={{ fontSize:10, color:"rgba(245,230,208,0.5)", marginTop:1 }}>{pendientes} hábito{pendientes!==1?"s":""} pendiente{pendientes!==1?"s":""}</div>
                 </div>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(245,230,208,0.3)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
@@ -3357,10 +3357,10 @@ const styles = `
             // Recargar siempre que se abre el panel
             if (usuarioActual?.uid) cargarNotificaciones(usuarioActual.uid);
             return (
-            <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#07060F" }}>
+            <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
               {/* HEADER */}
-              <div style={{ background:"rgba(7,6,15,.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px", borderBottom:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:10, paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
-                <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,.06)", flexShrink:0 }}>
+              <div style={{ background:"rgba(245,244,249,0.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px", borderBottom:"1px solid rgba(0,0,0,.08)", display:"flex", alignItems:"center", gap:10, paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
+                <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.08)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
@@ -3408,11 +3408,11 @@ const styles = `
                       showScreen("calendario");
                     }
                   }}
-                    style={{ background:n.read?"rgba(255,255,255,.020)":"rgba(255,123,90,.05)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderRadius:16, padding:"13px 14px", marginBottom:8, border:`1px solid ${n.read?"rgba(255,255,255,.05)":"rgba(255,123,90,.15)"}`, display:"flex", gap:12, alignItems:"flex-start", cursor:"pointer", position:"relative", overflow:"hidden", transition:"all 0.15s", animation:`fadeIn 0.2s ease ${i * 0.03}s both` }}>
+                    style={{ background:n.read?"rgba(255,255,255,.020)":"rgba(255,123,90,.05)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderRadius:16, padding:"13px 14px", marginBottom:8, border:`1px solid ${n.read?"rgba(0,0,0,.06)":"rgba(255,123,90,.15)"}`, display:"flex", gap:12, alignItems:"flex-start", cursor:"pointer", position:"relative", overflow:"hidden", transition:"all 0.15s", animation:`fadeIn 0.2s ease ${i * 0.03}s both` }}>
                     {/* Barra lateral de color según tipo */}
                     <div style={{ position:"absolute", left:0, top:0, bottom:0, width:3, borderRadius:"16px 0 0 16px", background:n.read?"transparent": n.tipo==="demora"?C.amber : n.tipo==="cita_nueva"||n.tipo==="recordatorio_cita"?C.sage : n.tipo==="tarea_completada"?C.green : C.plum }}/>
                     {/* Ícono */}
-                    <div style={{ width:42, height:42, borderRadius:13, background:n.read?"rgba(255,255,255,.06)":"rgba(255,123,90,.12)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, marginLeft:6 }}>{n.icon}</div>
+                    <div style={{ width:42, height:42, borderRadius:13, background:n.read?"rgba(0,0,0,.08)":"rgba(255,123,90,.12)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, marginLeft:6 }}>{n.icon}</div>
                     {/* Contenido */}
                     <div style={{ flex:1, minWidth:0 }}>
                       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:3 }}>
@@ -3470,7 +3470,7 @@ const styles = `
     </div>
 
     {/* CARD GLASS */}
-    <div style={{ width:"100%", background:"rgba(255,255,255,0.028)", border:"1px solid rgba(255,255,255,0.065)", borderRadius:24, overflow:"hidden", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", boxShadow:"0 1px 2px rgba(0,0,0,.4), 0 8px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)" }}>
+    <div style={{ width:"100%", background:"#FFFFFF", border:"1px solid rgba(0,0,0,.09)", borderRadius:24, overflow:"hidden", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.08), inset 0 1px 0 rgba(0,0,0,.09)" }}>
 
       {/* ACENTO SUPERIOR */}
       <div style={{ height:2, background:"linear-gradient(90deg, transparent, rgba(30,77,43,.65) 30%, rgba(169,223,191,.55) 60%, transparent)" }}/>
@@ -3490,12 +3490,12 @@ const styles = `
             placeholder="tu@correo.com"
             value={emailValue}
             onChange={e => setEmailValue(e.target.value)}
-            style={{ width:"100%", padding:"14px 16px 14px 40px", background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:12, fontSize:14, outline:"none", color:"#F5EEE8", fontFamily:"inherit", boxSizing:"border-box" }}
+            style={{ width:"100%", padding:"14px 16px 14px 40px", background:"rgba(169,223,191,.06)", border:"1px solid rgba(169,223,191,.14)", borderRadius:12, fontSize:14, outline:"none", color:"#EDFAF3", fontFamily:"inherit", boxSizing:"border-box" }}
           />
         </div>
 
         {/* DIVISOR */}
-        <div style={{ height:1, background:"rgba(255,255,255,0.05)", margin:"12px 0" }}/>
+        <div style={{ height:1, background:"rgba(0,0,0,.06)", margin:"12px 0" }}/>
 
         {/* CAMPO PIN */}
         <div style={{ position:"relative", marginBottom:16 }}>
@@ -3505,9 +3505,9 @@ const styles = `
               <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
           </div>
-          <div style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:14, padding:"14px 16px 14px 40px", background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:14 }}>
+          <div style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:14, padding:"14px 16px 14px 40px", background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.09)", borderRadius:14 }}>
             {[0,1,2,3].map(i => (
-              <div key={i} style={{ width:10, height:10, borderRadius:"50%", background: pinValue && pinValue.length > i ? "#1E4D2B" : "transparent", border:`1.5px solid ${pinValue && pinValue.length > i ? "#2D6A40" : "rgba(255,255,255,0.18)"}`, boxShadow: pinValue && pinValue.length > i ? "0 0 8px rgba(30,77,43,.55)" : "none", transition:"all 0.2s ease" }}/>
+              <div key={i} style={{ width:10, height:10, borderRadius:"50%", background: pinValue && pinValue.length > i ? "#1E4D2B" : "transparent", border:`1.5px solid ${pinValue && pinValue.length > i ? "#2D6A40" : "rgba(0,0,0,.12)"}`, boxShadow: pinValue && pinValue.length > i ? "0 0 8px rgba(30,77,43,.55)" : "none", transition:"all 0.2s ease" }}/>
             ))}
           </div>
           <input
@@ -3532,7 +3532,7 @@ const styles = `
             setTimeout(() => circle.remove(), 500);
             handleLogin();
           }}
-          style={{ width:"100%", height:52, background:"linear-gradient(135deg, #1E4D2B 0%, #163823 100%)", color:"rgba(237,250,243,.92)", borderRadius:14, fontSize:15, fontWeight:700, border:"none", cursor:"pointer", fontFamily:"inherit", position:"relative", overflow:"hidden", letterSpacing:"-0.01em", boxShadow:"0 1px 2px rgba(0,0,0,.4), 0 4px 18px rgba(0,0,0,.4), 0 0 0 1px rgba(169,223,191,.07), inset 0 1px 0 rgba(169,223,191,.10)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}
+          style={{ width:"100%", height:52, background:"linear-gradient(135deg, #1E4D2B 0%, #163823 100%)", color:"rgba(237,250,243,.92)", borderRadius:14, fontSize:15, fontWeight:700, border:"none", cursor:"pointer", fontFamily:"inherit", position:"relative", overflow:"hidden", letterSpacing:"-0.01em", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 4px 18px rgba(0,0,0,.4), 0 0 0 1px rgba(169,223,191,.07), inset 0 1px 0 rgba(169,223,191,.10)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}
         >
           Entrar a mi espacio →
         </button>
@@ -3593,7 +3593,7 @@ const styles = `
     <div style={{ fontSize:13, color:C.light, marginBottom:28 }}>Únete a Mi Psicólogo</div>
 
     {/* FORMULARIO */}
-    <div style={{ width:"100%", background:"rgba(255,255,255,.028)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:22, padding:24, boxShadow:"0 1px 2px rgba(0,0,0,.4), 0 8px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)" }}>
+    <div style={{ width:"100%", background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:22, padding:24, boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.08), inset 0 1px 0 rgba(0,0,0,.09)" }}>
 
       {/* NOMBRE */}
       <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6, letterSpacing:"0.08em", textTransform:"uppercase" }}>Nombre completo</div>
@@ -3602,7 +3602,7 @@ const styles = `
         placeholder="Tu nombre"
         value={regNombre}
         onChange={e => setRegNombre(e.target.value)}
-        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
+        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.10)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
       />
 
       {/* CORREO */}
@@ -3612,14 +3612,14 @@ const styles = `
         placeholder="tu@correo.com"
         value={regEmail}
         onChange={e => setRegEmail(e.target.value)}
-        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
+        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.10)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
       />
 
       {/* PIN */}
       <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:10, letterSpacing:"0.08em", textTransform:"uppercase" }}>PIN de acceso</div>
       <div style={{ display:"flex", justifyContent:"center", gap:16, marginBottom:8 }}>
         {[0,1,2,3].map(i => (
-          <div key={i} style={{ width:16, height:16, borderRadius:"50%", background: regPin && regPin.length > i ? C.plum : "transparent", border:`2px solid ${regPin && regPin.length > i ? C.plum : "rgba(255,255,255,.20)"}`, transition:"all 0.2s ease" }}/>
+          <div key={i} style={{ width:16, height:16, borderRadius:"50%", background: regPin && regPin.length > i ? C.plum : "transparent", border:`2px solid ${regPin && regPin.length > i ? C.plum : "rgba(0,0,0,.14)"}`, transition:"all 0.2s ease" }}/>
         ))}
       </div>
       <input
@@ -3629,14 +3629,14 @@ const styles = `
         maxLength={4}
         value={regPin}
         onChange={e => setRegPin(e.target.value)}
-        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
+        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.10)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
       />
 
       {/* ROL */}
       <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:10, letterSpacing:"0.08em", textTransform:"uppercase" }}>Soy...</div>
       <div style={{ display:"flex", gap:10, marginBottom:24 }}>
         {[["paciente","Paciente","user"],["psicologo","Psicólogo","brain"]].map(([val,lb,ic]) => (
-          <div key={val} onClick={() => setRegRol(val)} style={{ flex:1, padding:"14px 0", borderRadius:14, textAlign:"center", cursor:"pointer", border:`1px solid ${regRol===val ? C.plum : "rgba(255,255,255,.08)"}`, background:regRol===val ? "rgba(255,123,90,.10)" : "rgba(255,255,255,.02)", transition:"all 0.2s ease" }}>
+          <div key={val} onClick={() => setRegRol(val)} style={{ flex:1, padding:"14px 0", borderRadius:14, textAlign:"center", cursor:"pointer", border:`1px solid ${regRol===val ? C.plum : "rgba(0,0,0,.09)"}`, background:regRol===val ? "rgba(255,123,90,.10)" : "rgba(255,255,255,.02)", transition:"all 0.2s ease" }}>
             <div style={{ display:"flex", justifyContent:"center", marginBottom:6 }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={regRol===val ? C.plum : C.light} strokeWidth="1.75" strokeLinecap="round">
                 {ic === "user" ? <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></> : <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>}
@@ -3650,7 +3650,7 @@ const styles = `
       {/* BOTÓN */}
       <button
         onClick={handleRegister}
-        style={{ width:"100%", height:50, background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", color:"white", borderRadius:14, fontSize:15, fontWeight:700, border:"none", cursor:"pointer", fontFamily:"inherit", letterSpacing:"-0.01em", boxShadow:"0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(255,90,54,.35)", touchAction:"manipulation" }}
+        style={{ width:"100%", height:50, background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", color:"white", borderRadius:14, fontSize:15, fontWeight:700, border:"none", cursor:"pointer", fontFamily:"inherit", letterSpacing:"-0.01em", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(255,90,54,.35)", touchAction:"manipulation" }}
       >
         Crear cuenta
       </button>
@@ -3669,18 +3669,18 @@ const styles = `
 
           {/* HOME */}
           {!notifPanel && screen === "home" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"radial-gradient(ellipse 100% 20% at 50% 108%, rgba(30,77,43,.07) 0%, transparent 60%), #07060F" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
 
               {/* HEADER */}
-              <div style={{ background:"linear-gradient(180deg,#1A0D28 0%,#0D0B1E 100%)", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative", borderBottom:"1px solid rgba(255,255,255,.06)" }}>
+              <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative", borderBottom:"1px solid rgba(0,0,0,.08)" }}>
                 <div style={{ position:"absolute", top:0, left:0, right:0, height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),rgba(255,179,71,.2),transparent)" }}/>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <div>
                     <div style={{ fontSize:9, color:"rgba(255,179,71,0.65)", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:7, fontWeight:700 }}>
                       {new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}
                     </div>
-                    <div style={{ fontSize:12, color:"rgba(245,238,232,0.55)", fontWeight:400, lineHeight:1 }}>{(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días," : h < 18 ? "Buenas tardes," : "Buenas noches,"; })()}</div>
-                    <div style={{ fontSize:26, color:C.text, fontWeight:700, marginTop:2, letterSpacing:"-0.025em", lineHeight:1.1 }}>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:400, lineHeight:1 }}>{(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días," : h < 18 ? "Buenas tardes," : "Buenas noches,"; })()}</div>
+                    <div style={{ fontSize:26, color:"white", fontWeight:700, marginTop:2, letterSpacing:"-0.025em", lineHeight:1.1 }}>
                       {usuarioActual?.nombre?.split(" ")[0] || "Bienvenido"}
                     </div>
                     {(usuarioActual?.racha || 0) > 0 && (
@@ -3691,7 +3691,7 @@ const styles = `
                     )}
                   </div>
                   <div style={{ display:"flex", gap:8, alignItems:"center", marginTop:4 }}>
-                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(255,255,255,.06)", borderRadius:10, border:"1px solid rgba(255,255,255,.08)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(0,0,0,.08)", borderRadius:10, border:"1px solid rgba(0,0,0,.09)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(245,238,232,0.65)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                       {unread > 0 && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, background:C.plum, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"white" }}>{unread}</div>}
                     </div>
@@ -3703,7 +3703,7 @@ const styles = `
 
                 {/* BARRA XP */}
                 <div onClick={() => showScreen("logros")} style={{ display:"flex", alignItems:"center", gap:10, marginTop:14, cursor:"pointer" }}>
-                  <div style={{ flex:1, height:3, background:"rgba(255,255,255,0.06)", borderRadius:2, overflow:"hidden" }}>
+                  <div style={{ flex:1, height:3, background:"rgba(0,0,0,.08)", borderRadius:2, overflow:"hidden" }}>
                     <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:"linear-gradient(90deg,#FF7B5A,#FFB347,#FFD080)", borderRadius:2, transition:"width 0.5s ease", boxShadow:"0 0 8px rgba(255,208,128,.4)" }}/>
                   </div>
                   <span style={{ fontSize:9, color:"rgba(255,208,128,0.65)", whiteSpace:"nowrap", letterSpacing:"0.5px", fontWeight:600 }}>◆ {xp} XP</span>
@@ -3713,7 +3713,7 @@ const styles = `
               {/* PRÓXIMA CITA */}
               <div style={{ padding:"0 14px", marginTop:-24, position:"relative", zIndex:10 }}>
                 {citas.length === 0 ? (
-                  <div style={{ background:"rgba(255,255,255,.028)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:16, padding:14, textAlign:"center", marginBottom:12, boxShadow:"0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2)" }}>
+                  <div style={{ background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:16, padding:14, textAlign:"center", marginBottom:12, boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.06)" }}>
                     <div style={{ width:36, height:36, background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.18)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 8px" }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     </div>
@@ -3728,7 +3728,7 @@ const styles = `
                       .sort((a,b) => fechaOrden(a) - fechaOrden(b))[0];
                     if (!proxima) return null;
                     return (
-                      <div style={{ background:"rgba(255,255,255,.028)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:16, padding:14, marginBottom:12, overflow:"hidden", position:"relative", boxShadow:"0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08)" }}>
+                      <div style={{ background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:16, padding:14, marginBottom:12, overflow:"hidden", position:"relative", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.07), inset 0 1px 0 rgba(0,0,0,.09)" }}>
                         <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,#FF7B5A,#FFB347,transparent)" }}/>
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
                           <span style={{ fontSize:10, fontWeight:700, color:"rgba(255,179,71,0.65)", letterSpacing:"0.12em", textTransform:"uppercase" }}>Próxima cita</span>
@@ -3815,18 +3815,18 @@ const styles = `
                       <rect x="20" y="6" width="38" height="46" rx="2" fill="url(#portadaGrad)"/>
                       <path d="M20 6 L10 8 L10 11 L20 9 Z" fill="#D04428"/>
                       <path d="M20 6 L58 6 L58 9 L20 9 Z" fill="#FF9B7A"/>
-                      <rect x="56" y="8" width="4" height="42" rx="1" fill="rgba(255,255,255,.15)"/>
+                      <rect x="56" y="8" width="4" height="42" rx="1" fill="rgba(0,0,0,.12)"/>
                       {[14,19,24,29,34,39,44].map((y,i) => (
                         <line key={i} x1="57" y1={y} x2="59" y2={y} stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
                       ))}
                       <rect x="21" y="7" width="12" height="44" fill="url(#brilloGrad)" rx="1" opacity="0.20"/>
                       {[18,24,30,36,42].map((y,i) => (
-                        <line key={i} x1="26" y1={y} x2="52" y2={y} stroke="rgba(255,255,255,0.10)" strokeWidth="1"/>
+                        <line key={i} x1="26" y1={y} x2="52" y2={y} stroke="rgba(0,0,0,.10)" strokeWidth="1"/>
                       ))}
                       <rect x="46" y="5" width="4" height="14" rx="1" fill="#FFD080" opacity="0.90"/>
                       <path d="M46 18 L48 22 L50 18 Z" fill="#FFD080" opacity="0.90"/>
-                      <rect x="26" y="12" width="24" height="2.5" rx="1" fill="rgba(255,255,255,0.25)"/>
-                      <rect x="29" y="17" width="18" height="1.5" rx="0.75" fill="rgba(255,255,255,0.15)"/>
+                      <rect x="26" y="12" width="24" height="2.5" rx="1" fill="rgba(0,0,0,.15)"/>
+                      <rect x="29" y="17" width="18" height="1.5" rx="0.75" fill="rgba(0,0,0,.12)"/>
                       <defs>
                         <linearGradient id="lomoGrad" x1="0" y1="0" x2="1" y2="0">
                           <stop offset="0%" stopColor="#D04428"/><stop offset="100%" stopColor="#FF7B5A"/>
@@ -3841,7 +3841,7 @@ const styles = `
                     </svg>
                     {usuarioActual?.diarioBiometria && (
                       <div style={{ position:"absolute", top:0, right:0, width:14, height:14, borderRadius:"50%",
-                        background:"#0D0B1E", border:"1px solid rgba(255,123,90,0.4)",
+                        background:"#FFFFFF", border:"1px solid rgba(255,123,90,0.4)",
                         display:"flex", alignItems:"center", justifyContent:"center" }}>
                         <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="3" strokeLinecap="round">
                           <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -3852,10 +3852,10 @@ const styles = `
 
                   {/* Para no olvidar */}
                   <div onClick={() => { showScreen("notas"); setTimeout(()=>setNoteTab("insights"), 50); }}
-                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"rgba(255,255,255,.028)",
+                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#FFFFFF",
                       backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
                       border:"1px solid rgba(255,255,255,.065)", borderRadius:12, padding:"9px 10px",
-                      cursor:"pointer", WebkitTapHighlightColor:"transparent", boxShadow:"inset 0 1px 0 rgba(255,255,255,.06)" }}>
+                      cursor:"pointer", WebkitTapHighlightColor:"transparent", boxShadow:"inset 0 1px 0 rgba(0,0,0,.08)" }}>
                     <div style={{ width:26, height:26, background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.15)", borderRadius:8,
                       display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -3889,8 +3889,8 @@ const styles = `
                       <ellipse cx="36" cy="57" rx="20" ry="3" fill="rgba(0,0,0,0.3)"/>
                       <path d="M16 28 C13 20 15 11 21 10 L30 9 C33 9 35 11 36 13 C37 11 39 9 42 9 L51 10 C57 11 59 20 56 28 L52 40 C50 45 46 47 41 46 L38 45 C37 44 35 44 34 45 L31 46 C26 47 22 45 20 40 Z" fill="url(#mcS)"/>
                       <path d="M21 10 C28 8 44 8 51 10 C57 12 59 21 56 28 L54 28 C54 21 52 13 47 11 C41 9 31 9 25 11 C20 13 18 21 18 28 L16 28 C13 21 15 12 21 10 Z" fill="rgba(255,255,255,0.1)"/>
-                      <rect x="19" y="25" width="4" height="9" rx="1.5" fill="rgba(255,255,255,0.18)"/>
-                      <rect x="17" y="27" width="8" height="5" rx="1.5" fill="rgba(255,255,255,0.18)"/>
+                      <rect x="19" y="25" width="4" height="9" rx="1.5" fill="rgba(0,0,0,.12)"/>
+                      <rect x="17" y="27" width="8" height="5" rx="1.5" fill="rgba(0,0,0,.12)"/>
                       <circle cx="49" cy="24" r="3" fill="#FF7B5A"/>
                       <circle cx="43" cy="23" r="3" fill="#FFB347"/>
                       <circle cx="49" cy="29" r="3" fill="#4ECDC4"/>
@@ -3957,8 +3957,8 @@ const styles = `
                     {[5, 10, 15, 20, 30].map(m => (
                       <div key={m} onClick={() => setRetrasoMinutos(m)}
                         style={{ flex:1, padding:"10px 0", borderRadius:11, textAlign:"center", cursor:"pointer",
-                          border:`1.5px solid ${retrasoMinutos===m ? C.amber : "rgba(255,255,255,.08)"}`,
-                          background: retrasoMinutos===m ? "rgba(255,179,71,.15)" : "rgba(255,255,255,.04)", transition:"all 0.15s" }}>
+                          border:`1.5px solid ${retrasoMinutos===m ? C.amber : "rgba(0,0,0,.09)"}`,
+                          background: retrasoMinutos===m ? "rgba(255,179,71,.15)" : "rgba(0,0,0,.04)", transition:"all 0.15s" }}>
                         <div style={{ fontSize:13, fontWeight:800, color:retrasoMinutos===m ? C.amberDark : C.text }}>{m}'</div>
                         <div style={{ fontSize:8, color:retrasoMinutos===m ? C.amber : C.light, fontWeight:600 }}>min</div>
                       </div>
@@ -3966,7 +3966,7 @@ const styles = `
                   </div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nota adicional <span style={{ fontWeight:400, color:C.light }}>(opcional)</span></div>
                   <textarea placeholder="Ej: Estoy saliendo del trabajo..." value={retrasoTexto} onChange={e => setRetrasoTexto(e.target.value)}
-                    style={{ width:"100%", minHeight:64, padding:"10px 12px", border:"1.5px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, color:C.text }}/>
+                    style={{ width:"100%", minHeight:64, padding:"10px 12px", border:"1.5px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, color:C.text }}/>
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(()=>setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(async () => {
@@ -3994,16 +3994,16 @@ const styles = `
 
           {/* PANTALLA ELEGIR COMPAÑERO */}
 {screen === "elegir-companero" && (
-  <div style={{position:"absolute",inset:0,background:"#07060F",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10}}>
+  <div style={{position:"absolute",inset:0,background:"#F5F4F9",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10}}>
 
     {/* Header */}
-    <div style={{background:"linear-gradient(180deg,#1A0D28 0%,#0D0B1E 100%)",padding:"32px 20px 32px",borderRadius:"0 0 28px 28px",flexShrink:0,position:"relative",overflow:"hidden",borderBottom:"1px solid rgba(255,255,255,.06)"}}>
+    <div style={{background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)",padding:"32px 20px 32px",borderRadius:"0 0 28px 28px",flexShrink:0,position:"relative",overflow:"hidden",borderBottom:"1px solid rgba(0,0,0,.08)"}}>
       <div style={{position:"absolute",top:0,left:0,right:0,height:"1px",background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),transparent)"}}/>
       {[...Array(18)].map((_,i)=>(
         <div key={i} style={{position:"absolute",width:3,height:3,borderRadius:"50%",background:"rgba(255,123,90,0.12)",left:`${(i*67)%100}%`,top:`${(i*43)%100}%`}}/>
       ))}
       <div style={{fontSize:10,color:"rgba(255,179,71,0.65)",letterSpacing:"0.14em",marginBottom:8,fontWeight:700,textTransform:"uppercase"}}>Primer ingreso</div>
-      <div style={{fontSize:23,fontWeight:800,color:"#F5EEE8",lineHeight:1.25,letterSpacing:"-0.02em"}}>
+      <div style={{fontSize:23,fontWeight:800,color:"white",lineHeight:1.25,letterSpacing:"-0.02em"}}>
         Elige tu compañero{" "}
         <span style={{color:"#FFB347"}}>de terapia</span>
       </div>
@@ -4021,7 +4021,7 @@ const styles = `
       <svg style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",opacity:.018}} xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1.5" fill="#0D0B1E"/>
+            <circle cx="2" cy="2" r="1.5" fill="#FFFFFF"/>
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#dots)"/>
@@ -4035,8 +4035,8 @@ const styles = `
             background: companeroSeleccionando === id ? "rgba(255,255,255,.045)" : "rgba(255,255,255,.022)",
             backdropFilter:"blur(20px)",
             WebkitBackdropFilter:"blur(20px)",
-            border:`1px solid ${companeroSeleccionando === id ? data.color : "rgba(255,255,255,.07)"}`,
-            borderLeft:`3px solid ${companeroSeleccionando === id ? data.color : "rgba(255,255,255,.04)"}`,
+            border:`1px solid ${companeroSeleccionando === id ? data.color : "rgba(0,0,0,.08)"}`,
+            borderLeft:`3px solid ${companeroSeleccionando === id ? data.color : "rgba(0,0,0,.04)"}`,
             borderRadius:20,
             padding:"14px 16px",
             marginBottom:12,
@@ -4056,8 +4056,8 @@ const styles = `
           </div>
           {/* Info */}
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:16,fontWeight:800,color:"#F5EEE8",letterSpacing:"-0.01em"}}>{data.nombre}</div>
-            <div style={{fontSize:11,color:"rgba(245,238,232,0.55)",marginTop:4,lineHeight:1.4}}>{data.descripcion}</div>
+            <div style={{fontSize:16,fontWeight:800,color:C.text,letterSpacing:"-0.01em"}}>{data.nombre}</div>
+            <div style={{fontSize:11,color:C.light,marginTop:4,lineHeight:1.4}}>{data.descripcion}</div>
             {companeroSeleccionando === id && (
               <div style={{display:"inline-flex",alignItems:"center",gap:4,marginTop:7,background:data.color,borderRadius:20,padding:"3px 12px"}}>
                 <span style={{fontSize:10,color:"white",fontWeight:700}}>✓ Seleccionado</span>
@@ -4108,17 +4108,17 @@ const styles = `
 {/* ── PANTALLA NOTA/TAREA ABIERTA (estilo bloc nativo) ── */}
 {notaAbierta && (
   <div style={{ position:"absolute", inset:0, zIndex:800, display:"flex", flexDirection:"column",
-    background:"#07060F",
+    background:"#F5F4F9",
     animation:"slideInRight 0.25s ease" }}>
 
     {/* HEADER */}
     <div style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 16px",
       paddingTop:"max(14px, env(safe-area-inset-top, 14px))",
-      background:"rgba(7,6,15,.98)", backdropFilter:"blur(20px)",
-      borderBottom:"0.5px solid rgba(255,255,255,.08)" }}>
+      background:"rgba(245,244,249,0.98)", backdropFilter:"blur(20px)",
+      borderBottom:"0.5px solid rgba(0,0,0,.09)" }}>
       <div onClick={() => { setNotaAbierta(null); setNotaEditando(false); }}
         style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center",
-          borderRadius:10, background:"rgba(255,255,255,.08)", cursor:"pointer", flexShrink:0 }}>
+          borderRadius:10, background:"rgba(0,0,0,.09)", cursor:"pointer", flexShrink:0 }}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
       </div>
       <div style={{ flex:1, minWidth:0 }}>
@@ -4159,12 +4159,12 @@ const styles = `
           }} style={{ padding:"6px 14px", background:C.plum, color:"white", borderRadius:20,
             fontSize:12, fontWeight:700, cursor:"pointer" }}>Guardar</div>
           <div onClick={() => setNotaEditando(false)}
-            style={{ padding:"6px 14px", background:"rgba(255,255,255,.08)", color:C.text,
+            style={{ padding:"6px 14px", background:"rgba(0,0,0,.09)", color:C.text,
               borderRadius:20, fontSize:12, fontWeight:700, cursor:"pointer" }}>Cancelar</div>
         </>) : (
           notaAbierta.tipo !== "tarea" && (
             <div onClick={() => { setNotaEditando(true); setNotaTextoEdit(notaAbierta.text || notaAbierta.texto || ""); setNotaTituloEdit(notaAbierta.titulo || notaAbierta.title || ""); }}
-              style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,.08)",
+              style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.09)",
                 display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
             </div>
@@ -4194,7 +4194,7 @@ const styles = `
           <>
             {notaAbierta.descripcion && (
               <div style={{ fontSize:13, color:C.light, lineHeight:1.8, marginBottom:24,
-                fontStyle:"italic", paddingBottom:16, borderBottom:"1px solid rgba(255,255,255,.08)",
+                fontStyle:"italic", paddingBottom:16, borderBottom:"1px solid rgba(0,0,0,.09)",
                 whiteSpace:"pre-wrap" }}>
                 {notaAbierta.descripcion.split('\n').map((ln, i, arr) => (
                   <span key={i}>{ln}{i < arr.length - 1 && <br/>}</span>
@@ -4269,7 +4269,7 @@ const styles = `
     {/* FOOTER — acciones */}
     <div style={{ padding:"12px 16px", paddingBottom:"max(12px, env(safe-area-inset-bottom, 12px))",
       background:"rgba(7,6,15,.96)", backdropFilter:"blur(20px)",
-      borderTop:"0.5px solid rgba(255,255,255,.08)", display:"flex", gap:10, alignItems:"center" }}>
+      borderTop:"0.5px solid rgba(0,0,0,.09)", display:"flex", gap:10, alignItems:"center" }}>
 
       {/* Tarea: botón enviar respuesta */}
       {notaAbierta.tipo === "tarea" && !notaAbierta.completada && (
@@ -4335,7 +4335,7 @@ const styles = `
             showToast(nuevoShared ? "👁 Compartida con tu psicólogo" : "🔒 Solo visible para ti");
           } catch(e) {}
         }} style={{ width:44, height:44, borderRadius:12,
-          background: notaAbierta.shared ? `${C.sageDark}20` : "rgba(255,255,255,.08)",
+          background: notaAbierta.shared ? `${C.sageDark}20` : "rgba(0,0,0,.09)",
           display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={notaAbierta.shared ? C.sageDark : C.light} strokeWidth="1.75" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
@@ -4345,10 +4345,10 @@ const styles = `
 )}
 
 {!notifPanel && screen === "notas" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"radial-gradient(ellipse 100% 20% at 50% 108%, rgba(30,77,43,.06) 0%, transparent 60%), #07060F" }}>
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
 
     {/* HEADER */}
-    <div style={{ background:"rgba(7,6,15,.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 0", borderBottom:"1px solid rgba(255,255,255,.06)", paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
+    <div style={{ background:"rgba(245,244,249,0.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 0", borderBottom:"1px solid rgba(0,0,0,.08)", paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
         <div>
           <div style={{ fontSize:17, fontWeight:700, color:C.text, letterSpacing:"-0.02em" }}>Mis notas</div>
@@ -4365,7 +4365,7 @@ const styles = `
           </div>
         )}
       </div>
-      <div style={{ display:"flex", borderBottom:"1px solid rgba(255,255,255,.06)" }}>
+      <div style={{ display:"flex", borderBottom:"1px solid rgba(0,0,0,.08)" }}>
         {[["Para no olvidar","insights"],["Tareas","tareas"]].map(([lb,id]) => (
           <button key={id} onClick={() => setNoteTab(id)} style={{ flex:1, padding:"10px 0", fontSize:12, fontWeight:600, color:noteTab===id?C.plum:C.light, border:"none", background:"transparent", borderBottom:`2px solid ${noteTab===id?C.plum:"transparent"}`, marginBottom:-1, cursor:"pointer", fontFamily:"inherit", transition:"color 200ms ease" }}>
             {lb}{id==="tareas" && pendientes > 0 && <span style={{ background:C.plum, color:"white", fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20, marginLeft:6 }}>{pendientes}</span>}
@@ -4393,10 +4393,10 @@ const styles = `
                 ))}
               </div>
               <input type="text" placeholder="Título (opcional)" value={insightTitle} onChange={e => setInsightTitle(e.target.value)}
-                style={{ width:"100%", padding:"11px 14px", border:"1.5px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                style={{ width:"100%", padding:"11px 14px", border:"1.5px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:"#FFFFFF", color:C.text }}/>
               <textarea placeholder="Escribe lo que no quieres olvidar para tu próxima sesión..." value={insightText} onChange={e => setInsightText(e.target.value)}
-                style={{ width:"100%", minHeight:100, padding:"11px 14px", border:"1.5px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6, background:"#0D0B1E", color:"#F5EEE8" }}/>
-              <div onClick={() => setInsightShared(!insightShared)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:11, background:insightShared?`${C.sage}18`:"rgba(255,255,255,.04)", cursor:"pointer", marginBottom:14 }}>
+                style={{ width:"100%", minHeight:100, padding:"11px 14px", border:"1.5px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6, background:"#FFFFFF", color:C.text }}/>
+              <div onClick={() => setInsightShared(!insightShared)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:11, background:insightShared?`${C.sage}18`:"rgba(0,0,0,.04)", cursor:"pointer", marginBottom:14 }}>
                 <div style={{ width:20, height:20, borderRadius:6, border:`1.5px solid ${insightShared?C.sageDark:C.light}`, background:insightShared?C.sageDark:"transparent", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                   {insightShared && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </div>
@@ -4406,7 +4406,7 @@ const styles = `
                 </div>
               </div>
               <div style={{ display:"flex", gap:8 }}>
-                {btn(() => { setModal(null); setInsightText(""); setInsightTitle(""); setInsightMood(null); setInsightShared(false); }, "Cancelar", { flex:1, padding:11, background:"rgba(255,255,255,.06)", color:C.text, borderRadius:11, fontSize:13, fontWeight:600 })}
+                {btn(() => { setModal(null); setInsightText(""); setInsightTitle(""); setInsightMood(null); setInsightShared(false); }, "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:11, fontSize:13, fontWeight:600 })}
                 {btn(async () => {
                   if (!insightText.trim()) return;
                   const id = Date.now().toString();
@@ -4436,7 +4436,7 @@ const styles = `
           )}
           {insights.map(n => (
             <div key={n.id} onClick={() => setNotaAbierta({ ...n, tipo:"insight" })}
-              style={{ background:n.shared?"rgba(78,205,196,.10)":"#0D0B1E", borderRadius:14, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.shared?"rgba(78,205,196,.30)":"rgba(255,123,90,0.10)"}`, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+              style={{ background:n.shared?"rgba(78,205,196,.10)":"#FFFFFF", borderRadius:14, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.shared?"rgba(78,205,196,.30)":"rgba(255,123,90,0.10)"}`, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
               <div style={{ width:32, height:32, borderRadius:9, background:n.shared?"rgba(78,205,196,.18)":`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:1 }}>
                 {n.shared
                   ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.sageDark} strokeWidth="1.75" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -4467,7 +4467,7 @@ const styles = `
     {/* SUBTABS */}
     <div style={{ display:"flex", gap:8, marginBottom:16 }}>
       {[["📋","Mis autorregistros","autorregistros"],["📚","Mis recursos","recursos"],["🎯","Tareas","tareas"]].map(([ic,lb,id]) => (
-        <div key={id} onClick={() => setTareasTab(id)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"12px 8px", borderRadius:16, background:tareasTab===id?C.plum:"rgba(255,255,255,.04)", cursor:"pointer", border:"1px solid rgba(255,255,255,.06)", transition:"all 0.2s" }}>
+        <div key={id} onClick={() => setTareasTab(id)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"12px 8px", borderRadius:16, background:tareasTab===id?C.plum:"rgba(0,0,0,.04)", cursor:"pointer", border:"1px solid rgba(0,0,0,.08)", transition:"all 0.2s" }}>
           <span style={{ fontSize:22 }}>{ic}</span>
           <span style={{ fontSize:10, fontWeight:800, color:tareasTab===id?"white":C.light, textAlign:"center" }}>{lb}</span>
         </div>
@@ -4489,7 +4489,7 @@ const styles = `
             ) : (
               autorregistros.map((ar, i) => (
                 <div key={i} onClick={() => setNotaAbierta({ ...ar, tipo:"autorregistro" })}
-                  style={{ background:"#0D0B1E", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(255,123,90,0.10)", cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+                  style={{ background:"#FFFFFF", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(255,123,90,0.10)", cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
                   <div style={{ width:32, height:32, borderRadius:9, background:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:1 }}>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </div>
@@ -4514,19 +4514,19 @@ const styles = `
 
                 <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📅 Fecha</div>
                 <input placeholder="Ej: 19 de marzo, 2026" value={arFecha} onChange={e => setArFecha(e.target.value)}
-                  style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                  style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                 <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué estaba haciendo antes del 'evento' problema?</div>
                 <textarea placeholder="Describe lo que hacías en ese momento..." value={arHaciendo} onChange={e => setArHaciendo(e.target.value)}
-                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#0D0B1E", color:"#F5EEE8" }}/>
+                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
 
                 <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué evento sucedió?</div>
                 <textarea placeholder="¿Qué pasó? ¿Cómo te sentiste?" value={arSucedio} onChange={e => setArSucedio(e.target.value)}
-                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#0D0B1E", color:"#F5EEE8" }}/>
+                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
 
                 <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué hizo después?</div>
                 <textarea placeholder="¿Qué hiciste luego? ¿Cómo lo manejaste?" value={arDespues} onChange={e => setArDespues(e.target.value)}
-                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#0D0B1E", color:"#F5EEE8" }}/>
+                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
 
                 <div style={{ display:"flex", gap:8 }}>
                   {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -4566,7 +4566,7 @@ const styles = `
         Tu psicólogo aún no ha enviado materiales
       </div>
     ) : recursos.map(r => (
-      <div key={r.id} style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:10, border:"1px solid rgba(255,255,255,.06)" }}>
+      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:10, border:"1px solid rgba(0,0,0,.08)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
           <div style={{ width:44, height:44, borderRadius:12, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>
             {r.tipo==="PDF"?"📄":r.tipo==="Podcast"?"🎵":r.tipo==="YouTube"?"🎬":r.tipo==="Imagen"?"🖼️":r.tipo==="Enlace"?"🔗":"📎"}
@@ -4613,7 +4613,7 @@ const styles = `
               } catch(e) {}
             }
           }}
-            style={{ background:"#0D0B1E", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(255,123,90,0.10)", opacity:t.completada?0.6:1, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+            style={{ background:"#FFFFFF", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(255,123,90,0.10)", opacity:t.completada?0.6:1, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
             <div onClick={async e => {
               e.stopPropagation();
               try {
@@ -4674,7 +4674,7 @@ const styles = `
         {tareaRespondiendo.descripcion ? <div style={{ fontSize:12, color:C.light, marginBottom:10, lineHeight:1.5 }}>{tareaRespondiendo.descripcion}</div> : null}
         <div style={{ background:"rgba(255,179,71,.12)", borderRadius:11, padding:"9px 12px", fontSize:11, fontWeight:700, color:C.amber, marginBottom:12 }}>⭐ Ganarás +{tareaRespondiendo.xp || 80} XP al completar</div>
         <textarea placeholder="Escribe tu reflexión aquí..." value={respuestaTarea} onChange={e => setRespuestaTarea(e.target.value)}
-          style={{ width:"100%", minHeight:90, padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:13, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+          style={{ width:"100%", minHeight:90, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:13, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
         <div style={{ display:"flex", gap:8 }}>
           {btn(() => { setModal(null); setRespuestaTarea(""); setTareaRespondiendo(null); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
           {btn(async () => {
@@ -4764,22 +4764,22 @@ const styles = `
             };
 
             return (
-              <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"radial-gradient(ellipse 100% 20% at 50% 108%, rgba(30,77,43,.06) 0%, transparent 60%), #07060F" }}>
+              <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
                 {/* Header */}
-                <div style={{ background:"linear-gradient(160deg,#1A0D28,#0D0B1E)", padding:"16px 18px 18px", paddingTop:"max(16px, env(safe-area-inset-top,16px))", flexShrink:0 }}>
+                <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"16px 18px 18px", paddingTop:"max(16px, env(safe-area-inset-top,16px))", flexShrink:0 }}>
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:2 }}>
-                    <div onClick={mesAnterior} style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>‹</div>
+                    <div onClick={mesAnterior} style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.09)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>‹</div>
                     <div style={{ textAlign:"center" }}>
                       <div style={{ fontSize:16, fontWeight:700, color:"white" }}>{meses[mesVista]} {anioVista}</div>
                       <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)", marginTop:2 }}>{citasDelMes.length} cita{citasDelMes.length!==1?"s":""} este mes</div>
                     </div>
-                    <div onClick={mesSiguiente} style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>›</div>
+                    <div onClick={mesSiguiente} style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.09)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>›</div>
                   </div>
                 </div>
 
                 <div style={{ flex:1, overflowY:"auto", paddingBottom:NAV_PB }}>
                   {/* Grid calendario */}
-                  <div style={{ background:"#0D0B1E", margin:14, borderRadius:16, padding:12, border:"1px solid rgba(255,255,255,.06)" }}>
+                  <div style={{ background:"#FFFFFF", margin:14, borderRadius:16, padding:12, border:"1px solid rgba(0,0,0,.08)" }}>
                     {/* Días semana */}
                     <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", marginBottom:6 }}>
                       {dias.map(d => (
@@ -4799,7 +4799,7 @@ const styles = `
                         const tieneCitas = citasPorDia[dia];
                         return (
                           <div key={dia} onClick={() => tieneCitas && (tieneCitas.length === 1 ? setCitaDetalle(tieneCitas[0]) : setCitaDetalle({ _esDia: true, _citas: tieneCitas, _dia: dia }))}
-                            style={{ aspectRatio:"1", borderRadius:10, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:tieneCitas?"pointer":"default", background:esHoy?"#0D0B1E":tieneCitas?"rgba(255,123,90,0.1)":"transparent", border:esHoy?"2px solid #E8A87C":tieneCitas?"1.5px solid rgba(255,123,90,0.25)":"1.5px solid transparent", position:"relative", transition:"all 0.15s" }}>
+                            style={{ aspectRatio:"1", borderRadius:10, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:tieneCitas?"pointer":"default", background:esHoy?"#FFFFFF":tieneCitas?"rgba(255,123,90,0.1)":"transparent", border:esHoy?"2px solid #E8A87C":tieneCitas?"1.5px solid rgba(255,123,90,0.25)":"1.5px solid transparent", position:"relative", transition:"all 0.15s" }}>
                             <div style={{ fontSize:13, fontWeight:esHoy||tieneCitas?700:400, color:esHoy?"#FFB347":tieneCitas?C.text:C.light }}>
                               {dia}
                             </div>
@@ -4834,7 +4834,7 @@ const styles = `
                       .sort((a,b) => fechaOrden(a) - fechaOrden(b))[0];
                     if (!proxima) return null;
                     return (
-                      <div style={{ margin:"0 14px 14px", background:"#0D0B1E", borderRadius:16, padding:14, border:"0.5px solid rgba(255,155,122,0.15)", position:"relative", overflow:"hidden" }}>
+                      <div style={{ margin:"0 14px 14px", background:"#FFFFFF", borderRadius:16, padding:14, border:"0.5px solid rgba(255,155,122,0.15)", position:"relative", overflow:"hidden" }}>
                         <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,#C4845A,transparent)", opacity:0.6 }}/>
                         <div style={{ fontSize:10, fontWeight:600, color:"rgba(255,155,122,0.55)", letterSpacing:0.8, textTransform:"uppercase", marginBottom:8 }}>Próxima sesión</div>
                         <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
@@ -4843,7 +4843,7 @@ const styles = `
                             <div style={{ fontSize:8, color:"rgba(255,255,255,0.75)", fontWeight:600, textTransform:"uppercase" }}>{mostrarFechaLocal(proxima,"mes")}</div>
                           </div>
                           <div style={{ flex:1 }}>
-                            <div style={{ fontSize:13, fontWeight:600, color:"#F5EEE8" }}>Sesión con {proxima.psicologoNombre}</div>
+                            <div style={{ fontSize:13, fontWeight:600, color:C.text }}>Sesión con {proxima.psicologoNombre}</div>
                             <div style={{ fontSize:11, color:"rgba(245,230,208,0.5)", marginTop:2 }}>{mostrarFechaLocal(proxima,"hora")} · {proxima.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
                           </div>
                           <div style={{ background:proxima.status==="confirmada"?"rgba(125,170,146,0.2)":"rgba(255,155,122,0.15)", color:proxima.status==="confirmada"?"#4ECDC4":"#FFB347", fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20 }}>
@@ -4878,7 +4878,7 @@ const styles = `
                         .slice()
                         .sort((a,b) => fechaOrden(a) - fechaOrden(b))
                         .map(c => (
-                      <div key={c.id} style={{ background:"#0D0B1E", borderRadius:14, padding:"12px 14px", marginBottom:10, border:"1px solid rgba(255,255,255,.06)", borderLeft:`3px solid ${colStatus(c.status)}` }}>
+                      <div key={c.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", marginBottom:10, border:"1px solid rgba(0,0,0,.08)", borderLeft:`3px solid ${colStatus(c.status)}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ background:colStatus(c.status)+"20", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:46, flexShrink:0 }}>
                             <div style={{ fontSize:18, fontWeight:900, color:colStatus(c.status), lineHeight:1 }}>{mostrarFechaLocal(c, "dia")}</div>
@@ -4949,7 +4949,7 @@ const styles = `
                           </>)}
                           {c.status==="confirmada" && usuarioActual?.rol==="paciente" && (
                             <div onClick={()=>{ setCitaSeleccionada(c); setRetrasoTexto(""); setRetrasoMinutos(10); setModal("demora-aviso"); }}
-                              style={{ display:"flex", alignItems:"center", gap:5, padding:"3px 10px", borderRadius:9, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,123,90,0.2)", cursor:"pointer" }}>
+                              style={{ display:"flex", alignItems:"center", gap:5, padding:"3px 10px", borderRadius:9, background:"rgba(0,0,0,.09)", border:"1px solid rgba(255,123,90,0.2)", cursor:"pointer" }}>
                               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.amberDark} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                               <span style={{ fontSize:10, fontWeight:700, color:C.amberDark }}>Me demoraré un momento</span>
                             </div>
@@ -4968,7 +4968,7 @@ const styles = `
                 {/* Modal detalle cita desde calendario */}
                 {citaDetalle && (
                   <div onClick={()=>setCitaDetalle(null)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.45)", zIndex:500, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
-                    <div onClick={e=>e.stopPropagation()} style={{ background:"#0D0B1E", borderRadius:"20px 20px 0 0", padding:"20px 18px 32px", width:"100%", maxWidth:430, maxHeight:"85%", overflowY:"auto" }}>
+                    <div onClick={e=>e.stopPropagation()} style={{ background:"#FFFFFF", borderRadius:"20px 20px 0 0", padding:"20px 18px 32px", width:"100%", maxWidth:430, maxHeight:"85%", overflowY:"auto" }}>
                       <div style={{ width:36, height:4, background:"rgba(0,0,0,0.12)", borderRadius:2, margin:"0 auto 16px" }}/>
                       {/* LISTA de citas del día */}
                       {citaDetalle._esDia ? (
@@ -4979,7 +4979,7 @@ const styles = `
                           </div>
                           {citaDetalle._citas.sort((a,b) => fechaOrden(a) - fechaOrden(b)).map(c => (
                             <div key={c.id} onClick={() => setCitaDetalle(c)}
-                              style={{ background:"rgba(255,255,255,.028)", backdropFilter:"blur(12px)", borderRadius:12, padding:"12px 14px", marginBottom:9, border:`1.5px solid ${colStatus(c.status)}30`, borderLeft:`3px solid ${colStatus(c.status)}`, cursor:"pointer" }}>
+                              style={{ background:"#FFFFFF", backdropFilter:"blur(12px)", borderRadius:12, padding:"12px 14px", marginBottom:9, border:`1.5px solid ${colStatus(c.status)}30`, borderLeft:`3px solid ${colStatus(c.status)}`, cursor:"pointer" }}>
                               <div style={{ fontSize:13, fontWeight:800, color:C.text }}>
                                 {usuarioActual?.rol==="psicologo" ? c.pacienteNombre : `Sesión con ${c.psicologoNombre}`}
                               </div>
@@ -5163,7 +5163,7 @@ const styles = `
                       placeholder="Ej: Estoy saliendo del trabajo..."
                       value={retrasoTexto}
                       onChange={e => setRetrasoTexto(e.target.value)}
-                      style={{ width:"100%", minHeight:64, padding:"10px 12px", border:"1.5px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, color:C.text }}/>
+                      style={{ width:"100%", minHeight:64, padding:"10px 12px", border:"1.5px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, color:C.text }}/>
 
                     <div style={{ display:"flex", gap:8 }}>
                       {btn(()=>setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -5196,7 +5196,7 @@ const styles = `
 
           {/* LOGROS */}
           {!notifPanel && screen === "logros" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#07060F" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
               <div style={{ background:`linear-gradient(145deg,${C.amberDark},${C.gold})`, padding:"32px 24px 52px", textAlign:"center" }}>
                 <div style={{ fontSize:64, marginBottom:10 }}>{getRango(xp).icono}</div>
                 <div style={{ fontSize:20, fontWeight:700, color:"white", marginBottom:4 }}>{getRango(xp).nombre}</div>
@@ -5205,12 +5205,12 @@ const styles = `
 
               <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))", marginTop:-24, position:"relative", zIndex:10 }}>
                 {/* TARJETA XP */}
-                <div style={{ background:"#0D0B1E", borderRadius:14, padding:14, border:"1px solid rgba(255,255,255,.08)", marginBottom:16 }}>
+                <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, border:"1px solid rgba(0,0,0,.09)", marginBottom:16 }}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Tu progreso</div>
                     <div style={{ fontSize:13, fontWeight:800, color:C.amberDark }}>{xp} XP</div>
                   </div>
-                  <div style={{ height:10, background:"rgba(255,255,255,.08)", borderRadius:5, overflow:"hidden", marginBottom:8 }}>
+                  <div style={{ height:10, background:"rgba(0,0,0,.09)", borderRadius:5, overflow:"hidden", marginBottom:8 }}>
                     <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:`linear-gradient(90deg,${C.amber},${C.gold})`, borderRadius:5, transition:"width 0.5s ease" }}/>
                   </div>
                   <div style={{ fontSize:11, color:C.light }}>
@@ -5230,7 +5230,7 @@ const styles = `
                   {min:150,max:199,nombre:"Sapiens",icono:"👁️",desc:"La visión interna"},
                   {min:200,max:Infinity,nombre:"Sapiens Sapiens",icono:"💎",desc:"Claridad total"}
                 ].map(r => (
-                  <div key={r.nombre} style={{ background:"#0D0B1E", borderRadius:14, padding:"11px 14px", marginBottom:9, border:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:14, opacity:xp >= r.min ? 1 : 0.4 }}>
+                  <div key={r.nombre} style={{ background:"#FFFFFF", borderRadius:14, padding:"11px 14px", marginBottom:9, border:"1px solid rgba(0,0,0,.08)", display:"flex", alignItems:"center", gap:14, opacity:xp >= r.min ? 1 : 0.4 }}>
                     <div style={{ fontSize:32, width:52, height:52, background:xp>=r.min?`${C.amber}20`:"#F5F5F5", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center" }}>{r.icono}</div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{r.nombre}</div>
@@ -5244,7 +5244,7 @@ const styles = `
 
                 {/* CÓMO GANAR PUNTOS */}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12, marginTop:4 }}>¿Cómo ganar puntos?</div>
-                <div style={{ background:"#0D0B1E", borderRadius:14, overflow:"hidden", border:"1px solid rgba(255,255,255,.06)" }}>
+                <div style={{ background:"#FFFFFF", borderRadius:14, overflow:"hidden", border:"1px solid rgba(0,0,0,.08)" }}>
                   {[["📋","Completar tarea","5 pts"],["💡","Guardar nota","2 pts"],["📝","Autorregistro","1 pt"],["📚","Abrir recurso","1 pt"]].map(([ic,lb,pts],i,arr) => (
                     <div key={lb} style={{ display:"flex", alignItems:"center", gap:12, padding:"13px 16px", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none" }}>
                       <div style={{ fontSize:20 }}>{ic}</div>
@@ -5398,21 +5398,21 @@ const styles = `
 
             return (
               <div style={{ height:"100%", display:"flex", flexDirection:"column",
-                background:"#07060F" }}>
+                background:"#F5F4F9" }}>
 
                 {/* ── Header ── */}
                 <div style={{ padding:"12px 16px 10px",
                   paddingTop:"max(12px,env(safe-area-inset-top,12px))", flexShrink:0,
                   display:"flex", alignItems:"center", justifyContent:"space-between",
-                  background:"rgba(7,6,15,.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
-                  borderBottom:"1px solid rgba(255,255,255,.06)" }}>
+                  background:"rgba(245,244,249,0.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
+                  borderBottom:"1px solid rgba(0,0,0,.08)" }}>
                   <div onClick={() => { setDiarioModo("lista"); setDiarioCargado(false); setDiarioEntradas([]); showScreen("home"); }}
-                    style={{ width:34,height:34,borderRadius:10,background:"rgba(255,255,255,.06)",
+                    style={{ width:34,height:34,borderRadius:10,background:"rgba(0,0,0,.08)",
                       display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",WebkitTapHighlightColor:"transparent" }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(245,238,232,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                   </div>
                   <div style={{ textAlign:"center" }}>
-                    <div style={{ fontSize:14,fontWeight:700,color:"#F5EEE8",letterSpacing:"-0.01em" }}>Mi Diario</div>
+                    <div style={{ fontSize:14,fontWeight:700,color:C.text,letterSpacing:"-0.01em" }}>Mi Diario</div>
                     <div style={{ fontSize:9,color:"rgba(245,238,232,0.35)",marginTop:1 }}>Solo visible para ti</div>
                   </div>
                   <div onClick={nuevaEntrada}
@@ -5441,7 +5441,7 @@ const styles = `
                           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                           <line x1="10" y1="8" x2="16" y2="8"/><line x1="10" y1="12" x2="16" y2="12"/><line x1="10" y1="16" x2="13" y2="16"/>
                         </svg>
-                        <div style={{ fontSize:16,fontWeight:700,color:"#F5EEE8" }}>Páginas en blanco</div>
+                        <div style={{ fontSize:16,fontWeight:700,color:C.text }}>Páginas en blanco</div>
                         <div style={{ fontSize:12,color:"rgba(245,237,224,0.4)",lineHeight:1.6 }}>
                           Este es tu espacio privado. Nadie más puede verlo.
                         </div>
@@ -5466,12 +5466,12 @@ const styles = `
                             <div key={e.id} onClick={() => abrirEntrada(e)}
                               style={{ display:"flex",alignItems:"center",gap:12,
                                 padding:"12px 14px",borderRadius:14,marginBottom:7,
-                                background:"rgba(255,255,255,0.04)",
-                                border:"1px solid rgba(255,255,255,.06)",
+                                background:"rgba(0,0,0,.04)",
+                                border:"1px solid rgba(0,0,0,.08)",
                                 borderLeft:`3px solid ${mc}`,cursor:"pointer",
                                 WebkitTapHighlightColor:"transparent" }}>
                               <div style={{ flexShrink:0,textAlign:"center",minWidth:36 }}>
-                                <div style={{ fontSize:20,fontWeight:900,color:"#F5EEE8",lineHeight:1 }}>{f.dia}</div>
+                                <div style={{ fontSize:20,fontWeight:900,color:C.text,lineHeight:1 }}>{f.dia}</div>
                                 <div style={{ fontSize:9,color:"rgba(245,238,232,0.45)",textTransform:"uppercase",fontWeight:600 }}>{f.mes.slice(0,3)}</div>
                               </div>
                               <div style={{ flex:1,minWidth:0 }}>
@@ -5506,7 +5506,7 @@ const styles = `
 
                       {/* Página — papel crema */}
                       <div style={{ flex:1, overflowY:"auto", position:"relative",
-                        background:"rgba(255,255,255,.06)",
+                        background:"rgba(0,0,0,.08)",
                         paddingBottom:"calc(64px + env(safe-area-inset-bottom,20px))" }}
                         id="diario-pagina">
 
@@ -5519,7 +5519,7 @@ const styles = `
                               top:`${i*5.2+1}%`,left:3,
                               width:16,height:16,borderRadius:"50%",
                               border:"1.5px solid rgba(100,60,20,0.3)",
-                              background:"rgba(255,255,255,.06)" }}/>
+                              background:"rgba(0,0,0,.08)" }}/>
                           ))}
                         </div>
 
@@ -5550,7 +5550,7 @@ const styles = `
 
                           {/* Fecha */}
                           <div style={{ marginBottom:LINE_H, lineHeight:`${LINE_H}px` }}>
-                            <div style={{ fontSize:22,fontWeight:900,color:"#F5EEE8",
+                            <div style={{ fontSize:22,fontWeight:900,color:C.text,
                               fontFamily:"Georgia,serif",lineHeight:`${LINE_H*1.1}px` }}>
                               {f.dia} de {f.mes}
                             </div>
@@ -5587,7 +5587,7 @@ const styles = `
                           {/* Texto — renglones alineados exactamente */}
                           {diarioModo === "lectura" ? (
                             <div style={{
-                              fontSize:15, color:"#F5EEE8",
+                              fontSize:15, color:C.text,
                               lineHeight:`${LINE_H}px`,
                               fontFamily:"Georgia,serif",
                               whiteSpace:"pre-wrap",
@@ -5605,7 +5605,7 @@ const styles = `
                               style={{
                                 width:"100%", minHeight:`${LINE_H*10}px`,
                                 background:"transparent", border:"none", outline:"none",
-                                fontSize:15, color:"#F5EEE8",
+                                fontSize:15, color:C.text,
                                 lineHeight:`${LINE_H}px`,
                                 resize:"none", fontFamily:"Georgia,serif",
                                 boxSizing:"border-box",
@@ -5910,7 +5910,7 @@ const styles = `
                   flexShrink:0, position:"relative", zIndex:2,
                   display:"flex", alignItems:"center", justifyContent:"space-between" }}>
                   <div onClick={() => { setJuegoCargado(false); setJuegoData(null); showScreen(usuarioActual?.rol === "psicologo" ? "admin-perfil" : "home"); }}
-                    style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.06)",
+                    style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.08)",
                       display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                   </div>
@@ -5986,7 +5986,7 @@ const styles = `
                           setJuegoCargado(true);
                         }}
                           style={{ display:"flex", alignItems:"center", gap:12,
-                            background:"rgba(255,255,255,0.04)", borderRadius:14,
+                            background:"rgba(0,0,0,.04)", borderRadius:14,
                             padding:"12px 14px", marginBottom:9,
                             border:"1px solid rgba(255,123,90,0.15)",
                             cursor:"pointer", WebkitTapHighlightColor:"transparent",
@@ -6022,21 +6022,21 @@ const styles = `
                     <div style={{ display:"flex", gap:10, marginBottom:20, alignItems:"center" }}>
                       <div style={{ flex:1, background:"rgba(78,205,196,0.1)", border:`1.5px solid ${juegoData.turnoActual==="pac"&&!yaJugueHoy&&juegoData.estado==="activo"?"rgba(78,205,196,0.6)":"rgba(78,205,196,0.2)"}`, borderRadius:14, padding:"10px 12px", textAlign:"center", transition:"border .3s" }}>
                         <div style={{ fontSize:28, lineHeight:1, marginBottom:4 }}>🌱</div>
-                        <div style={{ fontSize:10, fontWeight:800, color:"#34D399", letterSpacing:.5 }}>PACIENTE</div>
-                        <div style={{ fontSize:22, fontWeight:900, color:"white", marginTop:4 }}>{fmtScore(juegoData.scores?.pac)}</div>
+                        <div style={{ fontSize:10, fontWeight:800, color:"#1E8880", letterSpacing:.5 }}>PACIENTE</div>
+                        <div style={{ fontSize:22, fontWeight:900, color:C.sage, marginTop:4 }}>{fmtScore(juegoData.scores?.pac)}</div>
                       </div>
-                      <div style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.06)", borderRadius:14, padding:"10px 12px", textAlign:"center", minWidth:64 }}>
-                        <div style={{ fontSize:10, color:"rgba(167,139,250,0.5)", fontWeight:700, marginBottom:6 }}>VS</div>
-                        <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.4)", lineHeight:1.4 }}>
+                      <div style={{ background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.08)", borderRadius:14, padding:"10px 12px", textAlign:"center", minWidth:64 }}>
+                        <div style={{ fontSize:10, color:C.light, fontWeight:700, marginBottom:6 }}>VS</div>
+                        <div style={{ fontSize:11, fontWeight:700, color:C.light, lineHeight:1.4 }}>
                           {juegoData.estado === "terminado"
-                            ? (juegoData.ganador === "empate" ? "🤝" : juegoData.ganador === miRol ? "🏆 Tú" : "💀 Rival")
-                            : (esMiTurno ? "🎮 Tú" : "⏳ Rival")}
+                            ? (juegoData.ganador === "empate" ? "Empate" : juegoData.ganador === miRol ? "Ganaste" : "Perdiste")
+                            : (esMiTurno ? "Tu turno" : "Esperando")}
                         </div>
                       </div>
                       <div style={{ flex:1, background:"rgba(255,123,90,0.1)", border:`1.5px solid ${juegoData.turnoActual==="psi"&&!yaJugueHoy&&juegoData.estado==="activo"?"rgba(255,123,90,0.6)":"rgba(255,123,90,0.2)"}`, borderRadius:14, padding:"10px 12px", textAlign:"center", transition:"border .3s" }}>
                         <div style={{ fontSize:28, lineHeight:1, marginBottom:4 }}>🧠</div>
                         <div style={{ fontSize:10, fontWeight:800, color:"#A78BFA", letterSpacing:.5 }}>PSICÓLOGO</div>
-                        <div style={{ fontSize:22, fontWeight:900, color:"white", marginTop:4 }}>{fmtScore(juegoData.scores?.psi)}</div>
+                        <div style={{ fontSize:22, fontWeight:900, color:C.plum, marginTop:4 }}>{fmtScore(juegoData.scores?.psi)}</div>
                       </div>
                     </div>
 
@@ -6055,10 +6055,10 @@ const styles = `
                                 ? (cel==="pac"?"rgba(78,205,196,0.25)":"rgba(255,123,90,0.25)")
                                 : cel === "pac" ? "rgba(78,205,196,0.12)"
                                 : cel === "psi" ? "rgba(255,123,90,0.12)"
-                                : "rgba(255,255,255,0.04)",
+                                : "rgba(0,0,0,.04)",
                               border: isWin
                                 ? `2px solid ${cel==="pac"?"#34D399":"#A78BFA"}`
-                                : `1.5px solid ${canPlay?"rgba(167,139,250,0.3)":"rgba(255,255,255,0.06)"}`,
+                                : `1.5px solid ${canPlay?"rgba(167,139,250,0.3)":"rgba(0,0,0,.08)"}`,
                               cursor: canPlay ? "pointer" : "default",
                               transition:"all .15s",
                               transform: isWin ? "scale(1.04)" : "scale(1)",
@@ -6076,7 +6076,7 @@ const styles = `
                     </div>
 
                     {/* Estado */}
-                    <div style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:14, padding:"12px 16px", marginBottom:16 }}>
+                    <div style={{ background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.08)", borderRadius:14, padding:"12px 16px", marginBottom:16 }}>
                       {juegoData.estado === "terminado" ? (
                         <div style={{ textAlign:"center" }}>
                           <div style={{ fontSize:32, marginBottom:6 }}>
@@ -6171,10 +6171,10 @@ const styles = `
 
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"radial-gradient(ellipse 100% 20% at 50% 108%, rgba(30,77,43,.06) 0%, transparent 60%), #07060F" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
 
               {/* HEADER */}
-              <div style={{ background:"linear-gradient(160deg,#1A0D28,#0D0B1E)", padding:"28px 20px 40px", textAlign:"center" }}>
+              <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"28px 20px 40px", textAlign:"center" }}>
                 <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); }} style={{ position:"relative", display:"inline-block", marginBottom:10, cursor:"pointer" }}>
                   <div style={{ width:64, height:64, background:"rgba(255,123,90,0.2)", borderRadius:"50%", border:"2px solid rgba(255,155,122,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, overflow:"hidden" }}>
                     {usuarioActual?.foto
@@ -6186,7 +6186,7 @@ const styles = `
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                   </div>
                 </div>
-                <div style={{ fontSize:17, fontWeight:700, color:"#F5EEE8", marginBottom:3 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
+                <div style={{ fontSize:17, fontWeight:700, color:C.text, marginBottom:3 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
                 <div style={{ fontSize:11, color:"rgba(245,238,232,0.35)", marginBottom:10 }}>{usuarioActual?.email || ""}</div>
                 <div style={{ display:"inline-flex", background:"rgba(255,155,122,0.1)", border:"0.5px solid rgba(255,155,122,0.2)", borderRadius:20, padding:"4px 12px", gap:5, alignItems:"center" }}>
                   <span style={{ fontSize:12 }}>{getRango(xp).icono}</span>
@@ -6198,18 +6198,18 @@ const styles = `
 
                 {/* MI PSICÓLOGO */}
                 <div onClick={async () => { setPsicologoData(null); showScreen("perfil-psicologo"); }}
-                  style={{ background:"#0D0B1E", border:"0.5px solid rgba(255,155,122,0.15)", borderRadius:16, padding:"12px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:12, cursor:"pointer" }}>
+                  style={{ background:"#FFFFFF", border:"0.5px solid rgba(255,155,122,0.15)", borderRadius:16, padding:"12px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:12, cursor:"pointer" }}>
                   <div style={{ width:44, height:44, background:"rgba(255,123,90,0.15)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👨‍⚕️</div>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:10, color:"rgba(255,155,122,0.5)", fontWeight:600, textTransform:"uppercase", letterSpacing:0.5, marginBottom:2 }}>Mi psicólogo</div>
-                    <div style={{ fontSize:13, fontWeight:600, color:"#F5EEE8" }}>{usuarioActual?.psicologoNombre || "Mi psicólogo"}</div>
+                    <div style={{ fontSize:13, fontWeight:600, color:C.text }}>{usuarioActual?.psicologoNombre || "Mi psicólogo"}</div>
                   </div>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(245,238,232,0.25)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
 
                 {/* MI CUENTA */}
                 <div style={{ fontSize:11, fontWeight:600, color:"rgba(245,230,208,0.35)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Mi cuenta</div>
-                <div style={{ background:"#0D0B1E", border:"0.5px solid rgba(255,155,122,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
+                <div style={{ background:"#FFFFFF", border:"0.5px solid rgba(255,155,122,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
                   {[
                     { ic:"user", lb:"Cambiar avatar", fn:() => setModal("avatar") },
                     { ic:"edit", lb:"Editar perfil", fn:() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); } },
@@ -6221,29 +6221,29 @@ const styles = `
                         {ic==="edit" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>}
                         {ic==="bell" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>}
                       </div>
-                      <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5EEE8" }}>{lb}</div>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                      <div style={{ flex:1, fontSize:13, fontWeight:500, color:C.text }}>{lb}</div>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.11)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                     </div>
                   ))}
                 </div>
 
                 {/* CONFIGURACIÓN */}
                 <div style={{ fontSize:11, fontWeight:600, color:"rgba(245,230,208,0.35)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Configuración</div>
-                <div style={{ background:"#0D0B1E", border:"0.5px solid rgba(255,155,122,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
+                <div style={{ background:"#FFFFFF", border:"0.5px solid rgba(255,155,122,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
                   <div onClick={() => setModal("privacidad")}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(255,155,122,0.06)", cursor:"pointer" }}>
                     <div style={{ width:30, height:30, background:"rgba(255,123,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
-                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5EEE8" }}>Privacidad y seguridad</div>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:C.text }}>Privacidad y seguridad</div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.11)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                   <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(255,155,122,0.06)", cursor:"pointer" }}>
                     <div style={{ width:30, height:30, background:"rgba(255,123,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
                     </div>
-                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5EEE8" }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
+                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:C.text }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
                     <div style={{ width:38, height:20, borderRadius:10, background:darkMode?"#FF7B5A":"rgba(245,230,208,0.15)", position:"relative", transition:"background 0.3s", flexShrink:0 }}>
                       <div style={{ width:14, height:14, borderRadius:"50%", background:"white", position:"absolute", top:3, left:darkMode?21:3, transition:"left 0.3s" }}/>
                     </div>
@@ -6253,8 +6253,8 @@ const styles = `
                     <div style={{ width:30, height:30, background:"rgba(255,123,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     </div>
-                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#F5EEE8" }}>Valorar a mi psicólogo</div>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:C.text }}>Valorar a mi psicólogo</div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.11)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
@@ -6336,14 +6336,14 @@ const styles = `
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre</div>
                   <input value={editNombre} onChange={e => setEditNombre(e.target.value)}
                     placeholder="Tu nombre completo"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Teléfono</div>
                   <input value={editTel} onChange={e => setEditTel(e.target.value)}
                     placeholder="Tu teléfono"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Correo</div>
                   <input value={usuarioActual?.email || ""} disabled
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.04)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"rgba(255,255,255,.04)", color:C.light }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.04)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"rgba(0,0,0,.04)", color:C.light }}/>
 
                   <div style={{ background:"rgba(255,123,90,0.06)", borderRadius:14, padding:"12px 14px", marginBottom:14, border:"1px solid rgba(255,123,90,0.15)" }}>
                     <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:10 }}>
@@ -6353,12 +6353,12 @@ const styles = `
                     <div style={{ fontSize:11, fontWeight:700, color:C.text, marginBottom:5 }}>Nombre</div>
                     <input value={editContactoNombre} onChange={e => setEditContactoNombre(e.target.value)}
                       placeholder="Nombre del contacto"
-                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:13, marginBottom:8, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:13, marginBottom:8, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     <div style={{ fontSize:11, fontWeight:700, color:C.text, marginBottom:5 }}>Teléfono</div>
                     <input value={editContactoTel} onChange={e => setEditContactoTel(e.target.value.replace(/\D/g,""))}
                       placeholder="Ej: 3001234567"
                       type="tel" inputMode="numeric" pattern="[0-9]*"
-                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                      style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                   </div>
 
                   <div style={{ display:"flex", gap:8 }}>
@@ -6390,7 +6390,7 @@ const styles = `
     </div>
 
     {/* NOTIFICACIONES */}
-    <div style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:`2px solid rgba(0,0,0,0.06)` }}>
+    <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:`2px solid rgba(0,0,0,0.06)` }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
         <div>
           <div style={{ fontSize:13, fontWeight:800, color:C.text }}>🔔 Notificaciones push</div>
@@ -6429,7 +6429,7 @@ const styles = `
 
     {/* Biometría */}
     {window.PublicKeyCredential !== undefined && (
-      <div style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(255,255,255,.06)" }}>
+      <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,.08)" }}>
         <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>🔐 Desbloqueo biométrico</div>
         <div style={{ fontSize:11, color:C.light, marginBottom:12, lineHeight:1.5 }}>
           {usuarioActual?.webauthnCredentialId
@@ -6483,7 +6483,7 @@ const styles = `
 
     {/* Bloquear diario con biometría */}
     {usuarioActual?.webauthnCredentialId && (
-      <div style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(255,255,255,.06)" }}>
+      <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,.08)" }}>
         <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>📔 Bloqueo del diario</div>
         <div style={{ fontSize:11, color:C.light, marginBottom:12, lineHeight:1.5 }}>
           {usuarioActual?.diarioBiometria
@@ -6511,7 +6511,7 @@ const styles = `
       </div>
     )}
 
-    {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:10, background:"#0D0B1E", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
+    {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:10, background:"#FFFFFF", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
     {btn(() => setModal(null), "Cerrar", { width:"100%", padding:9, background:C.warm, color:C.text, borderRadius:12, fontSize:13, fontWeight:800 })}
   </div>
 ))}
@@ -6528,7 +6528,7 @@ const styles = `
                     ))}
                   </div>
                   <input type="password" placeholder="PIN actual" inputMode="numeric" maxLength={4} value={pinAnterior} onChange={e => setPinAnterior(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:6 }}>Nuevo PIN</div>
                   <div style={{ display:"flex", justifyContent:"center", gap:12, marginBottom:6 }}>
@@ -6537,7 +6537,7 @@ const styles = `
                     ))}
                   </div>
                   <input type="password" placeholder="Nuevo PIN" inputMode="numeric" maxLength={4} value={pinNuevo} onChange={e => setPinNuevo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:6 }}>Confirmar nuevo PIN</div>
                   <div style={{ display:"flex", justifyContent:"center", gap:12, marginBottom:6 }}>
@@ -6546,7 +6546,7 @@ const styles = `
                     ))}
                   </div>
                   <input type="password" placeholder="Confirmar PIN" inputMode="numeric" maxLength={4} value={pinNuevo2} onChange={e => setPinNuevo2(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => { setModal("privacidad"); setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); }, "← Volver", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -6573,7 +6573,7 @@ const styles = `
                   </div>
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Tu reseña es anónima y pública en su perfil</div>
                   {usuarioActual?.psicologoId && (
-                    <div style={{ background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
+                    <div style={{ background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.09)", borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
                       <div style={{ width:32, height:32, borderRadius:"50%", background:`linear-gradient(135deg,${C.plum},${C.amberDark})`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                       </div>
@@ -6589,13 +6589,13 @@ const styles = `
                     ))}
                   </div>
                   <textarea placeholder="Cuéntanos tu experiencia..." value={resenaTexto} onChange={e => setResenaTexto(e.target.value)}
-                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"1px solid rgba(255,255,255,.08)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.55, background:"rgba(255,255,255,.04)", color:C.text }}/>
+                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"1px solid rgba(0,0,0,.09)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.55, background:"rgba(0,0,0,.04)", color:C.text }}/>
                   <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(255,179,71,.08)", border:"1px solid rgba(255,179,71,.16)", borderRadius:10, padding:"9px 12px", marginBottom:16 }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <span style={{ fontSize:11, color:C.amber, fontWeight:700, opacity:.85 }}>Tu identidad permanecerá anónima</span>
                   </div>
                   <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(255,255,255,.06)", color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña", { flex:2, padding:11, background:loadingResenas ? C.light : `linear-gradient(135deg,${C.plum},${C.amberDark})`, color:"white", borderRadius:11, fontSize:12, fontWeight:800, boxShadow:`0 4px 12px rgba(255,123,90,.2)` })}
                   </div>
                 </div>
@@ -6605,10 +6605,10 @@ const styles = `
           )}
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#07060F" }}>
-              <div style={{ background:"linear-gradient(180deg,#1A0D28 0%,#0D0B1E 100%)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative", borderBottom:"1px solid rgba(255,255,255,.06)" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
+              <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative", borderBottom:"1px solid rgba(0,0,0,.08)" }}>
                 <div style={{ position:"absolute", top:0, left:0, right:0, height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),transparent)" }}/>
-                <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,.06)" }}>
+                <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.08)" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 {/* Avatar + badge verificado integrado */}
@@ -6655,16 +6655,16 @@ const styles = `
 
               <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))", marginTop:-20, position:"relative", zIndex:10 }}>
                 {/* CARD INFO — sin mini-foto, secciones limpias */}
-                <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"1px solid rgba(255,255,255,.07)", boxShadow:"0 1px 2px rgba(0,0,0,.3), 0 8px 32px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06)", background:"rgba(13,11,30,.9)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)" }}>
+                <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"1px solid rgba(0,0,0,.08)", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.08), inset 0 1px 0 rgba(0,0,0,.08)", background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)" }}>
 
                   {/* Contacto */}
                   {(psicologoData?.telefono || psicologoData?.email) && (<>
-                    <div style={{ display:"flex", alignItems:"center", gap:6, padding:"10px 14px 6px", fontSize:8, fontWeight:700, color:"rgba(255,255,255,.25)", letterSpacing:".16em", textTransform:"uppercase" }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <div style={{ display:"flex", alignItems:"center", gap:6, padding:"10px 14px 6px", fontSize:8, fontWeight:700, color:"rgba(0,0,0,.15)", letterSpacing:".16em", textTransform:"uppercase" }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.15)" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                       Contacto
                     </div>
                     {psicologoData?.telefono && (
-                      <div style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px", borderTop:"1px solid rgba(255,255,255,.05)" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px", borderTop:"1px solid rgba(0,0,0,.06)" }}>
                         <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.08)", border:"1px solid rgba(255,123,90,.12)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                         </div>
@@ -6675,7 +6675,7 @@ const styles = `
                       </div>
                     )}
                     {psicologoData?.email && (
-                      <div style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px", borderTop:"1px solid rgba(255,255,255,.05)" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px", borderTop:"1px solid rgba(0,0,0,.06)" }}>
                         <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.08)", border:"1px solid rgba(255,123,90,.12)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                         </div>
@@ -6689,11 +6689,11 @@ const styles = `
 
                   {/* Formación */}
                   {(psicologoData?.especialidad || psicologoData?.enfoque) && (<>
-                    <div style={{ display:"flex", alignItems:"center", gap:6, padding:"10px 14px 6px", fontSize:8, fontWeight:700, color:"rgba(255,255,255,.25)", letterSpacing:".16em", textTransform:"uppercase", borderTop:"1px solid rgba(255,255,255,.05)" }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="2" strokeLinecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    <div style={{ display:"flex", alignItems:"center", gap:6, padding:"10px 14px 6px", fontSize:8, fontWeight:700, color:"rgba(0,0,0,.15)", letterSpacing:".16em", textTransform:"uppercase", borderTop:"1px solid rgba(0,0,0,.06)" }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.15)" strokeWidth="2" strokeLinecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                       Formación
                     </div>
-                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:7, padding:"8px 14px", borderTop:"1px solid rgba(255,255,255,.05)" }}>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:7, padding:"8px 14px", borderTop:"1px solid rgba(0,0,0,.06)" }}>
                       {[
                         { lb:"Especialidad", val:psicologoData?.especialidad },
                         { lb:"Enfoque",      val:psicologoData?.enfoque },
@@ -6708,8 +6708,8 @@ const styles = `
 
                   {/* Bio */}
                   {psicologoData?.bio && (
-                    <div style={{ padding:"10px 14px 14px", borderTop:"1px solid rgba(255,255,255,.05)" }}>
-                      <div style={{ fontSize:8, fontWeight:700, color:"rgba(255,255,255,.25)", textTransform:"uppercase", letterSpacing:".14em", marginBottom:7 }}>Sobre mí</div>
+                    <div style={{ padding:"10px 14px 14px", borderTop:"1px solid rgba(0,0,0,.06)" }}>
+                      <div style={{ fontSize:8, fontWeight:700, color:"rgba(0,0,0,.15)", textTransform:"uppercase", letterSpacing:".14em", marginBottom:7 }}>Sobre mí</div>
                       <div style={{ fontSize:13, color:C.text, lineHeight:1.75, whiteSpace:"pre-wrap", opacity:0.82 }}>{psicologoData.bio}</div>
                     </div>
                   )}
@@ -6723,13 +6723,13 @@ const styles = `
                 {loadingResenas ? (
                   <div style={{ textAlign:"center", padding:20, color:C.light }}>Cargando...</div>
                 ) : resenas.length === 0 ? (
-                  <div style={{ background:"rgba(255,255,255,.025)", borderRadius:14, padding:20, textAlign:"center", border:"1px solid rgba(255,255,255,.06)" }}>
+                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:20, textAlign:"center", border:"1px solid rgba(0,0,0,.08)" }}>
                     <div style={{ fontSize:11, color:C.light }}>Aún no hay reseñas</div>
                   </div>
                 ) : (
                   <>
                     {/* Rating card — glass limpia sin gradiente pesado */}
-                    <div style={{ background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)", borderRadius:16, padding:"14px 18px", marginBottom:10, display:"flex", alignItems:"center", gap:16 }}>
+                    <div style={{ background:"#FFFFFF", border:"1px solid rgba(0,0,0,.08)", borderRadius:16, padding:"14px 18px", marginBottom:10, display:"flex", alignItems:"center", gap:16 }}>
                       <div style={{ fontSize:40, fontWeight:900, letterSpacing:"-0.04em", color:C.text, lineHeight:1 }}>
                         {(resenas.reduce((a,r) => a+r.rating, 0) / resenas.length).toFixed(1)}
                       </div>
@@ -6744,7 +6744,7 @@ const styles = `
                       </div>
                     </div>
                     {resenas.filter(r => !r.oculta).map(r => (
-                      <div key={r.id} style={{ background:"rgba(255,255,255,.025)", borderRadius:13, padding:"12px 14px", marginBottom:7, border:"1px solid rgba(255,255,255,.06)", borderLeft:`3px solid rgba(255,123,90,.45)` }}>
+                      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 14px", marginBottom:7, border:"1px solid rgba(0,0,0,.08)", borderLeft:`3px solid rgba(255,123,90,.45)` }}>
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
                           <div style={{ display:"flex", gap:2 }}>
                             {[1,2,3,4,5].map(s => <svg key={s} width="11" height="11" viewBox="0 0 24 24" fill={s <= r.rating ? C.amber : "rgba(255,179,71,.22)"} stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>)}
@@ -6763,7 +6763,7 @@ const styles = `
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     Escribir reseña
                   </span>,
-                  { width:"100%", height:44, background:`linear-gradient(135deg,${C.plum},${C.amberDark})`, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginTop:8, display:"flex", alignItems:"center", justifyContent:"center", boxShadow:`0 4px 14px rgba(255,123,90,.22), inset 0 1px 0 rgba(255,255,255,.12)`, letterSpacing:"-0.005em" })}
+                  { width:"100%", height:44, background:`linear-gradient(135deg,${C.plum},${C.amberDark})`, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginTop:8, display:"flex", alignItems:"center", justifyContent:"center", boxShadow:`0 4px 14px rgba(255,123,90,.22), inset 0 1px 0 rgba(0,0,0,.11)`, letterSpacing:"-0.005em" })}
 
                 {/* MÉTODOS DE PAGO del psicólogo */}
                 {pagosPsicologo.length > 0 && (() => {
@@ -6777,7 +6777,7 @@ const styles = `
                       {pagosPsicologo.map((mp, i) => {
                         const info = METODOS_INFO[mp.id] || { nombre:mp.id, color:C.plum, bg:`rgba(255,123,90,.10)` };
                         return (
-                          <div key={i} style={{ background:"rgba(255,255,255,.025)", borderRadius:13, padding:"12px 14px", marginBottom:7, border:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:12 }}>
+                          <div key={i} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 14px", marginBottom:7, border:"1px solid rgba(0,0,0,.08)", display:"flex", alignItems:"center", gap:12 }}>
                             <div style={{ width:38, height:38, borderRadius:10, background:info.bg, border:`1px solid ${info.color}28`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                               <span style={{ fontSize:10, fontWeight:800, color:info.color }}>{info.nombre.slice(0,2)}</span>
                             </div>
@@ -6806,7 +6806,7 @@ const styles = `
                   </div>
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Tu reseña es anónima y pública en su perfil</div>
                   {usuarioActual?.psicologoId && (
-                    <div style={{ background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
+                    <div style={{ background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.09)", borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
                       <div style={{ width:32, height:32, borderRadius:"50%", background:`linear-gradient(135deg,${C.plum},${C.amberDark})`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                       </div>
@@ -6822,13 +6822,13 @@ const styles = `
                     ))}
                   </div>
                   <textarea placeholder="Cuéntanos tu experiencia..." value={resenaTexto} onChange={e => setResenaTexto(e.target.value)}
-                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"1px solid rgba(255,255,255,.08)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.55, background:"rgba(255,255,255,.04)", color:C.text }}/>
+                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"1px solid rgba(0,0,0,.09)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.55, background:"rgba(0,0,0,.04)", color:C.text }}/>
                   <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(255,179,71,.08)", border:"1px solid rgba(255,179,71,.16)", borderRadius:10, padding:"9px 12px", marginBottom:16 }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <span style={{ fontSize:11, color:C.amber, fontWeight:700, opacity:.85 }}>Tu identidad permanecerá anónima</span>
                   </div>
                   <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(255,255,255,.06)", color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña", { flex:2, padding:11, background:loadingResenas ? C.light : `linear-gradient(135deg,${C.plum},${C.amberDark})`, color:"white", borderRadius:11, fontSize:12, fontWeight:800, boxShadow:`0 4px 12px rgba(255,123,90,.2)` })}
                   </div>
                 </div>
@@ -6838,9 +6838,9 @@ const styles = `
           )}    
           {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"radial-gradient(ellipse 100% 20% at 50% 108%, rgba(30,77,43,.06) 0%, transparent 60%), #07060F" }}>
-              <div style={{ background:"rgba(7,6,15,.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:12, borderBottom:"1px solid rgba(255,255,255,.06)" }}>
-                <div onClick={() => showScreen("admin-perfil")} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,.06)", flexShrink:0 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
+              <div style={{ background:"rgba(245,244,249,0.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:12, borderBottom:"1px solid rgba(0,0,0,.08)" }}>
+                <div onClick={() => showScreen("admin-perfil")} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.08)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
@@ -6856,7 +6856,7 @@ const styles = `
               <div style={{ padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:9, marginBottom:18 }}>
                   {[[pacientes.length,"Pacientes"],[citas.filter(c=>c.status==="pendiente").length,"Pendientes"],[citas.filter(c=>c.status==="confirmada").length,"Confirmadas"]].map(([n,l]) => (
-                    <div key={l} style={{ background:"#0D0B1E", borderRadius:14, padding:13, textAlign:"center", border:"1px solid rgba(255,255,255,.06)" }}>
+                    <div key={l} style={{ background:"#FFFFFF", borderRadius:14, padding:13, textAlign:"center", border:"1px solid rgba(0,0,0,.08)" }}>
                       <div style={{ fontSize:17, fontWeight:700, color:C.plum }}>{n}</div>
                       <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                     </div>
@@ -6868,16 +6868,16 @@ const styles = `
                   const recursosRecibidos = recursos.filter(r => r.recibido);
                   if (citasHoy.length === 0 && recursosRecibidos.length === 0) return null;
                   return (
-                    <div style={{ background:C.cardBg, borderRadius:16, padding:14, marginBottom:14, border:"1px solid rgba(255,255,255,.06)" }}>
+                    <div style={{ background:C.cardBg, borderRadius:16, padding:14, marginBottom:14, border:"1px solid rgba(0,0,0,.08)" }}>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:10 }}>🔔 Alertas del día</div>
                       {citasHoy.map(c => (
-                        <div key={c.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}` }}>
+                        <div key={c.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`0.5px solid ${darkMode?"rgba(0,0,0,.08)":"rgba(0,0,0,0.05)"}` }}>
                           <div style={{ width:8, height:8, borderRadius:"50%", background:C.plum, flexShrink:0 }}/>
                           <div style={{ flex:1, fontSize:12, color:C.text }}>Cita con <strong>{c.pacienteNombre}</strong> hoy a las {c.hora}</div>
                         </div>
                       ))}
                       {recursosRecibidos.slice(0,3).map(r => (
-                        <div key={r.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`0.5px solid ${darkMode?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"}` }}>
+                        <div key={r.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`0.5px solid ${darkMode?"rgba(0,0,0,.08)":"rgba(0,0,0,0.05)"}` }}>
                           <div style={{ width:8, height:8, borderRadius:"50%", background:C.green, flexShrink:0 }}/>
                           <div style={{ flex:1, fontSize:12, color:C.text }}><strong>{r.pacienteNombre}</strong> recibió "{r.nombre}" ✅</div>
                         </div>
@@ -6891,7 +6891,7 @@ const styles = `
                   <>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📅 Citas de hoy</div>
                     {citas.filter(c => esCitaHoy(c)).map(c => (
-                      <div key={c.id} style={{ background:"#0D0B1E", borderRadius:14, padding:"12px 14px", marginBottom:9, border:"1px solid rgba(255,255,255,.06)", borderLeft:`4px solid ${C.sage}` }}>
+                      <div key={c.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", marginBottom:9, border:"1px solid rgba(0,0,0,.08)", borderLeft:`4px solid ${C.sage}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ flex:1 }}>
                             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{c.pacienteNombre}</div>
@@ -6942,7 +6942,7 @@ const styles = `
                       setHabitosPacienteId(p.id);
                       showScreen("admin-paciente");
                     }}
-                      style={{ background:"#0D0B1E", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"1px solid rgba(255,255,255,.06)", cursor:"pointer" }}>
+                      style={{ background:"#FFFFFF", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"1px solid rgba(0,0,0,.08)", cursor:"pointer" }}>
                       <div style={{ width:46, height:46, borderRadius:14, overflow:"hidden",
                         background:`linear-gradient(135deg,${C.plum},${C.sage})`,
                         display:"flex", alignItems:"center", justifyContent:"center",
@@ -6969,7 +6969,7 @@ const styles = `
     {recordatorios
       .filter(r => r.pacienteId === pacienteSeleccionado?.id)
       .map(r => (
-        <div key={r.id} style={{ background:"#0D0B1E", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
+        <div key={r.id} style={{ background:"#FFFFFF", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.titulo}</div>
             <div style={{ display:"flex", gap:6, alignItems:"center" }}>
@@ -7004,14 +7004,14 @@ const styles = `
                     </div>
                   ) : (
                     <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
-                      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#0D0B1E", boxSizing:"border-box" }}>
+                      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
                       <option value="">— Seleccionar paciente —</option>
                       {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
                     </select>
                   )}
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
                   <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
                   <textarea
@@ -7019,27 +7019,27 @@ const styles = `
                     value={citaDescripcion}
                     onChange={e => setCitaDescripcion(e.target.value)}
                     rows={3}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12,
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12,
                       outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
-                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
                       <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
                       <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                   </div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
                       <div key={val} onClick={() => setCitaModalidad(val)}
-                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(255,255,255,.08)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(255,255,255,.04)" }}>
+                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.09)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.04)" }}>
                         <div style={{ fontSize:22 }}>{ic}</div>
                         <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
                       </div>
@@ -7049,7 +7049,7 @@ const styles = `
                     <>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet</div>
                       <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </>
                   )}                  
                   <div style={{ display:"flex", gap:8 }}>
@@ -7064,13 +7064,13 @@ const styles = `
     <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Se enviará automáticamente al paciente</div>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
     <input value={recTitulo} onChange={e => setRecTitulo(e.target.value)} placeholder="Ej: 💪 ¡Hoy toca gym!"
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Mensaje</div>
     <textarea value={recMensaje} onChange={e => setRecMensaje(e.target.value)} placeholder="Ej: Recuerda que hoy tienes entrenamiento 🏋️"
-      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora de envío</div>
     <input type="time" value={recHora} onChange={e => setRecHora(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Días de la semana</div>
     <div style={{ display:"flex", gap:6, marginBottom:16, flexWrap:"wrap" }}>
       {[["D",0],["L",1],["M",2],["X",3],["J",4],["V",5],["S",6]].map(([label, dia]) => (
@@ -7106,7 +7106,7 @@ const styles = `
   const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
   const pacientes = todosUsuarios.filter(u => u.rol === "paciente");
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#07060F" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
       {/* Header */}
       <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
         <div style={{ fontSize:16, fontWeight:700, color:"white" }}>🧠 Psicólogos</div>
@@ -7120,7 +7120,7 @@ const styles = `
           const susPacientes = pacientes.filter(u => u.psicologoId === p.id);
           const sinPsicologo = pacientes.filter(u => !u.psicologoId || u.psicologoId === "");
           return (
-            <div key={p.id} style={{ background:"#0D0B1E", borderRadius:16, padding:14, marginBottom:12, border:"1px solid rgba(255,255,255,.06)" }}>
+            <div key={p.id} style={{ background:"#FFFFFF", borderRadius:16, padding:14, marginBottom:12, border:"1px solid rgba(0,0,0,.08)" }}>
               {/* Info psicólogo */}
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
                 <div style={{ width:44, height:44, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -7144,7 +7144,7 @@ const styles = `
                     background: p.verificado ? "linear-gradient(135deg,#3B82F6,#1D4ED8)" : "rgba(0,0,0,0.06)",
                     borderRadius:20, padding:"4px 10px", transition:"all 0.2s" }}>
                     <svg width="10" height="10" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="10" fill={p.verificado ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.1)"}/>
+                      <circle cx="12" cy="12" r="10" fill={p.verificado ? "rgba(0,0,0,.15)" : "rgba(0,0,0,0.1)"}/>
                       <path d="M9 12l2 2 4-4" stroke={p.verificado ? "white" : "rgba(0,0,0,0.3)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
                     </svg>
                     <span style={{ fontSize:9, fontWeight:800, color: p.verificado ? "white" : "rgba(0,0,0,0.4)" }}>
@@ -7161,7 +7161,7 @@ const styles = `
               {susPacientes.length === 0 ? (
                 <div style={{ fontSize:11, color:C.light, fontStyle:"italic", marginBottom:8 }}>Sin pacientes aún</div>
               ) : susPacientes.map(pac => (
-                <div key={pac.id} style={{ display:"flex", alignItems:"center", gap:8, background:"#07060F", borderRadius:10, padding:"8px 10px", marginBottom:6 }}>
+                <div key={pac.id} style={{ display:"flex", alignItems:"center", gap:8, background:"#F5F4F9", borderRadius:10, padding:"8px 10px", marginBottom:6 }}>
                   <div style={{ fontSize:13 }}>👤</div>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{pac.nombre}</div>
@@ -7182,7 +7182,7 @@ const styles = `
                 <div style={{ marginTop:8 }}>
                   <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6 }}>ASIGNAR PACIENTE</div>
                   <select
-                    style={{ width:"100%", padding:"9px 12px", border:"1px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:12, background:"#0D0B1E", color:C.text, fontFamily:"inherit", marginBottom:8 }}
+                    style={{ width:"100%", padding:"9px 12px", border:"1px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:12, background:"#FFFFFF", color:C.text, fontFamily:"inherit", marginBottom:8 }}
                     defaultValue=""
                     onChange={async (e) => {
                       const pacId = e.target.value;
@@ -7225,7 +7225,7 @@ const styles = `
     .filter(u => !busqueda || u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || u.email?.toLowerCase().includes(busqueda.toLowerCase()));
   const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#07060F" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
       <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
         <div style={{ fontSize:16, fontWeight:700, color:"white" }}>👥 Pacientes</div>
         <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>{todosUsuarios.filter(u=>u.rol==="paciente").length} pacientes registrados</div>
@@ -7235,7 +7235,7 @@ const styles = `
             placeholder="Buscar por nombre o correo..."
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
-            style={{ width:"100%", padding:"9px 12px 9px 34px", borderRadius:12, border:"none", fontSize:12, background:"rgba(255,255,255,0.12)", color:"white", fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
+            style={{ width:"100%", padding:"9px 12px 9px 34px", borderRadius:12, border:"none", fontSize:12, background:"rgba(0,0,0,.11)", color:"white", fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
           />
           <span style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", fontSize:14, opacity:.6 }}>🔍</span>
         </div>
@@ -7248,7 +7248,7 @@ const styles = `
         ) : pacientes.map(pac => {
           const psi = psicologos.find(p => p.id === pac.psicologoId);
           return (
-            <div key={pac.id} style={{ background:"#0D0B1E", borderRadius:16, padding:14, marginBottom:10, border:"1px solid rgba(255,255,255,.06)" }}>
+            <div key={pac.id} style={{ background:"#FFFFFF", borderRadius:16, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.08)" }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
                 <div style={{ width:40, height:40, background:"rgba(255,123,90,0.15)", borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -7264,7 +7264,7 @@ const styles = `
               {/* Psicólogo asignado */}
               <div style={{ fontSize:10, color:C.light, marginBottom:6, fontWeight:600 }}>PSICÓLOGO ASIGNADO</div>
               {psi ? (
-                <div style={{ display:"flex", alignItems:"center", gap:8, background:"#07060F", borderRadius:10, padding:"8px 10px", marginBottom:8 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, background:"#F5F4F9", borderRadius:10, padding:"8px 10px", marginBottom:8 }}>
                   <span style={{ fontSize:13 }}>🧠</span>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{psi.nombre}</div>
@@ -7282,7 +7282,7 @@ const styles = `
               )}
               {/* Cambiar / asignar psicólogo */}
               <select
-                style={{ width:"100%", padding:"8px 12px", border:"1px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:12, background:"#0D0B1E", color:C.text, fontFamily:"inherit" }}
+                style={{ width:"100%", padding:"8px 12px", border:"1px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:12, background:"#FFFFFF", color:C.text, fontFamily:"inherit" }}
                 value={pac.psicologoId || ""}
                 onChange={async (e) => {
                   const psiId = e.target.value;
@@ -7396,11 +7396,11 @@ const styles = `
   const RING_COLORS = ["#1E8880", "#FF7B5A", "#FF7B5A"];
 
   return (
-    <div style={{ position:"absolute", inset:0, zIndex: screenHabitos ? 900 : 50, display:"flex", flexDirection:"column", background:"#07060F",
+    <div style={{ position:"absolute", inset:0, zIndex: screenHabitos ? 900 : 50, display:"flex", flexDirection:"column", background:"#F5F4F9",
       paddingBottom: screen === "habitos" ? "calc(72px + env(safe-area-inset-bottom, 10px))" : 0 }}>
 
       {/* HEADER */}
-      <div style={{ background:"#07060F", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", paddingBottom:0, flexShrink:0 }}>
+      <div style={{ background:"#F5F4F9", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", paddingBottom:0, flexShrink:0 }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 16px 0" }}>
           <div onClick={() => {
             setScreenHabitos(false);
@@ -7413,11 +7413,11 @@ const styles = `
             setNotaPsicologoEdit("");
             if (screen === "habitos") showScreen("home");
           }}
-            style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+            style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.09)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </div>
           <div style={{ flex:1 }}>
-            <div style={{ fontSize:17, fontWeight:700, color:"#F5EEE8" }}>Mis hábitos</div>
+            <div style={{ fontSize:17, fontWeight:700, color:C.text }}>Mis hábitos</div>
             <div style={{ fontSize:10, color:"rgba(245,238,232,0.35)", marginTop:1 }}>
               {usuarioActual?.rol === "psicologo" && pacienteSeleccionado?.nombre
                 ? pacienteSeleccionado.nombre
@@ -7425,7 +7425,7 @@ const styles = `
             </div>
           </div>
           <div onClick={() => { setHabitosEditando(!habitosEditando); setHabitosTab("hoy"); }}
-            style={{ padding:"6px 14px", background: habitosEditando ? "rgba(255,255,255,0.12)" : "rgba(255,123,90,0.25)", borderRadius:20, cursor:"pointer" }}>
+            style={{ padding:"6px 14px", background: habitosEditando ? "rgba(0,0,0,.11)" : "rgba(255,123,90,0.25)", borderRadius:20, cursor:"pointer" }}>
             <span style={{ fontSize:11, fontWeight:700, color: habitosEditando ? "rgba(245,230,208,0.7)" : "#FFB347" }}>{habitosEditando ? "Cancelar" : "✏️ Editar"}</span>
           </div>
         </div>
@@ -7457,7 +7457,7 @@ const styles = `
               Activa hasta 3 hábitos. Solo los prendidos aparecen en el seguimiento.
             </div>
             {habitos.map((h, i) => (
-              <div key={h.id} style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:10,
+              <div key={h.id} style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:10,
                 border:`1.5px solid ${h.activo ? "#FF7B5A" : "rgba(255,123,90,0.1)"}`, transition:"all 0.2s" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom: h.activo ? 12 : 0 }}>
                   <div style={{ flex:1 }}>
@@ -7465,7 +7465,7 @@ const styles = `
                     {!h.activo && <div style={{ fontSize:11, color:C.light, marginTop:2 }}>Toca el toggle para activar</div>}
                   </div>
                   <div onClick={() => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, activo:!x.activo } : x))}
-                    style={{ width:48, height:28, borderRadius:14, background:h.activo?"#FF7B5A":"rgba(255,255,255,.12)",
+                    style={{ width:48, height:28, borderRadius:14, background:h.activo?"#FF7B5A":"rgba(0,0,0,.11)",
                       position:"relative", cursor:"pointer", transition:"background 0.25s", flexShrink:0 }}>
                     <div style={{ position:"absolute", top:4, left: h.activo ? 24 : 4, width:20, height:20,
                       borderRadius:"50%", background:"white", transition:"left 0.25s",
@@ -7479,13 +7479,13 @@ const styles = `
                       onChange={e => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, titulo:e.target.value } : x))}
                       style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.18)",
                         borderRadius:10, fontSize:13, outline:"none", fontFamily:"inherit",
-                        boxSizing:"border-box", background:"#0D0B1E", marginBottom:8, color:C.text }}/>
+                        boxSizing:"border-box", background:"#FFFFFF", marginBottom:8, color:C.text }}/>
                     <input placeholder="Descripción breve (opcional)"
                       value={h.descripcion}
                       onChange={e => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, descripcion:e.target.value } : x))}
                       style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.18)",
                         borderRadius:10, fontSize:12, outline:"none", fontFamily:"inherit",
-                        boxSizing:"border-box", background:"#0D0B1E", color:C.light }}/>
+                        boxSizing:"border-box", background:"#FFFFFF", color:C.light }}/>
                   </>
                 )}
               </div>
@@ -7493,7 +7493,7 @@ const styles = `
 
             {/* NOTA DEL PSICÓLOGO — solo visible para psicólogo en modo edición */}
             {usuarioActual?.rol === "psicologo" && (
-              <div style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:10, border:"1.5px solid rgba(255,123,90,0.15)" }}>
+              <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:10, border:"1.5px solid rgba(255,123,90,0.15)" }}>
                 <div style={{ fontSize:12, fontWeight:700, color:C.text, marginBottom:4 }}>Nota de refuerzo semanal</div>
                 <div style={{ fontSize:10, color:C.light, marginBottom:10, lineHeight:1.5 }}>
                   Se recomienda dar un mensaje de refuerzo al paciente 1 vez por semana. El paciente lo verá en "Este mes".
@@ -7505,7 +7505,7 @@ const styles = `
                   rows={3}
                   style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.18)",
                     borderRadius:10, fontSize:12, outline:"none", fontFamily:"inherit",
-                    boxSizing:"border-box", background:"#0D0B1E", resize:"none", color:C.text, lineHeight:1.6 }}/>
+                    boxSizing:"border-box", background:"#FFFFFF", resize:"none", color:C.text, lineHeight:1.6 }}/>
                 <div onClick={() => guardarNotaHabitos(pacId)}
                   style={{ marginTop:8, padding:"9px 0", background: guardandoNota ? "rgba(139,90,58,0.4)" : "#FF7B5A",
                     color:"white", borderRadius:10, textAlign:"center", fontSize:12, fontWeight:700, cursor:"pointer" }}>
@@ -7576,7 +7576,7 @@ const styles = `
                   const estadoHoy = regs[hoy];
                   const racha = calcRacha(regs);
                   return (
-                    <div key={h.id} style={{ background:"#0D0B1E", borderRadius:18, padding:16, marginBottom:12,
+                    <div key={h.id} style={{ background:"#FFFFFF", borderRadius:18, padding:16, marginBottom:12,
                       border:`1.5px solid ${estadoHoy === "si" ? "#1E8880" : estadoHoy === "parcial" ? "#FF7B5A" : estadoHoy === "no" ? "rgba(192,82,74,0.2)" : "rgba(255,123,90,0.1)"}`,
                       transition:"border-color 0.2s" }}>
                       <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:12 }}>
@@ -7602,7 +7602,7 @@ const styles = `
                           const esHoyF = f === hoy;
                           return (
                             <div key={f} style={{ flex:1, height:6, borderRadius:3,
-                              background: est === "si" ? "#1E8880" : est === "parcial" ? "#FF7B5A" : est === "no" ? "rgba(192,82,74,0.3)" : "rgba(255,255,255,.10)",
+                              background: est === "si" ? "#1E8880" : est === "parcial" ? "#FF7B5A" : est === "no" ? "rgba(192,82,74,0.3)" : "rgba(0,0,0,.10)",
                               outline: esHoyF ? "1.5px solid #C4845A" : "none",
                               outlineOffset: "1px" }}/>
                           );
@@ -7685,8 +7685,8 @@ const styles = `
                 </div>
 
                 {/* TERMÓMETROS DE ADHERENCIA */}
-                <div style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:12,
-                  border:"1px solid rgba(255,255,255,.06)" }}>
+                <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:12,
+                  border:"1px solid rgba(0,0,0,.08)" }}>
                   <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:12,
                     textTransform:"uppercase", letterSpacing:0.5 }}>Adherencia del mes</div>
                   {habitosActivos.map((h, i) => {
@@ -7702,7 +7702,7 @@ const styles = `
                           </div>
                           <span style={{ fontSize:14, fontWeight:700, color }}>{pct}%</span>
                         </div>
-                        <div style={{ height:10, background:"rgba(255,255,255,.08)", borderRadius:5, overflow:"hidden" }}>
+                        <div style={{ height:10, background:"rgba(0,0,0,.09)", borderRadius:5, overflow:"hidden" }}>
                           <div style={{ height:"100%", width:`${pct}%`, background:color, borderRadius:5,
                             transition:"width 0.6s ease" }}/>
                         </div>
@@ -7719,7 +7719,7 @@ const styles = `
                     <div style={{ fontSize:9, color:"rgba(78,205,196,.55)", marginTop:1 }}>todos los hábitos</div>
                   </div>
                   <div style={{ background:"rgba(255,123,90,.10)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
-                    <div style={{ fontSize:22, fontWeight:700, color:"#F5EEE8" }}>{mejorRacha}</div>
+                    <div style={{ fontSize:22, fontWeight:700, color:C.text }}>{mejorRacha}</div>
                     <div style={{ fontSize:10, color:"#FF7B5A", marginTop:2 }}>racha actual</div>
                     <div style={{ fontSize:9, color:"rgba(255,123,90,.45)", marginTop:1 }}>días seguidos</div>
                   </div>
@@ -7746,8 +7746,8 @@ const styles = `
                 </div>
 
                 {/* MAPA DEL MES */}
-                <div style={{ background:"#0D0B1E", borderRadius:16, padding:14, marginBottom:12,
-                  border:"1px solid rgba(255,255,255,.06)" }}>
+                <div style={{ background:"#FFFFFF", borderRadius:16, padding:14, marginBottom:12,
+                  border:"1px solid rgba(0,0,0,.08)" }}>
                   <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:10,
                     textTransform:"uppercase", letterSpacing:0.5 }}>Mapa del mes</div>
                   <div style={{ fontSize:10, color:C.light, marginBottom:8 }}>
@@ -7759,11 +7759,11 @@ const styles = `
                       const est = (registrosHabito[key] || {})[f];
                       const esHoy = f === hoy;
                       const esFuturo = f > hoy;
-                      const bg = esFuturo ? "rgba(255,255,255,.03)"
+                      const bg = esFuturo ? "#FFFFFF"
                         : est === "si" ? "#1E8880"
                         : est === "parcial" ? "#FF7B5A"
                         : est === "no" ? "rgba(192,82,74,0.35)"
-                        : "rgba(255,255,255,.08)";
+                        : "rgba(0,0,0,.09)";
                       return (
                         <div key={f} style={{ aspectRatio:"1", borderRadius:4, background:bg,
                           outline: esHoy ? "2px solid #C4845A" : "none",
@@ -7773,7 +7773,7 @@ const styles = `
                     })}
                   </div>
                   <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-                    {[["#1E8880","Sí"],["#FF7B5A","Parcial"],["rgba(192,82,74,0.35)","No"],["rgba(255,255,255,.20)","Sin registro"]].map(([color,label]) => (
+                    {[["#1E8880","Sí"],["#FF7B5A","Parcial"],["rgba(192,82,74,0.35)","No"],["rgba(0,0,0,.14)","Sin registro"]].map(([color,label]) => (
                       <div key={label} style={{ display:"flex", alignItems:"center", gap:4 }}>
                         <div style={{ width:8, height:8, borderRadius:2, background:color }}/>
                         <span style={{ fontSize:9, color:C.light }}>{label}</span>
@@ -7788,7 +7788,7 @@ const styles = `
                     border:"0.5px solid rgba(255,123,90,.18)" }}>
                     <div style={{ fontSize:10, fontWeight:700, color:"#FF7B5A", marginBottom:6,
                       textTransform:"uppercase", letterSpacing:0.5 }}>Tu psicólogo dice</div>
-                    <div style={{ fontSize:13, color:"#F5EEE8", lineHeight:1.6, fontStyle:"italic" }}>
+                    <div style={{ fontSize:13, color:C.text, lineHeight:1.6, fontStyle:"italic" }}>
                       "{notaPsicologo}"
                     </div>
                   </div>
@@ -7943,7 +7943,7 @@ const styles = `
   };
 
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#07060F" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
 
       {/* Header con 2 tabs principales */}
       <div style={{ background:`linear-gradient(145deg,${C.dark},#3A1E4A)`, padding:"16px 18px 0", paddingTop:"max(16px, env(safe-area-inset-top,16px))", flexShrink:0 }}>
@@ -7991,13 +7991,13 @@ const styles = `
             background:"rgba(0,0,0,0.55)", zIndex:9999,
             display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
           <div onClick={e => e.stopPropagation()}
-            style={{ background:"#0D0B1E", borderRadius:"22px 22px 0 0",
+            style={{ background:"#FFFFFF", borderRadius:"22px 22px 0 0",
               width:"100%", maxWidth:480,
               maxHeight:"85vh", overflowY:"auto",
               padding:"20px 20px 0",
               paddingBottom:"max(24px,env(safe-area-inset-bottom,24px))" }}>
             <div style={{ width:36,height:4,borderRadius:2,background:"rgba(0,0,0,0.12)",margin:"0 auto 18px" }}/>
-            <div style={{ fontSize:16, fontWeight:800, color:"#F5EEE8", marginBottom:4 }}>Nuevo ingreso</div>
+            <div style={{ fontSize:16, fontWeight:800, color:C.text, marginBottom:4 }}>Nuevo ingreso</div>
             <div style={{ fontSize:11, color:"#7A6E8A", marginBottom:18 }}>Agrega cualquier cobro manualmente</div>
 
             {/* Paciente */}
@@ -8021,9 +8021,9 @@ const styles = `
               value={ingresoMotivo}
               onChange={e => setIngresoMotivo(e.target.value)}
               placeholder="Ej: Sesión extra, material de trabajo, consulta virtual..."
-              style={{ width:"100%", padding:"10px 13px", border:"1.5px solid rgba(255,255,255,.10)",
+              style={{ width:"100%", padding:"10px 13px", border:"1.5px solid rgba(0,0,0,.10)",
                 borderRadius:12, fontSize:13, outline:"none", marginBottom:14,
-                background:"#0D0B1E", boxSizing:"border-box", fontFamily:"inherit", color:"#F5EEE8" }}/>
+                background:"#FFFFFF", boxSizing:"border-box", fontFamily:"inherit", color:C.text }}/>
 
             {/* Valor */}
             <div style={{ fontSize:10, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Valor</div>
@@ -8035,9 +8035,9 @@ const styles = `
                 onChange={e => setIngresoValor(e.target.value.replace(/\D/g,""))}
                 placeholder="0"
                 inputMode="numeric"
-                style={{ width:"100%", padding:"10px 13px 10px 26px", border:"1.5px solid rgba(255,255,255,.10)",
+                style={{ width:"100%", padding:"10px 13px 10px 26px", border:"1.5px solid rgba(0,0,0,.10)",
                   borderRadius:12, fontSize:15, fontWeight:700, outline:"none",
-                  background:"#0D0B1E", boxSizing:"border-box", color:"#F5EEE8" }}/>
+                  background:"#FFFFFF", boxSizing:"border-box", color:C.text }}/>
             </div>
 
             {/* Fecha y estado */}
@@ -8045,8 +8045,8 @@ const styles = `
               <div style={{ flex:1 }}>
                 <div style={{ fontSize:10, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Fecha</div>
                 <input type="date" value={ingresoFecha} onChange={e => setIngresoFecha(e.target.value)}
-                  style={{ width:"100%", padding:"9px 11px", border:"1.5px solid rgba(255,255,255,.10)",
-                    borderRadius:12, fontSize:13, outline:"none", background:"#0D0B1E", boxSizing:"border-box", color:"#F5EEE8" }}/>
+                  style={{ width:"100%", padding:"9px 11px", border:"1.5px solid rgba(0,0,0,.10)",
+                    borderRadius:12, fontSize:13, outline:"none", background:"#FFFFFF", boxSizing:"border-box", color:C.text }}/>
               </div>
               <div style={{ flex:1 }}>
                 <div style={{ fontSize:10, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Estado</div>
@@ -8055,7 +8055,7 @@ const styles = `
                     <div key={lb} onClick={() => setIngresoPagado(v)}
                       style={{ flex:1, padding:"9px 0", borderRadius:12, textAlign:"center",
                         fontSize:11, fontWeight:700, cursor:"pointer",
-                        background: ingresoPagado===v ? (v?"rgba(78,205,196,.18)":"rgba(255,123,90,.18)") : "rgba(255,255,255,.04)",
+                        background: ingresoPagado===v ? (v?"rgba(78,205,196,.18)":"rgba(255,123,90,.18)") : "rgba(0,0,0,.04)",
                         color: ingresoPagado===v ? (v?"#4ECDC4":"#FF7B5A") : "#7A6E8A",
                         border: ingresoPagado===v ? `1.5px solid ${v?"rgba(78,205,196,.40)":"rgba(255,123,90,.40)"}` : "1.5px solid transparent" }}>
                       {lb}
@@ -8122,7 +8122,7 @@ const styles = `
                   {metodosPago.map((mp,i) => {
                     const info = METODOS_DISPONIBLES.find(m => m.id===mp.id) || METODOS_DISPONIBLES[0];
                     return (
-                      <div key={i} style={{ background:"#0D0B1E", borderRadius:16, padding:"14px 16px", marginBottom:10, border:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:12 }}>
+                      <div key={i} style={{ background:"#FFFFFF", borderRadius:16, padding:"14px 16px", marginBottom:10, border:"1px solid rgba(0,0,0,.08)", display:"flex", alignItems:"center", gap:12 }}>
                         <div style={{ width:44, height:44, borderRadius:12, background:info.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, fontWeight:800, color:info.color, flexShrink:0 }}>
                           {info.nombre[0]}
                         </div>
@@ -8151,7 +8151,7 @@ const styles = `
               {METODOS_DISPONIBLES.map(m => {
                 const activo = pagoEditTemp.find(p => p.id===m.id);
                 return (
-                  <div key={m.id} style={{ background:"#0D0B1E", borderRadius:16, padding:"14px 16px", marginBottom:10, border:`1.5px solid ${activo?m.color:"rgba(0,0,0,0.07)"}` }}>
+                  <div key={m.id} style={{ background:"#FFFFFF", borderRadius:16, padding:"14px 16px", marginBottom:10, border:`1.5px solid ${activo?m.color:"rgba(0,0,0,0.07)"}` }}>
                     <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:activo?10:0 }}>
                       <div style={{ width:40, height:40, borderRadius:11, background:m.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, fontWeight:800, color:m.color }}>{m.nombre[0]}</div>
                       <div style={{ flex:1 }}>
@@ -8182,7 +8182,7 @@ const styles = `
         {pagosMainTab === "finanzas" && (
           <div>
             {/* Sub-tabs finanzas */}
-            <div style={{ display:"flex", background:"#0D0B1E", borderBottom:"1px solid rgba(255,123,90,0.12)", padding:"0 16px" }}>
+            <div style={{ display:"flex", background:"#FFFFFF", borderBottom:"1px solid rgba(255,123,90,0.12)", padding:"0 16px" }}>
               {[["resumen","📊 Resumen"],["sesiones","📋 Sesiones"],["tarifas","💲 Tarifas"]].map(([id,lb]) => (
                 <div key={id} onClick={() => setFinanzasTab(id)}
                   style={{ flex:1, textAlign:"center", padding:"11px 0", fontSize:11, fontWeight:700,
@@ -8201,10 +8201,10 @@ const styles = `
                 {/* Navegador mes */}
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
                   <div onClick={() => { if(finanzasMes===0){setFinanzasMes(11);setFinanzasAnio(a=>a-1);}else setFinanzasMes(m=>m-1); }}
-                    style={{ width:34,height:34,borderRadius:10,background:"#0D0B1E",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>‹</div>
+                    style={{ width:34,height:34,borderRadius:10,background:"#FFFFFF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>‹</div>
                   <div style={{ fontSize:15, fontWeight:800, color:C.text }}>{mesesFull[finanzasMes]} {finanzasAnio}</div>
                   <div onClick={() => { if(finanzasMes===11){setFinanzasMes(0);setFinanzasAnio(a=>a+1);}else setFinanzasMes(m=>m+1); }}
-                    style={{ width:34,height:34,borderRadius:10,background:"#0D0B1E",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>›</div>
+                    style={{ width:34,height:34,borderRadius:10,background:"#FFFFFF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>›</div>
                 </div>
 
                 {loadingFinanzas ? (
@@ -8214,7 +8214,7 @@ const styles = `
                   {/* Cards + Donut */}
                   <div style={{ display:"flex", gap:12, marginBottom:16, alignItems:"center" }}>
                     {/* Donut */}
-                    <div style={{ background:"#0D0B1E", borderRadius:16, padding:14, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", border:"1px solid rgba(255,255,255,.06)", flexShrink:0 }}>
+                    <div style={{ background:"#FFFFFF", borderRadius:16, padding:14, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", border:"1px solid rgba(0,0,0,.08)", flexShrink:0 }}>
                       {(() => {
                         const r=38; const circ=2*Math.PI*r; const dash=(pctCobrado/100)*circ;
                         return (
@@ -8242,7 +8242,7 @@ const styles = `
                         { lb:"Pendiente", val:fmt(pendienteMes), color:C.amber, icon:"⏳" },
                         { lb:"Sesiones", val:sesDelMes.length+" sesión"+(sesDelMes.length!==1?"es":""), color:C.blue, icon:"🗓️" },
                       ].map(({lb,val,color,icon}) => (
-                        <div key={lb} style={{ background:"#0D0B1E", borderRadius:11, padding:"8px 12px", border:`1px solid ${color}20`, display:"flex", alignItems:"center", gap:8 }}>
+                        <div key={lb} style={{ background:"#FFFFFF", borderRadius:11, padding:"8px 12px", border:`1px solid ${color}20`, display:"flex", alignItems:"center", gap:8 }}>
                           <span style={{ fontSize:14 }}>{icon}</span>
                           <div>
                             <div style={{ fontSize:12, fontWeight:800, color }}>{val}</div>
@@ -8254,7 +8254,7 @@ const styles = `
                   </div>
 
                   {/* Barras semanales */}
-                  <div style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(255,255,255,.06)" }}>
+                  <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(0,0,0,.08)" }}>
                     <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:14 }}>Semanas de {mesesFull[finanzasMes]}</div>
                     <div style={{ display:"flex", gap:8, alignItems:"flex-end", height:90 }}>
                       {semanas.map((val,i) => (
@@ -8269,7 +8269,7 @@ const styles = `
                   </div>
 
                   {/* Tendencia 6 meses */}
-                  <div style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(255,255,255,.06)" }}>
+                  <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(0,0,0,.08)" }}>
                     <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:14 }}>Tendencia 6 meses</div>
                     <div style={{ display:"flex", gap:6, alignItems:"flex-end", height:80 }}>
                       {trend.map((t,i) => (
@@ -8284,7 +8284,7 @@ const styles = `
 
                   {/* Por paciente */}
                   {Object.keys(porPac).length > 0 && (
-                    <div style={{ background:"#0D0B1E", borderRadius:16, padding:16, border:"1px solid rgba(255,255,255,.06)" }}>
+                    <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, border:"1px solid rgba(0,0,0,.08)" }}>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:12 }}>Por paciente</div>
                       {Object.values(porPac).sort((a,b)=>b.total-a.total).map((p,i,arr) => (
                         <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:i<arr.length-1?"0.5px solid rgba(0,0,0,0.06)":"none" }}>
@@ -8321,16 +8321,16 @@ const styles = `
               <div style={{ padding:16 }}>
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
                   <div onClick={() => { if(finanzasMes===0){setFinanzasMes(11);setFinanzasAnio(a=>a-1);}else setFinanzasMes(m=>m-1); }}
-                    style={{ width:32,height:32,borderRadius:9,background:"#0D0B1E",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>‹</div>
+                    style={{ width:32,height:32,borderRadius:9,background:"#FFFFFF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>‹</div>
                   <div style={{ fontSize:14,fontWeight:800,color:C.text }}>{mesesFull[finanzasMes]} {finanzasAnio}</div>
                   <div onClick={() => { if(finanzasMes===11){setFinanzasMes(0);setFinanzasAnio(a=>a+1);}else setFinanzasMes(m=>m+1); }}
-                    style={{ width:32,height:32,borderRadius:9,background:"#0D0B1E",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>›</div>
+                    style={{ width:32,height:32,borderRadius:9,background:"#FFFFFF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>›</div>
                 </div>                
                 {/* Lista sesiones del mes */}
                 {sesDelMes.length === 0 ? (
                   <div style={{ textAlign:"center",padding:"24px 0",color:C.light,fontSize:13 }}>Sin sesiones este mes</div>
                 ) : sesDelMes.map(s => (
-                  <div key={s.id} style={{ background:"#0D0B1E", borderRadius:13, padding:"12px 14px", marginBottom:9, border:`1px solid ${s.pagado?C.green:C.amber}30`, borderLeft:`3px solid ${s.pagado?C.green:C.amber}` }}>
+                  <div key={s.id} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 14px", marginBottom:9, border:`1px solid ${s.pagado?C.green:C.amber}30`, borderLeft:`3px solid ${s.pagado?C.green:C.amber}` }}>
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                       <div style={{ flex:1, minWidth:0 }}>
                         <div style={{ fontSize:13,fontWeight:800,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{s.pacienteNombre}</div>
@@ -8362,7 +8362,7 @@ const styles = `
                 {pacientes.length === 0 ? (
                   <div style={{ textAlign:"center",padding:32,color:C.light }}>Sin pacientes asignados</div>
                 ) : pacientes.map(p => (
-                  <div key={p.id} style={{ background:"#0D0B1E", borderRadius:13, padding:"12px 14px", marginBottom:9, border:"1px solid rgba(255,255,255,.06)" }}>
+                  <div key={p.id} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 14px", marginBottom:9, border:"1px solid rgba(0,0,0,.08)" }}>
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                       <div style={{ width:38,height:38,borderRadius:10,background:`${C.plum}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800,color:C.plum,flexShrink:0 }}>
                         {p.nombre?.[0]?.toUpperCase()||"?"}
@@ -8429,7 +8429,7 @@ const styles = `
         ["🔒", "Cuentas inactivas", todosUsuarios.filter(u=>u.inactivo).length || "0"],
         ["👤", "Total usuarios", todosUsuarios.length || "—"]
       ].map(([ic,lb,val]) => (
-          <div key={lb} style={{ background:"#0D0B1E", borderRadius:14, padding:13, border:"1px solid rgba(255,255,255,.06)" }}>
+          <div key={lb} style={{ background:"#FFFFFF", borderRadius:14, padding:13, border:"1px solid rgba(0,0,0,.08)" }}>
             <div style={{ fontSize:24, marginBottom:4 }}>{ic}</div>
             <div style={{ fontSize:20, fontWeight:900, color:C.plum }}>{val}</div>
             <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>{lb}</div>
@@ -8444,7 +8444,7 @@ const styles = `
       ) : todosUsuarios.filter(u=>u.rol==="psicologo").map(p => {
         const pacientesCount = todosUsuarios.filter(u=>u.rol==="paciente"&&u.psicologoId===p.id).length;
         return (
-          <div key={p.id} style={{ background:"#0D0B1E", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, border:"1px solid rgba(255,255,255,.06)" }}>
+          <div key={p.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, border:"1px solid rgba(0,0,0,.08)" }}>
             <div style={{ fontSize:26, width:42, height:42, background:C.warm, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>🧠</div>
             <div style={{ flex:1 }}>
               <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{p.nombre}</div>
@@ -8491,7 +8491,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
       <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>No hay usuarios registrados</div>
     ) : (
       todosUsuarios.map(u => (
-        <div key={u.id} style={{ background:usuariosSeleccionados.includes(u.id)?"#F0EDF5":"white", borderRadius:13, padding:"11px 13px", marginBottom:8, border:"1px solid rgba(255,255,255,.06)", border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:"transparent"}` }}>
+        <div key={u.id} style={{ background:usuariosSeleccionados.includes(u.id)?"#F0EDF5":"white", borderRadius:13, padding:"11px 13px", marginBottom:8, border:"1px solid rgba(0,0,0,.08)", border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:"transparent"}` }}>
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             <div onClick={() => toggleSeleccion(u.id)} style={{ width:22, height:22, borderRadius:6, border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:C.light}`, background:usuariosSeleccionados.includes(u.id)?C.plum:"transparent", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, color:"white", cursor:"pointer", flexShrink:0 }}>
               {usuariosSeleccionados.includes(u.id) ? "✓" : ""}
@@ -8524,19 +8524,19 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre completo</div>
     <input placeholder="Ej: Sofía Martínez" value={formNombre} onChange={e => setFormNombre(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Correo electrónico</div>
     <input type="email" placeholder="correo@ejemplo.com" value={formEmail} onChange={e => setFormEmail(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Teléfono</div>
     <input type="tel" placeholder="Ej: 3001234567" value={formTel} onChange={e => setFormTel(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha de nacimiento</div>
     <input type="date" value={formFecha} onChange={e => setFormFecha(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>PIN de acceso (4 dígitos)</div>
     <div style={{ display:"flex", justifyContent:"center", gap:14, marginBottom:8 }}>
@@ -8545,13 +8545,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
       ))}
     </div>
     <input type="password" placeholder="PIN" inputMode="numeric" maxLength={4} value={formPin} onChange={e => setFormPin(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4, background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4, background:"#FFFFFF", color:C.text }}/>
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Rol</div>
     <div style={{ display:"flex", gap:8, marginBottom:16 }}>
       {[["paciente","👤","Paciente"],["psicologo","🧠","Psicólogo"]].map(([val,ic,lb]) => (
         <div key={val} onClick={() => setFormRol(val)}
-          style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${formRol===val?C.plum:"rgba(255,255,255,.08)"}`, background:formRol===val?`${C.plum}15`:"rgba(255,255,255,.04)" }}>
+          style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${formRol===val?C.plum:"rgba(0,0,0,.09)"}`, background:formRol===val?`${C.plum}15`:"rgba(0,0,0,.04)" }}>
           <div style={{ fontSize:22 }}>{ic}</div>
           <div style={{ fontSize:11, fontWeight:800, color:formRol===val?C.plum:C.light }}>{lb}</div>
         </div>
@@ -8561,7 +8561,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
       <>
         <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8, marginTop:4 }}>Psicólogo asignado</div>
         <select value={formPsicologoId} onChange={e => setFormPsicologoId(e.target.value)}
-          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", background:"#0D0B1E", boxSizing:"border-box" }}>
+          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
           <option value="">— Seleccionar psicólogo —</option>
           {todosUsuarios.filter(u => u.rol === "psicologo").map(p => (
             <option key={p.id} value={p.id}>{p.nombre}</option>
@@ -8571,7 +8571,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
     )}
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5, marginTop:4 }}>Tu PIN de administrador (para confirmar)</div>
     <input type="password" placeholder="Tu PIN" inputMode="numeric" maxLength={4} value={formPinAdmin} onChange={e => setFormPinAdmin(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4, background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4, background:"#FFFFFF", color:C.text }}/>
     <div style={{ display:"flex", gap:8 }}>
       {btn(() => { setModal(null); setFormPinAdmin(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
       {btn(() => handleCrearUsuarioAdmin(), formLoading ? "Creando..." : "Crear usuario ✓", { flex:2, padding:11, background:formLoading||formPinAdmin.length<4?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -8591,7 +8591,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 <div onClick={() => showScreen("psi-dashboard")} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,0.1)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
-                <div style={{ width:50, height:50, background:"rgba(255,255,255,0.15)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26 }}>👤</div>
+                <div style={{ width:50, height:50, background:"rgba(0,0,0,.12)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26 }}>👤</div>
                 <div>
                   <div style={{ fontSize:18, fontWeight:900, color:"white" }}>{pacienteSeleccionado?.nombre || "Paciente"}</div>
                   <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)" }}>{pacienteSeleccionado?.email || ""}</div>
@@ -8600,13 +8600,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
               <div style={{ padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:16 }}>
                   {[[autorregistros.length,"Registros"],[citas.filter(c=>c.pacienteId===pacienteSeleccionado?.id).length,"Sesiones"],[pacienteSeleccionado?.xp||0,"XP"]].map(([n,l]) => (
-                    <div key={l} style={{ background:"#0D0B1E", borderRadius:13, padding:"12px 8px", textAlign:"center", border:"1px solid rgba(255,255,255,.06)" }}>
+                    <div key={l} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 8px", textAlign:"center", border:"1px solid rgba(0,0,0,.08)" }}>
                       <div style={{ fontSize:16, fontWeight:700, color:C.plum }}>{n}</div>
                       <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:12, border:"1px solid rgba(255,255,255,.06)" }}>
+                <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:12, border:"1px solid rgba(0,0,0,.08)" }}>
                   <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:4 }}>📊 Estado de ánimo</div>
                   {registrosAnimo.length === 0 ? (
                     <div style={{ textAlign:"center", padding:"16px 0", color:C.light, fontSize:12 }}>El paciente aún no ha registrado su ánimo</div>
@@ -8668,11 +8668,11 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 </div>
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📝 Autorregistros recientes</div>
                 {autorregistros.length === 0 ? (
-                  <div style={{ background:"#0D0B1E", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
+                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
                     El paciente aún no tiene autorregistros
                   </div>
                 ) : autorregistros.slice(0,3).map(ar => (
-                  <div key={ar.id} style={{ background:"#0D0B1E", borderRadius:16, padding:16, marginBottom:10, border:"1px solid rgba(255,255,255,.06)", borderLeft:`4px solid ${C.plum}` }}>
+                  <div key={ar.id} style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:10, border:"1px solid rgba(0,0,0,.08)", borderLeft:`4px solid ${C.plum}` }}>
                     <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>📅 {ar.fecha}</div>
                     <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:4 }}>¿Qué estaba haciendo?</div>
                     <div style={{ fontSize:12, color:C.light, lineHeight:1.5, marginBottom:6 }}>{ar.haciendo}</div>
@@ -8720,7 +8720,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
     {recordatorios
       .filter(r => r.pacienteId === pacienteSeleccionado?.id)
       .map(r => (
-        <div key={r.id} style={{ background:"#0D0B1E", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
+        <div key={r.id} style={{ background:"#FFFFFF", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.titulo}</div>
             <div style={{ display:"flex", gap:6, alignItems:"center" }}>
@@ -8741,9 +8741,9 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 )}
 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>📤 Materiales enviados</div>
 {recursos.length === 0 ? (
-  <div style={{ background:"#0D0B1E", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay materiales enviados aún</div>
+  <div style={{ background:"#FFFFFF", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay materiales enviados aún</div>
 ) : recursos.map(r => (
-  <div key={r.id} style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(255,255,255,.06)", borderLeft:`4px solid ${r.recibido ? C.green : C.sage}` }}>
+  <div key={r.id} style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.08)", borderLeft:`4px solid ${r.recibido ? C.green : C.sage}` }}>
     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
       <div style={{ display:"flex", alignItems:"center", gap:10 }}>
         <div style={{ width:38, height:38, borderRadius:10, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
@@ -8765,10 +8765,10 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 ))}
 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>📋 Tareas asignadas</div>
 {tareasPsicologo.length === 0 ? (
-  <div style={{ background:"#0D0B1E", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay tareas asignadas aún</div>
+  <div style={{ background:"#FFFFFF", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay tareas asignadas aún</div>
 ) : tareasPsicologo.map(t => (
   <div key={t.id} onClick={() => setNotaAbierta({ ...t, tipo:"tarea_psi" })}
-    style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(255,255,255,.06)", cursor:"pointer", borderLeft:`3px solid ${t.completada ? "#5A8A62" : "#FF7B5A"}` }}>
+    style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.08)", cursor:"pointer", borderLeft:`3px solid ${t.completada ? "#5A8A62" : "#FF7B5A"}` }}>
     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
       <div style={{ fontSize:13, fontWeight:800, color:C.text, flex:1 }}>{t.titulo}</div>
       <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
@@ -8813,12 +8813,12 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 ))}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>🔒 Notas clínicas</div>
                 {notasClinicas.length === 0 ? (
-                  <div style={{ background:"#0D0B1E", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
+                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
                     Aún no has escrito notas clínicas para este paciente
                   </div>
                 ) : notasClinicas.map(n => (
                   <div key={n.id} onClick={() => setNotaAbierta({ ...n, tipo:"clinica" })}
-                    style={{ background:"#0D0B1E", borderRadius:14, padding:14, border:"1px solid rgba(255,255,255,.06)", borderLeft:"3px solid #8B7BA0", marginBottom:10, cursor:"pointer" }}>
+                    style={{ background:"#FFFFFF", borderRadius:14, padding:14, border:"1px solid rgba(0,0,0,.08)", borderLeft:"3px solid #8B7BA0", marginBottom:10, cursor:"pointer" }}>
                     <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{n.titulo}</div>
                       <div style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -8843,15 +8843,15 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Para: <strong>{pacienteSeleccionado?.nombre}</strong></div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
                   <input placeholder="Ej: Registro de pensamientos..." value={tareaTitulo} onChange={e => setTareaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción / instrucciones</div>
                   <textarea placeholder="Explica qué debe hacer el paciente..." value={tareaDescripcion} onChange={e => setTareaDescripcion(e.target.value)}
-                    style={{ width:"100%", minHeight:80, padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    style={{ width:"100%", minHeight:80, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
                   <div style={{ display:"flex", gap:10, marginBottom:10 }}>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>⭐ XP al completar</div>
                       <input type="number" value={tareaXP} onChange={e => setTareaXP(Number(e.target.value))}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📅 Fecha límite</div>
@@ -8864,7 +8864,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       </div>
                       {!tareaSinFecha && (
                         <input type="date" value={tareaVence} onChange={e => setTareaVence(e.target.value)}
-                          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                       )}
                     </div>
                   </div>
@@ -8962,7 +8962,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   {/* NOMBRE */}
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre del material</div>
                   <input placeholder="Ej: Técnica de respiración 4-7-8" value={recursoNombre} onChange={e => setRecursoNombre(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
 
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => { setModal(null); setRecursoUrl(""); setRecursoNombre(""); setRecursoTipo("Imagen"); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -9013,7 +9013,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     </div>
                   )}
                   <textarea placeholder="Escribe una frase motivacional para tus pacientes este mes..." value={fraseDelMes} onChange={e => setFraseDelMes(e.target.value)}
-                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6 }}/>
+                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6 }}/>
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => { setModal(null); setFraseDelMes(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(async () => {
@@ -9040,10 +9040,10 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div style={{ background:"rgba(255,123,90,.08)", borderRadius:11, padding:"10px 12px", marginBottom:12, fontSize:11, color:C.plum, fontWeight:700 }}>🔒 Solo visible para ti — el paciente no puede verla</div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
                   <input placeholder="Ej: Sesión 5 Mar · Progresos" value={notaClinicaTitulo} onChange={e => setNotaClinicaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Observaciones</div>
                   <textarea placeholder="Observaciones, progresos, pendientes..." value={notaClinicaTexto} onChange={e => setNotaClinicaTexto(e.target.value)}
-                    style={{ width:"100%", minHeight:110, padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    style={{ width:"100%", minHeight:110, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => { setModal(null); setNotaClinicaTexto(""); setNotaClinicaTitulo(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(async () => {
@@ -9081,20 +9081,20 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
     </div>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
     <input placeholder="Ej: Recuerda tu sesión de hoy" value={notifTitulo} onChange={e => setNotifTitulo(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Mensaje</div>
     <textarea placeholder="Ej: Tu sesión es hoy a las 3pm. ¡Nos vemos pronto!" value={notifMensaje} onChange={e => setNotifMensaje(e.target.value)}
-      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
     <div style={{ display:"flex", gap:10, marginBottom:10 }}>
       <div style={{ flex:1 }}>
         <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
         <input type="date" value={notifFecha} onChange={e => setNotifFecha(e.target.value)}
-          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
       </div>
       <div style={{ flex:1 }}>
         <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
         <input type="time" value={notifHora} onChange={e => setNotifHora(e.target.value)}
-          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
       </div>
     </div>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>⏰ Recordatorios antes</div>
@@ -9133,13 +9133,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
     <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Se enviará automáticamente al paciente</div>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
     <input value={recTitulo} onChange={e => setRecTitulo(e.target.value)} placeholder="Ej: 💪 ¡Hoy toca gym!"
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Mensaje</div>
     <textarea value={recMensaje} onChange={e => setRecMensaje(e.target.value)} placeholder="Ej: Recuerda que hoy tienes entrenamiento 🏋️"
-      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora de envío</div>
     <input type="time" value={recHora} onChange={e => setRecHora(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Días de la semana</div>
     <div style={{ display:"flex", gap:6, marginBottom:16, flexWrap:"wrap" }}>
       {[["D",0],["L",1],["M",2],["X",3],["J",4],["V",5],["S",6]].map(([label, dia]) => (
@@ -9179,7 +9179,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
                   <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
                   <textarea
@@ -9187,20 +9187,20 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     value={citaDescripcion}
                     onChange={e => setCitaDescripcion(e.target.value)}
                     rows={3}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12,
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12,
                       outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
-                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
                       <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
                       <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                   </div>
 
@@ -9208,7 +9208,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
                       <div key={val} onClick={() => setCitaModalidad(val)}
-                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(255,255,255,.08)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(255,255,255,.04)" }}>
+                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.09)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.04)" }}>
                         <div style={{ fontSize:22 }}>{ic}</div>
                         <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
                       </div>
@@ -9219,7 +9219,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     <>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet / Zoom</div>
                       <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </>
                   )}
 
@@ -9235,15 +9235,15 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
           {/* ADMIN PERFIL */}
           {!notifPanel && screen === "admin-perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#07060F" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
 
               {/* HEADER */}
-              <div style={{ background:"#07060F", padding:"32px 24px 48px", textAlign:"center", position:"relative", borderBottom:"0.5px solid rgba(255,155,122,0.12)" }}>
+              <div style={{ background:"#F5F4F9", padding:"32px 24px 48px", textAlign:"center", position:"relative", borderBottom:"0.5px solid rgba(255,155,122,0.12)" }}>
                 <div style={{ position:"relative", display:"inline-block", marginBottom:14 }}>
                   {usuarioActual?.foto ? (
-                    <img src={usuarioActual.foto} alt="foto" style={{ width:90, height:90, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,0.25)", margin:"0 auto", display:"block" }}/>
+                    <img src={usuarioActual.foto} alt="foto" style={{ width:90, height:90, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(0,0,0,.15)", margin:"0 auto", display:"block" }}/>
                   ) : (
-                    <div style={{ width:90, height:90, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", border:"3px solid rgba(255,255,255,0.25)", margin:"0 auto" }}>
+                    <div style={{ width:90, height:90, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", border:"3px solid rgba(0,0,0,.15)", margin:"0 auto" }}>
                     <LucideIcon name="doctor" color="white" size={44}/>
                   </div>
                   )}
@@ -9264,7 +9264,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                           </linearGradient>
                         </defs>
                         <circle cx="12" cy="12" r="11" fill="url(#vg1)"/>
-                        <circle cx="12" cy="12" r="11" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5"/>
+                        <circle cx="12" cy="12" r="11" fill="none" stroke="rgba(0,0,0,.15)" strokeWidth="0.5"/>
                         <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
                       </svg>
                       {mostrarTooltipVerif && (
@@ -9285,13 +9285,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:600, marginBottom:12 }}>{usuarioActual?.email || ""}</div>
                 <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
                   {usuarioActual?.especialidad && (
-                    <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>🧠 {usuarioActual.especialidad}</span>
+                    <span style={{ background:"rgba(0,0,0,.11)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>🧠 {usuarioActual.especialidad}</span>
                   )}
                   {usuarioActual?.enfoque && (
-                    <span style={{ background:"rgba(255,255,255,0.12)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>{usuarioActual.enfoque}</span>
+                    <span style={{ background:"rgba(0,0,0,.11)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>{usuarioActual.enfoque}</span>
                   )}
                   {!usuarioActual?.especialidad && !usuarioActual?.enfoque && (
-                    <span style={{ background:"rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.45)", fontSize:11, fontWeight:600, padding:"5px 12px", borderRadius:20, cursor:"pointer" }}
+                    <span style={{ background:"rgba(0,0,0,.09)", color:"rgba(255,255,255,0.45)", fontSize:11, fontWeight:600, padding:"5px 12px", borderRadius:20, cursor:"pointer" }}
                       onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setEditBio(usuarioActual?.bio||""); setModal("edit-psico"); }}>
                       ✏️ Agregar especialidad y enfoque
                     </span>
@@ -9302,7 +9302,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
               {/* STATS */}
               <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:"rgba(255,123,90,0.1)", margin:"-1px 0 16px" }}>
                 {[[pacientes.length || "0","Pacientes"],[citas.length || "0","Citas"],[citas.filter(c=>c.status==="confirmada").length || "0","Confirmadas"]].map(([n,l]) => (
-                  <div key={l} style={{ background:"#0D0B1E", padding:"14px 8px", textAlign:"center" }}>
+                  <div key={l} style={{ background:"#FFFFFF", padding:"14px 8px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:900, color:C.plum }}>{n}</div>
                     <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                   </div>
@@ -9314,27 +9314,27 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 {/* ACCIONES RÁPIDAS — 4 cards con color */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9, marginBottom:16 }}>
                   <div onClick={() => { showToast("Selecciona un paciente para agendar 👆"); showScreen("psi-dashboard"); }}
-                    style={{ background:"rgba(255,255,255,.028)", backdropFilter:"blur(20px)", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"1px solid rgba(255,255,255,.10)", cursor:"pointer" }}>
+                    style={{ background:"#FFFFFF", backdropFilter:"blur(20px)", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"1px solid rgba(0,0,0,.10)", cursor:"pointer" }}>
                     <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1" fill="#FF7B5A"/><circle cx="12" cy="15" r="1" fill="#FF7B5A"/></svg>
                     </div>
-                    <div style={{ fontSize:11, fontWeight:800, color:"#F5EEE8" }}>Agendar cita</div>
+                    <div style={{ fontSize:11, fontWeight:800, color:C.text }}>Agendar cita</div>
                   </div>
 
                   <div onClick={() => showScreen("psi-dashboard")}
-                    style={{ background:"rgba(255,255,255,.028)", backdropFilter:"blur(20px)", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"1px solid rgba(255,255,255,.10)", cursor:"pointer" }}>
+                    style={{ background:"#FFFFFF", backdropFilter:"blur(20px)", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"1px solid rgba(0,0,0,.10)", cursor:"pointer" }}>
                     <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ECDC4" strokeWidth="1.75" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </div>
-                    <div style={{ fontSize:11, fontWeight:800, color:"#F5EEE8" }}>Mis pacientes</div>
+                    <div style={{ fontSize:11, fontWeight:800, color:C.text }}>Mis pacientes</div>
                   </div>
 
                   <div onClick={() => setNotifPanel(true)}
-                    style={{ background:"rgba(255,255,255,.028)", backdropFilter:"blur(20px)", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"1px solid rgba(255,255,255,.10)", cursor:"pointer" }}>
+                    style={{ background:"#FFFFFF", backdropFilter:"blur(20px)", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"1px solid rgba(0,0,0,.10)", cursor:"pointer" }}>
                     <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ECDC4" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                     </div>
-                    <div style={{ fontSize:11, fontWeight:800, color:"#F5EEE8" }}>Notificaciones</div>
+                    <div style={{ fontSize:11, fontWeight:800, color:C.text }}>Notificaciones</div>
                   </div>
 
                   <div onClick={() => {
@@ -9349,11 +9349,11 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       setHabitosEditando(false);
                       setScreenHabitos(true);
                     }}
-                    style={{ background:"rgba(255,255,255,.028)", backdropFilter:"blur(20px)", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"1px solid rgba(255,255,255,.10)", cursor:"pointer" }}>
+                    style={{ background:"#FFFFFF", backdropFilter:"blur(20px)", borderRadius:14, padding:"16px 10px", textAlign:"center", border:"1px solid rgba(0,0,0,.10)", cursor:"pointer" }}>
                     <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFB347" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     </div>
-                    <div style={{ fontSize:11, fontWeight:800, color:"#F5EEE8", lineHeight:1.3 }}>
+                    <div style={{ fontSize:11, fontWeight:800, color:C.text, lineHeight:1.3 }}>
                       {pacienteSeleccionado ? `Hábitos · ${pacienteSeleccionado.nombre.split(" ")[0]}` : "Hábitos del paciente"}
                     </div>
                   </div>
@@ -9361,12 +9361,12 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                 {/* CARD UNIFICADA — vista propia psicólogo */}
                 {(usuarioActual?.bio || usuarioActual?.especialidad || usuarioActual?.enfoque || usuarioActual?.telefono) && (
-                  <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"0.5px solid rgba(255,255,255,.10)" }}>
-                    <div style={{ background:"linear-gradient(135deg,#1A0D28,#0D0B1E)", padding:"10px 14px 10px", position:"relative", overflow:"hidden" }}>
-                      <div style={{ position:"absolute", top:-8, right:-8, width:60, height:60, borderRadius:"50%", background:"rgba(255,255,255,0.06)" }}/>
+                  <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"0.5px solid rgba(0,0,0,.10)" }}>
+                    <div style={{ background:"linear-gradient(135deg,#162A1C,#0F2015)", padding:"10px 14px 10px", position:"relative", overflow:"hidden" }}>
+                      <div style={{ position:"absolute", top:-8, right:-8, width:60, height:60, borderRadius:"50%", background:"rgba(0,0,0,.08)" }}/>
                       <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.45)", letterSpacing:1.4, textTransform:"uppercase" }}>Mi perfil profesional</div>
                     </div>
-                    <div style={{ background:"#0D0B1E" }}>
+                    <div style={{ background:"#FFFFFF" }}>
                       {usuarioActual?.telefono && (
                         <div style={{ display:"flex", alignItems:"center", gap:11, padding:"10px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
                           <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.10)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
@@ -9374,7 +9374,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                           </div>
                           <div>
                             <div style={{ fontSize:9, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:2 }}>Teléfono</div>
-                            <div style={{ fontSize:13, fontWeight:700, color:"#F5EEE8" }}>{usuarioActual.telefono}</div>
+                            <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{usuarioActual.telefono}</div>
                           </div>
                         </div>
                       )}
@@ -9428,12 +9428,12 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       <ellipse cx="29" cy="41" rx="20" ry="3" fill="rgba(0,0,0,0.4)"/>
                       <path d="M8 18 C6 12 8 6 14 5 L22 4 C25 4 27 6 29 8 C31 6 33 4 36 4 L44 5 C50 6 52 12 50 18 L46 32 C44 38 40 40 35 39 L31 38 C30 37 28 37 27 38 L23 39 C18 40 14 38 12 32 Z" fill="url(#mandoCuerpo2)"/>
                       <path d="M14 5 C20 3 38 3 44 5 C50 7 52 13 50 18 L48 18 C48 13 46 8 42 6 C36 4 22 4 16 6 C12 8 10 13 10 18 L8 18 C6 13 8 7 14 5 Z" fill="url(#mandoBrillo2)"/>
-                      <rect x="10" y="16" width="4" height="10" rx="1.5" fill="rgba(255,255,255,0.15)"/>
-                      <rect x="8" y="18" width="8" height="6" rx="1.5" fill="rgba(255,255,255,0.15)"/>
+                      <rect x="10" y="16" width="4" height="10" rx="1.5" fill="rgba(0,0,0,.12)"/>
+                      <rect x="8" y="18" width="8" height="6" rx="1.5" fill="rgba(0,0,0,.12)"/>
                       <circle cx="42" cy="17" r="3.2" fill="#FF7B5A"/><circle cx="36" cy="16" r="3.2" fill="#FFB347"/>
                       <circle cx="42" cy="23" r="3.2" fill="#4ECDC4"/><circle cx="48" cy="17" r="3.2" fill="#6EEDDF"/>
-                      <circle cx="20" cy="27" r="5" fill="#120A24"/><circle cx="20" cy="27" r="4" fill="#1E1035"/><circle cx="20" cy="26.5" r="2" fill="rgba(255,255,255,0.12)"/>
-                      <circle cx="34" cy="27" r="5" fill="#120A24"/><circle cx="34" cy="27" r="4" fill="#1E1035"/><circle cx="34" cy="26.5" r="2" fill="rgba(255,255,255,0.12)"/>
+                      <circle cx="20" cy="27" r="5" fill="#120A24"/><circle cx="20" cy="27" r="4" fill="#1E1035"/><circle cx="20" cy="26.5" r="2" fill="rgba(0,0,0,.11)"/>
+                      <circle cx="34" cy="27" r="5" fill="#120A24"/><circle cx="34" cy="27" r="4" fill="#1E1035"/><circle cx="34" cy="26.5" r="2" fill="rgba(0,0,0,.11)"/>
                       <rect x="27" y="19" width="4" height="2.5" rx="1.25" fill="rgba(255,255,255,0.2)"/>
                       <ellipse cx="14" cy="32" rx="5" ry="2" fill="rgba(255,123,90,0.2)"/>
                       <ellipse cx="44" cy="32" rx="5" ry="2" fill="rgba(78,205,196,0.2)"/>
@@ -9447,7 +9447,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                 {/* CONFIGURACIÓN */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>⚙️ Configuración</div>
-                <div style={{ background:"#0D0B1E", borderRadius:14, overflow:"hidden", marginBottom:16, border:"1px solid rgba(255,255,255,.06)" }}>
+                <div style={{ background:"#FFFFFF", borderRadius:14, overflow:"hidden", marginBottom:16, border:"1px solid rgba(0,0,0,.08)" }}>
                   <div onClick={() => setNotifPanel(true)}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
                     <div style={{ width:32, height:32, background:"rgba(255,123,90,.10)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -9503,7 +9503,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 {loadingResenas ? (
                   <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>Cargando reseñas...</div>
                 ) : resenas.length === 0 ? (
-                  <div style={{ background:"#0D0B1E", borderRadius:14, padding:20, textAlign:"center", marginBottom:16, border:"1px solid rgba(255,255,255,.06)" }}>
+                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:20, textAlign:"center", marginBottom:16, border:"1px solid rgba(0,0,0,.08)" }}>
                     <div style={{ fontSize:32, marginBottom:6 }}>⭐</div>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Aún no tienes reseñas</div>
                     <div style={{ fontSize:11, color:C.light, marginTop:4 }}>Tus pacientes podrán valorarte desde su perfil</div>
@@ -9515,7 +9515,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
                     </div>
                     {resenas.map(r => (
-                      <div key={r.id} style={{ background:"#0D0B1E", borderRadius:14, padding:14, marginBottom:10, border:`1px solid rgba(255,255,255,.06)`, opacity:r.oculta ? 0.45 : 1 }}>
+                      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:`1px solid rgba(0,0,0,.08)`, opacity:r.oculta ? 0.45 : 1 }}>
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
                           <div style={{ fontSize:14 }}>{"⭐".repeat(r.rating)}</div>
                           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -9601,26 +9601,26 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre completo</div>
                   <input value={editNombre} onChange={e => setEditNombre(e.target.value)} placeholder="Tu nombre"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Especialidad</div>
                   <input value={editEspecialidad} onChange={e => setEditEspecialidad(e.target.value)} placeholder="Ej: Psicología Clínica · TCC"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Enfoque terapéutico</div>
                   <input value={editEnfoque} onChange={e => setEditEnfoque(e.target.value)} placeholder="Ej: TCC · Mindfulness · Aceptación"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Teléfono</div>
                   <input value={editTel} onChange={e => setEditTel(e.target.value)} placeholder="Tu teléfono"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción profesional</div>
                   <textarea value={editBio} onChange={e => setEditBio(e.target.value)}
                     placeholder="Cuéntale a tus pacientes sobre tu experiencia y cómo los puedes ayudar... (visible en tu perfil)"
                     rows={3}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:12, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"none", lineHeight:1.6 }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:12, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"none", lineHeight:1.6 }}/>
 
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -9647,14 +9647,14 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
                   <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#0D0B1E", boxSizing:"border-box" }}>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
                     <option value="">— Seleccionar paciente —</option>
                     {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
                   </select>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
                   <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
                   <textarea
@@ -9662,27 +9662,27 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     value={citaDescripcion}
                     onChange={e => setCitaDescripcion(e.target.value)}
                     rows={3}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12,
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12,
                       outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
-                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
                       <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
                       <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                   </div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
                       <div key={val} onClick={() => setCitaModalidad(val)}
-                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(255,255,255,.08)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(255,255,255,.04)" }}>
+                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.09)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.04)" }}>
                         <div style={{ fontSize:22 }}>{ic}</div>
                         <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
                       </div>
@@ -9692,7 +9692,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     <>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet</div>
                       <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.08)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#0D0B1E", color:"#F5EEE8" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </>
                   )}                  
                   <div style={{ display:"flex", gap:8 }}>
@@ -9711,7 +9711,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
         {/* TOAST */}
         {toast && (
-          <div style={{ position:"absolute", bottom:"calc(90px + env(safe-area-inset-bottom, 0px))", left:"50%", transform:"translateX(-50%)", background:"rgba(42,30,20,0.92)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", color:"#F5EEE8", fontWeight:700, fontSize:13, padding:"11px 22px", borderRadius:24, zIndex:600, whiteSpace:"nowrap", boxShadow:"0 8px 24px rgba(0,0,0,0.3)", pointerEvents:"none", border:"0.5px solid rgba(255,155,122,0.2)", animation:"fadeIn 0.2s ease" }}>
+          <div style={{ position:"absolute", bottom:"calc(90px + env(safe-area-inset-bottom, 0px))", left:"50%", transform:"translateX(-50%)", background:"rgba(42,30,20,0.92)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", color:C.text, fontWeight:700, fontSize:13, padding:"11px 22px", borderRadius:24, zIndex:600, whiteSpace:"nowrap", boxShadow:"0 8px 24px rgba(0,0,0,0.3)", pointerEvents:"none", border:"0.5px solid rgba(255,155,122,0.2)", animation:"fadeIn 0.2s ease" }}>
             {toast}
           </div>
         )}
