@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Perfil Psicólogo — Blanco + Verde Bosque</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#050E08; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:40px 20px; font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif; gap:16px; }
+.label { font-size:11px; color:rgba(255,255,255,.3); letter-spacing:.1em; text-transform:uppercase; font-weight:700; }
+.note { font-size:11px; color:rgba(255,255,255,.18); text-align:center; max-width:360px; line-height:1.6; }
+
+/* Phone */
+.phone { width:340px; height:736px; border-radius:52px; border:6px solid #0D1A0F; overflow:hidden; position:relative; box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 40px 100px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.06); }
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:100px; height:26px; background:#0D1A0F; border-radius:0 0 16px 16px; z-index:100; }
+.screen { width:100%; height:100%; overflow-y:auto; background:#F5F4F9; }
+
+/* Status bar sobre el header oscuro */
+.sb { display:flex; justify-content:space-between; align-items:flex-end; padding:4px 22px 6px; height:38px; font-size:10px; font-weight:600; color:rgba(255,255,255,.7); position:sticky; top:0; z-index:50; background:transparent; }
+
+/* Header — azul oscuro del brand, igual que ahora */
+.hdr { background:linear-gradient(180deg,#162A1C 0%,#0F2015 100%); padding:6px 20px 44px; text-align:center; position:relative; }
+.hdr-accent { position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,123,90,.4),rgba(255,179,71,.2),transparent); }
+.back { position:absolute; top:14px; left:16px; width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; }
+
+/* Avatar ring: blanco en lugar de coral-tinted */
+.avatar-wrap { position:relative; width:80px; height:80px; margin:0 auto 16px; }
+.avatar { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#FF7B5A,#D04428); display:flex; align-items:center; justify-content:center; border:3px solid rgba(255,255,255,.55); box-shadow:0 0 0 5px rgba(255,255,255,.10), 0 8px 24px rgba(0,0,0,.4); }
+.verified { position:absolute; bottom:2px; right:2px; width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg,#60A5FA,#1D4ED8); border:2.5px solid #0F2015; display:flex; align-items:center; justify-content:center; }
+.hdr-name { font-size:22px; font-weight:900; color:white; letter-spacing:-.02em; margin-bottom:3px; }
+.hdr-role { font-size:11px; color:rgba(255,255,255,.38); text-transform:uppercase; letter-spacing:.05em; font-weight:600; margin-bottom:10px; }
+.spec-pill { display:inline-block; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.75); font-size:11px; font-weight:700; padding:4px 14px; border-radius:20px; }
+
+/* Cuerpo — BLANCO */
+.body { padding:0 16px; margin-top:-20px; position:relative; z-index:10; padding-bottom:24px; }
+
+/* Cards blancas con sombra sutil */
+.card { background:white; border-radius:16px; overflow:hidden; margin-bottom:12px; box-shadow:0 1px 3px rgba(14,11,30,.08), 0 8px 24px rgba(14,11,30,.10); border:1px solid rgba(14,11,30,.06); }
+.sec-label { display:flex; align-items:center; gap:6px; padding:12px 16px 6px; font-size:8px; font-weight:700; color:#94A3B8; letter-spacing:.14em; text-transform:uppercase; }
+.info-row { display:flex; align-items:center; gap:12px; padding:10px 16px; border-top:1px solid #F1F0F7; }
+.row-icon { width:32px; height:32px; border-radius:9px; background:#F5F4F9; border:1px solid rgba(14,11,30,.06); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.row-lbl { font-size:9px; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }
+.row-val { font-size:13px; font-weight:600; color:#162A1C; }
+.spec-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px 16px 14px; border-top:1px solid #F1F0F7; }
+.spec-item { background:#F8F7FC; border:1px solid rgba(14,11,30,.07); border-radius:10px; padding:10px 12px; }
+.spec-lbl { font-size:8px; font-weight:700; color:#FF7B5A; text-transform:uppercase; letter-spacing:.08em; margin-bottom:3px; }
+.spec-val { font-size:12px; font-weight:600; color:#162A1C; }
+
+/* Rating card blanca */
+.rating-card { background:white; border-radius:16px; padding:16px 18px; margin-bottom:10px; display:flex; align-items:center; gap:16px; box-shadow:0 1px 3px rgba(14,11,30,.08), 0 8px 24px rgba(14,11,30,.10); border:1px solid rgba(14,11,30,.06); }
+.rating-num { font-size:42px; font-weight:900; letter-spacing:-.04em; color:#162A1C; line-height:1; }
+.stars-row { display:flex; gap:3px; margin-bottom:4px; }
+.rating-count { font-size:11px; color:#94A3B8; }
+
+/* Review card */
+.review { background:white; border-radius:12px; padding:13px 16px; margin-bottom:8px; box-shadow:0 1px 3px rgba(14,11,30,.06), 0 4px 12px rgba(14,11,30,.07); border:1px solid rgba(14,11,30,.06); border-left:3px solid #FF7B5A; }
+.rev-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
+.rev-date { font-size:10px; color:#94A3B8; }
+.rev-text { font-size:13px; color:#162A1C; line-height:1.55; }
+.rev-name { font-size:10px; color:#94A3B8; margin-top:5px; }
+
+/* Botón reseña — azul oscuro del brand */
+.btn-resena { width:100%; height:46px; background:linear-gradient(135deg,#162A1C,#1E4D2B); color:white; border-radius:12px; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; gap:7px; margin-top:6px; box-shadow:0 4px 14px rgba(14,11,30,.25), inset 0 1px 0 rgba(255,255,255,.08); letter-spacing:-.005em; }
+
+/* Pagos */
+.pay-row { background:white; border-radius:12px; padding:12px 14px; margin-bottom:7px; display:flex; align-items:center; gap:12px; box-shadow:0 1px 3px rgba(14,11,30,.06); border:1px solid rgba(14,11,30,.06); }
+.pay-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:10px; font-weight:800; }
+.pay-name { font-size:13px; font-weight:700; color:#162A1C; }
+.pay-num { font-size:12px; color:#94A3B8; margin-top:1px; }
+.pay-copy { padding:6px 14px; border-radius:20px; font-size:11px; font-weight:700; margin-left:auto; background:#F5F4F9; color:#162A1C; border:1px solid rgba(14,11,30,.1); }
+
+/* Section header body */
+.sec-hdr { display:flex; align-items:center; gap:7px; margin:18px 0 10px; }
+.sec-hdr span { font-size:13px; font-weight:800; color:#162A1C; letter-spacing:-.01em; }
+
+/* Nav bar — blanco con azul activo */
+.bnav { position:sticky; bottom:0; background:white; border-top:1px solid rgba(14,11,30,.08); display:flex; justify-content:space-around; padding:10px 0 20px; box-shadow:0 -4px 20px rgba(14,11,30,.08); }
+.ni { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.ni-lbl { font-size:9px; font-weight:600; }
+</style>
+</head>
+<body>
+
+<div class="label">Paleta Blanco + Verde Bosque oscuro · Perfil Psicólogo</div>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="screen">
+    <!-- Status bar encima del header oscuro -->
+    <div class="sb" style="background:linear-gradient(180deg,#162A1C,transparent);position:absolute;top:0;left:0;right:0;">
+      <span>9:41</span><span>●●● 100%</span>
+    </div>
+
+    <!-- Header azul oscuro (identidad de marca, igual que app actual) -->
+    <div class="hdr" style="padding-top:38px;">
+      <div class="hdr-accent"></div>
+      <div class="back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+
+      <div class="avatar-wrap">
+        <div class="avatar">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="verified">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+
+      <div class="hdr-name">Dr. Danilo Rincón</div>
+      <div class="hdr-role">Psicólogo · Colombia</div>
+      <div class="spec-pill">Psicología Clínica</div>
+    </div>
+
+    <!-- CUERPO BLANCO -->
+    <div class="body">
+
+      <!-- Card info -->
+      <div class="card">
+        <div class="sec-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Contacto
+        </div>
+        <div class="info-row">
+          <div class="row-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" stroke-width="1.75" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+          <div><div class="row-lbl">Teléfono</div><div class="row-val">310 630 3533</div></div>
+        </div>
+        <div class="info-row">
+          <div class="row-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div><div class="row-lbl">Correo</div><div class="row-val" style="font-size:12px;">psicologo@correo.com</div></div>
+        </div>
+
+        <div class="sec-label" style="margin-top:6px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          Formación
+        </div>
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-lbl">Especialidad</div><div class="spec-val">Psicología Clínica</div></div>
+          <div class="spec-item"><div class="spec-lbl">Enfoque</div><div class="spec-val">TCC</div></div>
+        </div>
+      </div>
+
+      <!-- Reseñas -->
+      <div class="sec-hdr">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFB347" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>Reseñas</span>
+      </div>
+
+      <div class="rating-card">
+        <div class="rating-num">4.8</div>
+        <div>
+          <div class="stars-row">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,179,71,.25)" stroke="rgba(255,179,71,.5)" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="rating-count">12 reseñas verificadas</div>
+        </div>
+      </div>
+
+      <div class="review">
+        <div class="rev-top">
+          <div class="stars-row">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="rev-date">15 abr 2026</div>
+        </div>
+        <div class="rev-text">Excelente profesional, muy empático y efectivo. Recomendado.</div>
+        <div class="rev-name">— M. L.</div>
+      </div>
+
+      <!-- Botón reseña azul oscuro -->
+      <div class="btn-resena">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Escribir reseña
+      </div>
+
+      <!-- Pagos -->
+      <div class="sec-hdr">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        <span>Métodos de pago</span>
+      </div>
+
+      <div class="pay-row">
+        <div class="pay-icon" style="background:rgba(196,127,216,.1);border:1px solid rgba(196,127,216,.2);"><span style="color:#C47FD8;font-size:10px;font-weight:800;">Ne</span></div>
+        <div><div class="pay-name">Nequi</div><div class="pay-num">310 630 3533</div></div>
+        <div class="pay-copy">Copiar</div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-icon" style="background:rgba(245,168,0,.1);border:1px solid rgba(245,168,0,.2);"><span style="color:#F5A800;font-size:10px;font-weight:800;">Ba</span></div>
+        <div><div class="pay-name">Bancolombia</div><div class="pay-num">123 456 789</div></div>
+        <div class="pay-copy">Copiar</div>
+      </div>
+    </div>
+
+    <!-- Nav bar blanca con azul activo -->
+    <div class="bnav">
+      <div class="ni">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <div class="ni-lbl" style="color:#94A3B8;">Inicio</div>
+      </div>
+      <div class="ni">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <div class="ni-lbl" style="color:#94A3B8;">Agenda</div>
+      </div>
+      <div class="ni">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="ni-lbl" style="color:#94A3B8;">Notas</div>
+      </div>
+      <!-- Perfil activo = azul oscuro -->
+      <div class="ni">
+        <div style="width:36px;height:36px;border-radius:12px;background:#162A1C;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(26,13,40,.25);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        </div>
+        <div class="ni-lbl" style="color:#162A1C;font-weight:800;">Perfil</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+  Header azul oscuro (#162A1C) · Cuerpo blanco (#F5F4F9) · Coral como acento · Nav bar blanca con azul activo
+</div>
+
+</body>
+</html>
