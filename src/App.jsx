@@ -3433,16 +3433,13 @@ const styles = `
 
           {/* LOGIN */}
 {!notifPanel && screen === "login" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 24px", background:"radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 55%), radial-gradient(ellipse 60% 40% at 50% 110%, rgba(22,56,35,.18) 0%, transparent 60%)", position:"relative", overflow:"hidden" }}>
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 24px", background:"radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%)", position:"relative", overflow:"hidden" }}>
 
     {/* AURA de fondo */}
-    <div style={{ position:"absolute", width:320, height:320, borderRadius:"50%", background:"radial-gradient(ellipse, rgba(169,223,191,.09) 0%, rgba(26,13,40,.04) 55%, transparent 72%)", top:"12%", left:"50%", transform:"translateX(-50%)", pointerEvents:"none" }}/>
-
-    {/* GLOW verde sutil en la parte inferior */}
-    <div style={{ position:"absolute", bottom:-40, left:"50%", transform:"translateX(-50%)", width:260, height:180, borderRadius:"50%", background:"radial-gradient(ellipse, rgba(30,77,43,.12) 0%, transparent 70%)", pointerEvents:"none" }}/>
+    <div style={{ position:"absolute", width:320, height:320, borderRadius:"50%", background:"radial-gradient(ellipse, rgba(255,123,90,.10) 0%, rgba(78,205,196,.05) 50%, transparent 70%)", top:"15%", left:"50%", transform:"translateX(-50%)", pointerEvents:"none" }}/>
 
     {/* PILL TOP */}
-    <div style={{ width:40, height:3, borderRadius:2, background:"linear-gradient(90deg, rgba(30,77,43,.45), rgba(169,223,191,.38))", marginBottom:32 }}/>
+    <div style={{ width:40, height:3, borderRadius:2, background:"rgba(255,123,90,0.25)", marginBottom:32 }}/>
 
     {/* LOGO GEOMÉTRICO */}
     <div style={{ marginBottom:16, animation:"fadeIn 0.8s ease" }}>
@@ -3462,25 +3459,25 @@ const styles = `
     </div>
 
     {/* TÍTULO */}
-    <div style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em", marginBottom:8, background:"linear-gradient(135deg, #A9DFBF 0%, #EDFAF3 45%, rgba(169,223,191,.9) 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>Mi Psicólogo</div>
+    <div style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em", marginBottom:8, background:"linear-gradient(135deg, #FF9B7A 0%, #FFD080 38%, #6EEDDF 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>Mi Psicólogo</div>
 
     {/* BADGE SUBTÍTULO */}
-    <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(169,223,191,0.055)", border:"1px solid rgba(169,223,191,0.13)", borderRadius:20, padding:"5px 14px", marginBottom:28 }}>
-      <span style={{ fontSize:10, fontWeight:600, letterSpacing:"0.10em", color:"rgba(169,223,191,0.65)", textTransform:"uppercase" }}>✦ Tu espacio seguro</span>
+    <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(255,123,90,0.08)", border:"1px solid rgba(255,123,90,0.18)", borderRadius:20, padding:"5px 14px", marginBottom:28 }}>
+      <span style={{ fontSize:10, fontWeight:600, letterSpacing:"0.10em", color:"rgba(255,155,122,0.70)", textTransform:"uppercase" }}>✦ Tu espacio seguro</span>
     </div>
 
     {/* CARD GLASS */}
-    <div style={{ width:"100%", background:"#FFFFFF", border:"1px solid rgba(0,0,0,.09)", borderRadius:24, overflow:"hidden", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.08), inset 0 1px 0 rgba(0,0,0,.09)" }}>
+    <div style={{ width:"100%", background:"rgba(255,255,255,0.028)", border:"1px solid rgba(255,255,255,0.065)", borderRadius:24, overflow:"hidden", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", boxShadow:"0 1px 2px rgba(0,0,0,.4), 0 8px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)" }}>
 
       {/* ACENTO SUPERIOR */}
-      <div style={{ height:2, background:"linear-gradient(90deg, transparent, rgba(30,77,43,.65) 30%, rgba(169,223,191,.55) 60%, transparent)" }}/>
+      <div style={{ height:2, background:"linear-gradient(90deg, transparent, #FF7B5A, #FFB347, transparent)" }}/>
 
       <div style={{ padding:"24px 20px 20px" }}>
 
         {/* CAMPO CORREO */}
         <div style={{ position:"relative", marginBottom:1 }}>
           <div style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(169,223,191,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,155,122,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
             </svg>
@@ -3490,24 +3487,24 @@ const styles = `
             placeholder="tu@correo.com"
             value={emailValue}
             onChange={e => setEmailValue(e.target.value)}
-            style={{ width:"100%", padding:"14px 16px 14px 40px", background:"rgba(169,223,191,.06)", border:"1px solid rgba(169,223,191,.14)", borderRadius:12, fontSize:14, outline:"none", color:"#EDFAF3", fontFamily:"inherit", boxSizing:"border-box" }}
+            style={{ width:"100%", padding:"14px 16px 14px 40px", background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:12, fontSize:14, outline:"none", color:"#F5EEE8", fontFamily:"inherit", boxSizing:"border-box" }}
           />
         </div>
 
         {/* DIVISOR */}
-        <div style={{ height:1, background:"rgba(0,0,0,.06)", margin:"12px 0" }}/>
+        <div style={{ height:1, background:"rgba(255,255,255,0.05)", margin:"12px 0" }}/>
 
         {/* CAMPO PIN */}
         <div style={{ position:"relative", marginBottom:16 }}>
           <div style={{ position:"absolute", left:14, top:"50%", transform:"translateY(-50%)" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(169,223,191,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,155,122,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
               <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
           </div>
-          <div style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:14, padding:"14px 16px 14px 40px", background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.09)", borderRadius:14 }}>
+          <div style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:14, padding:"14px 16px 14px 40px", background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:14 }}>
             {[0,1,2,3].map(i => (
-              <div key={i} style={{ width:10, height:10, borderRadius:"50%", background: pinValue && pinValue.length > i ? "#1E4D2B" : "transparent", border:`1.5px solid ${pinValue && pinValue.length > i ? "#2D6A40" : "rgba(0,0,0,.12)"}`, boxShadow: pinValue && pinValue.length > i ? "0 0 8px rgba(30,77,43,.55)" : "none", transition:"all 0.2s ease" }}/>
+              <div key={i} style={{ width:10, height:10, borderRadius:"50%", background: pinValue && pinValue.length > i ? "#FF7B5A" : "transparent", border:`1.5px solid ${pinValue && pinValue.length > i ? "#FF7B5A" : "rgba(255,255,255,0.20)"}`, transition:"all 0.2s ease" }}/>
             ))}
           </div>
           <input
@@ -3532,7 +3529,7 @@ const styles = `
             setTimeout(() => circle.remove(), 500);
             handleLogin();
           }}
-          style={{ width:"100%", height:52, background:"linear-gradient(135deg, #1E4D2B 0%, #163823 100%)", color:"rgba(237,250,243,.92)", borderRadius:14, fontSize:15, fontWeight:700, border:"none", cursor:"pointer", fontFamily:"inherit", position:"relative", overflow:"hidden", letterSpacing:"-0.01em", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 4px 18px rgba(0,0,0,.4), 0 0 0 1px rgba(169,223,191,.07), inset 0 1px 0 rgba(169,223,191,.10)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}
+          style={{ width:"100%", height:52, background:"linear-gradient(135deg, #FF8B6A 0%, #FF5A36 100%)", color:"white", borderRadius:14, fontSize:15, fontWeight:700, border:"none", cursor:"pointer", fontFamily:"inherit", position:"relative", overflow:"hidden", letterSpacing:"-0.01em", boxShadow:"0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(255,90,54,.35), inset 0 1px 0 rgba(255,255,255,.20)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}
         >
           Entrar a mi espacio →
         </button>
@@ -3543,23 +3540,23 @@ const styles = `
     {/* FOOTER */}
     <div style={{ marginTop:20, textAlign:"center" }}>
       <span style={{ fontSize:11, color:"rgba(245,238,232,0.25)" }}>¿Problemas para entrar? </span>
-      <span style={{ fontSize:11, color:"rgba(169,223,191,.72)", fontWeight:700, cursor:"pointer" }}>Contacta a tu psicólogo</span>
+      <span style={{ fontSize:11, color:"#FF9B7A", fontWeight:700, cursor:"pointer" }}>Contacta a tu psicólogo</span>
     </div>
 
     {showInstall && (
       <button
         onClick={handleInstall}
         disabled={installing}
-        style={{ marginTop:14, padding:"8px 20px", background:"rgba(169,223,191,0.04)", color: installing ? "rgba(169,223,191,0.22)" : "rgba(169,223,191,0.45)", borderRadius:20, fontSize:11, fontWeight:600, border:"1px solid rgba(169,223,191,0.11)", cursor: installing ? "not-allowed" : "pointer", fontFamily:"inherit", transition:"color 200ms ease", touchAction:"manipulation" }}
+        style={{ marginTop:14, padding:"8px 20px", background:"rgba(255,123,90,0.08)", color: installing ? "rgba(255,155,122,0.25)" : "rgba(255,155,122,0.5)", borderRadius:20, fontSize:11, fontWeight:600, border:"1px solid rgba(255,123,90,0.14)", cursor: installing ? "not-allowed" : "pointer", fontFamily:"inherit", transition:"color 200ms ease", touchAction:"manipulation" }}
       >
         {installing ? 'Instalando…' : '⬇ Descargar App'}
       </button>
     )}
     {showIOSHint && (
-      <div style={{ marginTop:14, padding:"12px 16px", background:"rgba(169,223,191,0.04)", border:"1px solid rgba(169,223,191,0.12)", borderRadius:14, textAlign:"center", maxWidth:260 }}>
-        <p style={{ fontSize:11, color:"rgba(169,223,191,0.7)", margin:0, lineHeight:1.6 }}>
-          Para instalar en iPhone: toca <strong style={{color:"rgba(169,223,191,1)"}}>⬆</strong> en Safari<br/>
-          y luego <strong style={{color:"rgba(169,223,191,1)"}}>"Agregar a pantalla de inicio"</strong>
+      <div style={{ marginTop:14, padding:"12px 16px", background:"rgba(255,123,90,0.06)", border:"1px solid rgba(255,123,90,0.14)", borderRadius:14, textAlign:"center", maxWidth:260 }}>
+        <p style={{ fontSize:11, color:"rgba(255,155,122,0.7)", margin:0, lineHeight:1.6 }}>
+          Para instalar en iPhone: toca <strong style={{color:"rgba(255,155,122,1)"}}>⬆</strong> en Safari<br/>
+          y luego <strong style={{color:"rgba(255,155,122,1)"}}>"Agregar a pantalla de inicio"</strong>
         </p>
         <button onClick={() => setShowIOSHint(false)} style={{ marginTop:8, fontSize:10, color:"rgba(245,238,232,0.3)", background:"none", border:"none", cursor:"pointer", fontFamily:"inherit" }}>
           Entendido
