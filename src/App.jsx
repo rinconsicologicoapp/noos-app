@@ -2634,23 +2634,23 @@ const styles = `
 `;
   // Aurora Cálida — paleta unificada (dark-first)
   const C = {
-    plum:      "#FF7B5A",               // coral — acción principal (KEEP)
-    sage:      "#4ECDC4",               // teal — acción secundaria (KEEP)
-    sageDark:  "#1E8880",               // teal-deep (KEEP)
-    amber:     "#FFB347",               // amber (KEEP)
-    amberDark: "#D04428",               // coral-deep (KEEP)
-    cream:     "#F5F4F9",               // bg-base — blanco ligeramente grisáceo
-    warm:      "#FFFFFF",               // bg-surface — blanco puro
-    text:      "#162A1C",               // texto primario — verde bosque oscuro
-    light:     "#94A3B8",               // texto secundario — slate neutro (funciona en dark y light)
+    plum:      "#FF7B5A",               // coral — acción principal
+    sage:      "#4ECDC4",               // teal — acción secundaria
+    sageDark:  "#1E8880",               // teal-deep
+    amber:     "#FFB347",               // amber
+    amberDark: "#D04428",               // coral-deep
+    cream:     "#F0F2F0",               // bg-base — gris muy suave con toque verde (como iOS pero brand)
+    warm:      "#FFFFFF",               // bg-surface — blanco puro para cards
+    text:      "#1A2E1D",               // texto primario — verde bosque muy oscuro (casi negro)
+    light:     "#5C7A65",               // texto secundario — verde-gris visible (≈ iOS secondary text)
     red:       "#FF6B6B",               // error/peligro — NO CAMBIAR
     green:     "#1E4D2B",               // éxito — forest green
-    blue:      "#6EEDDF",               // info (teal bright, KEEP)
-    dark:      "#0F2015",               // bg-void — verde muy oscuro para headers
-    gold:      "#FFD080",               // oro/spark (KEEP)
-    bg:        "#F5F4F9",               // bg-base alias
-    cardBg:    "#FFFFFF",               // bg-raised — blanco para cards
-    headerBg:  "rgba(245,244,249,0.98)", // header blur — blanco translúcido
+    blue:      "#6EEDDF",               // info
+    dark:      "#0F2015",               // bg-void para headers
+    gold:      "#FFD080",               // oro/spark
+    bg:        "#F0F2F0",               // alias bg-base
+    cardBg:    "#FFFFFF",               // cards elevadas
+    headerBg:  "rgba(240,242,240,0.97)", // header blur
   };
 
   const AvatarSVG = ({ id, size = 28 }) => {
@@ -2797,8 +2797,8 @@ const styles = `
 );
 
   const mitem = (icon, label, onClick, danger) => (
-    <div onClick={onClick} style={{ background:"#FFFFFF", border:"1px solid rgba(255,255,255,.065)", borderRadius:14, padding:"13px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:7, cursor:"pointer", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", boxShadow:"0 1px 2px rgba(0,0,0,.05), inset 0 1px 0 rgba(0,0,0,.08)" }}>
-      <div style={{ width:36, height:36, background:danger?"rgba(255,107,107,.12)":"rgba(255,123,90,.10)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{icon}</div>
+    <div onClick={onClick} style={{ background:"#FFFFFF", border:"1px solid rgba(255,255,255,.065)", borderRadius:14, padding:"13px 16px", display:"flex", alignItems:"center", gap:12, marginBottom:7, cursor:"pointer", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", boxShadow:"0 1px 2px rgba(0,0,0,.05), inset 0 1px 0 rgba(0,0,0,.11)" }}>
+      <div style={{ width:36, height:36, background:danger?"rgba(255,107,107,.12)":"rgba(255,123,90,.18)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{icon}</div>
       <div style={{ fontSize:14, fontWeight:600, color:danger?C.red:C.text, flex:1, letterSpacing:"-0.01em" }}>{label}</div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
@@ -2921,7 +2921,7 @@ const styles = `
 
       {navItems.map(({ id, lb, ico }) => {
         const act = isAct(id);
-        const color = act ? AMB : "rgba(255,123,90,0.28)";
+        const color = act ? AMB : "rgba(0,0,0,.35)";
         return (
           <div key={id} onClick={() => {
             if(navigator.vibrate) navigator.vibrate([6,0,6]);
@@ -2974,7 +2974,7 @@ const styles = `
                 <div className="nav-dot-pulse-2" style={{ width:3, height:3, borderRadius:"50%", background:AMB, flexShrink:0 }}/>
               </div>
             ) : (
-              <span style={{ fontSize:8.5, fontWeight:400, color:"rgba(255,123,90,0.28)", transition:"all 0.2s" }}>{lb}</span>
+              <span style={{ fontSize:8.5, fontWeight:400, color:"rgba(0,0,0,.35)", transition:"all 0.2s" }}>{lb}</span>
             )}
           </div>
         );
@@ -3122,7 +3122,7 @@ const styles = `
         {/* Botón huella — el toque directo activa WebAuthn */}
         <div onClick={desbloquear}
           style={{ width:96,height:96,borderRadius:32,
-            background:"rgba(255,123,90,0.08)",
+            background:"rgba(255,123,90,0.15)",
             border:"1.5px solid rgba(255,123,90,0.25)",
             display:"flex",flexDirection:"column",alignItems:"center",
             justifyContent:"center",gap:6,cursor:"pointer",
@@ -3193,7 +3193,7 @@ const styles = `
       </svg>
       <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:14 }}>
         <div style={{ fontSize:13, fontWeight:700, color:"rgba(245,238,232,.70)", letterSpacing:"2.5px", textTransform:"uppercase" }}>Mi Psicólogo</div>
-        <div style={{ height:1.5, width:60, background:"rgba(0,0,0,.09)", borderRadius:1, overflow:"hidden", position:"relative" }}>
+        <div style={{ height:1.5, width:60, background:"rgba(0,0,0,.12)", borderRadius:1, overflow:"hidden", position:"relative" }}>
           <div className="loading-line" style={{ position:"absolute", left:0, top:0, height:"100%", background:"linear-gradient(90deg,#FF7B5A,#FFD080)", borderRadius:1 }}/>
         </div>
       </div>
@@ -3206,7 +3206,7 @@ const styles = `
 
       {/* CONTENEDOR PRINCIPAL */}
       <div
-        style={{ width:"100%", maxWidth:430, height:"100%", background:"#F5F4F9", overflow:"hidden", position:"relative", margin:"0 auto" }}
+        style={{ width:"100%", maxWidth:430, height:"100%", background:"#F0F2F0", overflow:"hidden", position:"relative", margin:"0 auto" }}
         onTouchStart={e => {
           const t = e.touches[0];
           window._swipeStartX = t.clientX;
@@ -3255,7 +3255,7 @@ const styles = `
           {/* NOTIFICACIÓN INTERACTIVA DE CITA */}
         {notifCitaActiva && (
           <div style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:12, right:12, zIndex:900, animation:"slideDown 0.35s cubic-bezier(0.34,1.56,0.64,1) both" }}>
-            <div style={{ background:"#FFFFFF", backdropFilter:"blur(32px)", WebkitBackdropFilter:"blur(32px)", borderRadius:18, padding:"14px 16px", boxShadow:"0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,123,90,.20)", border:"1px solid rgba(0,0,0,.09)" }}>
+            <div style={{ background:"#FFFFFF", backdropFilter:"blur(32px)", WebkitBackdropFilter:"blur(32px)", borderRadius:18, padding:"14px 16px", boxShadow:"0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,123,90,.20)", border:"1px solid rgba(0,0,0,.12)" }}>
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ width:44, height:44, borderRadius:12, background:"rgba(255,123,90,.15)", border:"1px solid rgba(255,123,90,.25)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -3264,7 +3264,7 @@ const styles = `
                   <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:2, letterSpacing:"-0.01em" }}>{notifCitaActiva.titulo}</div>
                   <div style={{ fontSize:11, color:C.light, lineHeight:1.5 }}>{notifCitaActiva.mensaje}</div>
                 </div>
-                <div onClick={() => setNotifCitaActiva(null)} style={{ width:28, height:28, borderRadius:8, background:"rgba(0,0,0,.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+                <div onClick={() => setNotifCitaActiva(null)} style={{ width:28, height:28, borderRadius:8, background:"rgba(0,0,0,.11)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </div>
               </div>
@@ -3277,7 +3277,7 @@ const styles = `
                   </a>
                 )}
                 <div onClick={() => { showScreen("calendario"); setNotifCitaActiva(null); }}
-                  style={{ flex:1, padding:"11px 0", background:"rgba(0,0,0,.08)", border:"1px solid rgba(0,0,0,.09)", color:C.text, borderRadius:11, fontSize:12, fontWeight:600, textAlign:"center", cursor:"pointer" }}>
+                  style={{ flex:1, padding:"11px 0", background:"rgba(0,0,0,.11)", border:"1px solid rgba(0,0,0,.12)", color:C.text, borderRadius:11, fontSize:12, fontWeight:600, textAlign:"center", cursor:"pointer" }}>
                   Ver cita
                 </div>
               </div>
@@ -3357,10 +3357,10 @@ const styles = `
             // Recargar siempre que se abre el panel
             if (usuarioActual?.uid) cargarNotificaciones(usuarioActual.uid);
             return (
-            <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
+            <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
               {/* HEADER */}
-              <div style={{ background:"rgba(245,244,249,0.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px", borderBottom:"1px solid rgba(0,0,0,.08)", display:"flex", alignItems:"center", gap:10, paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
-                <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.08)", flexShrink:0 }}>
+              <div style={{ background:"rgba(240,242,240,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px", borderBottom:"1px solid rgba(0,0,0,.11)", display:"flex", alignItems:"center", gap:10, paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
+                <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
@@ -3369,7 +3369,7 @@ const styles = `
                     {unread > 0 ? `${unread} sin leer` : "Todo al día"}
                   </div>
                 </div>
-                {unread > 0 && btn(markAllRead, "Leer todas", { fontSize:11, fontWeight:600, color:C.plum, background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.20)", padding:"6px 14px", borderRadius:20 })}
+                {unread > 0 && btn(markAllRead, "Leer todas", { fontSize:11, fontWeight:600, color:C.plum, background:"rgba(255,123,90,.18)", border:"1px solid rgba(255,123,90,.20)", padding:"6px 14px", borderRadius:20 })}
               </div>
 
               {/* LISTA */}
@@ -3408,11 +3408,11 @@ const styles = `
                       showScreen("calendario");
                     }
                   }}
-                    style={{ background:n.read?"rgba(255,255,255,.020)":"rgba(255,123,90,.05)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderRadius:16, padding:"13px 14px", marginBottom:8, border:`1px solid ${n.read?"rgba(0,0,0,.06)":"rgba(255,123,90,.15)"}`, display:"flex", gap:12, alignItems:"flex-start", cursor:"pointer", position:"relative", overflow:"hidden", transition:"all 0.15s", animation:`fadeIn 0.2s ease ${i * 0.03}s both` }}>
+                    style={{ background:n.read?"rgba(255,255,255,.020)":"rgba(255,123,90,.11)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderRadius:16, padding:"13px 14px", marginBottom:8, border:`1px solid ${n.read?"rgba(0,0,0,.06)":"rgba(255,123,90,.15)"}`, display:"flex", gap:12, alignItems:"flex-start", cursor:"pointer", position:"relative", overflow:"hidden", transition:"all 0.15s", animation:`fadeIn 0.2s ease ${i * 0.03}s both` }}>
                     {/* Barra lateral de color según tipo */}
                     <div style={{ position:"absolute", left:0, top:0, bottom:0, width:3, borderRadius:"16px 0 0 16px", background:n.read?"transparent": n.tipo==="demora"?C.amber : n.tipo==="cita_nueva"||n.tipo==="recordatorio_cita"?C.sage : n.tipo==="tarea_completada"?C.green : C.plum }}/>
                     {/* Ícono */}
-                    <div style={{ width:42, height:42, borderRadius:13, background:n.read?"rgba(0,0,0,.08)":"rgba(255,123,90,.12)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, marginLeft:6 }}>{n.icon}</div>
+                    <div style={{ width:42, height:42, borderRadius:13, background:n.read?"rgba(0,0,0,.11)":"rgba(255,123,90,.20)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, marginLeft:6 }}>{n.icon}</div>
                     {/* Contenido */}
                     <div style={{ flex:1, minWidth:0 }}>
                       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:3 }}>
@@ -3436,7 +3436,7 @@ const styles = `
   <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 24px", background:"radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%)", position:"relative", overflow:"hidden" }}>
 
     {/* AURA de fondo */}
-    <div style={{ position:"absolute", width:320, height:320, borderRadius:"50%", background:"radial-gradient(ellipse, rgba(255,123,90,.10) 0%, rgba(78,205,196,.05) 50%, transparent 70%)", top:"15%", left:"50%", transform:"translateX(-50%)", pointerEvents:"none" }}/>
+    <div style={{ position:"absolute", width:320, height:320, borderRadius:"50%", background:"radial-gradient(ellipse, rgba(255,123,90,.18) 0%, rgba(78,205,196,.05) 50%, transparent 70%)", top:"15%", left:"50%", transform:"translateX(-50%)", pointerEvents:"none" }}/>
 
     {/* PILL TOP */}
     <div style={{ width:40, height:3, borderRadius:2, background:"rgba(255,123,90,0.25)", marginBottom:32 }}/>
@@ -3462,7 +3462,7 @@ const styles = `
     <div style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em", marginBottom:8, background:"linear-gradient(135deg, #FF9B7A 0%, #FFD080 38%, #6EEDDF 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>Mi Psicólogo</div>
 
     {/* BADGE SUBTÍTULO */}
-    <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(255,123,90,0.08)", border:"1px solid rgba(255,123,90,0.18)", borderRadius:20, padding:"5px 14px", marginBottom:28 }}>
+    <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(255,123,90,0.15)", border:"1px solid rgba(255,123,90,0.18)", borderRadius:20, padding:"5px 14px", marginBottom:28 }}>
       <span style={{ fontSize:10, fontWeight:600, letterSpacing:"0.10em", color:"rgba(255,155,122,0.70)", textTransform:"uppercase" }}>✦ Tu espacio seguro</span>
     </div>
 
@@ -3547,13 +3547,13 @@ const styles = `
       <button
         onClick={handleInstall}
         disabled={installing}
-        style={{ marginTop:14, padding:"8px 20px", background:"rgba(255,123,90,0.08)", color: installing ? "rgba(255,155,122,0.25)" : "rgba(255,155,122,0.5)", borderRadius:20, fontSize:11, fontWeight:600, border:"1px solid rgba(255,123,90,0.14)", cursor: installing ? "not-allowed" : "pointer", fontFamily:"inherit", transition:"color 200ms ease", touchAction:"manipulation" }}
+        style={{ marginTop:14, padding:"8px 20px", background:"rgba(255,123,90,0.15)", color: installing ? "rgba(255,155,122,0.25)" : "rgba(255,155,122,0.5)", borderRadius:20, fontSize:11, fontWeight:600, border:"1px solid rgba(255,123,90,0.14)", cursor: installing ? "not-allowed" : "pointer", fontFamily:"inherit", transition:"color 200ms ease", touchAction:"manipulation" }}
       >
         {installing ? 'Instalando…' : '⬇ Descargar App'}
       </button>
     )}
     {showIOSHint && (
-      <div style={{ marginTop:14, padding:"12px 16px", background:"rgba(255,123,90,0.06)", border:"1px solid rgba(255,123,90,0.14)", borderRadius:14, textAlign:"center", maxWidth:260 }}>
+      <div style={{ marginTop:14, padding:"12px 16px", background:"rgba(255,123,90,0.20)", border:"1px solid rgba(255,123,90,0.14)", borderRadius:14, textAlign:"center", maxWidth:260 }}>
         <p style={{ fontSize:11, color:"rgba(255,155,122,0.7)", margin:0, lineHeight:1.6 }}>
           Para instalar en iPhone: toca <strong style={{color:"rgba(255,155,122,1)"}}>⬆</strong> en Safari<br/>
           y luego <strong style={{color:"rgba(255,155,122,1)"}}>"Agregar a pantalla de inicio"</strong>
@@ -3590,7 +3590,7 @@ const styles = `
     <div style={{ fontSize:13, color:C.light, marginBottom:28 }}>Únete a Mi Psicólogo</div>
 
     {/* FORMULARIO */}
-    <div style={{ width:"100%", background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:22, padding:24, boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.08), inset 0 1px 0 rgba(0,0,0,.09)" }}>
+    <div style={{ width:"100%", background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:22, padding:24, boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.11), inset 0 1px 0 rgba(0,0,0,.12)" }}>
 
       {/* NOMBRE */}
       <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6, letterSpacing:"0.08em", textTransform:"uppercase" }}>Nombre completo</div>
@@ -3633,7 +3633,7 @@ const styles = `
       <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:10, letterSpacing:"0.08em", textTransform:"uppercase" }}>Soy...</div>
       <div style={{ display:"flex", gap:10, marginBottom:24 }}>
         {[["paciente","Paciente","user"],["psicologo","Psicólogo","brain"]].map(([val,lb,ic]) => (
-          <div key={val} onClick={() => setRegRol(val)} style={{ flex:1, padding:"14px 0", borderRadius:14, textAlign:"center", cursor:"pointer", border:`1px solid ${regRol===val ? C.plum : "rgba(0,0,0,.09)"}`, background:regRol===val ? "rgba(255,123,90,.10)" : "rgba(255,255,255,.02)", transition:"all 0.2s ease" }}>
+          <div key={val} onClick={() => setRegRol(val)} style={{ flex:1, padding:"14px 0", borderRadius:14, textAlign:"center", cursor:"pointer", border:`1px solid ${regRol===val ? C.plum : "rgba(0,0,0,.12)"}`, background:regRol===val ? "rgba(255,123,90,.18)" : "rgba(255,255,255,.02)", transition:"all 0.2s ease" }}>
             <div style={{ display:"flex", justifyContent:"center", marginBottom:6 }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={regRol===val ? C.plum : C.light} strokeWidth="1.75" strokeLinecap="round">
                 {ic === "user" ? <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></> : <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>}
@@ -3666,10 +3666,10 @@ const styles = `
 
           {/* HOME */}
           {!notifPanel && screen === "home" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
 
               {/* HEADER */}
-              <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative", borderBottom:"1px solid rgba(0,0,0,.08)" }}>
+              <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative", borderBottom:"1px solid rgba(0,0,0,.11)" }}>
                 <div style={{ position:"absolute", top:0, left:0, right:0, height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),rgba(255,179,71,.2),transparent)" }}/>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <div>
@@ -3681,18 +3681,18 @@ const styles = `
                       {usuarioActual?.nombre?.split(" ")[0] || "Bienvenido"}
                     </div>
                     {(usuarioActual?.racha || 0) > 0 && (
-                      <div style={{ display:"inline-flex", alignItems:"center", gap:5, background:"rgba(255,179,71,.08)", border:"1px solid rgba(255,179,71,.18)", borderRadius:20, padding:"3px 10px", marginTop:6 }}>
+                      <div style={{ display:"inline-flex", alignItems:"center", gap:5, background:"rgba(255,179,71,.14)", border:"1px solid rgba(255,179,71,.18)", borderRadius:20, padding:"3px 10px", marginTop:6 }}>
                         <svg width="8" height="8" viewBox="0 0 24 24" fill="#FFB347"><circle cx="12" cy="12" r="10"/></svg>
                         <span style={{ fontSize:9, color:"#FFB347", fontWeight:700 }}>{usuarioActual.racha} día{usuarioActual.racha !== 1 ? "s" : ""} de racha</span>
                       </div>
                     )}
                   </div>
                   <div style={{ display:"flex", gap:8, alignItems:"center", marginTop:4 }}>
-                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(0,0,0,.08)", borderRadius:10, border:"1px solid rgba(0,0,0,.09)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(0,0,0,.11)", borderRadius:10, border:"1px solid rgba(0,0,0,.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(245,238,232,0.65)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                       {unread > 0 && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, background:C.plum, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"white" }}>{unread}</div>}
                     </div>
-                    <div onClick={() => showScreen("perfil")} style={{ width:36, height:36, background:"rgba(255,123,90,.12)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", border:"1px solid rgba(255,123,90,.20)", cursor:"pointer", overflow:"hidden" }}>
+                    <div onClick={() => showScreen("perfil")} style={{ width:36, height:36, background:"rgba(255,123,90,.20)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", border:"1px solid rgba(255,123,90,.20)", cursor:"pointer", overflow:"hidden" }}>
                       {avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : <AvatarSVG id="av1" size={22}/>}
                     </div>
                   </div>
@@ -3700,7 +3700,7 @@ const styles = `
 
                 {/* BARRA XP */}
                 <div onClick={() => showScreen("logros")} style={{ display:"flex", alignItems:"center", gap:10, marginTop:14, cursor:"pointer" }}>
-                  <div style={{ flex:1, height:3, background:"rgba(0,0,0,.08)", borderRadius:2, overflow:"hidden" }}>
+                  <div style={{ flex:1, height:3, background:"rgba(0,0,0,.11)", borderRadius:2, overflow:"hidden" }}>
                     <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:"linear-gradient(90deg,#FF7B5A,#FFB347,#FFD080)", borderRadius:2, transition:"width 0.5s ease", boxShadow:"0 0 8px rgba(255,208,128,.4)" }}/>
                   </div>
                   <span style={{ fontSize:9, color:"rgba(255,208,128,0.65)", whiteSpace:"nowrap", letterSpacing:"0.5px", fontWeight:600 }}>◆ {xp} XP</span>
@@ -3711,7 +3711,7 @@ const styles = `
               <div style={{ padding:"0 14px", marginTop:-24, position:"relative", zIndex:10 }}>
                 {citas.length === 0 ? (
                   <div style={{ background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:16, padding:14, textAlign:"center", marginBottom:12, boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.06)" }}>
-                    <div style={{ width:36, height:36, background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.18)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 8px" }}>
+                    <div style={{ width:36, height:36, background:"rgba(255,123,90,.18)", border:"1px solid rgba(255,123,90,.18)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 8px" }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     </div>
                     <div style={{ fontSize:12, fontWeight:600, color:C.text }}>Sin citas agendadas</div>
@@ -3725,7 +3725,7 @@ const styles = `
                       .sort((a,b) => fechaOrden(a) - fechaOrden(b))[0];
                     if (!proxima) return null;
                     return (
-                      <div style={{ background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:16, padding:14, marginBottom:12, overflow:"hidden", position:"relative", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.07), inset 0 1px 0 rgba(0,0,0,.09)" }}>
+                      <div style={{ background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:16, padding:14, marginBottom:12, overflow:"hidden", position:"relative", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.07), inset 0 1px 0 rgba(0,0,0,.12)" }}>
                         <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,#FF7B5A,#FFB347,transparent)" }}/>
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
                           <span style={{ fontSize:10, fontWeight:700, color:"rgba(255,179,71,0.65)", letterSpacing:"0.12em", textTransform:"uppercase" }}>Próxima cita</span>
@@ -3737,12 +3737,12 @@ const styles = `
                               const horas = Math.floor((diff % 86400000) / 3600000);
                               const mins = Math.floor((diff % 3600000) / 60000);
                               return (
-                                <span style={{ fontSize:10, fontWeight:600, color:C.amber, background:"rgba(255,179,71,.08)", border:"1px solid rgba(255,179,71,.15)", padding:"3px 8px", borderRadius:20 }}>
+                                <span style={{ fontSize:10, fontWeight:600, color:C.amber, background:"rgba(255,179,71,.14)", border:"1px solid rgba(255,179,71,.15)", padding:"3px 8px", borderRadius:20 }}>
                                   {dias > 0 ? `En ${dias}d ${horas}h` : horas > 0 ? `En ${horas}h ${mins}m` : `En ${mins} min`}
                                 </span>
                               );
                             })()}
-                            <div style={{ background:proxima.status==="confirmada"?"rgba(78,205,196,.12)":"rgba(255,179,71,.10)", color:proxima.status==="confirmada"?C.sage:C.amber, fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20, border:`1px solid ${proxima.status==="confirmada"?"rgba(78,205,196,.20)":"rgba(255,179,71,.18)"}` }}>
+                            <div style={{ background:proxima.status==="confirmada"?"rgba(78,205,196,.20)":"rgba(255,179,71,.16)", color:proxima.status==="confirmada"?C.sage:C.amber, fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20, border:`1px solid ${proxima.status==="confirmada"?"rgba(78,205,196,.20)":"rgba(255,179,71,.18)"}` }}>
                               {proxima.status==="confirmada"?"Confirmada":"Pendiente"}
                             </div>
                           </div>
@@ -3852,8 +3852,8 @@ const styles = `
                     style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#FFFFFF",
                       backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
                       border:"1px solid rgba(255,255,255,.065)", borderRadius:12, padding:"9px 10px",
-                      cursor:"pointer", WebkitTapHighlightColor:"transparent", boxShadow:"inset 0 1px 0 rgba(0,0,0,.08)" }}>
-                    <div style={{ width:26, height:26, background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.15)", borderRadius:8,
+                      cursor:"pointer", WebkitTapHighlightColor:"transparent", boxShadow:"inset 0 1px 0 rgba(0,0,0,.11)" }}>
+                    <div style={{ width:26, height:26, background:"rgba(255,123,90,.18)", border:"1px solid rgba(255,123,90,.15)", borderRadius:8,
                       display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </div>
@@ -3954,8 +3954,8 @@ const styles = `
                     {[5, 10, 15, 20, 30].map(m => (
                       <div key={m} onClick={() => setRetrasoMinutos(m)}
                         style={{ flex:1, padding:"10px 0", borderRadius:11, textAlign:"center", cursor:"pointer",
-                          border:`1.5px solid ${retrasoMinutos===m ? C.amber : "rgba(0,0,0,.09)"}`,
-                          background: retrasoMinutos===m ? "rgba(255,179,71,.15)" : "rgba(0,0,0,.04)", transition:"all 0.15s" }}>
+                          border:`1.5px solid ${retrasoMinutos===m ? C.amber : "rgba(0,0,0,.12)"}`,
+                          background: retrasoMinutos===m ? "rgba(255,179,71,.15)" : "rgba(0,0,0,.07)", transition:"all 0.15s" }}>
                         <div style={{ fontSize:13, fontWeight:800, color:retrasoMinutos===m ? C.amberDark : C.text }}>{m}'</div>
                         <div style={{ fontSize:8, color:retrasoMinutos===m ? C.amber : C.light, fontWeight:600 }}>min</div>
                       </div>
@@ -3963,7 +3963,7 @@ const styles = `
                   </div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nota adicional <span style={{ fontWeight:400, color:C.light }}>(opcional)</span></div>
                   <textarea placeholder="Ej: Estoy saliendo del trabajo..." value={retrasoTexto} onChange={e => setRetrasoTexto(e.target.value)}
-                    style={{ width:"100%", minHeight:64, padding:"10px 12px", border:"1.5px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, color:C.text }}/>
+                    style={{ width:"100%", minHeight:64, padding:"10px 12px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, color:C.text }}/>
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(()=>setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(async () => {
@@ -3991,13 +3991,13 @@ const styles = `
 
           {/* PANTALLA ELEGIR COMPAÑERO */}
 {screen === "elegir-companero" && (
-  <div style={{position:"absolute",inset:0,background:"#F5F4F9",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10}}>
+  <div style={{position:"absolute",inset:0,background:"#F0F2F0",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10}}>
 
     {/* Header */}
-    <div style={{background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)",padding:"32px 20px 32px",borderRadius:"0 0 28px 28px",flexShrink:0,position:"relative",overflow:"hidden",borderBottom:"1px solid rgba(0,0,0,.08)"}}>
+    <div style={{background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)",padding:"32px 20px 32px",borderRadius:"0 0 28px 28px",flexShrink:0,position:"relative",overflow:"hidden",borderBottom:"1px solid rgba(0,0,0,.11)"}}>
       <div style={{position:"absolute",top:0,left:0,right:0,height:"1px",background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),transparent)"}}/>
       {[...Array(18)].map((_,i)=>(
-        <div key={i} style={{position:"absolute",width:3,height:3,borderRadius:"50%",background:"rgba(255,123,90,0.12)",left:`${(i*67)%100}%`,top:`${(i*43)%100}%`}}/>
+        <div key={i} style={{position:"absolute",width:3,height:3,borderRadius:"50%",background:"rgba(255,123,90,0.20)",left:`${(i*67)%100}%`,top:`${(i*43)%100}%`}}/>
       ))}
       <div style={{fontSize:10,color:"rgba(255,179,71,0.65)",letterSpacing:"0.14em",marginBottom:8,fontWeight:700,textTransform:"uppercase"}}>Primer ingreso</div>
       <div style={{fontSize:23,fontWeight:800,color:"white",lineHeight:1.25,letterSpacing:"-0.02em"}}>
@@ -4032,8 +4032,8 @@ const styles = `
             background: companeroSeleccionando === id ? "rgba(255,255,255,.045)" : "rgba(255,255,255,.022)",
             backdropFilter:"blur(20px)",
             WebkitBackdropFilter:"blur(20px)",
-            border:`1px solid ${companeroSeleccionando === id ? data.color : "rgba(0,0,0,.08)"}`,
-            borderLeft:`3px solid ${companeroSeleccionando === id ? data.color : "rgba(0,0,0,.04)"}`,
+            border:`1px solid ${companeroSeleccionando === id ? data.color : "rgba(0,0,0,.11)"}`,
+            borderLeft:`3px solid ${companeroSeleccionando === id ? data.color : "rgba(0,0,0,.07)"}`,
             borderRadius:20,
             padding:"14px 16px",
             marginBottom:12,
@@ -4105,17 +4105,17 @@ const styles = `
 {/* ── PANTALLA NOTA/TAREA ABIERTA (estilo bloc nativo) ── */}
 {notaAbierta && (
   <div style={{ position:"absolute", inset:0, zIndex:800, display:"flex", flexDirection:"column",
-    background:"#F5F4F9",
+    background:"#F0F2F0",
     animation:"slideInRight 0.25s ease" }}>
 
     {/* HEADER */}
     <div style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 16px",
       paddingTop:"max(14px, env(safe-area-inset-top, 14px))",
-      background:"rgba(245,244,249,0.98)", backdropFilter:"blur(20px)",
-      borderBottom:"0.5px solid rgba(0,0,0,.09)" }}>
+      background:"rgba(240,242,240,0.97)", backdropFilter:"blur(20px)",
+      borderBottom:"0.5px solid rgba(0,0,0,.12)" }}>
       <div onClick={() => { setNotaAbierta(null); setNotaEditando(false); }}
         style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center",
-          borderRadius:10, background:"rgba(0,0,0,.09)", cursor:"pointer", flexShrink:0 }}>
+          borderRadius:10, background:"rgba(0,0,0,.12)", cursor:"pointer", flexShrink:0 }}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
       </div>
       <div style={{ flex:1, minWidth:0 }}>
@@ -4156,12 +4156,12 @@ const styles = `
           }} style={{ padding:"6px 14px", background:C.plum, color:"white", borderRadius:20,
             fontSize:12, fontWeight:700, cursor:"pointer" }}>Guardar</div>
           <div onClick={() => setNotaEditando(false)}
-            style={{ padding:"6px 14px", background:"rgba(0,0,0,.09)", color:C.text,
+            style={{ padding:"6px 14px", background:"rgba(0,0,0,.12)", color:C.text,
               borderRadius:20, fontSize:12, fontWeight:700, cursor:"pointer" }}>Cancelar</div>
         </>) : (
           notaAbierta.tipo !== "tarea" && (
             <div onClick={() => { setNotaEditando(true); setNotaTextoEdit(notaAbierta.text || notaAbierta.texto || ""); setNotaTituloEdit(notaAbierta.titulo || notaAbierta.title || ""); }}
-              style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.09)",
+              style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.12)",
                 display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
             </div>
@@ -4176,7 +4176,7 @@ const styles = `
       <div style={{ position:"absolute", inset:0, pointerEvents:"none",
         backgroundImage:`repeating-linear-gradient(
           transparent, transparent 31px,
-          rgba(255,123,90,0.08) 31px, rgba(255,123,90,0.08) 32px
+          rgba(255,123,90,0.15) 31px, rgba(255,123,90,0.15) 32px
         )`,
         backgroundSize:"100% 32px",
         backgroundPositionY:"48px"
@@ -4191,7 +4191,7 @@ const styles = `
           <>
             {notaAbierta.descripcion && (
               <div style={{ fontSize:13, color:C.light, lineHeight:1.8, marginBottom:24,
-                fontStyle:"italic", paddingBottom:16, borderBottom:"1px solid rgba(0,0,0,.09)",
+                fontStyle:"italic", paddingBottom:16, borderBottom:"1px solid rgba(0,0,0,.12)",
                 whiteSpace:"pre-wrap" }}>
                 {notaAbierta.descripcion.split('\n').map((ln, i, arr) => (
                   <span key={i}>{ln}{i < arr.length - 1 && <br/>}</span>
@@ -4266,7 +4266,7 @@ const styles = `
     {/* FOOTER — acciones */}
     <div style={{ padding:"12px 16px", paddingBottom:"max(12px, env(safe-area-inset-bottom, 12px))",
       background:"rgba(7,6,15,.96)", backdropFilter:"blur(20px)",
-      borderTop:"0.5px solid rgba(0,0,0,.09)", display:"flex", gap:10, alignItems:"center" }}>
+      borderTop:"0.5px solid rgba(0,0,0,.12)", display:"flex", gap:10, alignItems:"center" }}>
 
       {/* Tarea: botón enviar respuesta */}
       {notaAbierta.tipo === "tarea" && !notaAbierta.completada && (
@@ -4332,7 +4332,7 @@ const styles = `
             showToast(nuevoShared ? "👁 Compartida con tu psicólogo" : "🔒 Solo visible para ti");
           } catch(e) {}
         }} style={{ width:44, height:44, borderRadius:12,
-          background: notaAbierta.shared ? `${C.sageDark}20` : "rgba(0,0,0,.09)",
+          background: notaAbierta.shared ? `${C.sageDark}20` : "rgba(0,0,0,.12)",
           display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={notaAbierta.shared ? C.sageDark : C.light} strokeWidth="1.75" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
@@ -4342,10 +4342,10 @@ const styles = `
 )}
 
 {!notifPanel && screen === "notas" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
 
     {/* HEADER */}
-    <div style={{ background:"rgba(245,244,249,0.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 0", borderBottom:"1px solid rgba(0,0,0,.08)", paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
+    <div style={{ background:"rgba(240,242,240,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 0", borderBottom:"1px solid rgba(0,0,0,.11)", paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
         <div>
           <div style={{ fontSize:17, fontWeight:700, color:C.text, letterSpacing:"-0.02em" }}>Mis notas</div>
@@ -4362,7 +4362,7 @@ const styles = `
           </div>
         )}
       </div>
-      <div style={{ display:"flex", borderBottom:"1px solid rgba(0,0,0,.08)" }}>
+      <div style={{ display:"flex", borderBottom:"1px solid rgba(0,0,0,.11)" }}>
         {[["Para no olvidar","insights"],["Tareas","tareas"]].map(([lb,id]) => (
           <button key={id} onClick={() => setNoteTab(id)} style={{ flex:1, padding:"10px 0", fontSize:12, fontWeight:600, color:noteTab===id?C.plum:C.light, border:"none", background:"transparent", borderBottom:`2px solid ${noteTab===id?C.plum:"transparent"}`, marginBottom:-1, cursor:"pointer", fontFamily:"inherit", transition:"color 200ms ease" }}>
             {lb}{id==="tareas" && pendientes > 0 && <span style={{ background:C.plum, color:"white", fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20, marginLeft:6 }}>{pendientes}</span>}
@@ -4390,10 +4390,10 @@ const styles = `
                 ))}
               </div>
               <input type="text" placeholder="Título (opcional)" value={insightTitle} onChange={e => setInsightTitle(e.target.value)}
-                style={{ width:"100%", padding:"11px 14px", border:"1.5px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:"#FFFFFF", color:C.text }}/>
+                style={{ width:"100%", padding:"11px 14px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", boxSizing:"border-box", fontFamily:"inherit", background:"#FFFFFF", color:C.text }}/>
               <textarea placeholder="Escribe lo que no quieres olvidar para tu próxima sesión..." value={insightText} onChange={e => setInsightText(e.target.value)}
-                style={{ width:"100%", minHeight:100, padding:"11px 14px", border:"1.5px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6, background:"#FFFFFF", color:C.text }}/>
-              <div onClick={() => setInsightShared(!insightShared)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:11, background:insightShared?`${C.sage}18`:"rgba(0,0,0,.04)", cursor:"pointer", marginBottom:14 }}>
+                style={{ width:"100%", minHeight:100, padding:"11px 14px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6, background:"#FFFFFF", color:C.text }}/>
+              <div onClick={() => setInsightShared(!insightShared)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:11, background:insightShared?`${C.sage}18`:"rgba(0,0,0,.07)", cursor:"pointer", marginBottom:14 }}>
                 <div style={{ width:20, height:20, borderRadius:6, border:`1.5px solid ${insightShared?C.sageDark:C.light}`, background:insightShared?C.sageDark:"transparent", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                   {insightShared && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </div>
@@ -4403,7 +4403,7 @@ const styles = `
                 </div>
               </div>
               <div style={{ display:"flex", gap:8 }}>
-                {btn(() => { setModal(null); setInsightText(""); setInsightTitle(""); setInsightMood(null); setInsightShared(false); }, "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:11, fontSize:13, fontWeight:600 })}
+                {btn(() => { setModal(null); setInsightText(""); setInsightTitle(""); setInsightMood(null); setInsightShared(false); }, "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.11)", color:C.text, borderRadius:11, fontSize:13, fontWeight:600 })}
                 {btn(async () => {
                   if (!insightText.trim()) return;
                   const id = Date.now().toString();
@@ -4433,7 +4433,7 @@ const styles = `
           )}
           {insights.map(n => (
             <div key={n.id} onClick={() => setNotaAbierta({ ...n, tipo:"insight" })}
-              style={{ background:n.shared?"rgba(78,205,196,.10)":"#FFFFFF", borderRadius:14, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.shared?"rgba(78,205,196,.30)":"rgba(255,123,90,0.10)"}`, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+              style={{ background:n.shared?"rgba(78,205,196,.18)":"#FFFFFF", borderRadius:14, padding:"13px 14px", marginBottom:8, border:`0.5px solid ${n.shared?"rgba(78,205,196,.30)":"rgba(255,123,90,0.18)"}`, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
               <div style={{ width:32, height:32, borderRadius:9, background:n.shared?"rgba(78,205,196,.18)":`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:1 }}>
                 {n.shared
                   ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.sageDark} strokeWidth="1.75" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -4464,7 +4464,7 @@ const styles = `
     {/* SUBTABS */}
     <div style={{ display:"flex", gap:8, marginBottom:16 }}>
       {[["📋","Mis autorregistros","autorregistros"],["📚","Mis recursos","recursos"],["🎯","Tareas","tareas"]].map(([ic,lb,id]) => (
-        <div key={id} onClick={() => setTareasTab(id)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"12px 8px", borderRadius:16, background:tareasTab===id?C.plum:"rgba(0,0,0,.04)", cursor:"pointer", border:"1px solid rgba(0,0,0,.08)", transition:"all 0.2s" }}>
+        <div key={id} onClick={() => setTareasTab(id)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"12px 8px", borderRadius:16, background:tareasTab===id?C.plum:"rgba(0,0,0,.07)", cursor:"pointer", border:"1px solid rgba(0,0,0,.11)", transition:"all 0.2s" }}>
           <span style={{ fontSize:22 }}>{ic}</span>
           <span style={{ fontSize:10, fontWeight:800, color:tareasTab===id?"white":C.light, textAlign:"center" }}>{lb}</span>
         </div>
@@ -4486,7 +4486,7 @@ const styles = `
             ) : (
               autorregistros.map((ar, i) => (
                 <div key={i} onClick={() => setNotaAbierta({ ...ar, tipo:"autorregistro" })}
-                  style={{ background:"#FFFFFF", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(255,123,90,0.10)", cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+                  style={{ background:"#FFFFFF", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(255,123,90,0.18)", cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
                   <div style={{ width:32, height:32, borderRadius:9, background:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:1 }}>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </div>
@@ -4511,19 +4511,19 @@ const styles = `
 
                 <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📅 Fecha</div>
                 <input placeholder="Ej: 19 de marzo, 2026" value={arFecha} onChange={e => setArFecha(e.target.value)}
-                  style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                  style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                 <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué estaba haciendo antes del 'evento' problema?</div>
                 <textarea placeholder="Describe lo que hacías en ese momento..." value={arHaciendo} onChange={e => setArHaciendo(e.target.value)}
-                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
+                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
 
                 <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué evento sucedió?</div>
                 <textarea placeholder="¿Qué pasó? ¿Cómo te sentiste?" value={arSucedio} onChange={e => setArSucedio(e.target.value)}
-                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
+                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
 
                 <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué hizo después?</div>
                 <textarea placeholder="¿Qué hiciste luego? ¿Cómo lo manejaste?" value={arDespues} onChange={e => setArDespues(e.target.value)}
-                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
+                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
 
                 <div style={{ display:"flex", gap:8 }}>
                   {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -4563,7 +4563,7 @@ const styles = `
         Tu psicólogo aún no ha enviado materiales
       </div>
     ) : recursos.map(r => (
-      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:10, border:"1px solid rgba(0,0,0,.08)" }}>
+      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:10, border:"1px solid rgba(0,0,0,.11)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
           <div style={{ width:44, height:44, borderRadius:12, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>
             {r.tipo==="PDF"?"📄":r.tipo==="Podcast"?"🎵":r.tipo==="YouTube"?"🎬":r.tipo==="Imagen"?"🖼️":r.tipo==="Enlace"?"🔗":"📎"}
@@ -4610,7 +4610,7 @@ const styles = `
               } catch(e) {}
             }
           }}
-            style={{ background:"#FFFFFF", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(255,123,90,0.10)", opacity:t.completada?0.6:1, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
+            style={{ background:"#FFFFFF", borderRadius:14, padding:"13px 14px", marginBottom:8, border:"0.5px solid rgba(255,123,90,0.18)", opacity:t.completada?0.6:1, cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
             <div onClick={async e => {
               e.stopPropagation();
               try {
@@ -4650,7 +4650,7 @@ const styles = `
               </div>
               {t.descripcion && <div style={{ fontSize:11, color:C.light, marginTop:2, lineHeight:1.5, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{t.descripcion}</div>}
               <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:6, flexWrap:"wrap" }}>
-                <span style={{ background:"rgba(255,179,71,.12)", color:C.amberDark, fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:10 }}>+{t.xp||80} XP</span>
+                <span style={{ background:"rgba(255,179,71,.18)", color:C.amberDark, fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:10 }}>+{t.xp||80} XP</span>
                 {t.vence && <span style={{ fontSize:10, color:C.light }}>Vence {t.vence}</span>}
                 {t.completada && <span style={{ background:`${C.green}18`, color:C.green, fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:10 }}>Completada</span>}
                 {!t.completada && t.respuesta && <span style={{ background:`${C.plum}15`, color:C.plum, fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:10 }}>Respondida</span>}
@@ -4669,9 +4669,9 @@ const styles = `
         <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>✏️ Responder tarea</div>
         <div style={{ fontSize:13, fontWeight:800, color:C.plum, marginBottom:4 }}>{tareaRespondiendo.titulo}</div>
         {tareaRespondiendo.descripcion ? <div style={{ fontSize:12, color:C.light, marginBottom:10, lineHeight:1.5 }}>{tareaRespondiendo.descripcion}</div> : null}
-        <div style={{ background:"rgba(255,179,71,.12)", borderRadius:11, padding:"9px 12px", fontSize:11, fontWeight:700, color:C.amber, marginBottom:12 }}>⭐ Ganarás +{tareaRespondiendo.xp || 80} XP al completar</div>
+        <div style={{ background:"rgba(255,179,71,.18)", borderRadius:11, padding:"9px 12px", fontSize:11, fontWeight:700, color:C.amber, marginBottom:12 }}>⭐ Ganarás +{tareaRespondiendo.xp || 80} XP al completar</div>
         <textarea placeholder="Escribe tu reflexión aquí..." value={respuestaTarea} onChange={e => setRespuestaTarea(e.target.value)}
-          style={{ width:"100%", minHeight:90, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:13, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+          style={{ width:"100%", minHeight:90, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:13, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
         <div style={{ display:"flex", gap:8 }}>
           {btn(() => { setModal(null); setRespuestaTarea(""); setTareaRespondiendo(null); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
           {btn(async () => {
@@ -4761,22 +4761,22 @@ const styles = `
             };
 
             return (
-              <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
+              <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
                 {/* Header */}
                 <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"16px 18px 18px", paddingTop:"max(16px, env(safe-area-inset-top,16px))", flexShrink:0 }}>
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:2 }}>
-                    <div onClick={mesAnterior} style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.09)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>‹</div>
+                    <div onClick={mesAnterior} style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.12)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>‹</div>
                     <div style={{ textAlign:"center" }}>
                       <div style={{ fontSize:16, fontWeight:700, color:"white" }}>{meses[mesVista]} {anioVista}</div>
                       <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)", marginTop:2 }}>{citasDelMes.length} cita{citasDelMes.length!==1?"s":""} este mes</div>
                     </div>
-                    <div onClick={mesSiguiente} style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.09)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>›</div>
+                    <div onClick={mesSiguiente} style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.12)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>›</div>
                   </div>
                 </div>
 
                 <div style={{ flex:1, overflowY:"auto", paddingBottom:NAV_PB }}>
                   {/* Grid calendario */}
-                  <div style={{ background:"#FFFFFF", margin:14, borderRadius:16, padding:12, border:"1px solid rgba(0,0,0,.08)" }}>
+                  <div style={{ background:"#FFFFFF", margin:14, borderRadius:16, padding:12, border:"1px solid rgba(0,0,0,.11)" }}>
                     {/* Días semana */}
                     <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", marginBottom:6 }}>
                       {dias.map(d => (
@@ -4875,7 +4875,7 @@ const styles = `
                         .slice()
                         .sort((a,b) => fechaOrden(a) - fechaOrden(b))
                         .map(c => (
-                      <div key={c.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", marginBottom:10, border:"1px solid rgba(0,0,0,.08)", borderLeft:`3px solid ${colStatus(c.status)}` }}>
+                      <div key={c.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", marginBottom:10, border:"1px solid rgba(0,0,0,.11)", borderLeft:`3px solid ${colStatus(c.status)}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ background:colStatus(c.status)+"20", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:46, flexShrink:0 }}>
                             <div style={{ fontSize:18, fontWeight:900, color:colStatus(c.status), lineHeight:1 }}>{mostrarFechaLocal(c, "dia")}</div>
@@ -4946,7 +4946,7 @@ const styles = `
                           </>)}
                           {c.status==="confirmada" && usuarioActual?.rol==="paciente" && (
                             <div onClick={()=>{ setCitaSeleccionada(c); setRetrasoTexto(""); setRetrasoMinutos(10); setModal("demora-aviso"); }}
-                              style={{ display:"flex", alignItems:"center", gap:5, padding:"3px 10px", borderRadius:9, background:"rgba(0,0,0,.09)", border:"1px solid rgba(255,123,90,0.2)", cursor:"pointer" }}>
+                              style={{ display:"flex", alignItems:"center", gap:5, padding:"3px 10px", borderRadius:9, background:"rgba(0,0,0,.12)", border:"1px solid rgba(255,123,90,0.2)", cursor:"pointer" }}>
                               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.amberDark} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                               <span style={{ fontSize:10, fontWeight:700, color:C.amberDark }}>Me demoraré un momento</span>
                             </div>
@@ -5145,7 +5145,7 @@ const styles = `
                       {[5, 10, 15, 20, 30].map(m => (
                         <div key={m} onClick={() => setRetrasoMinutos(m)}
                           style={{ flex:1, padding:"10px 0", borderRadius:11, textAlign:"center", cursor:"pointer",
-                            border:`1.5px solid ${retrasoMinutos===m ? C.amber : "rgba(0,0,0,0.08)"}`,
+                            border:`1.5px solid ${retrasoMinutos===m ? C.amber : "rgba(0,0,0,0.11)"}`,
                             background: retrasoMinutos===m ? "#F5EEE8" : "white",
                             transition:"all 0.15s" }}>
                           <div style={{ fontSize:13, fontWeight:800, color:retrasoMinutos===m ? C.amberDark : C.text }}>{m}'</div>
@@ -5160,7 +5160,7 @@ const styles = `
                       placeholder="Ej: Estoy saliendo del trabajo..."
                       value={retrasoTexto}
                       onChange={e => setRetrasoTexto(e.target.value)}
-                      style={{ width:"100%", minHeight:64, padding:"10px 12px", border:"1.5px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, color:C.text }}/>
+                      style={{ width:"100%", minHeight:64, padding:"10px 12px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, color:C.text }}/>
 
                     <div style={{ display:"flex", gap:8 }}>
                       {btn(()=>setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -5193,7 +5193,7 @@ const styles = `
 
           {/* LOGROS */}
           {!notifPanel && screen === "logros" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
               <div style={{ background:`linear-gradient(145deg,${C.amberDark},${C.gold})`, padding:"32px 24px 52px", textAlign:"center" }}>
                 <div style={{ fontSize:64, marginBottom:10 }}>{getRango(xp).icono}</div>
                 <div style={{ fontSize:20, fontWeight:700, color:"white", marginBottom:4 }}>{getRango(xp).nombre}</div>
@@ -5202,12 +5202,12 @@ const styles = `
 
               <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))", marginTop:-24, position:"relative", zIndex:10 }}>
                 {/* TARJETA XP */}
-                <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, border:"1px solid rgba(0,0,0,.09)", marginBottom:16 }}>
+                <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, border:"1px solid rgba(0,0,0,.12)", marginBottom:16 }}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Tu progreso</div>
                     <div style={{ fontSize:13, fontWeight:800, color:C.amberDark }}>{xp} XP</div>
                   </div>
-                  <div style={{ height:10, background:"rgba(0,0,0,.09)", borderRadius:5, overflow:"hidden", marginBottom:8 }}>
+                  <div style={{ height:10, background:"rgba(0,0,0,.12)", borderRadius:5, overflow:"hidden", marginBottom:8 }}>
                     <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:`linear-gradient(90deg,${C.amber},${C.gold})`, borderRadius:5, transition:"width 0.5s ease" }}/>
                   </div>
                   <div style={{ fontSize:11, color:C.light }}>
@@ -5227,7 +5227,7 @@ const styles = `
                   {min:150,max:199,nombre:"Sapiens",icono:"👁️",desc:"La visión interna"},
                   {min:200,max:Infinity,nombre:"Sapiens Sapiens",icono:"💎",desc:"Claridad total"}
                 ].map(r => (
-                  <div key={r.nombre} style={{ background:"#FFFFFF", borderRadius:14, padding:"11px 14px", marginBottom:9, border:"1px solid rgba(0,0,0,.08)", display:"flex", alignItems:"center", gap:14, opacity:xp >= r.min ? 1 : 0.4 }}>
+                  <div key={r.nombre} style={{ background:"#FFFFFF", borderRadius:14, padding:"11px 14px", marginBottom:9, border:"1px solid rgba(0,0,0,.11)", display:"flex", alignItems:"center", gap:14, opacity:xp >= r.min ? 1 : 0.4 }}>
                     <div style={{ fontSize:32, width:52, height:52, background:xp>=r.min?`${C.amber}20`:"#F5F5F5", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center" }}>{r.icono}</div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{r.nombre}</div>
@@ -5241,7 +5241,7 @@ const styles = `
 
                 {/* CÓMO GANAR PUNTOS */}
                 <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12, marginTop:4 }}>¿Cómo ganar puntos?</div>
-                <div style={{ background:"#FFFFFF", borderRadius:14, overflow:"hidden", border:"1px solid rgba(0,0,0,.08)" }}>
+                <div style={{ background:"#FFFFFF", borderRadius:14, overflow:"hidden", border:"1px solid rgba(0,0,0,.11)" }}>
                   {[["📋","Completar tarea","5 pts"],["💡","Guardar nota","2 pts"],["📝","Autorregistro","1 pt"],["📚","Abrir recurso","1 pt"]].map(([ic,lb,pts],i,arr) => (
                     <div key={lb} style={{ display:"flex", alignItems:"center", gap:12, padding:"13px 16px", borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none" }}>
                       <div style={{ fontSize:20 }}>{ic}</div>
@@ -5395,16 +5395,16 @@ const styles = `
 
             return (
               <div style={{ height:"100%", display:"flex", flexDirection:"column",
-                background:"#F5F4F9" }}>
+                background:"#F0F2F0" }}>
 
                 {/* ── Header ── */}
                 <div style={{ padding:"12px 16px 10px",
                   paddingTop:"max(12px,env(safe-area-inset-top,12px))", flexShrink:0,
                   display:"flex", alignItems:"center", justifyContent:"space-between",
-                  background:"rgba(245,244,249,0.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
-                  borderBottom:"1px solid rgba(0,0,0,.08)" }}>
+                  background:"rgba(240,242,240,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
+                  borderBottom:"1px solid rgba(0,0,0,.11)" }}>
                   <div onClick={() => { setDiarioModo("lista"); setDiarioCargado(false); setDiarioEntradas([]); showScreen("home"); }}
-                    style={{ width:34,height:34,borderRadius:10,background:"rgba(0,0,0,.08)",
+                    style={{ width:34,height:34,borderRadius:10,background:"rgba(0,0,0,.11)",
                       display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",WebkitTapHighlightColor:"transparent" }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(245,238,232,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                   </div>
@@ -5463,8 +5463,8 @@ const styles = `
                             <div key={e.id} onClick={() => abrirEntrada(e)}
                               style={{ display:"flex",alignItems:"center",gap:12,
                                 padding:"12px 14px",borderRadius:14,marginBottom:7,
-                                background:"rgba(0,0,0,.04)",
-                                border:"1px solid rgba(0,0,0,.08)",
+                                background:"rgba(0,0,0,.07)",
+                                border:"1px solid rgba(0,0,0,.11)",
                                 borderLeft:`3px solid ${mc}`,cursor:"pointer",
                                 WebkitTapHighlightColor:"transparent" }}>
                               <div style={{ flexShrink:0,textAlign:"center",minWidth:36 }}>
@@ -5503,7 +5503,7 @@ const styles = `
 
                       {/* Página — papel crema */}
                       <div style={{ flex:1, overflowY:"auto", position:"relative",
-                        background:"rgba(0,0,0,.08)",
+                        background:"rgba(0,0,0,.11)",
                         paddingBottom:"calc(64px + env(safe-area-inset-bottom,20px))" }}
                         id="diario-pagina">
 
@@ -5516,7 +5516,7 @@ const styles = `
                               top:`${i*5.2+1}%`,left:3,
                               width:16,height:16,borderRadius:"50%",
                               border:"1.5px solid rgba(100,60,20,0.3)",
-                              background:"rgba(0,0,0,.08)" }}/>
+                              background:"rgba(0,0,0,.11)" }}/>
                           ))}
                         </div>
 
@@ -5907,7 +5907,7 @@ const styles = `
                   flexShrink:0, position:"relative", zIndex:2,
                   display:"flex", alignItems:"center", justifyContent:"space-between" }}>
                   <div onClick={() => { setJuegoCargado(false); setJuegoData(null); showScreen(usuarioActual?.rol === "psicologo" ? "admin-perfil" : "home"); }}
-                    style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.08)",
+                    style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.11)",
                       display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                   </div>
@@ -5983,7 +5983,7 @@ const styles = `
                           setJuegoCargado(true);
                         }}
                           style={{ display:"flex", alignItems:"center", gap:12,
-                            background:"rgba(0,0,0,.04)", borderRadius:14,
+                            background:"rgba(0,0,0,.07)", borderRadius:14,
                             padding:"12px 14px", marginBottom:9,
                             border:"1px solid rgba(255,123,90,0.15)",
                             cursor:"pointer", WebkitTapHighlightColor:"transparent",
@@ -6022,7 +6022,7 @@ const styles = `
                         <div style={{ fontSize:10, fontWeight:800, color:"#1E8880", letterSpacing:.5 }}>PACIENTE</div>
                         <div style={{ fontSize:22, fontWeight:900, color:C.sage, marginTop:4 }}>{fmtScore(juegoData.scores?.pac)}</div>
                       </div>
-                      <div style={{ background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.08)", borderRadius:14, padding:"10px 12px", textAlign:"center", minWidth:64 }}>
+                      <div style={{ background:"rgba(0,0,0,.07)", border:"1px solid rgba(0,0,0,.11)", borderRadius:14, padding:"10px 12px", textAlign:"center", minWidth:64 }}>
                         <div style={{ fontSize:10, color:C.light, fontWeight:700, marginBottom:6 }}>VS</div>
                         <div style={{ fontSize:11, fontWeight:700, color:C.light, lineHeight:1.4 }}>
                           {juegoData.estado === "terminado"
@@ -6050,12 +6050,12 @@ const styles = `
                               fontSize:38,
                               background: isWin
                                 ? (cel==="pac"?"rgba(78,205,196,0.25)":"rgba(255,123,90,0.25)")
-                                : cel === "pac" ? "rgba(78,205,196,0.12)"
-                                : cel === "psi" ? "rgba(255,123,90,0.12)"
-                                : "rgba(0,0,0,.04)",
+                                : cel === "pac" ? "rgba(78,205,196,0.20)"
+                                : cel === "psi" ? "rgba(255,123,90,0.20)"
+                                : "rgba(0,0,0,.07)",
                               border: isWin
                                 ? `2px solid ${cel==="pac"?"#34D399":"#A78BFA"}`
-                                : `1.5px solid ${canPlay?"rgba(167,139,250,0.3)":"rgba(0,0,0,.08)"}`,
+                                : `1.5px solid ${canPlay?"rgba(167,139,250,0.3)":"rgba(0,0,0,.11)"}`,
                               cursor: canPlay ? "pointer" : "default",
                               transition:"all .15s",
                               transform: isWin ? "scale(1.04)" : "scale(1)",
@@ -6073,7 +6073,7 @@ const styles = `
                     </div>
 
                     {/* Estado */}
-                    <div style={{ background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.08)", borderRadius:14, padding:"12px 16px", marginBottom:16 }}>
+                    <div style={{ background:"rgba(0,0,0,.07)", border:"1px solid rgba(0,0,0,.11)", borderRadius:14, padding:"12px 16px", marginBottom:16 }}>
                       {juegoData.estado === "terminado" ? (
                         <div style={{ textAlign:"center" }}>
                           <div style={{ fontSize:32, marginBottom:6 }}>
@@ -6168,7 +6168,7 @@ const styles = `
 
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
 
               {/* HEADER */}
               <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"28px 20px 40px", textAlign:"center" }}>
@@ -6213,7 +6213,7 @@ const styles = `
                   ].map(({ ic, lb, fn }, i, arr) => (
                     <div key={lb} onClick={fn}
                       style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:i<arr.length-1?"0.5px solid rgba(255,155,122,0.06)":"none", cursor:"pointer" }}>
-                      <div style={{ width:30, height:30, background:"rgba(255,123,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <div style={{ width:30, height:30, background:"rgba(255,123,90,0.20)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                         {ic==="user" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
                         {ic==="edit" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>}
                         {ic==="bell" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>}
@@ -6229,7 +6229,7 @@ const styles = `
                 <div style={{ background:"#FFFFFF", border:"0.5px solid rgba(255,155,122,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
                   <div onClick={() => setModal("privacidad")}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(255,155,122,0.06)", cursor:"pointer" }}>
-                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.20)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
                     <div style={{ flex:1, fontSize:13, fontWeight:500, color:C.text }}>Privacidad y seguridad</div>
@@ -6237,7 +6237,7 @@ const styles = `
                   </div>
                   <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(255,155,122,0.06)", cursor:"pointer" }}>
-                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.20)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
                     </div>
                     <div style={{ flex:1, fontSize:13, fontWeight:500, color:C.text }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
@@ -6247,7 +6247,7 @@ const styles = `
                   </div>
                   <div onClick={() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", cursor:"pointer" }}>
-                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.20)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     </div>
                     <div style={{ flex:1, fontSize:13, fontWeight:500, color:C.text }}>Valorar a mi psicólogo</div>
@@ -6308,7 +6308,7 @@ const styles = `
                         }
                       }}/>
                     <div style={{ border:`2px dashed ${subiendoFoto ? C.sage : "rgba(255,123,90,0.3)"}`, borderRadius:14, padding:"12px 14px",
-                      background: subiendoFoto ? "rgba(125,170,146,0.06)" : "rgba(255,123,90,0.04)",
+                      background: subiendoFoto ? "rgba(125,170,146,0.06)" : "rgba(255,123,90,0.18)",
                       display:"flex", alignItems:"center", gap:12 }}>
                       <div style={{ width:52, height:52, borderRadius:"50%", overflow:"hidden", flexShrink:0,
                         background:"rgba(255,123,90,0.1)", display:"flex", alignItems:"center", justifyContent:"center",
@@ -6333,16 +6333,16 @@ const styles = `
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre</div>
                   <input value={editNombre} onChange={e => setEditNombre(e.target.value)}
                     placeholder="Tu nombre completo"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Teléfono</div>
                   <input value={editTel} onChange={e => setEditTel(e.target.value)}
                     placeholder="Tu teléfono"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Correo</div>
                   <input value={usuarioActual?.email || ""} disabled
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.04)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"rgba(0,0,0,.04)", color:C.light }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(255,255,255,.04)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"rgba(0,0,0,.07)", color:C.light }}/>
 
-                  <div style={{ background:"rgba(255,123,90,0.06)", borderRadius:14, padding:"12px 14px", marginBottom:14, border:"1px solid rgba(255,123,90,0.15)" }}>
+                  <div style={{ background:"rgba(255,123,90,0.20)", borderRadius:14, padding:"12px 14px", marginBottom:14, border:"1px solid rgba(255,123,90,0.15)" }}>
                     <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:10 }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                       <div style={{ fontSize:11, fontWeight:800, color:"#FF7B5A" }}>Contacto de emergencia</div>
@@ -6381,7 +6381,7 @@ const styles = `
     <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>🛡️ Privacidad y seguridad</div>
     <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Gestiona tu seguridad</div>
 
-    <div style={{ background:"rgba(255,123,90,.08)", borderRadius:14, padding:14, marginBottom:16 }}>
+    <div style={{ background:"rgba(255,123,90,.15)", borderRadius:14, padding:14, marginBottom:16 }}>
       <div style={{ fontSize:13, fontWeight:800, color:C.plum, marginBottom:4 }}>🔒 Tu información está protegida</div>
       <div style={{ fontSize:11, color:C.light, lineHeight:1.5 }}>Tus datos están cifrados y solo tú y tu psicólogo pueden acceder a ellos.</div>
     </div>
@@ -6426,7 +6426,7 @@ const styles = `
 
     {/* Biometría */}
     {window.PublicKeyCredential !== undefined && (
-      <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,.08)" }}>
+      <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,.11)" }}>
         <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>🔐 Desbloqueo biométrico</div>
         <div style={{ fontSize:11, color:C.light, marginBottom:12, lineHeight:1.5 }}>
           {usuarioActual?.webauthnCredentialId
@@ -6480,7 +6480,7 @@ const styles = `
 
     {/* Bloquear diario con biometría */}
     {usuarioActual?.webauthnCredentialId && (
-      <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,.08)" }}>
+      <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"2px solid rgba(0,0,0,.11)" }}>
         <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>📔 Bloqueo del diario</div>
         <div style={{ fontSize:11, color:C.light, marginBottom:12, lineHeight:1.5 }}>
           {usuarioActual?.diarioBiometria
@@ -6508,7 +6508,7 @@ const styles = `
       </div>
     )}
 
-    {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:10, background:"#FFFFFF", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.08)`, marginBottom:10 })}
+    {btn(() => { setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); setModal("cambiar-pin"); }, "🔑 Cambiar PIN de acceso", { width:"100%", padding:10, background:"#FFFFFF", color:C.text, borderRadius:12, fontSize:13, fontWeight:800, border:`2px solid rgba(0,0,0,0.11)`, marginBottom:10 })}
     {btn(() => setModal(null), "Cerrar", { width:"100%", padding:9, background:C.warm, color:C.text, borderRadius:12, fontSize:13, fontWeight:800 })}
   </div>
 ))}
@@ -6525,7 +6525,7 @@ const styles = `
                     ))}
                   </div>
                   <input type="password" placeholder="PIN actual" inputMode="numeric" maxLength={4} value={pinAnterior} onChange={e => setPinAnterior(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:6 }}>Nuevo PIN</div>
                   <div style={{ display:"flex", justifyContent:"center", gap:12, marginBottom:6 }}>
@@ -6534,7 +6534,7 @@ const styles = `
                     ))}
                   </div>
                   <input type="password" placeholder="Nuevo PIN" inputMode="numeric" maxLength={4} value={pinNuevo} onChange={e => setPinNuevo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:6 }}>Confirmar nuevo PIN</div>
                   <div style={{ display:"flex", justifyContent:"center", gap:12, marginBottom:6 }}>
@@ -6543,7 +6543,7 @@ const styles = `
                     ))}
                   </div>
                   <input type="password" placeholder="Confirmar PIN" inputMode="numeric" maxLength={4} value={pinNuevo2} onChange={e => setPinNuevo2(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:6, background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => { setModal("privacidad"); setPinAnterior(""); setPinNuevo(""); setPinNuevo2(""); }, "← Volver", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -6570,7 +6570,7 @@ const styles = `
                   </div>
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Tu reseña es anónima y pública en su perfil</div>
                   {usuarioActual?.psicologoId && (
-                    <div style={{ background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.09)", borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
+                    <div style={{ background:"rgba(0,0,0,.07)", border:"1px solid rgba(0,0,0,.12)", borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
                       <div style={{ width:32, height:32, borderRadius:"50%", background:`linear-gradient(135deg,${C.plum},${C.amberDark})`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                       </div>
@@ -6586,13 +6586,13 @@ const styles = `
                     ))}
                   </div>
                   <textarea placeholder="Cuéntanos tu experiencia..." value={resenaTexto} onChange={e => setResenaTexto(e.target.value)}
-                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"1px solid rgba(0,0,0,.09)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.55, background:"rgba(0,0,0,.04)", color:C.text }}/>
-                  <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(255,179,71,.08)", border:"1px solid rgba(255,179,71,.16)", borderRadius:10, padding:"9px 12px", marginBottom:16 }}>
+                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.55, background:"rgba(0,0,0,.07)", color:C.text }}/>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(255,179,71,.14)", border:"1px solid rgba(255,179,71,.16)", borderRadius:10, padding:"9px 12px", marginBottom:16 }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <span style={{ fontSize:11, color:C.amber, fontWeight:700, opacity:.85 }}>Tu identidad permanecerá anónima</span>
                   </div>
                   <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.11)", color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña", { flex:2, padding:11, background:loadingResenas ? C.light : `linear-gradient(135deg,${C.plum},${C.amberDark})`, color:"white", borderRadius:11, fontSize:12, fontWeight:800, boxShadow:`0 4px 12px rgba(255,123,90,.2)` })}
                   </div>
                 </div>
@@ -6602,18 +6602,18 @@ const styles = `
           )}
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
-              <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative", borderBottom:"1px solid rgba(0,0,0,.08)" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
+              <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative", borderBottom:"1px solid rgba(0,0,0,.11)" }}>
                 <div style={{ position:"absolute", top:0, left:0, right:0, height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),transparent)" }}/>
-                <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.08)" }}>
+                <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 {/* Avatar + badge verificado integrado */}
                 <div style={{ position:"relative", width:80, height:80, margin:"0 auto 16px" }}>
                   {psicologoData?.foto ? (
-                    <img src={psicologoData.foto} alt="foto" style={{ width:80, height:80, borderRadius:"50%", objectFit:"cover", border:"2px solid rgba(255,123,90,.38)", display:"block", boxShadow:"0 0 0 6px rgba(255,123,90,.07), 0 8px 24px rgba(0,0,0,.4)" }}/>
+                    <img src={psicologoData.foto} alt="foto" style={{ width:80, height:80, borderRadius:"50%", objectFit:"cover", border:"2px solid rgba(255,123,90,.38)", display:"block", boxShadow:"0 0 0 6px rgba(255,123,90,.13), 0 8px 24px rgba(0,0,0,.4)" }}/>
                   ) : (
-                    <div style={{ width:80, height:80, background:`linear-gradient(135deg,${C.plum},${C.amberDark})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid rgba(255,123,90,.35)", boxShadow:"0 0 0 6px rgba(255,123,90,.07), 0 8px 24px rgba(0,0,0,.4)" }}>
+                    <div style={{ width:80, height:80, background:`linear-gradient(135deg,${C.plum},${C.amberDark})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid rgba(255,123,90,.35)", boxShadow:"0 0 0 6px rgba(255,123,90,.13), 0 8px 24px rgba(0,0,0,.4)" }}>
                       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </div>
                   )}
@@ -6646,13 +6646,13 @@ const styles = `
                   Psicólogo · Colombia
                 </div>
                 <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
-                  {psicologoData?.especialidad && <span style={{ background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.20)", color:"rgba(255,155,122,.9)", fontSize:11, fontWeight:700, padding:"4px 14px", borderRadius:20, letterSpacing:".02em" }}>{psicologoData.especialidad}</span>}
+                  {psicologoData?.especialidad && <span style={{ background:"rgba(255,123,90,.18)", border:"1px solid rgba(255,123,90,.20)", color:"rgba(255,155,122,.9)", fontSize:11, fontWeight:700, padding:"4px 14px", borderRadius:20, letterSpacing:".02em" }}>{psicologoData.especialidad}</span>}
                 </div>                
               </div>
 
               <div style={{ padding:"0 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))", marginTop:-20, position:"relative", zIndex:10 }}>
                 {/* CARD INFO — sin mini-foto, secciones limpias */}
-                <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"1px solid rgba(0,0,0,.08)", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.08), inset 0 1px 0 rgba(0,0,0,.08)", background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)" }}>
+                <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"1px solid rgba(0,0,0,.11)", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.11), inset 0 1px 0 rgba(0,0,0,.11)", background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)" }}>
 
                   {/* Contacto */}
                   {(psicologoData?.telefono || psicologoData?.email) && (<>
@@ -6662,7 +6662,7 @@ const styles = `
                     </div>
                     {psicologoData?.telefono && (
                       <div style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px", borderTop:"1px solid rgba(0,0,0,.06)" }}>
-                        <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.08)", border:"1px solid rgba(255,123,90,.12)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.15)", border:"1px solid rgba(255,123,90,.20)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                         </div>
                         <div>
@@ -6673,7 +6673,7 @@ const styles = `
                     )}
                     {psicologoData?.email && (
                       <div style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px", borderTop:"1px solid rgba(0,0,0,.06)" }}>
-                        <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.08)", border:"1px solid rgba(255,123,90,.12)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.15)", border:"1px solid rgba(255,123,90,.20)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                         </div>
                         <div>
@@ -6695,7 +6695,7 @@ const styles = `
                         { lb:"Especialidad", val:psicologoData?.especialidad },
                         { lb:"Enfoque",      val:psicologoData?.enfoque },
                       ].filter(x => x.val).map(({ lb, val }) => (
-                        <div key={lb} style={{ background:"rgba(255,123,90,.05)", border:"1px solid rgba(255,123,90,.09)", borderRadius:10, padding:"9px 11px" }}>
+                        <div key={lb} style={{ background:"rgba(255,123,90,.11)", border:"1px solid rgba(255,123,90,.16)", borderRadius:10, padding:"9px 11px" }}>
                           <div style={{ fontSize:8, fontWeight:700, color:"rgba(255,123,90,.6)", textTransform:"uppercase", letterSpacing:".10em", marginBottom:3 }}>{lb}</div>
                           <div style={{ fontSize:12, fontWeight:600, color:C.text }}>{val}</div>
                         </div>
@@ -6720,13 +6720,13 @@ const styles = `
                 {loadingResenas ? (
                   <div style={{ textAlign:"center", padding:20, color:C.light }}>Cargando...</div>
                 ) : resenas.length === 0 ? (
-                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:20, textAlign:"center", border:"1px solid rgba(0,0,0,.08)" }}>
+                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:20, textAlign:"center", border:"1px solid rgba(0,0,0,.11)" }}>
                     <div style={{ fontSize:11, color:C.light }}>Aún no hay reseñas</div>
                   </div>
                 ) : (
                   <>
                     {/* Rating card — glass limpia sin gradiente pesado */}
-                    <div style={{ background:"#FFFFFF", border:"1px solid rgba(0,0,0,.08)", borderRadius:16, padding:"14px 18px", marginBottom:10, display:"flex", alignItems:"center", gap:16 }}>
+                    <div style={{ background:"#FFFFFF", border:"1px solid rgba(0,0,0,.11)", borderRadius:16, padding:"14px 18px", marginBottom:10, display:"flex", alignItems:"center", gap:16 }}>
                       <div style={{ fontSize:40, fontWeight:900, letterSpacing:"-0.04em", color:C.text, lineHeight:1 }}>
                         {(resenas.reduce((a,r) => a+r.rating, 0) / resenas.length).toFixed(1)}
                       </div>
@@ -6741,7 +6741,7 @@ const styles = `
                       </div>
                     </div>
                     {resenas.filter(r => !r.oculta).map(r => (
-                      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 14px", marginBottom:7, border:"1px solid rgba(0,0,0,.08)", borderLeft:`3px solid rgba(255,123,90,.45)` }}>
+                      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 14px", marginBottom:7, border:"1px solid rgba(0,0,0,.11)", borderLeft:`3px solid rgba(255,123,90,.45)` }}>
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
                           <div style={{ display:"flex", gap:2 }}>
                             {[1,2,3,4,5].map(s => <svg key={s} width="11" height="11" viewBox="0 0 24 24" fill={s <= r.rating ? C.amber : "rgba(255,179,71,.22)"} stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>)}
@@ -6764,7 +6764,7 @@ const styles = `
 
                 {/* MÉTODOS DE PAGO del psicólogo */}
                 {pagosPsicologo.length > 0 && (() => {
-                  const METODOS_INFO = { nequi:{nombre:"Nequi",color:"#C47FD8",bg:"rgba(196,127,216,.10)"}, bancolombia:{nombre:"Bancolombia",color:"#F5A800",bg:"rgba(245,168,0,.10)"}, davivienda:{nombre:"Davivienda",color:"#FF6B6B",bg:"rgba(255,107,107,.10)"}, daviplata:{nombre:"Daviplata",color:"#FF7B5A",bg:"rgba(255,123,90,.10)"}, breve:{nombre:"Breve",color:"#4ECDC4",bg:"rgba(78,205,196,.10)"}, transferencia:{nombre:"Transferencia",color:"#6EEDDF",bg:"rgba(110,237,223,.10)"} };
+                  const METODOS_INFO = { nequi:{nombre:"Nequi",color:"#C47FD8",bg:"rgba(196,127,216,.10)"}, bancolombia:{nombre:"Bancolombia",color:"#F5A800",bg:"rgba(245,168,0,.10)"}, davivienda:{nombre:"Davivienda",color:"#FF6B6B",bg:"rgba(255,107,107,.10)"}, daviplata:{nombre:"Daviplata",color:"#FF7B5A",bg:"rgba(255,123,90,.18)"}, breve:{nombre:"Breve",color:"#4ECDC4",bg:"rgba(78,205,196,.18)"}, transferencia:{nombre:"Transferencia",color:"#6EEDDF",bg:"rgba(110,237,223,.10)"} };
                   return (
                     <div style={{ marginTop:20 }}>
                       <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:12 }}>
@@ -6772,9 +6772,9 @@ const styles = `
                         <span style={{ fontSize:13, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>Métodos de pago</span>
                       </div>
                       {pagosPsicologo.map((mp, i) => {
-                        const info = METODOS_INFO[mp.id] || { nombre:mp.id, color:C.plum, bg:`rgba(255,123,90,.10)` };
+                        const info = METODOS_INFO[mp.id] || { nombre:mp.id, color:C.plum, bg:`rgba(255,123,90,.18)` };
                         return (
-                          <div key={i} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 14px", marginBottom:7, border:"1px solid rgba(0,0,0,.08)", display:"flex", alignItems:"center", gap:12 }}>
+                          <div key={i} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 14px", marginBottom:7, border:"1px solid rgba(0,0,0,.11)", display:"flex", alignItems:"center", gap:12 }}>
                             <div style={{ width:38, height:38, borderRadius:10, background:info.bg, border:`1px solid ${info.color}28`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                               <span style={{ fontSize:10, fontWeight:800, color:info.color }}>{info.nombre.slice(0,2)}</span>
                             </div>
@@ -6803,7 +6803,7 @@ const styles = `
                   </div>
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Tu reseña es anónima y pública en su perfil</div>
                   {usuarioActual?.psicologoId && (
-                    <div style={{ background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.09)", borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
+                    <div style={{ background:"rgba(0,0,0,.07)", border:"1px solid rgba(0,0,0,.12)", borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
                       <div style={{ width:32, height:32, borderRadius:"50%", background:`linear-gradient(135deg,${C.plum},${C.amberDark})`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                       </div>
@@ -6819,13 +6819,13 @@ const styles = `
                     ))}
                   </div>
                   <textarea placeholder="Cuéntanos tu experiencia..." value={resenaTexto} onChange={e => setResenaTexto(e.target.value)}
-                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"1px solid rgba(0,0,0,.09)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.55, background:"rgba(0,0,0,.04)", color:C.text }}/>
-                  <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(255,179,71,.08)", border:"1px solid rgba(255,179,71,.16)", borderRadius:10, padding:"9px 12px", marginBottom:16 }}>
+                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.55, background:"rgba(0,0,0,.07)", color:C.text }}/>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(255,179,71,.14)", border:"1px solid rgba(255,179,71,.16)", borderRadius:10, padding:"9px 12px", marginBottom:16 }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <span style={{ fontSize:11, color:C.amber, fontWeight:700, opacity:.85 }}>Tu identidad permanecerá anónima</span>
                   </div>
                   <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.11)", color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña", { flex:2, padding:11, background:loadingResenas ? C.light : `linear-gradient(135deg,${C.plum},${C.amberDark})`, color:"white", borderRadius:11, fontSize:12, fontWeight:800, boxShadow:`0 4px 12px rgba(255,123,90,.2)` })}
                   </div>
                 </div>
@@ -6835,9 +6835,9 @@ const styles = `
           )}    
           {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
-              <div style={{ background:"rgba(245,244,249,0.98)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:12, borderBottom:"1px solid rgba(0,0,0,.08)" }}>
-                <div onClick={() => showScreen("admin-perfil")} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.08)", flexShrink:0 }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
+              <div style={{ background:"rgba(240,242,240,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:12, borderBottom:"1px solid rgba(0,0,0,.11)" }}>
+                <div onClick={() => showScreen("admin-perfil")} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
@@ -6853,7 +6853,7 @@ const styles = `
               <div style={{ padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:9, marginBottom:18 }}>
                   {[[pacientes.length,"Pacientes"],[citas.filter(c=>c.status==="pendiente").length,"Pendientes"],[citas.filter(c=>c.status==="confirmada").length,"Confirmadas"]].map(([n,l]) => (
-                    <div key={l} style={{ background:"#FFFFFF", borderRadius:14, padding:13, textAlign:"center", border:"1px solid rgba(0,0,0,.08)" }}>
+                    <div key={l} style={{ background:"#FFFFFF", borderRadius:14, padding:13, textAlign:"center", border:"1px solid rgba(0,0,0,.11)" }}>
                       <div style={{ fontSize:17, fontWeight:700, color:C.plum }}>{n}</div>
                       <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                     </div>
@@ -6865,16 +6865,16 @@ const styles = `
                   const recursosRecibidos = recursos.filter(r => r.recibido);
                   if (citasHoy.length === 0 && recursosRecibidos.length === 0) return null;
                   return (
-                    <div style={{ background:C.cardBg, borderRadius:16, padding:14, marginBottom:14, border:"1px solid rgba(0,0,0,.08)" }}>
+                    <div style={{ background:C.cardBg, borderRadius:16, padding:14, marginBottom:14, border:"1px solid rgba(0,0,0,.11)" }}>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:10 }}>🔔 Alertas del día</div>
                       {citasHoy.map(c => (
-                        <div key={c.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`0.5px solid ${darkMode?"rgba(0,0,0,.08)":"rgba(0,0,0,0.05)"}` }}>
+                        <div key={c.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`0.5px solid ${darkMode?"rgba(0,0,0,.11)":"rgba(0,0,0,0.05)"}` }}>
                           <div style={{ width:8, height:8, borderRadius:"50%", background:C.plum, flexShrink:0 }}/>
                           <div style={{ flex:1, fontSize:12, color:C.text }}>Cita con <strong>{c.pacienteNombre}</strong> hoy a las {c.hora}</div>
                         </div>
                       ))}
                       {recursosRecibidos.slice(0,3).map(r => (
-                        <div key={r.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`0.5px solid ${darkMode?"rgba(0,0,0,.08)":"rgba(0,0,0,0.05)"}` }}>
+                        <div key={r.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`0.5px solid ${darkMode?"rgba(0,0,0,.11)":"rgba(0,0,0,0.05)"}` }}>
                           <div style={{ width:8, height:8, borderRadius:"50%", background:C.green, flexShrink:0 }}/>
                           <div style={{ flex:1, fontSize:12, color:C.text }}><strong>{r.pacienteNombre}</strong> recibió "{r.nombre}" ✅</div>
                         </div>
@@ -6888,7 +6888,7 @@ const styles = `
                   <>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📅 Citas de hoy</div>
                     {citas.filter(c => esCitaHoy(c)).map(c => (
-                      <div key={c.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", marginBottom:9, border:"1px solid rgba(0,0,0,.08)", borderLeft:`4px solid ${C.sage}` }}>
+                      <div key={c.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", marginBottom:9, border:"1px solid rgba(0,0,0,.11)", borderLeft:`4px solid ${C.sage}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           <div style={{ flex:1 }}>
                             <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{c.pacienteNombre}</div>
@@ -6939,7 +6939,7 @@ const styles = `
                       setHabitosPacienteId(p.id);
                       showScreen("admin-paciente");
                     }}
-                      style={{ background:"#FFFFFF", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"1px solid rgba(0,0,0,.08)", cursor:"pointer" }}>
+                      style={{ background:"#FFFFFF", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"1px solid rgba(0,0,0,.11)", cursor:"pointer" }}>
                       <div style={{ width:46, height:46, borderRadius:14, overflow:"hidden",
                         background:`linear-gradient(135deg,${C.plum},${C.sage})`,
                         display:"flex", alignItems:"center", justifyContent:"center",
@@ -6995,20 +6995,20 @@ const styles = `
                   {/* Paciente — pre-llenado si viene de admin-paciente */}
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
                   {pacienteSeleccionado ? (
-                    <div style={{ background:"rgba(255,123,90,0.08)", border:"1px solid rgba(255,123,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
+                    <div style={{ background:"rgba(255,123,90,0.15)", border:"1px solid rgba(255,123,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
                       <span style={{ fontSize:16 }}>👤</span>
                       <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{pacienteSeleccionado.nombre}</span>
                     </div>
                   ) : (
                     <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
-                      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
+                      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
                       <option value="">— Seleccionar paciente —</option>
                       {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
                     </select>
                   )}
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
                   <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
                   <textarea
@@ -7016,7 +7016,7 @@ const styles = `
                     value={citaDescripcion}
                     onChange={e => setCitaDescripcion(e.target.value)}
                     rows={3}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12,
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12,
                       outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
                       lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#FFFFFF", color:C.text }}/>
 
@@ -7024,19 +7024,19 @@ const styles = `
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
                       <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
                       <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                   </div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
                       <div key={val} onClick={() => setCitaModalidad(val)}
-                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.09)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.04)" }}>
+                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.12)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.07)" }}>
                         <div style={{ fontSize:22 }}>{ic}</div>
                         <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
                       </div>
@@ -7046,7 +7046,7 @@ const styles = `
                     <>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet</div>
                       <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </>
                   )}                  
                   <div style={{ display:"flex", gap:8 }}>
@@ -7061,13 +7061,13 @@ const styles = `
     <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Se enviará automáticamente al paciente</div>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
     <input value={recTitulo} onChange={e => setRecTitulo(e.target.value)} placeholder="Ej: 💪 ¡Hoy toca gym!"
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Mensaje</div>
     <textarea value={recMensaje} onChange={e => setRecMensaje(e.target.value)} placeholder="Ej: Recuerda que hoy tienes entrenamiento 🏋️"
-      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora de envío</div>
     <input type="time" value={recHora} onChange={e => setRecHora(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Días de la semana</div>
     <div style={{ display:"flex", gap:6, marginBottom:16, flexWrap:"wrap" }}>
       {[["D",0],["L",1],["M",2],["X",3],["J",4],["V",5],["S",6]].map(([label, dia]) => (
@@ -7078,7 +7078,7 @@ const styles = `
           fontSize:13, fontWeight:800, cursor:"pointer",
           background: recDias.includes(dia) ? C.plum : "white",
           color: recDias.includes(dia) ? "white" : C.text,
-          border: `2px solid ${recDias.includes(dia) ? C.plum : "rgba(0,0,0,0.08)"}`
+          border: `2px solid ${recDias.includes(dia) ? C.plum : "rgba(0,0,0,0.11)"}`
         }}>{label}</div>
       ))}
     </div>
@@ -7103,7 +7103,7 @@ const styles = `
   const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
   const pacientes = todosUsuarios.filter(u => u.rol === "paciente");
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
       {/* Header */}
       <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
         <div style={{ fontSize:16, fontWeight:700, color:"white" }}>🧠 Psicólogos</div>
@@ -7117,7 +7117,7 @@ const styles = `
           const susPacientes = pacientes.filter(u => u.psicologoId === p.id);
           const sinPsicologo = pacientes.filter(u => !u.psicologoId || u.psicologoId === "");
           return (
-            <div key={p.id} style={{ background:"#FFFFFF", borderRadius:16, padding:14, marginBottom:12, border:"1px solid rgba(0,0,0,.08)" }}>
+            <div key={p.id} style={{ background:"#FFFFFF", borderRadius:16, padding:14, marginBottom:12, border:"1px solid rgba(0,0,0,.11)" }}>
               {/* Info psicólogo */}
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
                 <div style={{ width:44, height:44, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -7158,7 +7158,7 @@ const styles = `
               {susPacientes.length === 0 ? (
                 <div style={{ fontSize:11, color:C.light, fontStyle:"italic", marginBottom:8 }}>Sin pacientes aún</div>
               ) : susPacientes.map(pac => (
-                <div key={pac.id} style={{ display:"flex", alignItems:"center", gap:8, background:"#F5F4F9", borderRadius:10, padding:"8px 10px", marginBottom:6 }}>
+                <div key={pac.id} style={{ display:"flex", alignItems:"center", gap:8, background:"#F0F2F0", borderRadius:10, padding:"8px 10px", marginBottom:6 }}>
                   <div style={{ fontSize:13 }}>👤</div>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{pac.nombre}</div>
@@ -7222,7 +7222,7 @@ const styles = `
     .filter(u => !busqueda || u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || u.email?.toLowerCase().includes(busqueda.toLowerCase()));
   const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
       <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
         <div style={{ fontSize:16, fontWeight:700, color:"white" }}>👥 Pacientes</div>
         <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>{todosUsuarios.filter(u=>u.rol==="paciente").length} pacientes registrados</div>
@@ -7245,7 +7245,7 @@ const styles = `
         ) : pacientes.map(pac => {
           const psi = psicologos.find(p => p.id === pac.psicologoId);
           return (
-            <div key={pac.id} style={{ background:"#FFFFFF", borderRadius:16, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.08)" }}>
+            <div key={pac.id} style={{ background:"#FFFFFF", borderRadius:16, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.11)" }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
                 <div style={{ width:40, height:40, background:"rgba(255,123,90,0.15)", borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -7261,7 +7261,7 @@ const styles = `
               {/* Psicólogo asignado */}
               <div style={{ fontSize:10, color:C.light, marginBottom:6, fontWeight:600 }}>PSICÓLOGO ASIGNADO</div>
               {psi ? (
-                <div style={{ display:"flex", alignItems:"center", gap:8, background:"#F5F4F9", borderRadius:10, padding:"8px 10px", marginBottom:8 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, background:"#F0F2F0", borderRadius:10, padding:"8px 10px", marginBottom:8 }}>
                   <span style={{ fontSize:13 }}>🧠</span>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{psi.nombre}</div>
@@ -7316,9 +7316,9 @@ const styles = `
   const pacId = habitosPacienteId || usuarioActual?.uid;
   const habitosActivos = habitos.filter(h => h.activo && h.titulo);
   const ESTADOS = [
-    { k:"si",      label:"Sí",      color:"#1E8880", bg:"rgba(78,205,196,.14)", darkColor:"#3A7A62" },
-    { k:"parcial", label:"Parcial", color:"#FF7B5A", bg:"rgba(255,123,90,.12)", darkColor:"#D04428" },
-    { k:"no",      label:"No",      color:"#C0524A", bg:"rgba(192,82,74,.12)",  darkColor:"#A04038" },
+    { k:"si",      label:"Sí",      color:"#1E8880", bg:"rgba(78,205,196,.20)",  darkColor:"#3A7A62" },
+    { k:"parcial", label:"Parcial", color:"#FF7B5A", bg:"rgba(255,123,90,.18)",  darkColor:"#D04428" },
+    { k:"no",      label:"No",      color:"#C0524A", bg:"rgba(192,82,74,.16)",   darkColor:"#A04038" },
   ];
 
   // Últimos 14 días (timezone del dispositivo)
@@ -7393,11 +7393,11 @@ const styles = `
   const RING_COLORS = ["#1E8880", "#FF7B5A", "#FF7B5A"];
 
   return (
-    <div style={{ position:"absolute", inset:0, zIndex: screenHabitos ? 900 : 50, display:"flex", flexDirection:"column", background:"#F5F4F9",
+    <div style={{ position:"absolute", inset:0, zIndex: screenHabitos ? 900 : 50, display:"flex", flexDirection:"column", background:"#F0F2F0",
       paddingBottom: screen === "habitos" ? "calc(72px + env(safe-area-inset-bottom, 10px))" : 0 }}>
 
       {/* HEADER */}
-      <div style={{ background:"#F5F4F9", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", paddingBottom:0, flexShrink:0 }}>
+      <div style={{ background:"#F0F2F0", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", paddingBottom:0, flexShrink:0 }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 16px 0" }}>
           <div onClick={() => {
             setScreenHabitos(false);
@@ -7410,7 +7410,7 @@ const styles = `
             setNotaPsicologoEdit("");
             if (screen === "habitos") showScreen("home");
           }}
-            style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.09)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+            style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.12)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </div>
           <div style={{ flex:1 }}>
@@ -7524,7 +7524,7 @@ const styles = `
           <div style={{ padding:16 }}>
             {totalActivos === 0 ? (
               <div style={{ textAlign:"center", padding:"60px 24px" }}>
-                <div style={{ width:64, height:64, borderRadius:20, background:"rgba(255,123,90,.10)",
+                <div style={{ width:64, height:64, borderRadius:20, background:"rgba(255,123,90,.18)",
                   display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.5" strokeLinecap="round">
                     <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/>
@@ -7585,7 +7585,7 @@ const styles = `
                           </div>
                         </div>
                         {racha > 0 && (
-                          <div style={{ background: racha >= 7 ? "#FF7B5A" : "rgba(255,123,90,.12)",
+                          <div style={{ background: racha >= 7 ? "#FF7B5A" : "rgba(255,123,90,.20)",
                             borderRadius:20, padding:"3px 10px", flexShrink:0 }}>
                             <span style={{ fontSize:11, fontWeight:700, color: racha >= 7 ? "white" : "#FF7B5A" }}>🔥 {racha}d</span>
                           </div>
@@ -7619,7 +7619,7 @@ const styles = `
                                   style={{ flex:1, padding:"11px 0", borderRadius:12, textAlign:"center",
                                     cursor:"pointer", transition:"all 0.15s",
                                     background: sel ? e.color : e.bg,
-                                    border:`1.5px solid ${sel ? e.color : "transparent"}`,
+                                    border:`1.5px solid ${sel ? e.color : e.color + "55"}`,
                                     transform: sel ? "scale(0.97)" : "scale(1)" }}>
                                   <div style={{ fontSize:12, fontWeight:700, color: sel ? "white" : e.color }}>{e.label}</div>
                                 </div>
@@ -7638,11 +7638,11 @@ const styles = `
                               <div style={{ fontSize:15, fontWeight:700, color:"#1E8880" }}>{pct}%</div>
                               <div style={{ fontSize:8, color:C.light }}>este mes</div>
                             </div>
-                            <div style={{ flex:1, background:"rgba(255,123,90,0.08)", borderRadius:10, padding:"8px 4px", textAlign:"center" }}>
+                            <div style={{ flex:1, background:"rgba(255,123,90,0.15)", borderRadius:10, padding:"8px 4px", textAlign:"center" }}>
                               <div style={{ fontSize:15, fontWeight:700, color:C.plum }}>{racha}</div>
                               <div style={{ fontSize:8, color:C.light }}>racha</div>
                             </div>
-                            <div style={{ flex:1, background:"rgba(255,123,90,.10)", borderRadius:10, padding:"8px 4px", textAlign:"center" }}>
+                            <div style={{ flex:1, background:"rgba(255,123,90,.18)", borderRadius:10, padding:"8px 4px", textAlign:"center" }}>
                               <div style={{ fontSize:15, fontWeight:700, color:C.text }}>{total}</div>
                               <div style={{ fontSize:8, color:C.light }}>registros</div>
                             </div>
@@ -7655,7 +7655,7 @@ const styles = `
 
                 {/* MEJOR RACHA */}
                 {mejorRacha > 0 && (
-                  <div style={{ background:"rgba(255,123,90,.10)", borderRadius:14, padding:"10px 16px",
+                  <div style={{ background:"rgba(255,123,90,.18)", borderRadius:14, padding:"10px 16px",
                     display:"flex", alignItems:"center", justifyContent:"space-between" }}>
                     <div style={{ fontSize:12, color:"#FF7B5A", fontWeight:600 }}>Mejor racha actual</div>
                     <div style={{ fontSize:18, fontWeight:700, color:"#FF7B5A" }}>🔥 {mejorRacha} días</div>
@@ -7683,7 +7683,7 @@ const styles = `
 
                 {/* TERMÓMETROS DE ADHERENCIA */}
                 <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:12,
-                  border:"1px solid rgba(0,0,0,.08)" }}>
+                  border:"1px solid rgba(0,0,0,.11)" }}>
                   <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:12,
                     textTransform:"uppercase", letterSpacing:0.5 }}>Adherencia del mes</div>
                   {habitosActivos.map((h, i) => {
@@ -7699,7 +7699,7 @@ const styles = `
                           </div>
                           <span style={{ fontSize:14, fontWeight:700, color }}>{pct}%</span>
                         </div>
-                        <div style={{ height:10, background:"rgba(0,0,0,.09)", borderRadius:5, overflow:"hidden" }}>
+                        <div style={{ height:10, background:"rgba(0,0,0,.12)", borderRadius:5, overflow:"hidden" }}>
                           <div style={{ height:"100%", width:`${pct}%`, background:color, borderRadius:5,
                             transition:"width 0.6s ease" }}/>
                         </div>
@@ -7710,17 +7710,17 @@ const styles = `
 
                 {/* STATS GRID */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:12 }}>
-                  <div style={{ background:"rgba(78,205,196,.12)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
+                  <div style={{ background:"rgba(78,205,196,.20)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:700, color:"#4ECDC4" }}>{diasPerfectos}</div>
                     <div style={{ fontSize:10, color:"#4ECDC4", marginTop:2 }}>días perfectos</div>
                     <div style={{ fontSize:9, color:"rgba(78,205,196,.55)", marginTop:1 }}>todos los hábitos</div>
                   </div>
-                  <div style={{ background:"rgba(255,123,90,.10)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
+                  <div style={{ background:"rgba(255,123,90,.18)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:700, color:C.text }}>{mejorRacha}</div>
                     <div style={{ fontSize:10, color:"#FF7B5A", marginTop:2 }}>racha actual</div>
                     <div style={{ fontSize:9, color:"rgba(255,123,90,.45)", marginTop:1 }}>días seguidos</div>
                   </div>
-                  <div style={{ background:"rgba(255,123,90,0.08)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
+                  <div style={{ background:"rgba(255,123,90,0.15)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:700, color:"#FF7B5A" }}>
                       {habitosActivos.length > 0 ? Math.round(habitosActivos.reduce((sum, h) => {
                         const key = `${pacId}_slot${h.slot || h.id}`;
@@ -7730,7 +7730,7 @@ const styles = `
                     <div style={{ fontSize:10, color:"#FF7B5A", marginTop:2 }}>adherencia global</div>
                     <div style={{ fontSize:9, color:"rgba(255,123,90,.45)", marginTop:1 }}>promedio todos</div>
                   </div>
-                  <div style={{ background:"rgba(78,205,196,.10)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
+                  <div style={{ background:"rgba(78,205,196,.18)", borderRadius:12, padding:"12px 10px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:700, color:"#4ECDC4" }}>
                       {diasMes.filter(f => habitosActivos.some(h => {
                         const key = `${pacId}_slot${h.slot || h.id}`;
@@ -7744,7 +7744,7 @@ const styles = `
 
                 {/* MAPA DEL MES */}
                 <div style={{ background:"#FFFFFF", borderRadius:16, padding:14, marginBottom:12,
-                  border:"1px solid rgba(0,0,0,.08)" }}>
+                  border:"1px solid rgba(0,0,0,.11)" }}>
                   <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:10,
                     textTransform:"uppercase", letterSpacing:0.5 }}>Mapa del mes</div>
                   <div style={{ fontSize:10, color:C.light, marginBottom:8 }}>
@@ -7760,7 +7760,7 @@ const styles = `
                         : est === "si" ? "#1E8880"
                         : est === "parcial" ? "#FF7B5A"
                         : est === "no" ? "rgba(192,82,74,0.35)"
-                        : "rgba(0,0,0,.09)";
+                        : "rgba(0,0,0,.12)";
                       return (
                         <div key={f} style={{ aspectRatio:"1", borderRadius:4, background:bg,
                           outline: esHoy ? "2px solid #C4845A" : "none",
@@ -7781,7 +7781,7 @@ const styles = `
 
                 {/* NOTA DEL PSICÓLOGO */}
                 {notaPsicologo ? (
-                  <div style={{ background:"rgba(255,123,90,.08)", borderRadius:14, padding:"12px 14px",
+                  <div style={{ background:"rgba(255,123,90,.15)", borderRadius:14, padding:"12px 14px",
                     border:"0.5px solid rgba(255,123,90,.18)" }}>
                     <div style={{ fontSize:10, fontWeight:700, color:"#FF7B5A", marginBottom:6,
                       textTransform:"uppercase", letterSpacing:0.5 }}>Tu psicólogo dice</div>
@@ -7790,7 +7790,7 @@ const styles = `
                     </div>
                   </div>
                 ) : usuarioActual?.rol === "paciente" ? null : (
-                  <div style={{ background:"rgba(255,123,90,0.06)", borderRadius:14, padding:"12px 14px",
+                  <div style={{ background:"rgba(255,123,90,0.20)", borderRadius:14, padding:"12px 14px",
                     border:"1.5px dashed rgba(255,123,90,0.2)", textAlign:"center" }}>
                     <div style={{ fontSize:11, color:C.light }}>Sin nota de refuerzo aún</div>
                     <div style={{ fontSize:10, color:C.light, marginTop:2 }}>Agrégala desde "Editar"</div>
@@ -7814,9 +7814,9 @@ const styles = `
     { id:"nequi",        nombre:"Nequi",         color:"#C47FD8", bg:"rgba(196,127,216,.12)" },
     { id:"bancolombia",  nombre:"Bancolombia",   color:"#F5A800", bg:"rgba(245,168,0,.12)" },
     { id:"davivienda",   nombre:"Davivienda",    color:"#FF6B6B", bg:"rgba(255,107,107,.12)" },
-    { id:"daviplata",    nombre:"Daviplata",     color:"#FF7B5A", bg:"rgba(255,123,90,.12)" },
+    { id:"daviplata",    nombre:"Daviplata",     color:"#FF7B5A", bg:"rgba(255,123,90,.20)" },
     { id:"transferencia",nombre:"Transferencia", color:"#6EEDDF", bg:"rgba(110,237,223,.12)" },
-    { id:"efectivo",     nombre:"Efectivo",      color:"#4ECDC4", bg:"rgba(78,205,196,.12)" },
+    { id:"efectivo",     nombre:"Efectivo",      color:"#4ECDC4", bg:"rgba(78,205,196,.20)" },
   ];
   const cargarMetodos = async () => {
     try {
@@ -7940,7 +7940,7 @@ const styles = `
   };
 
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F5F4F9" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
 
       {/* Header con 2 tabs principales */}
       <div style={{ background:`linear-gradient(145deg,${C.dark},#3A1E4A)`, padding:"16px 18px 0", paddingTop:"max(16px, env(safe-area-inset-top,16px))", flexShrink:0 }}>
@@ -8052,7 +8052,7 @@ const styles = `
                     <div key={lb} onClick={() => setIngresoPagado(v)}
                       style={{ flex:1, padding:"9px 0", borderRadius:12, textAlign:"center",
                         fontSize:11, fontWeight:700, cursor:"pointer",
-                        background: ingresoPagado===v ? (v?"rgba(78,205,196,.18)":"rgba(255,123,90,.18)") : "rgba(0,0,0,.04)",
+                        background: ingresoPagado===v ? (v?"rgba(78,205,196,.18)":"rgba(255,123,90,.18)") : "rgba(0,0,0,.07)",
                         color: ingresoPagado===v ? (v?"#4ECDC4":"#FF7B5A") : "#7A6E8A",
                         border: ingresoPagado===v ? `1.5px solid ${v?"rgba(78,205,196,.40)":"rgba(255,123,90,.40)"}` : "1.5px solid transparent" }}>
                       {lb}
@@ -8066,7 +8066,7 @@ const styles = `
             <div style={{ display:"flex", gap:10 }}>
               <div onClick={() => setModalIngreso(false)}
                 style={{ flex:1, padding:"12px 0", borderRadius:14, textAlign:"center",
-                  background:"rgba(255,123,90,.10)", color:"#FF7B5A", fontSize:13, fontWeight:700, cursor:"pointer" }}>
+                  background:"rgba(255,123,90,.18)", color:"#FF7B5A", fontSize:13, fontWeight:700, cursor:"pointer" }}>
                 Cancelar
               </div>
               <div onClick={async () => {
@@ -8119,7 +8119,7 @@ const styles = `
                   {metodosPago.map((mp,i) => {
                     const info = METODOS_DISPONIBLES.find(m => m.id===mp.id) || METODOS_DISPONIBLES[0];
                     return (
-                      <div key={i} style={{ background:"#FFFFFF", borderRadius:16, padding:"14px 16px", marginBottom:10, border:"1px solid rgba(0,0,0,.08)", display:"flex", alignItems:"center", gap:12 }}>
+                      <div key={i} style={{ background:"#FFFFFF", borderRadius:16, padding:"14px 16px", marginBottom:10, border:"1px solid rgba(0,0,0,.11)", display:"flex", alignItems:"center", gap:12 }}>
                         <div style={{ width:44, height:44, borderRadius:12, background:info.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, fontWeight:800, color:info.color, flexShrink:0 }}>
                           {info.nombre[0]}
                         </div>
@@ -8179,7 +8179,7 @@ const styles = `
         {pagosMainTab === "finanzas" && (
           <div>
             {/* Sub-tabs finanzas */}
-            <div style={{ display:"flex", background:"#FFFFFF", borderBottom:"1px solid rgba(255,123,90,0.12)", padding:"0 16px" }}>
+            <div style={{ display:"flex", background:"#FFFFFF", borderBottom:"1px solid rgba(255,123,90,0.20)", padding:"0 16px" }}>
               {[["resumen","📊 Resumen"],["sesiones","📋 Sesiones"],["tarifas","💲 Tarifas"]].map(([id,lb]) => (
                 <div key={id} onClick={() => setFinanzasTab(id)}
                   style={{ flex:1, textAlign:"center", padding:"11px 0", fontSize:11, fontWeight:700,
@@ -8211,7 +8211,7 @@ const styles = `
                   {/* Cards + Donut */}
                   <div style={{ display:"flex", gap:12, marginBottom:16, alignItems:"center" }}>
                     {/* Donut */}
-                    <div style={{ background:"#FFFFFF", borderRadius:16, padding:14, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", border:"1px solid rgba(0,0,0,.08)", flexShrink:0 }}>
+                    <div style={{ background:"#FFFFFF", borderRadius:16, padding:14, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", border:"1px solid rgba(0,0,0,.11)", flexShrink:0 }}>
                       {(() => {
                         const r=38; const circ=2*Math.PI*r; const dash=(pctCobrado/100)*circ;
                         return (
@@ -8251,7 +8251,7 @@ const styles = `
                   </div>
 
                   {/* Barras semanales */}
-                  <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(0,0,0,.08)" }}>
+                  <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(0,0,0,.11)" }}>
                     <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:14 }}>Semanas de {mesesFull[finanzasMes]}</div>
                     <div style={{ display:"flex", gap:8, alignItems:"flex-end", height:90 }}>
                       {semanas.map((val,i) => (
@@ -8266,7 +8266,7 @@ const styles = `
                   </div>
 
                   {/* Tendencia 6 meses */}
-                  <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(0,0,0,.08)" }}>
+                  <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(0,0,0,.11)" }}>
                     <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:14 }}>Tendencia 6 meses</div>
                     <div style={{ display:"flex", gap:6, alignItems:"flex-end", height:80 }}>
                       {trend.map((t,i) => (
@@ -8281,7 +8281,7 @@ const styles = `
 
                   {/* Por paciente */}
                   {Object.keys(porPac).length > 0 && (
-                    <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, border:"1px solid rgba(0,0,0,.08)" }}>
+                    <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, border:"1px solid rgba(0,0,0,.11)" }}>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:12 }}>Por paciente</div>
                       {Object.values(porPac).sort((a,b)=>b.total-a.total).map((p,i,arr) => (
                         <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:i<arr.length-1?"0.5px solid rgba(0,0,0,0.06)":"none" }}>
@@ -8336,7 +8336,7 @@ const styles = `
                       <div style={{ fontSize:14,fontWeight:900,color:C.plum,flexShrink:0 }}>{fmt(s.valor)}</div>
                       <div onClick={() => marcarPagado(s.id, s.pagado)}
                         style={{ padding:"5px 10px", borderRadius:20, fontSize:10, fontWeight:800, cursor:"pointer", flexShrink:0,
-                          background:s.pagado?"rgba(90,138,98,0.12)":"rgba(255,123,90,0.12)",
+                          background:s.pagado?"rgba(90,138,98,0.12)":"rgba(255,123,90,0.20)",
                           color:s.pagado?C.green:C.amber, border:`1px solid ${s.pagado?C.green:C.amber}40` }}>
                         {s.pagado?"✅ Cobrado":"⏳ Pendiente"}
                       </div>
@@ -8359,7 +8359,7 @@ const styles = `
                 {pacientes.length === 0 ? (
                   <div style={{ textAlign:"center",padding:32,color:C.light }}>Sin pacientes asignados</div>
                 ) : pacientes.map(p => (
-                  <div key={p.id} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 14px", marginBottom:9, border:"1px solid rgba(0,0,0,.08)" }}>
+                  <div key={p.id} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 14px", marginBottom:9, border:"1px solid rgba(0,0,0,.11)" }}>
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                       <div style={{ width:38,height:38,borderRadius:10,background:`${C.plum}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800,color:C.plum,flexShrink:0 }}>
                         {p.nombre?.[0]?.toUpperCase()||"?"}
@@ -8426,7 +8426,7 @@ const styles = `
         ["🔒", "Cuentas inactivas", todosUsuarios.filter(u=>u.inactivo).length || "0"],
         ["👤", "Total usuarios", todosUsuarios.length || "—"]
       ].map(([ic,lb,val]) => (
-          <div key={lb} style={{ background:"#FFFFFF", borderRadius:14, padding:13, border:"1px solid rgba(0,0,0,.08)" }}>
+          <div key={lb} style={{ background:"#FFFFFF", borderRadius:14, padding:13, border:"1px solid rgba(0,0,0,.11)" }}>
             <div style={{ fontSize:24, marginBottom:4 }}>{ic}</div>
             <div style={{ fontSize:20, fontWeight:900, color:C.plum }}>{val}</div>
             <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>{lb}</div>
@@ -8441,7 +8441,7 @@ const styles = `
       ) : todosUsuarios.filter(u=>u.rol==="psicologo").map(p => {
         const pacientesCount = todosUsuarios.filter(u=>u.rol==="paciente"&&u.psicologoId===p.id).length;
         return (
-          <div key={p.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, border:"1px solid rgba(0,0,0,.08)" }}>
+          <div key={p.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, border:"1px solid rgba(0,0,0,.11)" }}>
             <div style={{ fontSize:26, width:42, height:42, background:C.warm, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>🧠</div>
             <div style={{ flex:1 }}>
               <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{p.nombre}</div>
@@ -8488,7 +8488,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
       <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>No hay usuarios registrados</div>
     ) : (
       todosUsuarios.map(u => (
-        <div key={u.id} style={{ background:usuariosSeleccionados.includes(u.id)?"#F0EDF5":"white", borderRadius:13, padding:"11px 13px", marginBottom:8, border:"1px solid rgba(0,0,0,.08)", border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:"transparent"}` }}>
+        <div key={u.id} style={{ background:usuariosSeleccionados.includes(u.id)?"#F0EDF5":"white", borderRadius:13, padding:"11px 13px", marginBottom:8, border:"1px solid rgba(0,0,0,.11)", border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:"transparent"}` }}>
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             <div onClick={() => toggleSeleccion(u.id)} style={{ width:22, height:22, borderRadius:6, border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:C.light}`, background:usuariosSeleccionados.includes(u.id)?C.plum:"transparent", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, color:"white", cursor:"pointer", flexShrink:0 }}>
               {usuariosSeleccionados.includes(u.id) ? "✓" : ""}
@@ -8521,19 +8521,19 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre completo</div>
     <input placeholder="Ej: Sofía Martínez" value={formNombre} onChange={e => setFormNombre(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Correo electrónico</div>
     <input type="email" placeholder="correo@ejemplo.com" value={formEmail} onChange={e => setFormEmail(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Teléfono</div>
     <input type="tel" placeholder="Ej: 3001234567" value={formTel} onChange={e => setFormTel(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha de nacimiento</div>
     <input type="date" value={formFecha} onChange={e => setFormFecha(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>PIN de acceso (4 dígitos)</div>
     <div style={{ display:"flex", justifyContent:"center", gap:14, marginBottom:8 }}>
@@ -8542,13 +8542,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
       ))}
     </div>
     <input type="password" placeholder="PIN" inputMode="numeric" maxLength={4} value={formPin} onChange={e => setFormPin(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4, background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4, background:"#FFFFFF", color:C.text }}/>
 
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Rol</div>
     <div style={{ display:"flex", gap:8, marginBottom:16 }}>
       {[["paciente","👤","Paciente"],["psicologo","🧠","Psicólogo"]].map(([val,ic,lb]) => (
         <div key={val} onClick={() => setFormRol(val)}
-          style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${formRol===val?C.plum:"rgba(0,0,0,.09)"}`, background:formRol===val?`${C.plum}15`:"rgba(0,0,0,.04)" }}>
+          style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${formRol===val?C.plum:"rgba(0,0,0,.12)"}`, background:formRol===val?`${C.plum}15`:"rgba(0,0,0,.07)" }}>
           <div style={{ fontSize:22 }}>{ic}</div>
           <div style={{ fontSize:11, fontWeight:800, color:formRol===val?C.plum:C.light }}>{lb}</div>
         </div>
@@ -8558,7 +8558,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
       <>
         <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8, marginTop:4 }}>Psicólogo asignado</div>
         <select value={formPsicologoId} onChange={e => setFormPsicologoId(e.target.value)}
-          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
+          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
           <option value="">— Seleccionar psicólogo —</option>
           {todosUsuarios.filter(u => u.rol === "psicologo").map(p => (
             <option key={p.id} value={p.id}>{p.nombre}</option>
@@ -8568,7 +8568,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
     )}
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5, marginTop:4 }}>Tu PIN de administrador (para confirmar)</div>
     <input type="password" placeholder="Tu PIN" inputMode="numeric" maxLength={4} value={formPinAdmin} onChange={e => setFormPinAdmin(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4, background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4, background:"#FFFFFF", color:C.text }}/>
     <div style={{ display:"flex", gap:8 }}>
       {btn(() => { setModal(null); setFormPinAdmin(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
       {btn(() => handleCrearUsuarioAdmin(), formLoading ? "Creando..." : "Crear usuario ✓", { flex:2, padding:11, background:formLoading||formPinAdmin.length<4?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -8597,13 +8597,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
               <div style={{ padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:16 }}>
                   {[[autorregistros.length,"Registros"],[citas.filter(c=>c.pacienteId===pacienteSeleccionado?.id).length,"Sesiones"],[pacienteSeleccionado?.xp||0,"XP"]].map(([n,l]) => (
-                    <div key={l} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 8px", textAlign:"center", border:"1px solid rgba(0,0,0,.08)" }}>
+                    <div key={l} style={{ background:"#FFFFFF", borderRadius:13, padding:"12px 8px", textAlign:"center", border:"1px solid rgba(0,0,0,.11)" }}>
                       <div style={{ fontSize:16, fontWeight:700, color:C.plum }}>{n}</div>
                       <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase" }}>{l}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:12, border:"1px solid rgba(0,0,0,.08)" }}>
+                <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:12, border:"1px solid rgba(0,0,0,.11)" }}>
                   <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:4 }}>📊 Estado de ánimo</div>
                   {registrosAnimo.length === 0 ? (
                     <div style={{ textAlign:"center", padding:"16px 0", color:C.light, fontSize:12 }}>El paciente aún no ha registrado su ánimo</div>
@@ -8669,7 +8669,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     El paciente aún no tiene autorregistros
                   </div>
                 ) : autorregistros.slice(0,3).map(ar => (
-                  <div key={ar.id} style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:10, border:"1px solid rgba(0,0,0,.08)", borderLeft:`4px solid ${C.plum}` }}>
+                  <div key={ar.id} style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:10, border:"1px solid rgba(0,0,0,.11)", borderLeft:`4px solid ${C.plum}` }}>
                     <div style={{ fontSize:11, color:C.light, fontWeight:700, marginBottom:4 }}>📅 {ar.fecha}</div>
                     <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:4 }}>¿Qué estaba haciendo?</div>
                     <div style={{ fontSize:12, color:C.light, lineHeight:1.5, marginBottom:6 }}>{ar.haciendo}</div>
@@ -8678,7 +8678,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   </div>
                 ))}
                 {(pacienteSeleccionado?.contactoEmergenciaNombre || pacienteSeleccionado?.contactoEmergenciaTel) && (
-                  <div style={{ background:"rgba(255,123,90,0.06)", borderRadius:12, padding:"10px 14px", marginBottom:12, border:"1px solid rgba(255,123,90,0.12)", display:"flex", alignItems:"center", gap:10 }}>
+                  <div style={{ background:"rgba(255,123,90,0.20)", borderRadius:12, padding:"10px 14px", marginBottom:12, border:"1px solid rgba(255,123,90,0.20)", display:"flex", alignItems:"center", gap:10 }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:10, fontWeight:700, color:"#FF7B5A", marginBottom:1 }}>Contacto de emergencia</div>
@@ -8740,7 +8740,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 {recursos.length === 0 ? (
   <div style={{ background:"#FFFFFF", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay materiales enviados aún</div>
 ) : recursos.map(r => (
-  <div key={r.id} style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.08)", borderLeft:`4px solid ${r.recibido ? C.green : C.sage}` }}>
+  <div key={r.id} style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.11)", borderLeft:`4px solid ${r.recibido ? C.green : C.sage}` }}>
     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
       <div style={{ display:"flex", alignItems:"center", gap:10 }}>
         <div style={{ width:38, height:38, borderRadius:10, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
@@ -8765,7 +8765,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
   <div style={{ background:"#FFFFFF", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay tareas asignadas aún</div>
 ) : tareasPsicologo.map(t => (
   <div key={t.id} onClick={() => setNotaAbierta({ ...t, tipo:"tarea_psi" })}
-    style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.08)", cursor:"pointer", borderLeft:`3px solid ${t.completada ? "#5A8A62" : "#FF7B5A"}` }}>
+    style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.11)", cursor:"pointer", borderLeft:`3px solid ${t.completada ? "#5A8A62" : "#FF7B5A"}` }}>
     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
       <div style={{ fontSize:13, fontWeight:800, color:C.text, flex:1 }}>{t.titulo}</div>
       <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
@@ -8789,7 +8789,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
       {t.vence ? <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>📅 Vence: {t.vence}</div> : null}
     </div>
     {t.respuesta ? (
-      <div style={{ marginTop:8, background:"rgba(255,123,90,.10)", borderRadius:10, padding:"8px 10px" }}>
+      <div style={{ marginTop:8, background:"rgba(255,123,90,.18)", borderRadius:10, padding:"8px 10px" }}>
         <div style={{ fontSize:10, fontWeight:800, color:C.plum, marginBottom:3 }}>💬 Respuesta del paciente:</div>
         <div style={{ fontSize:11, color:C.text, lineHeight:1.5, whiteSpace:"pre-wrap" }}>{t.respuesta}</div>
       </div>
@@ -8815,7 +8815,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   </div>
                 ) : notasClinicas.map(n => (
                   <div key={n.id} onClick={() => setNotaAbierta({ ...n, tipo:"clinica" })}
-                    style={{ background:"#FFFFFF", borderRadius:14, padding:14, border:"1px solid rgba(0,0,0,.08)", borderLeft:"3px solid #8B7BA0", marginBottom:10, cursor:"pointer" }}>
+                    style={{ background:"#FFFFFF", borderRadius:14, padding:14, border:"1px solid rgba(0,0,0,.11)", borderLeft:"3px solid #8B7BA0", marginBottom:10, cursor:"pointer" }}>
                     <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                       <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{n.titulo}</div>
                       <div style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -8830,7 +8830,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       </div>
                     </div>
                     <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>{n.texto}</div>
-                    <div style={{ display:"inline-block", background:"rgba(255,123,90,.08)", color:C.plum, fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20, marginTop:5 }}>🔒 Solo visible para ti</div>
+                    <div style={{ display:"inline-block", background:"rgba(255,123,90,.15)", color:C.plum, fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20, marginTop:5 }}>🔒 Solo visible para ti</div>
                   </div>
                 ))}
               </div>
@@ -8840,15 +8840,15 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Para: <strong>{pacienteSeleccionado?.nombre}</strong></div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
                   <input placeholder="Ej: Registro de pensamientos..." value={tareaTitulo} onChange={e => setTareaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción / instrucciones</div>
                   <textarea placeholder="Explica qué debe hacer el paciente..." value={tareaDescripcion} onChange={e => setTareaDescripcion(e.target.value)}
-                    style={{ width:"100%", minHeight:80, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    style={{ width:"100%", minHeight:80, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
                   <div style={{ display:"flex", gap:10, marginBottom:10 }}>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>⭐ XP al completar</div>
                       <input type="number" value={tareaXP} onChange={e => setTareaXP(Number(e.target.value))}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📅 Fecha límite</div>
@@ -8861,7 +8861,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       </div>
                       {!tareaSinFecha && (
                         <input type="date" value={tareaVence} onChange={e => setTareaVence(e.target.value)}
-                          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                       )}
                     </div>
                   </div>
@@ -8881,7 +8881,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div style={{ display:"flex", flexWrap:"wrap", gap:7, marginBottom:16 }}>
                     {[["🖼️","Imagen","Imagen"],["📄","PDF","PDF"],["🎵","Podcast","Podcast"],["🎬","YouTube","YouTube"],["🔗","Enlace","Enlace"]].map(([ic,lb,val]) => (
                       <div key={val} onClick={() => { setRecursoTipo(val); setRecursoUrl(""); }}
-                        style={{ padding:"8px 13px", borderRadius:20, cursor:"pointer", fontSize:11, fontWeight:800, display:"flex", alignItems:"center", gap:5, border:`2px solid ${recursoTipo===val ? C.plum : "rgba(0,0,0,0.08)"}`, background:recursoTipo===val ? `${C.plum}15` : "white", color:recursoTipo===val ? C.plum : C.light, transition:"all 0.15s" }}>
+                        style={{ padding:"8px 13px", borderRadius:20, cursor:"pointer", fontSize:11, fontWeight:800, display:"flex", alignItems:"center", gap:5, border:`2px solid ${recursoTipo===val ? C.plum : "rgba(0,0,0,0.11)"}`, background:recursoTipo===val ? `${C.plum}15` : "white", color:recursoTipo===val ? C.plum : C.light, transition:"all 0.15s" }}>
                         {ic} {lb}
                       </div>
                     ))}
@@ -8911,11 +8911,11 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   {/* PDF — pegar URL */}
                   {recursoTipo === "PDF" && (
                     <div style={{ marginBottom:12 }}>
-                      <div style={{ background:"rgba(255,179,71,.12)", borderRadius:11, padding:"10px 12px", marginBottom:10, fontSize:11, color:C.amberDark, fontWeight:700 }}>
+                      <div style={{ background:"rgba(255,179,71,.18)", borderRadius:11, padding:"10px 12px", marginBottom:10, fontSize:11, color:C.amberDark, fontWeight:700 }}>
                         💡 Sube el PDF a Google Drive, Dropbox o OneDrive, compártelo como "cualquiera con el link" y pega el link aquí
                       </div>
                       <input placeholder="https://drive.google.com/file/d/..." value={recursoUrl} onChange={e => setRecursoUrl(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.08)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.11)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
                       {recursoUrl ? <div style={{ fontSize:10, color:C.sageDark, fontWeight:700, marginTop:4 }}>✅ Link listo</div> : null}
                     </div>
                   )}
@@ -8923,11 +8923,11 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   {/* PODCAST — pegar URL */}
                   {recursoTipo === "Podcast" && (
                     <div style={{ marginBottom:12 }}>
-                      <div style={{ background:"rgba(255,123,90,.12)", borderRadius:11, padding:"10px 12px", marginBottom:10, fontSize:11, color:"#FF7B5A", fontWeight:700 }}>
+                      <div style={{ background:"rgba(255,123,90,.20)", borderRadius:11, padding:"10px 12px", marginBottom:10, fontSize:11, color:"#FF7B5A", fontWeight:700 }}>
                         🎵 Pega el link del episodio de Spotify, Apple Podcasts, Google Podcasts u otra plataforma
                       </div>
                       <input placeholder="https://open.spotify.com/episode/..." value={recursoUrl} onChange={e => setRecursoUrl(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.08)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.11)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
                       {recursoUrl ? <div style={{ fontSize:10, color:C.sageDark, fontWeight:700, marginTop:4 }}>✅ Link listo</div> : null}
                     </div>
                   )}
@@ -8939,7 +8939,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                         🎬 Pega el link del video de YouTube
                       </div>
                       <input placeholder="https://www.youtube.com/watch?v=..." value={recursoUrl} onChange={e => setRecursoUrl(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.08)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.11)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
                       {recursoUrl ? <div style={{ fontSize:10, color:C.sageDark, fontWeight:700, marginTop:4 }}>✅ Link listo</div> : null}
                     </div>
                   )}
@@ -8947,11 +8947,11 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   {/* ENLACE — pegar URL */}
                   {recursoTipo === "Enlace" && (
                     <div style={{ marginBottom:12 }}>
-                      <div style={{ background:"rgba(78,205,196,.12)", borderRadius:11, padding:"10px 12px", marginBottom:10, fontSize:11, color:"#4ECDC4", fontWeight:700 }}>
+                      <div style={{ background:"rgba(78,205,196,.20)", borderRadius:11, padding:"10px 12px", marginBottom:10, fontSize:11, color:"#4ECDC4", fontWeight:700 }}>
                         🔗 Pega cualquier link — artículo, recurso web, formulario, etc.
                       </div>
                       <input placeholder="https://..." value={recursoUrl} onChange={e => setRecursoUrl(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.08)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:`2px solid ${recursoUrl ? C.sage : "rgba(0,0,0,0.11)"}`, borderRadius:11, fontSize:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
                       {recursoUrl ? <div style={{ fontSize:10, color:C.sageDark, fontWeight:700, marginTop:4 }}>✅ Link listo</div> : null}
                     </div>
                   )}
@@ -8959,7 +8959,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   {/* NOMBRE */}
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre del material</div>
                   <input placeholder="Ej: Técnica de respiración 4-7-8" value={recursoNombre} onChange={e => setRecursoNombre(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box" }}/>
 
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => { setModal(null); setRecursoUrl(""); setRecursoNombre(""); setRecursoTipo("Imagen"); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -9005,12 +9005,12 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     📅 Mes actual: {new Date().toLocaleDateString('es-CO', { month:'long', year:'numeric' })}
                   </div>
                   {usuarioActual?.fraseDelMesFecha === new Date().toISOString().slice(0,7) && usuarioActual?.fraseDelMes && (
-                    <div style={{ background:"rgba(78,205,196,.10)", borderRadius:12, padding:"10px 14px", marginBottom:14, fontSize:12, color:C.sageDark, fontWeight:700 }}>
+                    <div style={{ background:"rgba(78,205,196,.18)", borderRadius:12, padding:"10px 14px", marginBottom:14, fontSize:12, color:C.sageDark, fontWeight:700 }}>
                       ✅ Frase activa: "{usuarioActual.fraseDelMes}"
                     </div>
                   )}
                   <textarea placeholder="Escribe una frase motivacional para tus pacientes este mes..." value={fraseDelMes} onChange={e => setFraseDelMes(e.target.value)}
-                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6 }}/>
+                    style={{ width:"100%", minHeight:100, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6 }}/>
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => { setModal(null); setFraseDelMes(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(async () => {
@@ -9034,13 +9034,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
               {mdl("feedback", (
                 <div>
                   <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:14, textAlign:"center" }}>Nota clínica 💬</div>
-                  <div style={{ background:"rgba(255,123,90,.08)", borderRadius:11, padding:"10px 12px", marginBottom:12, fontSize:11, color:C.plum, fontWeight:700 }}>🔒 Solo visible para ti — el paciente no puede verla</div>
+                  <div style={{ background:"rgba(255,123,90,.15)", borderRadius:11, padding:"10px 12px", marginBottom:12, fontSize:11, color:C.plum, fontWeight:700 }}>🔒 Solo visible para ti — el paciente no puede verla</div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
                   <input placeholder="Ej: Sesión 5 Mar · Progresos" value={notaClinicaTitulo} onChange={e => setNotaClinicaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Observaciones</div>
                   <textarea placeholder="Observaciones, progresos, pendientes..." value={notaClinicaTexto} onChange={e => setNotaClinicaTexto(e.target.value)}
-                    style={{ width:"100%", minHeight:110, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+                    style={{ width:"100%", minHeight:110, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => { setModal(null); setNotaClinicaTexto(""); setNotaClinicaTitulo(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
                     {btn(async () => {
@@ -9078,20 +9078,20 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
     </div>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
     <input placeholder="Ej: Recuerda tu sesión de hoy" value={notifTitulo} onChange={e => setNotifTitulo(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Mensaje</div>
     <textarea placeholder="Ej: Tu sesión es hoy a las 3pm. ¡Nos vemos pronto!" value={notifMensaje} onChange={e => setNotifMensaje(e.target.value)}
-      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
+      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
     <div style={{ display:"flex", gap:10, marginBottom:10 }}>
       <div style={{ flex:1 }}>
         <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
         <input type="date" value={notifFecha} onChange={e => setNotifFecha(e.target.value)}
-          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
       </div>
       <div style={{ flex:1 }}>
         <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
         <input type="time" value={notifHora} onChange={e => setNotifHora(e.target.value)}
-          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
       </div>
     </div>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>⏰ Recordatorios antes</div>
@@ -9130,13 +9130,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
     <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Se enviará automáticamente al paciente</div>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
     <input value={recTitulo} onChange={e => setRecTitulo(e.target.value)} placeholder="Ej: 💪 ¡Hoy toca gym!"
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Mensaje</div>
     <textarea value={recMensaje} onChange={e => setRecMensaje(e.target.value)} placeholder="Ej: Recuerda que hoy tienes entrenamiento 🏋️"
-      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora de envío</div>
     <input type="time" value={recHora} onChange={e => setRecHora(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
     <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Días de la semana</div>
     <div style={{ display:"flex", gap:6, marginBottom:16, flexWrap:"wrap" }}>
       {[["D",0],["L",1],["M",2],["X",3],["J",4],["V",5],["S",6]].map(([label, dia]) => (
@@ -9147,7 +9147,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
           fontSize:13, fontWeight:800, cursor:"pointer",
           background: recDias.includes(dia) ? C.plum : "white",
           color: recDias.includes(dia) ? "white" : C.text,
-          border: `2px solid ${recDias.includes(dia) ? C.plum : "rgba(0,0,0,0.08)"}`
+          border: `2px solid ${recDias.includes(dia) ? C.plum : "rgba(0,0,0,0.11)"}`
         }}>{label}</div>
       ))}
     </div>
@@ -9169,14 +9169,14 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario en tiempo real</div>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
-                  <div style={{ background:"rgba(255,123,90,0.08)", border:"1px solid rgba(255,123,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
+                  <div style={{ background:"rgba(255,123,90,0.15)", border:"1px solid rgba(255,123,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
                     <span style={{ fontSize:16 }}>👤</span>
                     <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{pacienteSeleccionado?.nombre}</span>
                   </div>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
                   <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
                   <textarea
@@ -9184,7 +9184,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     value={citaDescripcion}
                     onChange={e => setCitaDescripcion(e.target.value)}
                     rows={3}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12,
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12,
                       outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
                       lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#FFFFFF", color:C.text }}/>
 
@@ -9192,12 +9192,12 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
                       <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
                       <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                   </div>
 
@@ -9205,7 +9205,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
                       <div key={val} onClick={() => setCitaModalidad(val)}
-                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.09)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.04)" }}>
+                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.12)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.07)" }}>
                         <div style={{ fontSize:22 }}>{ic}</div>
                         <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
                       </div>
@@ -9216,7 +9216,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     <>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet / Zoom</div>
                       <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </>
                   )}
 
@@ -9232,10 +9232,10 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
           {/* ADMIN PERFIL */}
           {!notifPanel && screen === "admin-perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F4F9" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
 
               {/* HEADER */}
-              <div style={{ background:"#F5F4F9", padding:"32px 24px 48px", textAlign:"center", position:"relative", borderBottom:"0.5px solid rgba(255,155,122,0.12)" }}>
+              <div style={{ background:"#F0F2F0", padding:"32px 24px 48px", textAlign:"center", position:"relative", borderBottom:"0.5px solid rgba(255,155,122,0.12)" }}>
                 <div style={{ position:"relative", display:"inline-block", marginBottom:14 }}>
                   {usuarioActual?.foto ? (
                     <img src={usuarioActual.foto} alt="foto" style={{ width:90, height:90, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(0,0,0,.15)", margin:"0 auto", display:"block" }}/>
@@ -9288,7 +9288,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     <span style={{ background:"rgba(0,0,0,.11)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>{usuarioActual.enfoque}</span>
                   )}
                   {!usuarioActual?.especialidad && !usuarioActual?.enfoque && (
-                    <span style={{ background:"rgba(0,0,0,.09)", color:"rgba(255,255,255,0.45)", fontSize:11, fontWeight:600, padding:"5px 12px", borderRadius:20, cursor:"pointer" }}
+                    <span style={{ background:"rgba(0,0,0,.12)", color:"rgba(255,255,255,0.45)", fontSize:11, fontWeight:600, padding:"5px 12px", borderRadius:20, cursor:"pointer" }}
                       onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setEditBio(usuarioActual?.bio||""); setModal("edit-psico"); }}>
                       ✏️ Agregar especialidad y enfoque
                     </span>
@@ -9360,13 +9360,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 {(usuarioActual?.bio || usuarioActual?.especialidad || usuarioActual?.enfoque || usuarioActual?.telefono) && (
                   <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"0.5px solid rgba(0,0,0,.10)" }}>
                     <div style={{ background:"linear-gradient(135deg,#162A1C,#0F2015)", padding:"10px 14px 10px", position:"relative", overflow:"hidden" }}>
-                      <div style={{ position:"absolute", top:-8, right:-8, width:60, height:60, borderRadius:"50%", background:"rgba(0,0,0,.08)" }}/>
+                      <div style={{ position:"absolute", top:-8, right:-8, width:60, height:60, borderRadius:"50%", background:"rgba(0,0,0,.11)" }}/>
                       <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.45)", letterSpacing:1.4, textTransform:"uppercase" }}>Mi perfil profesional</div>
                     </div>
                     <div style={{ background:"#FFFFFF" }}>
                       {usuarioActual?.telefono && (
                         <div style={{ display:"flex", alignItems:"center", gap:11, padding:"10px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
-                          <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.10)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.18)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                           </div>
                           <div>
@@ -9383,7 +9383,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                               { lb:"Especialidad", val:usuarioActual?.especialidad },
                               { lb:"Enfoque",      val:usuarioActual?.enfoque },
                             ].filter(x => x.val).map(({ lb, val }) => (
-                              <div key={lb} style={{ background:"rgba(255,123,90,.06)", borderRadius:10, padding:"9px 11px" }}>
+                              <div key={lb} style={{ background:"rgba(255,123,90,.20)", borderRadius:10, padding:"9px 11px" }}>
                                 <div style={{ fontSize:9, fontWeight:700, color:"#FF7B5A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>{lb}</div>
                                 <div style={{ fontSize:12, fontWeight:600, color:C.text }}>{val}</div>
                               </div>
@@ -9444,17 +9444,17 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                 {/* CONFIGURACIÓN */}
                 <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>⚙️ Configuración</div>
-                <div style={{ background:"#FFFFFF", borderRadius:14, overflow:"hidden", marginBottom:16, border:"1px solid rgba(0,0,0,.08)" }}>
+                <div style={{ background:"#FFFFFF", borderRadius:14, overflow:"hidden", marginBottom:16, border:"1px solid rgba(0,0,0,.11)" }}>
                   <div onClick={() => setNotifPanel(true)}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
-                    <div style={{ width:32, height:32, background:"rgba(255,123,90,.10)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <div style={{ width:32, height:32, background:"rgba(255,123,90,.18)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                     </div>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text, flex:1 }}>Notificaciones</div>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                   <div style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
-                    <div style={{ width:32, height:32, background:"rgba(255,123,90,.10)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <div style={{ width:32, height:32, background:"rgba(255,123,90,.18)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"/></svg>
                     </div>
                     <div style={{ flex:1 }}>
@@ -9475,7 +9475,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   </div>
                   <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
-                    <div style={{ width:32, height:32, background:"rgba(255,123,90,.10)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <div style={{ width:32, height:32, background:"rgba(255,123,90,.18)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
                       {darkMode
                         ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                         : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -9500,7 +9500,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 {loadingResenas ? (
                   <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>Cargando reseñas...</div>
                 ) : resenas.length === 0 ? (
-                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:20, textAlign:"center", marginBottom:16, border:"1px solid rgba(0,0,0,.08)" }}>
+                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:20, textAlign:"center", marginBottom:16, border:"1px solid rgba(0,0,0,.11)" }}>
                     <div style={{ fontSize:32, marginBottom:6 }}>⭐</div>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Aún no tienes reseñas</div>
                     <div style={{ fontSize:11, color:C.light, marginTop:4 }}>Tus pacientes podrán valorarte desde su perfil</div>
@@ -9512,7 +9512,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
                     </div>
                     {resenas.map(r => (
-                      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:`1px solid rgba(0,0,0,.08)`, opacity:r.oculta ? 0.45 : 1 }}>
+                      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:`1px solid rgba(0,0,0,.11)`, opacity:r.oculta ? 0.45 : 1 }}>
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
                           <div style={{ fontSize:14 }}>{"⭐".repeat(r.rating)}</div>
                           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -9572,7 +9572,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                         if (url) setEditFoto(url);
                       }}/>
                     <div style={{ border:`2px dashed ${subiendoFoto ? C.sage : "rgba(255,123,90,0.3)"}`, borderRadius:14, padding:"14px 16px",
-                      background: subiendoFoto ? "rgba(125,170,146,0.06)" : "rgba(255,123,90,0.04)",
+                      background: subiendoFoto ? "rgba(125,170,146,0.06)" : "rgba(255,123,90,0.18)",
                       display:"flex", alignItems:"center", gap:12, transition:"all 0.2s" }}>
                       <div style={{ width:40, height:40, borderRadius:12, background: subiendoFoto ? "rgba(125,170,146,0.15)" : "rgba(255,123,90,0.1)",
                         display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
@@ -9598,26 +9598,26 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre completo</div>
                   <input value={editNombre} onChange={e => setEditNombre(e.target.value)} placeholder="Tu nombre"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Especialidad</div>
                   <input value={editEspecialidad} onChange={e => setEditEspecialidad(e.target.value)} placeholder="Ej: Psicología Clínica · TCC"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Enfoque terapéutico</div>
                   <input value={editEnfoque} onChange={e => setEditEnfoque(e.target.value)} placeholder="Ej: TCC · Mindfulness · Aceptación"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Teléfono</div>
                   <input value={editTel} onChange={e => setEditTel(e.target.value)} placeholder="Tu teléfono"
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción profesional</div>
                   <textarea value={editBio} onChange={e => setEditBio(e.target.value)}
                     placeholder="Cuéntale a tus pacientes sobre tu experiencia y cómo los puedes ayudar... (visible en tu perfil)"
                     rows={3}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:12, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"none", lineHeight:1.6 }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:12, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"none", lineHeight:1.6 }}/>
 
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
@@ -9644,14 +9644,14 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
                   <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
                     <option value="">— Seleccionar paciente —</option>
                     {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
                   </select>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
                   <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
                   <textarea
@@ -9659,7 +9659,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     value={citaDescripcion}
                     onChange={e => setCitaDescripcion(e.target.value)}
                     rows={3}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12,
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12,
                       outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
                       lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#FFFFFF", color:C.text }}/>
 
@@ -9667,19 +9667,19 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
                       <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
                       <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                   </div>
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
                   <div style={{ display:"flex", gap:8, marginBottom:12 }}>
                     {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
                       <div key={val} onClick={() => setCitaModalidad(val)}
-                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.09)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.04)" }}>
+                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.12)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.07)" }}>
                         <div style={{ fontSize:22 }}>{ic}</div>
                         <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
                       </div>
@@ -9689,7 +9689,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     <>
                       <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet</div>
                       <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </>
                   )}                  
                   <div style={{ display:"flex", gap:8 }}>
