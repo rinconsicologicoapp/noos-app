@@ -2683,7 +2683,7 @@ const styles = `
           <polygon points="10,14 14,4 18,14" fill="#FFB347"/>
           <polygon points="22,14 26,4 30,14" fill="#FFB347"/>
           <circle cx="20" cy="18" r="10" fill="#FFB347"/>
-          <ellipse cx="20" cy="22" rx="5" ry="3.5" fill="#F5EEE8"/>
+          <ellipse cx="20" cy="22" rx="5" ry="3.5" fill="#1A2E1D"/>
           <circle cx="16.5" cy="16" r="1.8" fill="#04030C"/>
           <circle cx="23.5" cy="16" r="1.8" fill="#04030C"/>
           <ellipse cx="20" cy="20" rx="2" ry="1.5" fill="#FF7B5A"/>
@@ -2691,15 +2691,15 @@ const styles = `
       ),
       av4: ( // Lobo — gris azulado
         <svg width={s} height={s} viewBox="0 0 40 40">
-          <polygon points="10,14 14,3 19,14" fill="#7A6E8A"/>
-          <polygon points="21,14 26,3 30,14" fill="#7A6E8A"/>
+          <polygon points="10,14 14,3 19,14" fill="#5C7A65"/>
+          <polygon points="21,14 26,3 30,14" fill="#5C7A65"/>
           <circle cx="20" cy="18" r="10" fill="#9B8FAA"/>
-          <ellipse cx="20" cy="22" rx="5" ry="3.5" fill="#F5EEE8"/>
+          <ellipse cx="20" cy="22" rx="5" ry="3.5" fill="#1A2E1D"/>
           <circle cx="16.5" cy="16" r="2" fill="#04030C"/>
           <circle cx="23.5" cy="16" r="2" fill="#04030C"/>
           <circle cx="17" cy="15.5" r="0.7" fill="white"/>
           <circle cx="24" cy="15.5" r="0.7" fill="white"/>
-          <ellipse cx="20" cy="20.5" rx="2" ry="1.3" fill="#7A6E8A"/>
+          <ellipse cx="20" cy="20.5" rx="2" ry="1.3" fill="#5C7A65"/>
         </svg>
       ),
       av5: ( // León — melena gold
@@ -2708,7 +2708,7 @@ const styles = `
           <circle cx="20" cy="18" r="9" fill="#FFB347"/>
           <circle cx="16.5" cy="17" r="1.8" fill="#04030C"/>
           <circle cx="23.5" cy="17" r="1.8" fill="#04030C"/>
-          <ellipse cx="20" cy="21" rx="4" ry="3" fill="#F5EEE8"/>
+          <ellipse cx="20" cy="21" rx="4" ry="3" fill="#1A2E1D"/>
           <ellipse cx="20" cy="21.5" rx="2" ry="1.2" fill="#FF9B7A"/>
           <path d="M17.5 23.5 Q20 25 22.5 23.5" stroke="#04030C" strokeWidth="1" fill="none" strokeLinecap="round"/>
         </svg>
@@ -2718,8 +2718,8 @@ const styles = `
           <ellipse cx="20" cy="20" rx="11" ry="12" fill="#1E8880"/>
           <ellipse cx="14" cy="10" rx="4" ry="5" fill="#1E8880"/>
           <ellipse cx="26" cy="10" rx="4" ry="5" fill="#1E8880"/>
-          <circle cx="16" cy="18" r="5" fill="#F5EEE8"/>
-          <circle cx="24" cy="18" r="5" fill="#F5EEE8"/>
+          <circle cx="16" cy="18" r="5" fill="#1A2E1D"/>
+          <circle cx="24" cy="18" r="5" fill="#1A2E1D"/>
           <circle cx="16" cy="18" r="3" fill="#4ECDC4"/>
           <circle cx="24" cy="18" r="3" fill="#4ECDC4"/>
           <circle cx="16" cy="18" r="1.5" fill="#04030C"/>
@@ -2733,7 +2733,7 @@ const styles = `
           <path d="M15,10 Q17,7 20,8 Q23,7 25,10" stroke="#D04428" strokeWidth="1.5" fill="none"/>
           <path d="M13,14 Q12,17 14,18" stroke="#D04428" strokeWidth="1.5" fill="none"/>
           <path d="M27,14 Q28,17 26,18" stroke="#D04428" strokeWidth="1.5" fill="none"/>
-          <ellipse cx="20" cy="22" rx="5" ry="3" fill="#F5EEE8"/>
+          <ellipse cx="20" cy="22" rx="5" ry="3" fill="#1A2E1D"/>
           <circle cx="16.5" cy="16" r="1.8" fill="#04030C"/>
           <circle cx="23.5" cy="16" r="1.8" fill="#04030C"/>
           <ellipse cx="20" cy="21" rx="2" ry="1.2" fill="#FF7B5A"/>
@@ -2741,15 +2741,15 @@ const styles = `
       ),
       av8: ( // Panda — blanco y negro
         <svg width={s} height={s} viewBox="0 0 40 40">
-          <circle cx="20" cy="18" r="10" fill="#F5EEE8"/>
+          <circle cx="20" cy="18" r="10" fill="#1A2E1D"/>
           <circle cx="14" cy="14" r="5" fill="#131028"/>
           <circle cx="26" cy="14" r="5" fill="#131028"/>
           <circle cx="14" cy="14" r="2.5" fill="white"/>
           <circle cx="26" cy="14" r="2.5" fill="white"/>
           <circle cx="14" cy="14" r="1.5" fill="#04030C"/>
           <circle cx="26" cy="14" r="1.5" fill="#04030C"/>
-          <ellipse cx="20" cy="22" rx="4" ry="2.5" fill="#F5EEE8"/>
-          <ellipse cx="20" cy="22" rx="2" ry="1.2" fill="#7A6E8A"/>
+          <ellipse cx="20" cy="22" rx="4" ry="2.5" fill="#1A2E1D"/>
+          <ellipse cx="20" cy="22" rx="2" ry="1.2" fill="#5C7A65"/>
           <path d="M17.5 24 Q20 26 22.5 24" stroke="#131028" strokeWidth="1" fill="none" strokeLinecap="round"/>
         </svg>
       ),
@@ -2765,7 +2765,7 @@ const styles = `
       ),
       av10: ( // Águila — coral y gold
         <svg width={s} height={s} viewBox="0 0 40 40">
-          <ellipse cx="20" cy="18" rx="10" ry="11" fill="#F5EEE8"/>
+          <ellipse cx="20" cy="18" rx="10" ry="11" fill="#1A2E1D"/>
           <ellipse cx="8" cy="18" rx="5" ry="8" fill="#FF7B5A" transform="rotate(-15 8 18)"/>
           <ellipse cx="32" cy="18" rx="5" ry="8" fill="#FF7B5A" transform="rotate(15 32 18)"/>
           <circle cx="16" cy="15" r="2" fill="#04030C"/>
@@ -3689,7 +3689,7 @@ const styles = `
                   </div>
                   <div style={{ display:"flex", gap:8, alignItems:"center", marginTop:4 }}>
                     <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(0,0,0,.11)", borderRadius:10, border:"1px solid rgba(0,0,0,.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(245,238,232,0.65)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.55)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                       {unread > 0 && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, background:C.plum, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"white" }}>{unread}</div>}
                     </div>
                     <div onClick={() => showScreen("perfil")} style={{ width:36, height:36, background:"rgba(255,123,90,.20)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", border:"1px solid rgba(255,123,90,.20)", cursor:"pointer", overflow:"hidden" }}>
@@ -5406,7 +5406,7 @@ const styles = `
                   <div onClick={() => { setDiarioModo("lista"); setDiarioCargado(false); setDiarioEntradas([]); showScreen("home"); }}
                     style={{ width:34,height:34,borderRadius:10,background:"rgba(0,0,0,.11)",
                       display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",WebkitTapHighlightColor:"transparent" }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(245,238,232,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.55)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                   </div>
                   <div style={{ textAlign:"center" }}>
                     <div style={{ fontSize:14,fontWeight:700,color:C.text,letterSpacing:"-0.01em" }}>Mi Diario</div>
@@ -5472,7 +5472,7 @@ const styles = `
                                 <div style={{ fontSize:9,color:"rgba(245,238,232,0.45)",textTransform:"uppercase",fontWeight:600 }}>{f.mes.slice(0,3)}</div>
                               </div>
                               <div style={{ flex:1,minWidth:0 }}>
-                                <div style={{ fontSize:12,color:"rgba(245,238,232,0.85)",lineHeight:1.5,
+                                <div style={{ fontSize:12,color:C.text,lineHeight:1.5,
                                   overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",
                                   whiteSpace:"pre-wrap" }}>
                                   {e.texto || "Entrada vacía"}
@@ -6183,7 +6183,7 @@ const styles = `
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                   </div>
                 </div>
-                <div style={{ fontSize:17, fontWeight:700, color:C.text, marginBottom:3 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
+                <div style={{ fontSize:17, fontWeight:700, color:"white", marginBottom:3 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
                 <div style={{ fontSize:11, color:"rgba(245,238,232,0.35)", marginBottom:10 }}>{usuarioActual?.email || ""}</div>
                 <div style={{ display:"inline-flex", background:"rgba(255,155,122,0.1)", border:"0.5px solid rgba(255,155,122,0.2)", borderRadius:20, padding:"4px 12px", gap:5, alignItems:"center" }}>
                   <span style={{ fontSize:12 }}>{getRango(xp).icono}</span>
@@ -6205,7 +6205,7 @@ const styles = `
                 </div>
 
                 {/* MI CUENTA */}
-                <div style={{ fontSize:11, fontWeight:600, color:"rgba(245,230,208,0.35)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Mi cuenta</div>
+                <div style={{ fontSize:11, fontWeight:600, color:"rgba(0,0,0,.45)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Mi cuenta</div>
                 <div style={{ background:"#FFFFFF", border:"0.5px solid rgba(255,155,122,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
                   {[
                     { ic:"user", lb:"Cambiar avatar", fn:() => setModal("avatar") },
@@ -6225,7 +6225,7 @@ const styles = `
                 </div>
 
                 {/* CONFIGURACIÓN */}
-                <div style={{ fontSize:11, fontWeight:600, color:"rgba(245,230,208,0.35)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Configuración</div>
+                <div style={{ fontSize:11, fontWeight:600, color:"rgba(0,0,0,.45)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Configuración</div>
                 <div style={{ background:"#FFFFFF", border:"0.5px solid rgba(255,155,122,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
                   <div onClick={() => setModal("privacidad")}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(255,155,122,0.06)", cursor:"pointer" }}>
@@ -6392,7 +6392,7 @@ const styles = `
         <div>
           <div style={{ fontSize:13, fontWeight:800, color:C.text }}>🔔 Notificaciones push</div>
           <div style={{ fontSize:11, color:C.light, marginTop:2 }}>
-            {usuarioActual?.fcmToken ? "✅ Activadas" : "❌ Desactivadas"}
+            {usuarioActual?.fcmToken ? "Activas" : "Inactivas"}
           </div>
         </div>
         <div onClick={async () => {
@@ -6941,9 +6941,9 @@ const styles = `
                     }}
                       style={{ background:"#FFFFFF", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"1px solid rgba(0,0,0,.11)", cursor:"pointer" }}>
                       <div style={{ width:46, height:46, borderRadius:14, overflow:"hidden",
-                        background:`linear-gradient(135deg,${C.plum},${C.sage})`,
+                        background:"#D8E4D8",
                         display:"flex", alignItems:"center", justifyContent:"center",
-                        fontSize:18, fontWeight:700, color:"white", flexShrink:0 }}>
+                        fontSize:18, fontWeight:800, color:"#4A7A55", flexShrink:0 }}>
                         {p.foto
                           ? <img src={p.foto} alt="" style={{ width:46, height:46, objectFit:"cover" }}/>
                           : (p.avatar && typeof p.avatar === "string" && !p.avatar.startsWith("http"))
@@ -7434,7 +7434,7 @@ const styles = `
               <div key={id} onClick={() => setHabitosTab(id)}
                 style={{ flex:1, padding:"9px 0", textAlign:"center", fontSize:12, fontWeight:600, cursor:"pointer",
                   background: habitosTab === id ? "rgba(255,123,90,0.3)" : "transparent",
-                  color: habitosTab === id ? "#FFB347" : "rgba(245,230,208,0.35)",
+                  color: habitosTab === id ? "#FFB347" : "rgba(0,0,0,.45)",
                   transition:"all 0.2s" }}>
                 {lb}
               </div>
@@ -7560,8 +7560,8 @@ const styles = `
                           </g>
                         );
                       })}
-                      <text x="70" y="66" textAnchor="middle" fill="#F5EEE8" fontSize="22" fontWeight="700">{completadosHoy}/{totalActivos}</text>
-                      <text x="70" y="80" textAnchor="middle" fill="#7A6E8A" fontSize="10">hoy</text>
+                      <text x="70" y="66" textAnchor="middle" fill="#1A2E1D" fontSize="22" fontWeight="700">{completadosHoy}/{totalActivos}</text>
+                      <text x="70" y="80" textAnchor="middle" fill="#5C7A65" fontSize="10">hoy</text>
                     </svg>
                   </div>
                 </div>
@@ -7998,7 +7998,7 @@ const styles = `
             <div style={{ fontSize:11, color:"#7A6E8A", marginBottom:18 }}>Agrega cualquier cobro manualmente</div>
 
             {/* Paciente */}
-            <div style={{ fontSize:10, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Paciente</div>
+            <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Paciente</div>
             <div style={{ display:"flex", gap:6, marginBottom:14, flexWrap:"wrap" }}>
               {[{ id:"ninguno", nombre:"Sin paciente" }, ...pacientes].map(p => (
                 <div key={p.id} onClick={() => setIngresoPaciente(p.id==="ninguno" ? null : p)}
@@ -8013,7 +8013,7 @@ const styles = `
             </div>
 
             {/* Motivo */}
-            <div style={{ fontSize:10, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Motivo</div>
+            <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Motivo</div>
             <input
               value={ingresoMotivo}
               onChange={e => setIngresoMotivo(e.target.value)}
@@ -8023,7 +8023,7 @@ const styles = `
                 background:"#FFFFFF", boxSizing:"border-box", fontFamily:"inherit", color:C.text }}/>
 
             {/* Valor */}
-            <div style={{ fontSize:10, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Valor</div>
+            <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Valor</div>
             <div style={{ position:"relative", marginBottom:14 }}>
               <span style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)",
                 fontSize:14, fontWeight:700, color:"#FF7B5A" }}>$</span>
@@ -8040,13 +8040,13 @@ const styles = `
             {/* Fecha y estado */}
             <div style={{ display:"flex", gap:10, marginBottom:20 }}>
               <div style={{ flex:1 }}>
-                <div style={{ fontSize:10, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Fecha</div>
+                <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Fecha</div>
                 <input type="date" value={ingresoFecha} onChange={e => setIngresoFecha(e.target.value)}
                   style={{ width:"100%", padding:"9px 11px", border:"1.5px solid rgba(0,0,0,.10)",
                     borderRadius:12, fontSize:13, outline:"none", background:"#FFFFFF", boxSizing:"border-box", color:C.text }}/>
               </div>
               <div style={{ flex:1 }}>
-                <div style={{ fontSize:10, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Estado</div>
+                <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Estado</div>
                 <div style={{ display:"flex", gap:6 }}>
                   {[{v:true,lb:"Cobrado"},{v:false,lb:"Pendiente"}].map(({v,lb}) => (
                     <div key={lb} onClick={() => setIngresoPagado(v)}
@@ -9235,13 +9235,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
 
               {/* HEADER */}
-              <div style={{ background:"#F0F2F0", padding:"32px 24px 48px", textAlign:"center", position:"relative", borderBottom:"0.5px solid rgba(255,155,122,0.12)" }}>
+              <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"32px 24px 48px", textAlign:"center", position:"relative", borderBottom:"0.5px solid rgba(255,155,122,0.12)" }}>
                 <div style={{ position:"relative", display:"inline-block", marginBottom:14 }}>
                   {usuarioActual?.foto ? (
-                    <img src={usuarioActual.foto} alt="foto" style={{ width:90, height:90, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(0,0,0,.15)", margin:"0 auto", display:"block" }}/>
+                    <img src={usuarioActual.foto} alt="foto" style={{ width:90, height:90, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,.25)", margin:"0 auto", display:"block", boxShadow:"0 0 0 5px rgba(255,255,255,.08)" }}/>
                   ) : (
-                    <div style={{ width:90, height:90, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", border:"3px solid rgba(0,0,0,.15)", margin:"0 auto" }}>
-                    <LucideIcon name="doctor" color="white" size={44}/>
+                    <div style={{ width:90, height:90, borderRadius:"50%", background:"linear-gradient(135deg,#2D6A40,#1E4D2B)", display:"flex", alignItems:"center", justifyContent:"center", border:"3px solid rgba(255,255,255,.2)", margin:"0 auto", boxShadow:"0 0 0 5px rgba(255,255,255,.06)" }}>
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
                   )}
                   <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setEditBio(usuarioActual?.bio||""); setModal("edit-psico"); }} style={{ position:"absolute", bottom:2, right:2, width:28, height:28, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", border:"2px solid white", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>
@@ -9282,7 +9282,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:600, marginBottom:12 }}>{usuarioActual?.email || ""}</div>
                 <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
                   {usuarioActual?.especialidad && (
-                    <span style={{ background:"rgba(0,0,0,.11)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>🧠 {usuarioActual.especialidad}</span>
+                    <span style={{ background:"rgba(0,0,0,.11)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>{usuarioActual.especialidad}</span>
                   )}
                   {usuarioActual?.enfoque && (
                     <span style={{ background:"rgba(0,0,0,.11)", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20 }}>{usuarioActual.enfoque}</span>
@@ -9370,14 +9370,14 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                           </div>
                           <div>
-                            <div style={{ fontSize:9, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:2 }}>Teléfono</div>
+                            <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:2 }}>Teléfono</div>
                             <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{usuarioActual.telefono}</div>
                           </div>
                         </div>
                       )}
                       {(usuarioActual?.especialidad || usuarioActual?.enfoque) && (
                         <div style={{ padding:"12px 14px", borderBottom: usuarioActual?.bio ? "1px solid rgba(0,0,0,0.04)" : "none" }}>
-                          <div style={{ fontSize:9, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Especialización</div>
+                          <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Especialización</div>
                           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:7 }}>
                             {[
                               { lb:"Especialidad", val:usuarioActual?.especialidad },
@@ -9393,8 +9393,8 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       )}
                       {usuarioActual?.bio && (
                         <div style={{ padding:"12px 14px" }}>
-                          <div style={{ fontSize:9, fontWeight:700, color:"#7A6E8A", textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Sobre mí</div>
-                          <div style={{ fontSize:13, color:"rgba(245,238,232,0.80)", lineHeight:1.75, whiteSpace:"pre-wrap" }}>{usuarioActual.bio}</div>
+                          <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>Sobre mí</div>
+                          <div style={{ fontSize:13, color:C.text, lineHeight:1.75, whiteSpace:"pre-wrap" }}>{usuarioActual.bio}</div>
                         </div>
                       )}
                     </div>
@@ -9443,7 +9443,10 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                 </div>
 
                 {/* CONFIGURACIÓN */}
-                <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>⚙️ Configuración</div>
+                <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:10 }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  <span style={{ fontSize:13, fontWeight:800, color:C.text }}>Configuración</span>
+                </div>
                 <div style={{ background:"#FFFFFF", borderRadius:14, overflow:"hidden", marginBottom:16, border:"1px solid rgba(0,0,0,.11)" }}>
                   <div onClick={() => setNotifPanel(true)}
                     style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)", cursor:"pointer" }}>
@@ -9459,7 +9462,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Notificaciones push</div>
-                      <div style={{ fontSize:10, color:C.light, marginTop:1 }}>{usuarioActual?.fcmToken ? "✅ Activadas" : "❌ Desactivadas"}</div>
+                      <div style={{ fontSize:10, color:C.light, marginTop:1 }}>{usuarioActual?.fcmToken ? "Activas" : "Inactivas"}</div>
                     </div>
                     <div onClick={async () => {
                       if (usuarioActual?.fcmToken) {
@@ -9496,25 +9499,33 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   </div>
                 </div>
                 {/* RESEÑAS */}
-                <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:10 }}>⭐ Reseñas de pacientes</div>
+                <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:10 }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFB347" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <span style={{ fontSize:13, fontWeight:800, color:C.text }}>Reseñas de pacientes</span>
+                </div>
                 {loadingResenas ? (
                   <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>Cargando reseñas...</div>
                 ) : resenas.length === 0 ? (
                   <div style={{ background:"#FFFFFF", borderRadius:14, padding:20, textAlign:"center", marginBottom:16, border:"1px solid rgba(0,0,0,.11)" }}>
-                    <div style={{ fontSize:32, marginBottom:6 }}>⭐</div>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{margin:"0 auto 8px",display:"block"}}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     <div style={{ fontSize:13, fontWeight:700, color:C.text }}>Aún no tienes reseñas</div>
                     <div style={{ fontSize:11, color:C.light, marginTop:4 }}>Tus pacientes podrán valorarte desde su perfil</div>
                   </div>
                 ) : (
                   <>
-                    <div style={{ background:`linear-gradient(135deg,${C.plum},#3D3055)`, borderRadius:16, padding:16, marginBottom:12, textAlign:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.1)" }}>
-                      <div style={{ fontSize:36, fontWeight:900, color:"white" }}>{resenas.length > 0 ? (resenas.reduce((a,r) => a+r.rating, 0) / resenas.length).toFixed(1) : "—"} ⭐</div>
-                      <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:4 }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""}</div>
+                    <div style={{ background:"#FFFFFF", borderRadius:16, padding:"14px 18px", marginBottom:10, display:"flex", alignItems:"center", gap:16, border:"1px solid rgba(0,0,0,.10)", boxShadow:"0 1px 3px rgba(0,0,0,.06)" }}>
+                      <div style={{ fontSize:40, fontWeight:900, letterSpacing:"-.03em", color:C.text, lineHeight:1 }}>{resenas.length > 0 ? (resenas.reduce((a,r) => a+r.rating, 0) / resenas.length).toFixed(1) : "—"}</div>
+                      <div>
+                        <div style={{ display:"flex", gap:2, marginBottom:4 }}>
+                          {[1,2,3,4,5].map(s => { const avg = resenas.reduce((a,r)=>a+r.rating,0)/resenas.length; return <svg key={s} width="13" height="13" viewBox="0 0 24 24" fill={s<=Math.round(avg)?"#FFB347":"rgba(0,0,0,.12)"} stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>; })}
+                        </div>
+                        <div style={{ fontSize:11, color:C.light }}>{resenas.length} reseña{resenas.length !== 1 ? "s" : ""} verificadas</div>
+                      </div>
                     </div>
                     {resenas.map(r => (
-                      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:`1px solid rgba(0,0,0,.11)`, opacity:r.oculta ? 0.45 : 1 }}>
+                      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:`1px solid rgba(0,0,0,.11)`, borderLeft:`3px solid rgba(255,123,90,.45)`, opacity:r.oculta ? 0.45 : 1 }}>
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
-                          <div style={{ fontSize:14 }}>{"⭐".repeat(r.rating)}</div>
+                          <div style={{ display:"flex", gap:2 }}>{[1,2,3,4,5].map(s=><svg key={s} width="11" height="11" viewBox="0 0 24 24" fill={s<=r.rating?"#FFB347":"rgba(0,0,0,.12)"} stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>)}</div>
                           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                             <div style={{ fontSize:10, color:C.light }}>{new Date(r.fecha).toLocaleDateString('es-CO')}</div>
                             <div onClick={async () => {
@@ -9524,7 +9535,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                                 showToast(r.oculta ? "✅ Reseña visible" : "🙈 Reseña ocultada");
                               } catch(e) { showToast("Error ❌"); }
                             }} style={{ cursor:"pointer", background:r.oculta ? "#FFF3E0" : "#F5F0FF", color:r.oculta ? C.amber : C.plum, padding:"2px 8px", borderRadius:20, fontWeight:700, fontSize:10 }}>
-                              {r.oculta ? "👁 Mostrar" : "🙈 Ocultar"}
+                              {r.oculta ? "Mostrar" : "Ocultar"}
                             </div>
                             <div onClick={async () => {
                               if (!window.confirm("¿Eliminar esta reseña permanentemente?")) return;
@@ -9549,19 +9560,27 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
               {mdl("edit-psico", (
                 <div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:16, textAlign:"center" }}>✏️ Editar perfil</div>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:16 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                    <span style={{ fontSize:20, fontWeight:900, color:C.text }}>Editar perfil</span>
+                  </div>
 
                   {/* PREVIEW FOTO */}
                   <div style={{ textAlign:"center", marginBottom:14 }}>
                     {editFoto ? (
                       <img src={editFoto} alt="preview" style={{ width:80, height:80, borderRadius:"50%", objectFit:"cover", border:`3px solid ${C.plum}` }}/>
                     ) : (
-                      <div style={{ width:80, height:80, borderRadius:"50%", background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, margin:"0 auto", border:`3px solid ${C.plum}` }}>👨‍⚕️</div>
+                      <div style={{ width:80, height:80, borderRadius:"50%", background:"linear-gradient(135deg,#2D6A40,#1E4D2B)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto", border:`3px solid ${C.plum}` }}>
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      </div>
                     )}
                   </div>
 
                   {/* SUBIR FOTO DESDE DISPOSITIVO */}
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>📷 Foto de perfil</div>
+                  <div style={{ display:"flex", alignItems:"center", gap:5, fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    Foto de perfil
+                  </div>
                   <label style={{ display:"block", cursor: subiendoFoto ? "wait" : "pointer", marginBottom:12 }}>
                     <input type="file" accept="image/jpeg,image/png,image/webp,image/heic"
                       style={{ display:"none" }}
