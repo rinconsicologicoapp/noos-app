@@ -9780,7 +9780,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
         {/* TOAST */}
         {toast && (
-          <div style={{ position:"absolute", bottom:"calc(90px + env(safe-area-inset-bottom, 0px))", left:"50%", transform:"translateX(-50%)", background:"rgba(42,30,20,0.92)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", color:C.text, fontWeight:700, fontSize:13, padding:"11px 22px", borderRadius:24, zIndex:600, whiteSpace:"nowrap", boxShadow:"0 8px 24px rgba(0,0,0,0.3)", pointerEvents:"none", border:"0.5px solid rgba(255,155,122,0.2)", animation:"fadeIn 0.2s ease" }}>
+          <div style={{ position:"absolute", bottom:"calc(90px + env(safe-area-inset-bottom, 0px))", left:"50%", transform:"translateX(-50%)", background:"rgba(22,42,28,0.96)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", color:"#EDFAF3", fontWeight:700, fontSize:13, padding:"11px 22px", borderRadius:24, zIndex:600, whiteSpace:"nowrap", boxShadow:"0 8px 32px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,.08)", pointerEvents:"none", animation:"fadeIn 0.2s ease" }}>
             {toast}
           </div>
         )}
