@@ -6491,7 +6491,7 @@ const styles = `
                         setModal(null);
                         showNotif("Perfil actualizado", "Tus datos fueron guardados ✅", "✏️");
                       } catch(e) { showToast("Error al guardar ❌"); }
-                    }, "Guardar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    }, "Guardar", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
@@ -6677,7 +6677,7 @@ const styles = `
                         setPinAnterior(""); setPinNuevo(""); setPinNuevo2("");
                         showNotif("PIN actualizado", "Tu PIN fue cambiado exitosamente 🔒", "🔒");
                       } catch(e) { showToast("PIN actual incorrecto ❌"); }
-                    }, "Guardar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    }, "Guardar", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
@@ -8105,7 +8105,7 @@ const styles = `
         { merge: true }
       );
       setMetodosPago(pagoEditTemp); setEditandoPagos(false);
-      showToast("✅ Métodos guardados");
+      showToast("Métodos guardados");
     } catch(e) { showToast("Error ❌"); }
   };
 
@@ -8168,7 +8168,7 @@ const styles = `
     try {
       await deleteDoc(doc(db, "sesionesFinanzas", id));
       setSesionesFinanzas(prev => prev.filter(s => s.id!==id));
-      showToast("🗑️ Eliminada");
+      showToast("Eliminada");
     } catch(e) { showToast("Error ❌"); }
   };
   const guardarTarifa = async () => {
@@ -8207,18 +8207,29 @@ const styles = `
   return (
     <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
 
-      {/* Header con 2 tabs principales */}
-      <div style={{ background:`linear-gradient(145deg,${C.dark},#3A1E4A)`, padding:"16px 18px 0", paddingTop:"max(16px, env(safe-area-inset-top,16px))", flexShrink:0 }}>
-        <div style={{ fontSize:17, fontWeight:700, color:"white", marginBottom:12 }}>
-          {pagosMainTab==="finanzas" ? "💰 Finanzas" : "💳 Métodos de pago"}
+      {/* Header — forest green coherente con el resto de la app */}
+      <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"14px 18px 0", paddingTop:"max(14px, env(safe-area-inset-top,14px))", flexShrink:0 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+          <div style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,.07)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+            {pagosMainTab==="finanzas"
+              ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="1.75" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="1.75" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>}
+          </div>
+          <div style={{ fontSize:17, fontWeight:800, color:"white", letterSpacing:"-.02em" }}>
+            {pagosMainTab==="finanzas" ? "Finanzas" : "Métodos de pago"}
+          </div>
         </div>
-        <div style={{ display:"flex", borderBottom:"1px solid rgba(255,255,255,0.1)" }}>
-          {[["finanzas","💰 Finanzas"],["metodos","💳 Métodos pago"]].map(([id,lb]) => (
+        <div style={{ display:"flex", borderTop:"1px solid rgba(255,255,255,.08)" }}>
+          {[
+            { id:"finanzas", lb:"Finanzas", ico:<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
+            { id:"metodos", lb:"Métodos pago", ico:<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> },
+          ].map(({ id, lb, ico }) => (
             <div key={id} onClick={() => setPagosMainTab(id)}
-              style={{ flex:1, textAlign:"center", padding:"9px 0", fontSize:12, fontWeight:700,
-                color: pagosMainTab===id ? "#FFB347" : "rgba(255,255,255,0.4)",
-                borderBottom: pagosMainTab===id ? "2.5px solid #E8A87C" : "2.5px solid transparent",
-                cursor:"pointer", transition:"all 0.15s" }}>
+              style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"10px 0", fontSize:11, fontWeight:700,
+                color: pagosMainTab===id ? "white" : "rgba(255,255,255,.38)",
+                borderBottom: `2px solid ${pagosMainTab===id ? C.plum : "transparent"}`,
+                cursor:"pointer", transition:"all 0.18s" }}>
+              <span style={{ color:"inherit" }}>{ico}</span>
               {lb}
             </div>
           ))}
@@ -8236,10 +8247,10 @@ const styles = `
         }}
           style={{ position:"absolute", bottom:"calc(90px + env(safe-area-inset-bottom,20px))",
             right:20, zIndex:50, width:52, height:52, borderRadius:18,
-            background:"linear-gradient(135deg,#8B5A3A,#5C2E0A)",
+            background:`linear-gradient(135deg,${C.plum},${C.amberDark})`,
             display:"flex", alignItems:"center", justifyContent:"center",
             cursor:"pointer", WebkitTapHighlightColor:"transparent",
-            boxShadow:"0 6px 20px rgba(91,46,10,0.45)" }}>
+            boxShadow:`0 6px 20px rgba(255,90,54,0.35)` }}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
@@ -8331,7 +8342,7 @@ const styles = `
             <div style={{ display:"flex", gap:10 }}>
               <div onClick={() => setModalIngreso(false)}
                 style={{ flex:1, padding:"12px 0", borderRadius:14, textAlign:"center",
-                  background:"rgba(255,123,90,.18)", color:"#FF7B5A", fontSize:13, fontWeight:700, cursor:"pointer" }}>
+                  background:"rgba(0,0,0,.07)", color:C.text, fontSize:13, fontWeight:700, cursor:"pointer" }}>
                 Cancelar
               </div>
               <div onClick={async () => {
@@ -8354,12 +8365,12 @@ const styles = `
                   const snap = await getDocs(query(collection(db,"sesionesFinanzas"), where("psicologoId","==",usuarioActual.uid)));
                   setSesionesFinanzas(snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b) => new Date(b.fecha)-new Date(a.fecha)));
                   setModalIngreso(false);
-                  showToast("✅ Ingreso registrado");
+                  showToast("Ingreso registrado");
                 } catch(e) { showToast("Error ❌"); }
               }}
                 style={{ flex:2, padding:"12px 0", borderRadius:14, textAlign:"center",
-                  background:"linear-gradient(135deg,#8B5A3A,#5C2E0A)",
-                  color:"white", fontSize:13, fontWeight:800, cursor:"pointer" }}>
+                  background:`linear-gradient(135deg,${C.plum},${C.amberDark})`,
+                  color:"white", fontSize:13, fontWeight:800, cursor:"pointer",boxShadow:`0 4px 16px rgba(255,90,54,.25)` }}>
                 Guardar ingreso
               </div>
             </div>
@@ -8374,10 +8385,12 @@ const styles = `
           <div style={{ padding:16 }}>
             {!editandoPagos ? (<>
               {metodosPago.length === 0 ? (
-                <div style={{ textAlign:"center", padding:"48px 24px" }}>
-                  <div style={{ fontSize:40, marginBottom:10 }}>💳</div>
-                  <div style={{ fontSize:15, fontWeight:700, color:C.text, marginBottom:6 }}>Sin métodos configurados</div>
-                  <div style={{ fontSize:12, color:C.light, lineHeight:1.6, marginBottom:24 }}>Agrega tus métodos de pago para que tus pacientes sepan cómo pagarte</div>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", padding:"52px 24px", gap:12 }}>
+                  <div style={{ width:60, height:60, borderRadius:18, background:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.5" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  </div>
+                  <div style={{ fontSize:15, fontWeight:700, color:C.text }}>Sin métodos configurados</div>
+                  <div style={{ fontSize:12, color:C.light, lineHeight:1.6, textAlign:"center", maxWidth:260 }}>Agrega tus métodos de pago para que tus pacientes sepan cómo pagarte</div>
                 </div>
               ) : (
                 <div style={{ marginBottom:16 }}>
@@ -8407,7 +8420,12 @@ const styles = `
                   })}
                 </div>
               )}
-              {btn(() => { setPagoEditTemp([...metodosPago]); setEditandoPagos(true); }, metodosPago.length>0?"✏️ Editar métodos":"➕ Agregar métodos de pago", { width:"100%", padding:12, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:800 })}
+              <div onClick={() => { setPagoEditTemp([...metodosPago]); setEditandoPagos(true); }}
+                style={{ width:"100%", height:46, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center", gap:8, cursor:"pointer", boxShadow:`0 4px 14px ${C.plum}28`, touchAction:"manipulation" }}>
+                {metodosPago.length > 0
+                  ? <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Editar métodos</>
+                  : <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Agregar métodos de pago</>}
+              </div>
             </>) : (<>
               <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12 }}>Selecciona tus métodos:</div>
               {METODOS_DISPONIBLES.map(m => {
@@ -8434,7 +8452,7 @@ const styles = `
               })}
               <div style={{ display:"flex", gap:10, marginTop:8 }}>
                 {btn(()=>setEditandoPagos(false), "Cancelar", { flex:1, padding:12, background:C.warm, color:C.text, borderRadius:12, fontSize:12, fontWeight:800 })}
-                {btn(guardarMetodos, "Guardar ✓", { flex:2, padding:12, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:800 })}
+                {btn(guardarMetodos, "Guardar", { flex:2, padding:12, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:800 })}
               </div>
             </>)}
           </div>
@@ -8443,16 +8461,21 @@ const styles = `
         {/* ══════════════ FINANZAS ══════════════ */}
         {pagosMainTab === "finanzas" && (
           <div>
-            {/* Sub-tabs finanzas */}
-            <div style={{ display:"flex", background:"#FFFFFF", borderBottom:"1px solid rgba(255,123,90,0.20)", padding:"0 16px" }}>
-              {[["resumen","📊 Resumen"],["sesiones","📋 Sesiones"],["tarifas","💲 Tarifas"]].map(([id,lb]) => (
-                <div key={id} onClick={() => setFinanzasTab(id)}
-                  style={{ flex:1, textAlign:"center", padding:"11px 0", fontSize:11, fontWeight:700,
+            {/* Sub-tabs finanzas — sin emojis */}
+            <div style={{ display:"flex", background:"#FFFFFF", borderBottom:"1px solid rgba(0,0,0,.08)", padding:"0 16px" }}>
+              {[
+                { id:"resumen", lb:"Resumen", ico:<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
+                { id:"sesiones", lb:"Sesiones", ico:<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> },
+                { id:"tarifas", lb:"Tarifas", ico:<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
+              ].map(({ id, lb, ico }) => (
+                <button key={id} onClick={() => setFinanzasTab(id)}
+                  style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"11px 0", fontSize:11, fontWeight:700, border:"none", background:"transparent", fontFamily:"inherit",
                     color: finanzasTab===id ? C.plum : C.light,
-                    borderBottom: finanzasTab===id ? `2.5px solid ${C.plum}` : "2.5px solid transparent",
-                    cursor:"pointer" }}>
+                    borderBottom: finanzasTab===id ? `2px solid ${C.plum}` : "2px solid transparent",
+                    marginBottom:-1, cursor:"pointer", transition:"color 180ms" }}>
+                  <span style={{ color:"inherit" }}>{ico}</span>
                   {lb}
-                </div>
+                </button>
               ))}
             </div>
 
@@ -8460,13 +8483,17 @@ const styles = `
             {finanzasTab === "resumen" && (
               <div style={{ padding:16 }}>
 
-                {/* Navegador mes */}
+                {/* Navegador mes — SVG chevrons */}
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
                   <div onClick={() => { if(finanzasMes===0){setFinanzasMes(11);setFinanzasAnio(a=>a-1);}else setFinanzasMes(m=>m-1); }}
-                    style={{ width:34,height:34,borderRadius:10,background:"#FFFFFF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>‹</div>
+                    style={{ width:36,height:36,borderRadius:10,background:"#FFFFFF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:"0 1px 3px rgba(0,0,0,.07)" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </div>
                   <div style={{ fontSize:15, fontWeight:800, color:C.text }}>{mesesFull[finanzasMes]} {finanzasAnio}</div>
                   <div onClick={() => { if(finanzasMes===11){setFinanzasMes(0);setFinanzasAnio(a=>a+1);}else setFinanzasMes(m=>m+1); }}
-                    style={{ width:34,height:34,borderRadius:10,background:"#FFFFFF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,color:C.text }}>›</div>
+                    style={{ width:36,height:36,borderRadius:10,background:"#FFFFFF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:"0 1px 3px rgba(0,0,0,.07)" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
                 </div>
 
                 {loadingFinanzas ? (
@@ -8496,16 +8523,22 @@ const styles = `
                         <div style={{ display:"flex", alignItems:"center", gap:3 }}><div style={{ width:7,height:7,borderRadius:"50%",background:C.amber,opacity:0.6 }}/><span style={{ fontSize:9,color:C.light }}>Pendiente</span></div>
                       </div>
                     </div>
-                    {/* Stats verticales */}
+                    {/* Stats verticales — SVG icons */}
                     <div style={{ flex:1, display:"flex", flexDirection:"column", gap:8 }}>
                       {[
-                        { lb:"Total mes", val:fmt(totalMes), color:C.plum, icon:"📈" },
-                        { lb:"Cobrado", val:fmt(cobradoMes), color:C.green, icon:"✅" },
-                        { lb:"Pendiente", val:fmt(pendienteMes), color:C.amber, icon:"⏳" },
-                        { lb:"Sesiones", val:sesDelMes.length+" sesión"+(sesDelMes.length!==1?"es":""), color:C.blue, icon:"🗓️" },
-                      ].map(({lb,val,color,icon}) => (
-                        <div key={lb} style={{ background:"#FFFFFF", borderRadius:11, padding:"8px 12px", border:`1px solid ${color}20`, display:"flex", alignItems:"center", gap:8 }}>
-                          <span style={{ fontSize:14 }}>{icon}</span>
+                        { lb:"Total mes", val:fmt(totalMes), color:C.plum,
+                          ico:<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> },
+                        { lb:"Cobrado", val:fmt(cobradoMes), color:"#5A8A62",
+                          ico:<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg> },
+                        { lb:"Pendiente", val:fmt(pendienteMes), color:C.amber,
+                          ico:<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+                        { lb:"Sesiones", val:sesDelMes.length+" sesión"+(sesDelMes.length!==1?"es":""), color:C.text,
+                          ico:<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+                      ].map(({lb,val,color,ico}) => (
+                        <div key={lb} style={{ background:"#FFFFFF", borderRadius:11, padding:"8px 12px", border:`1px solid rgba(0,0,0,.08)`, display:"flex", alignItems:"center", gap:8 }}>
+                          <div style={{ width:28, height:28, borderRadius:8, background:`${color}12`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, color }}>
+                            {ico}
+                          </div>
                           <div>
                             <div style={{ fontSize:12, fontWeight:800, color }}>{val}</div>
                             <div style={{ fontSize:9, color:C.light, fontWeight:600 }}>{lb}</div>
@@ -8516,38 +8549,51 @@ const styles = `
                   </div>
 
                   {/* Barras semanales */}
-                  <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(0,0,0,.11)" }}>
-                    <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:14 }}>Semanas de {mesesFull[finanzasMes]}</div>
+                  <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(0,0,0,.09)", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:14 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                      <span style={{ fontSize:12, fontWeight:800, color:C.text }}>Semanas de {mesesFull[finanzasMes]}</span>
+                    </div>
                     <div style={{ display:"flex", gap:8, alignItems:"flex-end", height:90 }}>
                       {semanas.map((val,i) => (
                         <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
-                          <div style={{ fontSize:8, color:C.light, fontWeight:600, textAlign:"center" }}>{val>0?fmt(val):""}</div>
-                          <div style={{ width:"100%", background:val>0?`linear-gradient(180deg,${C.plum},${C.amberDark})`:"rgba(0,0,0,0.06)", borderRadius:"6px 6px 0 0",
+                          <div style={{ fontSize:8, color:val>0?C.plum:C.light, fontWeight:700, textAlign:"center" }}>{val>0?fmt(val):""}</div>
+                          <div style={{ width:"100%", background:val>0?C.plum:"rgba(0,0,0,.07)", borderRadius:"5px 5px 0 0",
                             height:Math.max((val/maxSem)*66, val>0?8:3), transition:"height 0.4s ease" }}/>
-                          <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>S{i+1}</div>
+                          <div style={{ fontSize:10, color:C.light, fontWeight:600 }}>S{i+1}</div>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Tendencia 6 meses */}
-                  <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(0,0,0,.11)" }}>
-                    <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:14 }}>Tendencia 6 meses</div>
+                  <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:16, border:"1px solid rgba(0,0,0,.09)", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:14 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                      <span style={{ fontSize:12, fontWeight:800, color:C.text }}>Tendencia · últimos 6 meses</span>
+                    </div>
                     <div style={{ display:"flex", gap:6, alignItems:"flex-end", height:80 }}>
-                      {trend.map((t,i) => (
-                        <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3 }}>
-                          <div style={{ width:"100%", background:t.m===finanzasMes&&t.y===finanzasAnio?`linear-gradient(180deg,${C.plum},${C.amberDark})`:"rgba(139,90,58,0.2)", borderRadius:"5px 5px 0 0",
-                            height:Math.max((t.total/maxTrend)*60, t.total>0?5:2), transition:"height 0.4s ease" }}/>
-                          <div style={{ fontSize:8, color:t.m===finanzasMes&&t.y===finanzasAnio?C.plum:C.light, fontWeight:t.m===finanzasMes?800:500 }}>{t.lb}</div>
-                        </div>
-                      ))}
+                      {trend.map((t,i) => {
+                        const isActual = t.m===finanzasMes && t.y===finanzasAnio;
+                        return (
+                          <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3 }}>
+                            {t.total > 0 && <div style={{ fontSize:7, color:isActual?C.plum:C.light, fontWeight:700, textAlign:"center" }}>{mesesShort[t.m].slice(0,3)}</div>}
+                            <div style={{ width:"100%", background:isActual?C.plum:"rgba(0,0,0,.10)", borderRadius:"5px 5px 0 0",
+                              height:Math.max((t.total/maxTrend)*60, t.total>0?5:2), transition:"height 0.4s ease" }}/>
+                            <div style={{ fontSize:8, color:isActual?C.plum:C.light, fontWeight:isActual?800:500 }}>{t.lb}</div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
                   {/* Por paciente */}
                   {Object.keys(porPac).length > 0 && (
-                    <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, border:"1px solid rgba(0,0,0,.11)" }}>
-                      <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:12 }}>Por paciente</div>
+                    <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, border:"1px solid rgba(0,0,0,.09)", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:14 }}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span style={{ fontSize:12, fontWeight:800, color:C.text }}>Desglose por paciente</span>
+                      </div>
                       {Object.values(porPac).sort((a,b)=>b.total-a.total).map((p,i,arr) => (
                         <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:i<arr.length-1?"0.5px solid rgba(0,0,0,0.06)":"none" }}>
                           <div style={{ width:36,height:36,borderRadius:10,background:`${C.plum}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:C.plum,flexShrink:0 }}>
@@ -8560,7 +8606,7 @@ const styles = `
                           <div style={{ textAlign:"right" }}>
                             <div style={{ fontSize:13,fontWeight:800,color:C.plum }}>{fmt(p.total)}</div>
                             {p.cobrado<p.total && <div style={{ fontSize:10,color:C.amber }}>Debe {fmt(p.total-p.cobrado)}</div>}
-                            {p.cobrado===p.total && p.total>0 && <div style={{ fontSize:10,color:C.green }}>✅ Al día</div>}
+                            {p.cobrado===p.total && p.total>0 && <div style={{ display:"flex",alignItems:"center",gap:3,fontSize:10,color:"#5A8A62" }}><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>Al día</div>}
                           </div>
                         </div>
                       ))}
@@ -8569,7 +8615,7 @@ const styles = `
 
                   {sesDelMes.length === 0 && (
                     <div style={{ textAlign:"center", padding:"32px 20px", color:C.light }}>
-                      <div style={{ fontSize:36, marginBottom:8 }}>📊</div>
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" strokeLinecap="round" style={{margin:"0 auto 10px",display:"block"}}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                       <div style={{ fontSize:14,fontWeight:700,color:C.text }}>Sin sesiones este mes</div>
                       <div style={{ fontSize:12,marginTop:4,lineHeight:1.5 }}>Cuando finalices sesiones aparecerán aquí automáticamente</div>
                     </div>
@@ -8583,10 +8629,10 @@ const styles = `
               <div style={{ padding:16 }}>
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
                   <div onClick={() => { if(finanzasMes===0){setFinanzasMes(11);setFinanzasAnio(a=>a-1);}else setFinanzasMes(m=>m-1); }}
-                    style={{ width:32,height:32,borderRadius:9,background:"#FFFFFF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>‹</div>
+                    style={{ width:32,height:32,borderRadius:9,background:"#FFFFFF",border:"1px solid rgba(0,0,0,.08)",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5C7A65" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg></div>
                   <div style={{ fontSize:14,fontWeight:800,color:C.text }}>{mesesFull[finanzasMes]} {finanzasAnio}</div>
                   <div onClick={() => { if(finanzasMes===11){setFinanzasMes(0);setFinanzasAnio(a=>a+1);}else setFinanzasMes(m=>m+1); }}
-                    style={{ width:32,height:32,borderRadius:9,background:"#FFFFFF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16 }}>›</div>
+                    style={{ width:32,height:32,borderRadius:9,background:"#FFFFFF",border:"1px solid rgba(0,0,0,.08)",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5C7A65" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
                 </div>                
                 {/* Lista sesiones del mes */}
                 {sesDelMes.length === 0 ? (
@@ -8603,7 +8649,7 @@ const styles = `
                         style={{ padding:"5px 10px", borderRadius:20, fontSize:10, fontWeight:800, cursor:"pointer", flexShrink:0,
                           background:s.pagado?"rgba(90,138,98,0.12)":"rgba(255,123,90,0.20)",
                           color:s.pagado?C.green:C.amber, border:`1px solid ${s.pagado?C.green:C.amber}40` }}>
-                        {s.pagado?"✅ Cobrado":"⏳ Pendiente"}
+                        {s.pagado?"Cobrado":"Pendiente"}
                       </div>
                       <div onClick={() => eliminarSesion(s.id)}
                         style={{ width:28,height:28,borderRadius:8,background:"rgba(255,107,107,.15)",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0 }}>
@@ -8618,8 +8664,9 @@ const styles = `
             {/* ── TARIFAS ── */}
             {finanzasTab === "tarifas" && (
               <div style={{ padding:16 }}>
-                <div style={{ background:`${C.amber}12`, borderRadius:13, padding:12, marginBottom:16, border:`1px solid ${C.amber}25` }}>
-                  <div style={{ fontSize:11,color:C.amberDark,lineHeight:1.6 }}>💡 Define el valor de cada sesión por paciente. Al registrar una sesión finalizada, se usará este valor automáticamente.</div>
+                <div style={{ display:"flex", alignItems:"flex-start", gap:10, background:`${C.amber}10`, borderRadius:13, padding:"11px 13px", marginBottom:16, border:`1px solid ${C.amber}22` }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.amberDark} strokeWidth="2" strokeLinecap="round" style={{flexShrink:0,marginTop:1}}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <div style={{ fontSize:11, color:C.amberDark, lineHeight:1.6 }}>Define el valor por sesión para cada paciente. Se aplica automáticamente al registrar una sesión como finalizada.</div>
                 </div>
                 {pacientes.length === 0 ? (
                   <div style={{ textAlign:"center",padding:32,color:C.light }}>Sin pacientes asignados</div>
@@ -8632,20 +8679,23 @@ const styles = `
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:13,fontWeight:700,color:C.text }}>{p.nombre}</div>
                         <div style={{ fontSize:11,color:p.tarifaSesion?C.green:C.light,fontWeight:600,marginTop:2 }}>
-                          {p.tarifaSesion ? `💰 ${fmt(p.tarifaSesion)} / sesión` : "Sin tarifa configurada"}
+                          {p.tarifaSesion ? `\${fmt(p.tarifaSesion)} / sesión` : "Sin tarifa configurada"}
                         </div>
                       </div>
                       {btn(() => { setTarifaEditPaciente(p); setTarifaEditValor(p.tarifaSesion?String(p.tarifaSesion):""); setModal("editar-tarifa"); },
-                        p.tarifaSesion?"✏️ Editar":"+ Tarifa",
+                        p.tarifaSesion?"Editar":"+ Tarifa",
                         { padding:"6px 12px", background:p.tarifaSesion?`${C.plum}15`:C.plum, color:p.tarifaSesion?C.plum:"white", borderRadius:9, fontSize:11, fontWeight:800 })}
                     </div>
                   </div>
                 ))}
                 {mdl("editar-tarifa", tarifaEditPaciente && (
                   <div>
-                    <div style={{ fontSize:18,fontWeight:900,color:C.text,marginBottom:4,textAlign:"center" }}>💲 Tarifa de sesión</div>
-                    <div style={{ fontSize:13,color:C.light,textAlign:"center",marginBottom:18 }}>{tarifaEditPaciente.nombre}</div>
-                    <div style={{ fontSize:11,fontWeight:800,color:C.text,marginBottom:8 }}>Valor por sesión</div>
+                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                      <div style={{ fontSize:18,fontWeight:800,color:C.text }}>Tarifa de sesión</div>
+                    </div>
+                    <div style={{ fontSize:13,color:C.light,marginBottom:18 }}>{tarifaEditPaciente.nombre}</div>
+                    <div style={{ fontSize:11,fontWeight:700,color:C.light,marginBottom:8,textTransform:"uppercase",letterSpacing:".08em" }}>Valor por sesión</div>
                     <input
                       type="tel" inputMode="numeric" placeholder="Ej: 80000"
                       value={tarifaEditValor}
@@ -8654,7 +8704,7 @@ const styles = `
                     {tarifaEditValor && <div style={{ textAlign:"center",fontSize:13,color:C.green,fontWeight:700,marginBottom:14 }}>{fmt(parseInt(tarifaEditValor)||0)} por sesión</div>}
                     <div style={{ display:"flex",gap:8,marginTop:8 }}>
                       {btn(()=>{setModal(null);setTarifaEditPaciente(null);},"Cancelar",{flex:1,padding:11,background:C.warm,color:C.text,borderRadius:11,fontSize:12,fontWeight:800})}
-                      {btn(guardarTarifa,"Guardar ✓",{flex:2,padding:11,background:C.plum,color:"white",borderRadius:11,fontSize:12,fontWeight:800})}
+                      {btn(guardarTarifa,"Guardar",{flex:2,padding:11,background:C.plum,color:"white",borderRadius:11,fontSize:12,fontWeight:800})}
                     </div>
                   </div>
                 ))}
@@ -9981,7 +10031,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                         setModal(null);
                         showNotif("Perfil actualizado", "Los cambios fueron guardados ✅", "✏️");
                       } catch(e) { showToast("Error al guardar ❌"); }
-                    }, "Guardar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    }, "Guardar", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
               ))}
