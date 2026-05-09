@@ -4372,19 +4372,22 @@ const styles = `
     </div>
 
     <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:NAV_PB }}>
-      
+
       {/* PESTAÑA INSIGHTS */}
       {noteTab === "insights" && (
         <>
           {/* MODAL NUEVA NOTA */}
           {mdl("nueva-nota-modal", (
             <div>
-              <div style={{ fontSize:17, fontWeight:700, color:C.text, marginBottom:4 }}>Nueva nota</div>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <div style={{ fontSize:17, fontWeight:700, color:C.text }}>Nueva nota</div>
+              </div>
               <div style={{ fontSize:12, color:C.light, marginBottom:16 }}>¿Cómo te sientes hoy?</div>
-              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:16 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", gap:6, marginBottom:16 }}>
                 {[["😞","Mal"],["😕","Regular"],["😐","Neutro"],["🙂","Bien"],["😄","Genial"]].map(([e,l],i) => (
-                  <div key={i} onClick={() => setInsightMood(i)} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, cursor:"pointer", padding:"8px 6px", borderRadius:12, background:insightMood===i?`${C.plum}15`:"transparent", border:`1.5px solid ${insightMood===i?C.plum:"transparent"}`, transition:"all 0.15s", flex:1 }}>
-                    <span style={{ fontSize:24 }}>{e}</span>
+                  <div key={i} onClick={() => setInsightMood(i)} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, cursor:"pointer", padding:"8px 4px", borderRadius:12, background:insightMood===i?`${C.plum}12`:"rgba(0,0,0,.04)", border:`1.5px solid ${insightMood===i?C.plum:"transparent"}`, transition:"all 0.15s", flex:1 }}>
+                    <span style={{ fontSize:22 }}>{e}</span>
                     <span style={{ fontSize:9, color:insightMood===i?C.plum:C.light, fontWeight:700 }}>{l}</span>
                   </div>
                 ))}
@@ -4451,7 +4454,10 @@ const styles = `
                 <div style={{ fontSize:11, color:C.light, lineHeight:1.5, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{n.text}</div>
                 <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:6 }}>
                   <div style={{ fontSize:10, color:C.light }}>{n.date}</div>
-                  {n.shared && <span style={{ background:"rgba(78,205,196,.18)", color:"#4ECDC4", fontSize:9, fontWeight:700, padding:"2px 8px", borderRadius:10 }}>👁 Compartida con psicólogo</span>}
+                  {n.shared && <span style={{ display:"inline-flex", alignItems:"center", gap:4, background:"rgba(78,205,196,.18)", color:"#1E8880", fontSize:9, fontWeight:700, padding:"2px 8px", borderRadius:10 }}>
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  Compartida con psicólogo
+                </span>}
                 </div>
               </div>
             </div>
@@ -4461,19 +4467,28 @@ const styles = `
 {/* PESTAÑA TAREAS */}
 {noteTab === "tareas" && (
   <>
-    {/* SUBTABS */}
-    <div style={{ display:"flex", gap:8, marginBottom:16 }}>
-      {[["📋","Mis autorregistros","autorregistros"],["📚","Mis recursos","recursos"],["🎯","Tareas","tareas"]].map(([ic,lb,id]) => (
-        <div key={id} onClick={() => setTareasTab(id)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"12px 8px", borderRadius:16, background:tareasTab===id?C.plum:"rgba(0,0,0,.07)", cursor:"pointer", border:"1px solid rgba(0,0,0,.11)", transition:"all 0.2s" }}>
-          <span style={{ fontSize:22 }}>{ic}</span>
-          <span style={{ fontSize:10, fontWeight:800, color:tareasTab===id?"white":C.light, textAlign:"center" }}>{lb}</span>
-        </div>
+    {/* SUBTABS — 2 tabs limpios */}
+    <div style={{ display:"flex", borderBottom:"1px solid rgba(0,0,0,.10)", marginBottom:16, marginLeft:-14, marginRight:-14, paddingLeft:14 }}>
+      {[
+        { id:"autorregistros", lb:"Autorregistros",
+          svg:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> },
+        { id:"tareas", lb:"Tareas",
+          svg:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> },
+      ].map(({ id, lb, svg }) => (
+        <button key={id} onClick={() => setTareasTab(id)} style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"10px 0", fontSize:12, fontWeight:600, color:tareasTab===id?C.plum:C.light, border:"none", background:"transparent", borderBottom:`2px solid ${tareasTab===id?C.plum:"transparent"}`, marginBottom:-1, cursor:"pointer", fontFamily:"inherit", transition:"color 180ms" }}>
+          <span style={{ color:"inherit" }}>{svg}</span>
+          {lb}
+          {id==="tareas" && pendientes > 0 && <span style={{ background:C.plum, color:"white", fontSize:9, fontWeight:700, padding:"1px 6px", borderRadius:20, marginLeft:2 }}>{pendientes}</span>}
+        </button>
       ))}
     </div>
     {/* MIS AUTORREGISTROS */}
         {tareasTab === "autorregistros" && (
           <div>
-            {btn(() => setModal("nuevo-autorregistro"), "✏️ Escribir autorregistro", { width:"100%", padding:10, background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:12, fontSize:13, fontWeight:800, marginBottom:14, display:"block" })}
+            <div onClick={() => setModal("nuevo-autorregistro")} style={{ width:"100%", height:44, background:C.plum, color:"white", borderRadius:12, fontSize:13, fontWeight:700, marginBottom:14, display:"flex", alignItems:"center", justifyContent:"center", gap:8, cursor:"pointer", boxShadow:`0 4px 14px ${C.plum}30`, WebkitTapHighlightColor:"transparent" }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Escribir autorregistro
+            </div>
 
             {autorregistros.length === 0 ? (
               <div style={{ textAlign:"center", padding:30, color:C.light }}>
@@ -4506,98 +4521,66 @@ const styles = `
 
             {mdl("nuevo-autorregistro", (
               <div>
-                <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📋 Nuevo autorregistro</div>
-                <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>Registra lo que viviste</div>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <div style={{ fontSize:18, fontWeight:800, color:C.text }}>Nuevo autorregistro</div>
+                </div>
+                <div style={{ fontSize:12, color:C.light, marginBottom:16 }}>Registra lo que viviste paso a paso</div>
 
-                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📅 Fecha</div>
-                <input placeholder="Ej: 19 de marzo, 2026" value={arFecha} onChange={e => setArFecha(e.target.value)}
-                  style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                {[
+                  { label:"Fecha", placeholder:"Ej: 19 de mayo, 2026", val:arFecha, set:setArFecha, type:"input",
+                    icon:<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+                  { label:"¿Qué hacías antes del evento?", placeholder:"Describe la situación previa...", val:arHaciendo, set:setArHaciendo, type:"textarea",
+                    icon:<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+                  { label:"¿Qué evento sucedió?", placeholder:"¿Qué pasó? ¿Cómo te sentiste?", val:arSucedio, set:setArSucedio, type:"textarea",
+                    icon:<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> },
+                  { label:"¿Qué hiciste después?", placeholder:"¿Cómo lo manejaste?", val:arDespues, set:setArDespues, type:"textarea",
+                    icon:<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> },
+                ].map(({ label, placeholder, val, set, type, icon }) => (
+                  <div key={label} style={{ marginBottom:12 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:5, fontSize:11, fontWeight:700, color:C.text, marginBottom:5 }}>
+                      {icon}{label}
+                    </div>
+                    {type === "input"
+                      ? <input placeholder={placeholder} value={val} onChange={e => set(e.target.value)}
+                          style={{ width:"100%", padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                      : <textarea placeholder={placeholder} value={val} onChange={e => set(e.target.value)}
+                          style={{ width:"100%", minHeight:68, padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.55, background:"#FFFFFF", color:C.text }}/>
+                    }
+                  </div>
+                ))}
 
-                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué estaba haciendo antes del 'evento' problema?</div>
-                <textarea placeholder="Describe lo que hacías en ese momento..." value={arHaciendo} onChange={e => setArHaciendo(e.target.value)}
-                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
-
-                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué evento sucedió?</div>
-                <textarea placeholder="¿Qué pasó? ¿Cómo te sentiste?" value={arSucedio} onChange={e => setArSucedio(e.target.value)}
-                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:12, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
-
-                <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>¿Qué hizo después?</div>
-                <textarea placeholder="¿Qué hiciste luego? ¿Cómo lo manejaste?" value={arDespues} onChange={e => setArDespues(e.target.value)}
-                  style={{ width:"100%", minHeight:70, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:16, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.5, background:"#FFFFFF", color:C.text }}/>
-
-                <div style={{ display:"flex", gap:8 }}>
-                  {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+                <div style={{ display:"flex", gap:8, marginTop:4 }}>
+                  {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.07)", color:C.text, borderRadius:11, fontSize:12, fontWeight:700 })}
                   {btn(async () => {
-                    if (!arFecha || !arHaciendo || !arSucedio || !arDespues) { showToast("Completa todos los campos ❌"); return; }
+                    if (!arFecha || !arHaciendo || !arSucedio || !arDespues) { showToast("Completa todos los campos"); return; }
                     const id = Date.now().toString();
-                    const nuevo = {
-                      id,
-                      pacienteId: usuarioActual.uid,
-                      fecha: arFecha,
-                      haciendo: arHaciendo,
-                      sucedio: arSucedio,
-                      despues: arDespues,
-                      creadaEn: new Date().toISOString(),
-                    };
+                    const nuevo = { id, pacienteId:usuarioActual.uid, fecha:arFecha, haciendo:arHaciendo, sucedio:arSucedio, despues:arDespues, creadaEn:new Date().toISOString() };
                     try {
                       await setDoc(doc(db, "autorregistros", id), nuevo);
                       setAutorregistros(prev => [nuevo, ...prev]);
                       setArFecha(""); setArHaciendo(""); setArSucedio(""); setArDespues("");
                       setModal(null);
-                      sumarXP(1, "Autorregistro completado 📋");
-                    } catch(e) { showToast("Error al guardar ❌"); }
-                  }, "Guardar ✓", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                      sumarXP(1, "Autorregistro completado");
+                    } catch(e) { showToast("Error al guardar"); }
+                  }, "Guardar", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:700, boxShadow:`0 4px 14px ${C.plum}25` })}
                 </div>
               </div>
             ))}
           </div>
         )}      
-    {/* MIS RECURSOS */}
-    {tareasTab === "recursos" && (
-  <div>
-    {recursos.length === 0 ? (
-      <div style={{ textAlign:"center", padding:30, color:C.light, fontSize:13 }}>
-        <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
-          <LucideIcon name="inbox" color={C.light} size={36}/>
-        </div>
-        Tu psicólogo aún no ha enviado materiales
-      </div>
-    ) : recursos.map(r => (
-      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:10, border:"1px solid rgba(0,0,0,.11)" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
-          <div style={{ width:44, height:44, borderRadius:12, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>
-            {r.tipo==="PDF"?"📄":r.tipo==="Podcast"?"🎵":r.tipo==="YouTube"?"🎬":r.tipo==="Imagen"?"🖼️":r.tipo==="Enlace"?"🔗":"📎"}
-          </div>
-          <div style={{ flex:1 }}>
-            <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.nombre}</div>
-            <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{r.tipo} · Enviado por {r.psicologoNombre}</div>
-          </div>
-        </div>
-        <div style={{ display:"flex", gap:8 }}>
-          <a href={r.url} target="_blank" rel="noreferrer"
-            style={{ flex:2, padding:"8px 0", borderRadius:10, background:`${C.plum}15`, color:C.plum, fontSize:11, fontWeight:800, textAlign:"center", textDecoration:"none" }}>
-            👁️ Abrir
-          </a>
-          {!r.recibido ? (
-            btn(() => marcarRecursoRecibido(r.id), "✅ Recibido", { flex:1, padding:"8px 0", borderRadius:10, background:"rgba(78,205,196,.15)", color:C.green, fontSize:11, fontWeight:800 })
-          ) : (
-            <div style={{ flex:1, padding:"8px 0", borderRadius:10, background:"rgba(78,205,196,.15)", color:C.green, fontSize:11, fontWeight:800, textAlign:"center" }}>✅ Recibido</div>
-          )}
-          {btn(() => { setRecursoAEliminar(r); setModal("confirmar-eliminar-recurso"); }, "🗑️", { padding:"8px 10px", borderRadius:10, background:"rgba(255,107,107,.15)", color:C.red, fontSize:13, fontWeight:800 })}
-        </div>
-      </div>
-    ))}
-  </div>
-)}
+    {/* MIS RECURSOS — eliminado */}
 
     {/* TAREAS */}
     {tareasTab === "tareas" && (
       <>
         {tareasPsicologo.length === 0 ? (
-          <div style={{ textAlign:"center", padding:30, color:C.light }}>
-            <div style={{ fontSize:36, marginBottom:8 }}>🎯</div>
-            <div style={{ fontSize:14, fontWeight:700 }}>Sin tareas asignadas</div>
-            <div style={{ fontSize:12, marginTop:4 }}>Tu psicólogo aún no te ha asignado tareas</div>
+          <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", paddingTop:60, gap:12 }}>
+            <div style={{ width:56, height:56, borderRadius:16, background:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.5" strokeLinecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div style={{ fontSize:15, fontWeight:700, color:C.text }}>Sin tareas asignadas</div>
+            <div style={{ fontSize:12, color:C.light, textAlign:"center", maxWidth:220, lineHeight:1.5 }}>Tu psicólogo aún no te ha asignado tareas</div>
           </div>
         ) : tareasPsicologo.map(t => (
           <div key={t.id} onClick={async () => {
@@ -4650,7 +4633,10 @@ const styles = `
               </div>
               {t.descripcion && <div style={{ fontSize:11, color:C.light, marginTop:2, lineHeight:1.5, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{t.descripcion}</div>}
               <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:6, flexWrap:"wrap" }}>
-                <span style={{ background:"rgba(255,179,71,.18)", color:C.amberDark, fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:10 }}>+{t.xp||80} XP</span>
+                <span style={{ display:"inline-flex", alignItems:"center", gap:3, background:"rgba(255,179,71,.16)", color:C.amberDark, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:10 }}>
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill={C.amber} stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  +{t.xp||80} XP
+                </span>
                 {t.vence && <span style={{ fontSize:10, color:C.light }}>Vence {t.vence}</span>}
                 {t.completada && <span style={{ background:`${C.green}18`, color:C.green, fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:10 }}>Completada</span>}
                 {!t.completada && t.respuesta && <span style={{ background:`${C.plum}15`, color:C.plum, fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:10 }}>Respondida</span>}
@@ -4666,10 +4652,16 @@ const styles = `
 
     {tareaRespondiendo && mdl("responder-tarea-" + tareaRespondiendo.id, (
       <div>
-        <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>✏️ Responder tarea</div>
-        <div style={{ fontSize:13, fontWeight:800, color:C.plum, marginBottom:4 }}>{tareaRespondiendo.titulo}</div>
-        {tareaRespondiendo.descripcion ? <div style={{ fontSize:12, color:C.light, marginBottom:10, lineHeight:1.5 }}>{tareaRespondiendo.descripcion}</div> : null}
-        <div style={{ background:"rgba(255,179,71,.18)", borderRadius:11, padding:"9px 12px", fontSize:11, fontWeight:700, color:C.amber, marginBottom:12 }}>⭐ Ganarás +{tareaRespondiendo.xp || 80} XP al completar</div>
+        <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <div style={{ fontSize:17, fontWeight:800, color:C.text }}>Responder tarea</div>
+        </div>
+        <div style={{ fontSize:13, fontWeight:700, color:C.plum, marginBottom:4 }}>{tareaRespondiendo.titulo}</div>
+        {tareaRespondiendo.descripcion ? <div style={{ fontSize:12, color:C.light, marginBottom:12, lineHeight:1.5 }}>{tareaRespondiendo.descripcion}</div> : null}
+        <div style={{ display:"flex", alignItems:"center", gap:6, background:"rgba(255,179,71,.12)", border:"1px solid rgba(255,179,71,.22)", borderRadius:10, padding:"8px 12px", fontSize:11, fontWeight:700, color:C.amberDark, marginBottom:14 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill={C.amber} stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Ganarás +{tareaRespondiendo.xp || 80} XP al completar
+        </div>
         <textarea placeholder="Escribe tu reflexión aquí..." value={respuestaTarea} onChange={e => setRespuestaTarea(e.target.value)}
           style={{ width:"100%", minHeight:90, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:13, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
         <div style={{ display:"flex", gap:8 }}>
@@ -6646,7 +6638,7 @@ const styles = `
                   </div>
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.11)", color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña", { flex:2, padding:11, background:loadingResenas ? C.light : `linear-gradient(135deg,${C.plum},${C.amberDark})`, color:"white", borderRadius:11, fontSize:12, fontWeight:800, boxShadow:`0 4px 12px rgba(255,123,90,.2)` })}
+                    {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña", { flex:2, padding:11, background:loadingResenas ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:700, boxShadow:`0 4px 12px ${C.plum}25` })}
                   </div>
                 </div>
               ))}
@@ -6879,7 +6871,7 @@ const styles = `
                   </div>
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.11)", color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña", { flex:2, padding:11, background:loadingResenas ? C.light : `linear-gradient(135deg,${C.plum},${C.amberDark})`, color:"white", borderRadius:11, fontSize:12, fontWeight:800, boxShadow:`0 4px 12px rgba(255,123,90,.2)` })}
+                    {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña", { flex:2, padding:11, background:loadingResenas ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:700, boxShadow:`0 4px 12px ${C.plum}25` })}
                   </div>
                 </div>
               ))}
