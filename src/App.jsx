@@ -8868,61 +8868,126 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     </div>
                   ))}
                 </div>
-                <div style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:12, border:"1px solid rgba(0,0,0,.11)" }}>
-                  <div style={{ fontSize:12, fontWeight:800, color:C.text, marginBottom:4 }}>📊 Estado de ánimo</div>
+                {/* ── GRÁFICA DE EMOCIONES — diseño moderno (area chart + distribución) ── */}
+                <div style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:12, border:"1px solid rgba(0,0,0,.09)", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:14 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <span style={{ fontSize:13, fontWeight:800, color:C.text }}>Estado de ánimo</span>
+                  </div>
                   {registrosAnimo.length === 0 ? (
-                    <div style={{ textAlign:"center", padding:"16px 0", color:C.light, fontSize:12 }}>El paciente aún no ha registrado su ánimo</div>
+                    <div style={{ textAlign:"center", padding:"20px 0" }}>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" strokeLinecap="round" style={{margin:"0 auto 8px",display:"block"}}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                      <div style={{ fontSize:12, color:C.light }}>El paciente aún no ha registrado su ánimo</div>
+                    </div>
                   ) : (() => {
                     const ultimos30 = registrosAnimo.slice(-30);
-                    const promedio = (ultimos30.reduce((a,r) => a+r.valor, 0) / ultimos30.length).toFixed(1);
+                    const promedio = ultimos30.reduce((a,r) => a+r.valor, 0) / ultimos30.length;
                     const labels = ["Mal","Regular","Neutro","Bien","Genial"];
-                    const colores = [C.red, C.amber, C.light, C.sage, C.green];
-                    const emojis = ["😞","😕","😐","🙂","😄"];
-                    const promedioInt = Math.round(parseFloat(promedio));
+                    const colores = ["#E05252","#E09040","#94A3B8","#5A8A62","#1E8880"];
+                    // Tendencia: últimos 7 vs anteriores 7
+                    const last7 = ultimos30.slice(-7);
+                    const prev7 = ultimos30.slice(-14,-7);
+                    const avg7 = last7.length ? last7.reduce((a,r)=>a+r.valor,0)/last7.length : promedio;
+                    const avgP7 = prev7.length ? prev7.reduce((a,r)=>a+r.valor,0)/prev7.length : promedio;
+                    const trend = avg7 - avgP7;
+                    const chartColor = promedio >= 3.2 ? "#1E8880" : promedio >= 2.2 ? "#E09040" : "#E05252";
+
+                    // SVG area chart
+                    const W=300, H=82, padX=22, padY=8;
+                    const xPos = (i) => padX + (i/Math.max(ultimos30.length-1,1))*(W-padX*2);
+                    const yPos = (v) => H - padY - ((v/4)*(H-padY*2));
+                    const pts = ultimos30.map((r,i) => ({ x:xPos(i), y:yPos(r.valor), v:r.valor, f:r.fecha }));
+                    const line = pts.reduce((acc,pt,i) => {
+                      if(i===0) return `M${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+                      const pp = pts[i-1]; const mx = (pp.x+pt.x)/2;
+                      return `${acc} C${mx.toFixed(1)},${pp.y.toFixed(1)} ${mx.toFixed(1)},${pt.y.toFixed(1)} ${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+                    },"");
+                    const area = `${line} L${pts[pts.length-1].x.toFixed(1)},${H} L${pts[0].x.toFixed(1)},${H}Z`;
+
+                    // Distribución
+                    const dist = [0,1,2,3,4].map(v => ultimos30.filter(r=>r.valor===v).length);
+
                     return (
                       <div>
-                        {/* Resumen promedio */}
-                        <div style={{ display:"flex", gap:8, marginBottom:12 }}>
-                          <div style={{ flex:1, background:C.warm, borderRadius:10, padding:"8px 10px", textAlign:"center" }}>
-                            <div style={{ fontSize:18 }}>{emojis[promedioInt]}</div>
-                            <div style={{ fontSize:10, fontWeight:800, color:C.text }}>{labels[promedioInt]}</div>
-                            <div style={{ fontSize:9, color:C.light }}>Promedio</div>
+                        {/* ── STATS ROW ── */}
+                        <div style={{ display:"flex", gap:7, marginBottom:16 }}>
+                          <div style={{ flex:1, background:"rgba(0,0,0,.03)", borderRadius:12, padding:"11px 8px", textAlign:"center" }}>
+                            <div style={{ fontSize:26, fontWeight:900, letterSpacing:"-.03em", color:chartColor, lineHeight:1 }}>{promedio.toFixed(1)}</div>
+                            <div style={{ fontSize:8, color:C.light, marginTop:3, textTransform:"uppercase", letterSpacing:".08em" }}>Promedio</div>
                           </div>
-                          <div style={{ flex:1, background:C.warm, borderRadius:10, padding:"8px 10px", textAlign:"center" }}>
-                            <div style={{ fontSize:18, fontWeight:900, color:C.plum }}>{registrosAnimo.length}</div>
-                            <div style={{ fontSize:10, fontWeight:800, color:C.text }}>registros</div>
-                            <div style={{ fontSize:9, color:C.light }}>Total</div>
+                          <div style={{ flex:1, background:"rgba(0,0,0,.03)", borderRadius:12, padding:"11px 8px", textAlign:"center" }}>
+                            <div style={{ fontSize:22, fontWeight:900, lineHeight:1,
+                              color: trend >= 0.15 ? "#1E8880" : trend <= -0.15 ? "#E05252" : C.light }}>
+                              {trend >= 0.15 ? "↑" : trend <= -0.15 ? "↓" : "→"}
+                            </div>
+                            <div style={{ fontSize:8, color:C.light, marginTop:3, textTransform:"uppercase", letterSpacing:".08em" }}>
+                              {trend >= 0.15 ? "Mejora" : trend <= -0.15 ? "Baja" : "Estable"}
+                            </div>
                           </div>
-                          <div style={{ flex:1, background:C.warm, borderRadius:10, padding:"8px 10px", textAlign:"center" }}>
-                            <div style={{ fontSize:18, fontWeight:900, color:C.plum }}>{promedio}</div>
-                            <div style={{ fontSize:10, fontWeight:800, color:C.text }}>/ 4.0</div>
-                            <div style={{ fontSize:9, color:C.light }}>Score</div>
+                          <div style={{ flex:1, background:"rgba(0,0,0,.03)", borderRadius:12, padding:"11px 8px", textAlign:"center" }}>
+                            <div style={{ fontSize:26, fontWeight:900, letterSpacing:"-.03em", color:C.plum, lineHeight:1 }}>{ultimos30.length}</div>
+                            <div style={{ fontSize:8, color:C.light, marginTop:3, textTransform:"uppercase", letterSpacing:".08em" }}>Registros</div>
                           </div>
                         </div>
-                        {/* Gráfica últimos 30 días */}
-                        <div style={{ fontSize:10, color:C.light, fontWeight:700, marginBottom:6 }}>Últimos {ultimos30.length} registros</div>
-                        <div style={{ display:"flex", alignItems:"flex-end", gap:2, height:90, overflowX:"auto", paddingBottom:4 }}>
-                          {ultimos30.map((r) => {
-                            const altura = [16,30,44,62,82][r.valor];
-                            const col = colores[r.valor];
-                            const dia = new Date(r.fecha + 'T12:00:00').toLocaleDateString('es-CO', { day:'numeric', month:'short' });
+
+                        {/* ── AREA CHART ── */}
+                        <div style={{ marginBottom:16 }}>
+                          <div style={{ fontSize:9, color:C.light, fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:8 }}>
+                            Tendencia · últimos {ultimos30.length} días
+                          </div>
+                          <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ height:82, display:"block" }}>
+                            <defs>
+                              <linearGradient id="emoAreaPsi" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={chartColor} stopOpacity="0.22"/>
+                                <stop offset="100%" stopColor={chartColor} stopOpacity="0.01"/>
+                              </linearGradient>
+                            </defs>
+                            {/* Grid lines */}
+                            {[0,1,2,3,4].map(v => (
+                              <line key={v} x1={padX} x2={W-8} y1={yPos(v)} y2={yPos(v)} stroke="rgba(0,0,0,.06)" strokeWidth="1"/>
+                            ))}
+                            {/* Y labels */}
+                            {[0,2,4].map(v => (
+                              <text key={v} x={padX-4} y={yPos(v)+3} fontSize="7" fill="rgba(0,0,0,.3)" textAnchor="end">{labels[v].slice(0,3)}</text>
+                            ))}
+                            {/* Area fill */}
+                            <path d={area} fill="url(#emoAreaPsi)"/>
+                            {/* Line */}
+                            <path d={line} fill="none" stroke={chartColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            {/* Dots */}
+                            {pts.filter((_,i) => i===0||i===pts.length-1||pts.length<=15||(i%Math.ceil(pts.length/12)===0)).map((pt,i)=>(
+                              <g key={i}>
+                                <circle cx={pt.x} cy={pt.y} r="3.5" fill={colores[pt.v]}/>
+                                <circle cx={pt.x} cy={pt.y} r="1.5" fill="white"/>
+                              </g>
+                            ))}
+                          </svg>
+                          {/* X labels */}
+                          <div style={{ display:"flex", justifyContent:"space-between", marginTop:3, paddingLeft:padX }}>
+                            {[pts[0], pts[Math.floor(pts.length/2)], pts[pts.length-1]].filter(Boolean).map((pt,i)=>(
+                              <span key={i} style={{ fontSize:8, color:C.light }}>
+                                {new Date(pt.f+'T12:00:00').getDate()}/{new Date(pt.f+'T12:00:00').getMonth()+1}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* ── DISTRIBUCIÓN ── */}
+                        <div style={{ background:"rgba(0,0,0,.03)", borderRadius:12, padding:"12px 14px" }}>
+                          <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:10 }}>Distribución</div>
+                          {[4,3,2,1,0].map(v => {
+                            const count = dist[v];
+                            const pct = ultimos30.length > 0 ? (count/ultimos30.length)*100 : 0;
                             return (
-                              <div key={r.id} style={{ minWidth:22, display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
-                                <div style={{ fontSize:9 }}>{emojis[r.valor]}</div>
-                                <div style={{ width:18, height:altura, borderRadius:"3px 3px 0 0", background:col, opacity:0.85 }}/>
-                                <div style={{ fontSize:7, color:C.light, fontWeight:700, whiteSpace:"nowrap" }}>{new Date(r.fecha + 'T12:00:00').getDate()}</div>
+                              <div key={v} style={{ display:"flex", alignItems:"center", gap:8, marginBottom: v>0?7:0 }}>
+                                <div style={{ width:40, fontSize:10, fontWeight:600, color:C.text, textAlign:"right", flexShrink:0 }}>{labels[v]}</div>
+                                <div style={{ flex:1, height:7, background:"rgba(0,0,0,.07)", borderRadius:4, overflow:"hidden" }}>
+                                  <div style={{ height:"100%", width:`${pct}%`, background:colores[v], borderRadius:4, transition:"width .5s ease" }}/>
+                                </div>
+                                <div style={{ width:20, fontSize:10, fontWeight:600, color: count>0?C.text:C.light, textAlign:"right", flexShrink:0 }}>{count}</div>
                               </div>
                             );
                           })}
-                        </div>
-                        {/* Leyenda */}
-                        <div style={{ display:"flex", justifyContent:"space-between", marginTop:8 }}>
-                          {labels.map((lb, i) => (
-                            <div key={lb} style={{ display:"flex", alignItems:"center", gap:3 }}>
-                              <div style={{ width:8, height:8, borderRadius:2, background:colores[i] }}/>
-                              <span style={{ fontSize:8, color:C.light }}>{lb}</span>
-                            </div>
-                          ))}
                         </div>
                       </div>
                     );
