@@ -1368,14 +1368,44 @@ const activarNotificaciones = async () => {
     }
   }
 };
+// Frecuencia por defecto para hábitos nuevos
+const FREC_DEFAULT = { tipo: "diario", horaRecordatorio: "20:00", vecesSemana: 3, diasSemana: [] };
+
+// ¿El hábito está programado para una fecha dada?
+const isScheduledOnDate = (frec, dateStr) => {
+  if (!frec || frec.tipo === "diario" || frec.tipo === "semanal") return true;
+  if (frec.tipo === "diasEspecificos") {
+    const d = new Date(dateStr + "T12:00:00");
+    const dow = d.getDay() === 0 ? 6 : d.getDay() - 1; // 0=Lun, 6=Dom
+    return (frec.diasSemana || []).includes(dow);
+  }
+  return true;
+};
+
+// Progreso semanal para hábitos con frecuencia "semanal"
+const calcWeeklyProgress = (regs) => {
+  const today = new Date();
+  const dow = today.getDay() === 0 ? 6 : today.getDay() - 1;
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - dow);
+  let count = 0;
+  for (let i = 0; i <= dow; i++) {
+    const d = new Date(weekStart); d.setDate(weekStart.getDate() + i);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if (regs[key] === "si" || regs[key] === "parcial") count++;
+  }
+  return count;
+};
+
 const cargarHabitos = async (pacienteId) => {
   try {
     const snap = await getDocs(query(collection(db, "habitos"), where("pacienteId", "==", pacienteId)));
     const lista = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-    // Normalizar a 3 slots
     const slots = [1,2,3].map(i => {
       const h = lista.find(x => x.slot === i);
-      return h ? { ...h, activo: true } : { id: `slot_${i}_${pacienteId}`, slot: i, activo: false, titulo: "", descripcion: "", pacienteId };
+      return h
+        ? { ...h, activo: true, frecuencia: h.frecuencia || { ...FREC_DEFAULT } }
+        : { id:`slot_${i}_${pacienteId}`, slot:i, activo:false, titulo:"", descripcion:"", pacienteId, frecuencia:{ ...FREC_DEFAULT } };
     });
     setHabitos(slots);
   } catch(e) { console.log("Error cargando hábitos:", e); }
@@ -1395,28 +1425,58 @@ const cargarRegistrosHabito = async (pacienteId) => {
 };
 
 const guardarHabitos = async (pacienteId) => {
-  if (!pacienteId) { showToast("Sin paciente seleccionado ❌"); return; }
+  if (!pacienteId) { showToast("Sin paciente"); return; }
   const psicId = usuarioActual?.rol === "psicologo" ? usuarioActual.uid : (usuarioActual?.psicologoId || "");
   try {
     for (const h of habitos) {
       const slotNum = h.slot || parseInt(String(h.id).replace(/\D/g,"")) || 1;
-      const ref = doc(db, "habitos", `${pacienteId}_slot${slotNum}`);
-      await setDoc(ref, {
-        pacienteId,
-        psicologoId: psicId,
-        slot: slotNum,
+      const frec = h.frecuencia || { ...FREC_DEFAULT };
+      await setDoc(doc(db, "habitos", `${pacienteId}_slot${slotNum}`), {
+        pacienteId, psicologoId: psicId, slot: slotNum,
         titulo: h.activo && h.titulo.trim() ? h.titulo.trim() : "",
         descripcion: h.descripcion || "",
         activo: !!(h.activo && h.titulo.trim()),
-        actualizadoEn: new Date().toISOString()
+        frecuencia: frec,
+        actualizadoEn: new Date().toISOString(),
       });
     }
+
+    // ── Notificaciones push diarias para el paciente ──────────────────────
+    // Solo el paciente o cuando el psicólogo guarda hábitos del paciente
+    const notifPacienteId = pacienteId;
+    const activeHabits = habitos.filter(h => h.activo && h.titulo.trim());
+    if (activeHabits.length > 0) {
+      const horaStr = activeHabits[0].frecuencia?.horaRecordatorio || "20:00";
+      const [hh, mm] = horaStr.split(":").map(Number);
+      const nombres = activeHabits.map(h => h.titulo.trim()).join(", ");
+      const titulo = "Tus hábitos de hoy";
+      const body = `Recuerda registrar: ${nombres}`;
+      // Crear recordatorio para los próximos 7 días
+      const ahora = new Date();
+      for (let i = 0; i < 7; i++) {
+        const fecha = new Date(ahora);
+        fecha.setDate(ahora.getDate() + i);
+        fecha.setHours(hh, mm, 0, 0);
+        if (fecha > ahora) {
+          const fechaKey = `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,'0')}-${String(fecha.getDate()).padStart(2,'0')}`;
+          setDoc(doc(db, "notificaciones_programadas", `habito_rec_${notifPacienteId}_${fechaKey}`), {
+            pacienteId: notifPacienteId,
+            title: titulo, body,
+            scheduledAt: fecha.toISOString(),
+            enviada: false,
+            creadaEn: ahora.toISOString(),
+            tipo: "habito_recordatorio",
+          }).catch(() => {});
+        }
+      }
+    }
+
     setHabitosEditando(false);
-    showToast("✅ Hábitos guardados");
+    showToast("Hábitos guardados");
     await cargarHabitos(pacienteId);
   } catch(e) {
     console.error("Error guardando hábitos:", e);
-    showToast(`Error: ${e?.code || e?.message || "permiso denegado"} ❌`);
+    showToast(`Error: ${e?.code || e?.message || "permiso denegado"}`);
   }
 };
 
@@ -5884,20 +5944,34 @@ const styles = `
                 if (win) showToast("🏆 ¡Ganaste esta partida!");
                 if (empate) showToast("🤝 " + FRASES_EMPATE[Math.floor(Math.random()*FRASES_EMPATE.length)]);
 
-                // Recordatorio 4pm para el oponente si la partida sigue
+                // Notificaciones para el oponente si la partida sigue
                 if (!win && !empate) {
                   const oponenteId = miRol === "pac" ? juegoData.psicologoId : juegoData.pacienteId;
                   const miNombre = usuarioActual?.nombre || (miRol === "pac" ? "Tu paciente" : "Tu psicólogo");
                   const now = new Date();
+
+                  // ── NOTIFICACIÓN INMEDIATA (5 segundos) ─────────────────
+                  const notifInmedId = `juego_mov_${juegoId}_${Date.now()}`;
+                  setDoc(doc(db, "notificaciones_programadas", notifInmedId), {
+                    pacienteId: oponenteId,
+                    title: "¡Es tu turno! 🎮",
+                    body: `${miNombre} acaba de jugar en Triki. ¡Ahora te toca a ti!`,
+                    scheduledAt: new Date(now.getTime() + 5000).toISOString(),
+                    enviada: false,
+                    creadaEn: now.toISOString(),
+                    tipo: "juego_turno_inmediato",
+                    juegoId,
+                  }).catch(() => {});
+
+                  // ── RECORDATORIO A LAS 4PM si aún no ha jugado ──────────
                   const at4pm = new Date(now);
                   at4pm.setHours(16, 0, 0, 0);
                   if (now.getHours() >= 16) at4pm.setDate(at4pm.getDate() + 1);
                   const fechaKey = at4pm.toISOString().split("T")[0];
-                  const remId = `juego_turno_${juegoId}_${fechaKey}`;
-                  setDoc(doc(db, "notificaciones_programadas", remId), {
+                  setDoc(doc(db, "notificaciones_programadas", `juego_turno_${juegoId}_${fechaKey}`), {
                     pacienteId: oponenteId,
-                    title: "🎮 Tu turno en el mini juego",
-                    body: `${miNombre} ya jugó. ¡Es tu momento, no olvides tu movimiento de hoy!`,
+                    title: "Recuerda jugar Triki hoy 🎮",
+                    body: `${miNombre} ya jugó y te está esperando. ¡Un movimiento por día!`,
                     scheduledAt: at4pm.toISOString(),
                     enviada: false,
                     creadaEn: now.toISOString(),
@@ -7394,15 +7468,38 @@ const styles = `
     return r;
   };
 
-  // Stats mensuales por hábito
-  const statsMes = (habitoId) => {
+  // Stats mensuales por hábito — respeta la frecuencia configurada
+  const statsMes = (habitoId, frec) => {
     const regs = registrosHabito[habitoId] || {};
-    const registrados = diasMes.filter(f => regs[f]);
-    const si = registrados.filter(f => regs[f] === "si").length;
-    const parcial = registrados.filter(f => regs[f] === "parcial").length;
-    const total = registrados.length;
-    const pct = diasMes.length > 0 ? Math.round((si + parcial * 0.5) / diasMes.length * 100) : 0;
-    return { si, parcial, total, pct };
+    const hoyStr = getFechaLocal();
+    // Solo días pasados (incluyendo hoy) para el denominador
+    const diasPasados = diasMes.filter(f => f <= hoyStr);
+    if (frec?.tipo === "diasEspecificos") {
+      // Solo contar días programados pasados
+      const programados = diasPasados.filter(f => isScheduledOnDate(frec, f));
+      const si = programados.filter(f => regs[f] === "si").length;
+      const parcial = programados.filter(f => regs[f] === "parcial").length;
+      const total = programados.filter(f => regs[f]).length;
+      const pct = programados.length > 0 ? Math.round((si + parcial * 0.5) / programados.length * 100) : 0;
+      return { si, parcial, total, pct, denominador: programados.length };
+    }
+    if (frec?.tipo === "semanal") {
+      // Calcular semanas pasadas del mes y meta semanal
+      const vecesSemana = frec.vecesSemana || 3;
+      const semanasDias = Math.ceil(diasPasados.length / 7);
+      const metaTotal = Math.max(1, semanasDias) * vecesSemana;
+      const si = diasPasados.filter(f => regs[f] === "si").length;
+      const parcial = diasPasados.filter(f => regs[f] === "parcial").length;
+      const total = diasPasados.filter(f => regs[f]).length;
+      const pct = Math.min(100, Math.round((si + parcial * 0.5) / metaTotal * 100));
+      return { si, parcial, total, pct, denominador: metaTotal };
+    }
+    // Diario: denominador = todos los días pasados del mes
+    const si = diasPasados.filter(f => regs[f] === "si").length;
+    const parcial = diasPasados.filter(f => regs[f] === "parcial").length;
+    const total = diasPasados.filter(f => regs[f]).length;
+    const pct = diasPasados.length > 0 ? Math.round((si + parcial * 0.5) / diasPasados.length * 100) : 0;
+    return { si, parcial, total, pct, denominador: diasPasados.length };
   };
 
   // Días perfectos del mes (todos los hábitos activos cumplidos ese día)
@@ -7531,7 +7628,83 @@ const styles = `
                       onChange={e => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, descripcion:e.target.value } : x))}
                       style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(255,123,90,0.18)",
                         borderRadius:10, fontSize:12, outline:"none", fontFamily:"inherit",
-                        boxSizing:"border-box", background:"#FFFFFF", color:C.light }}/>
+                        boxSizing:"border-box", background:"#FFFFFF", color:C.light, marginBottom:12 }}/>
+
+                    {/* ── SELECTOR DE FRECUENCIA ── */}
+                    <div style={{ fontSize:10, fontWeight:700, color:C.light, marginBottom:7, textTransform:"uppercase", letterSpacing:".1em" }}>Frecuencia</div>
+                    <div style={{ display:"flex", background:"rgba(0,0,0,.05)", borderRadius:10, padding:3, gap:2, marginBottom:10 }}>
+                      {[["diario","Todos los días"],["semanal","X/semana"],["diasEspecificos","Días fijos"]].map(([tipo, lb]) => {
+                        const sel = (h.frecuencia?.tipo || "diario") === tipo;
+                        return (
+                          <div key={tipo} onClick={() => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, frecuencia:{ ...(x.frecuencia||FREC_DEFAULT), tipo } } : x))}
+                            style={{ flex:1, padding:"7px 4px", textAlign:"center", fontSize:10, fontWeight:700, borderRadius:8, cursor:"pointer",
+                              background: sel ? "#FFFFFF" : "transparent",
+                              color: sel ? C.plum : C.light,
+                              boxShadow: sel ? "0 1px 4px rgba(0,0,0,.10)" : "none",
+                              transition:"all 0.18s" }}>
+                            {lb}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* X veces por semana */}
+                    {(h.frecuencia?.tipo || "diario") === "semanal" && (
+                      <div style={{ background:"rgba(255,123,90,.06)", borderRadius:12, padding:"12px 14px", marginBottom:10 }}>
+                        <div style={{ fontSize:12, color:C.text, marginBottom:8 }}>
+                          <span style={{ fontWeight:900, color:C.plum, fontSize:22 }}>{h.frecuencia?.vecesSemana || 3}</span>
+                          <span style={{ fontWeight:500 }}> {(h.frecuencia?.vecesSemana||3)===1?"vez":"veces"} por semana</span>
+                        </div>
+                        <div style={{ display:"flex", gap:6 }}>
+                          {[1,2,3,4,5,6].map(n => {
+                            const sel = (h.frecuencia?.vecesSemana||3) === n;
+                            return (
+                              <div key={n} onClick={() => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, frecuencia:{ ...x.frecuencia, vecesSemana:n } } : x))}
+                                style={{ flex:1, height:32, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:700, cursor:"pointer",
+                                  background: sel ? C.plum : "rgba(0,0,0,.06)",
+                                  color: sel ? "white" : C.light, transition:"all 0.15s" }}>
+                                {n}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Días específicos */}
+                    {(h.frecuencia?.tipo || "diario") === "diasEspecificos" && (
+                      <div style={{ marginBottom:10 }}>
+                        <div style={{ display:"flex", gap:5, marginBottom:6 }}>
+                          {["L","M","X","J","V","S","D"].map((d, idx) => {
+                            const sel = (h.frecuencia?.diasSemana || []).includes(idx);
+                            return (
+                              <div key={d} onClick={() => {
+                                const cur = h.frecuencia?.diasSemana || [];
+                                const next = sel ? cur.filter(x => x!==idx) : [...cur, idx].sort((a,b)=>a-b);
+                                setHabitos(prev => prev.map((x,j) => j===i ? { ...x, frecuencia:{ ...x.frecuencia, diasSemana:next } } : x));
+                              }}
+                                style={{ flex:1, padding:"9px 0", textAlign:"center", fontSize:12, fontWeight:700, borderRadius:9, cursor:"pointer",
+                                  background: sel ? C.plum : "rgba(0,0,0,.06)",
+                                  color: sel ? "white" : C.light, transition:"all 0.15s" }}>
+                                {d}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {(h.frecuencia?.diasSemana||[]).length===0 && (
+                          <div style={{ fontSize:10, color:C.red, textAlign:"center" }}>Selecciona al menos un día</div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Hora del recordatorio push */}
+                    <div style={{ display:"flex", alignItems:"center", gap:10, background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.08)", borderRadius:10, padding:"10px 13px" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                      <div style={{ fontSize:12, color:C.text, flex:1, fontWeight:500 }}>Notificación diaria</div>
+                      <input type="time" value={h.frecuencia?.horaRecordatorio || "20:00"}
+                        onChange={e => setHabitos(prev => prev.map((x,j) => j===i ? { ...x, frecuencia:{ ...(x.frecuencia||FREC_DEFAULT), horaRecordatorio:e.target.value } } : x))}
+                        style={{ border:"none", background:"transparent", fontSize:14, fontWeight:700, color:C.plum, outline:"none", fontFamily:"inherit", cursor:"pointer" }}/>
+                    </div>
                   </>
                 )}
               </div>
@@ -7623,16 +7796,37 @@ const styles = `
                   const regs = registrosHabito[key] || {};
                   const estadoHoy = regs[hoy];
                   const racha = calcRacha(regs);
+                  const frec = h.frecuencia || { ...FREC_DEFAULT };
+                  const programadoHoy = isScheduledOnDate(frec, hoy);
+                  const weeklyCount = frec.tipo === "semanal" ? calcWeeklyProgress(regs) : null;
+                  const weeklyTarget = frec.vecesSemana || 3;
+                  // Etiqueta de frecuencia visible en la card
+                  const frecLabel = frec.tipo === "diario" ? null
+                    : frec.tipo === "semanal" ? `${weeklyCount}/${weeklyTarget} esta semana`
+                    : (frec.diasSemana||[]).map(d=>["L","M","X","J","V","S","D"][d]).join(" · ");
+
                   return (
                     <div key={h.id} style={{ background:"#FFFFFF", borderRadius:18, padding:16, marginBottom:12,
-                      border:`1.5px solid ${estadoHoy === "si" ? "#1E8880" : estadoHoy === "parcial" ? "#FF7B5A" : estadoHoy === "no" ? "rgba(192,82,74,0.2)" : "rgba(255,123,90,0.1)"}`,
+                      border:`1.5px solid ${!programadoHoy ? "rgba(0,0,0,.08)" : estadoHoy === "si" ? "#1E8880" : estadoHoy === "parcial" ? "#FF7B5A" : estadoHoy === "no" ? "rgba(192,82,74,0.2)" : "rgba(255,123,90,0.1)"}`,
+                      opacity: !programadoHoy ? 0.7 : 1,
                       transition:"border-color 0.2s" }}>
                       <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:12 }}>
                         <div style={{ display:"flex", alignItems:"center", gap:10, flex:1 }}>
-                          <div style={{ width:10, height:10, borderRadius:"50%", background:RING_COLORS[i], flexShrink:0, marginTop:2 }}/>
+                          <div style={{ width:10, height:10, borderRadius:"50%", background: programadoHoy ? RING_COLORS[i] : "rgba(0,0,0,.2)", flexShrink:0, marginTop:2 }}/>
                           <div>
                             <div style={{ fontSize:14, fontWeight:700, color:C.text }}>{h.titulo}</div>
                             {h.descripcion && <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{h.descripcion}</div>}
+                            {/* Badge de frecuencia */}
+                            {frecLabel && (
+                              <div style={{ display:"inline-flex", alignItems:"center", gap:4, marginTop:4,
+                                background: frec.tipo==="semanal" && weeklyCount >= weeklyTarget ? "rgba(30,136,128,.12)" : "rgba(0,0,0,.05)",
+                                borderRadius:20, padding:"2px 8px" }}>
+                                <div style={{ width:5, height:5, borderRadius:"50%", background: frec.tipo==="semanal" && weeklyCount >= weeklyTarget ? "#1E8880" : C.light }}/>
+                                <span style={{ fontSize:10, fontWeight:600, color: frec.tipo==="semanal" && weeklyCount >= weeklyTarget ? "#1E8880" : C.light }}>
+                                  {frecLabel}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                         {racha > 0 && (
@@ -7644,14 +7838,19 @@ const styles = `
                         )}
                       </div>
 
-                      {/* Mini barra 14 días */}
+                      {/* Mini barra 14 días — días no programados atenuados */}
                       <div style={{ display:"flex", gap:2, marginBottom:12 }}>
                         {ultimos14.map(f => {
                           const est = regs[f];
                           const esHoyF = f === hoy;
+                          const esProg = isScheduledOnDate(frec, f);
                           return (
                             <div key={f} style={{ flex:1, height:6, borderRadius:3,
-                              background: est === "si" ? "#1E8880" : est === "parcial" ? "#FF7B5A" : est === "no" ? "rgba(192,82,74,0.3)" : "rgba(0,0,0,.10)",
+                              background: !esProg ? "rgba(0,0,0,.04)"
+                                : est === "si" ? "#1E8880"
+                                : est === "parcial" ? "#FF7B5A"
+                                : est === "no" ? "rgba(192,82,74,0.3)"
+                                : "rgba(0,0,0,.10)",
                               outline: esHoyF ? "2px solid #FF7B5A" : "none",
                               outlineOffset: "1px" }}/>
                           );
@@ -7661,29 +7860,38 @@ const styles = `
                       {/* Botones Sí / Parcial / No — paciente */}
                       {usuarioActual?.rol === "paciente" && (
                         <>
-                          <div style={{ fontSize:10, fontWeight:600, color:C.light, marginBottom:8,
-                            textTransform:"uppercase", letterSpacing:0.5 }}>¿Hoy lo cumpliste?</div>
-                          <div style={{ display:"flex", gap:6 }}>
-                            {ESTADOS.map(e => {
-                              const sel = estadoHoy === e.k;
-                              return (
-                                <div key={e.k} onClick={() => registrarHabito(key, hoy, e.k)}
-                                  style={{ flex:1, padding:"11px 0", borderRadius:12, textAlign:"center",
-                                    cursor:"pointer", transition:"all 0.15s",
-                                    background: sel ? e.color : e.bg,
-                                    border:`1.5px solid ${sel ? e.color : e.color + "55"}`,
-                                    transform: sel ? "scale(0.97)" : "scale(1)" }}>
-                                  <div style={{ fontSize:12, fontWeight:700, color: sel ? "white" : e.color }}>{e.label}</div>
-                                </div>
-                              );
-                            })}
-                          </div>
+                          {!programadoHoy ? (
+                            <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(0,0,0,.04)", borderRadius:12, padding:"11px 14px" }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                              <span style={{ fontSize:12, color:C.light, fontWeight:500 }}>No programado para hoy</span>
+                            </div>
+                          ) : (
+                            <>
+                              <div style={{ fontSize:10, fontWeight:600, color:C.light, marginBottom:8,
+                                textTransform:"uppercase", letterSpacing:0.5 }}>¿Hoy lo cumpliste?</div>
+                              <div style={{ display:"flex", gap:6 }}>
+                                {ESTADOS.map(e => {
+                                  const sel = estadoHoy === e.k;
+                                  return (
+                                    <div key={e.k} onClick={() => registrarHabito(key, hoy, e.k)}
+                                      style={{ flex:1, padding:"11px 0", borderRadius:12, textAlign:"center",
+                                        cursor:"pointer", transition:"all 0.15s",
+                                        background: sel ? e.color : e.bg,
+                                        border:`1.5px solid ${sel ? e.color : e.color + "55"}`,
+                                        transform: sel ? "scale(0.97)" : "scale(1)" }}>
+                                      <div style={{ fontSize:12, fontWeight:700, color: sel ? "white" : e.color }}>{e.label}</div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </>
+                          )}
                         </>
                       )}
 
                       {/* Vista psicólogo — stats consistentes */}
                       {usuarioActual?.rol === "psicologo" && (() => {
-                        const { pct, si, parcial: par, total } = statsMes(key);
+                        const { pct, si, parcial: par, total } = statsMes(key, h.frecuencia);
                         const statColor = "#1E8880";
                         return (
                           <div style={{ display:"flex", gap:6 }}>
@@ -7742,7 +7950,7 @@ const styles = `
                     textTransform:"uppercase", letterSpacing:0.5 }}>Adherencia del mes</div>
                   {habitosActivos.map((h, i) => {
                     const key = `${pacId}_slot${h.slot || h.id}`;
-                    const { pct } = statsMes(key);
+                    const { pct } = statsMes(key, h.frecuencia);
                     const color = RING_COLORS[i];
                     return (
                       <div key={h.id} style={{ marginBottom: i < habitosActivos.length - 1 ? 12 : 0 }}>
@@ -7778,7 +7986,7 @@ const styles = `
                     <div style={{ fontSize:22, fontWeight:700, color:"#FF7B5A" }}>
                       {habitosActivos.length > 0 ? Math.round(habitosActivos.reduce((sum, h) => {
                         const key = `${pacId}_slot${h.slot || h.id}`;
-                        return sum + statsMes(key).pct;
+                        return sum + statsMes(key, h.frecuencia).pct;
                       }, 0) / habitosActivos.length) : 0}%
                     </div>
                     <div style={{ fontSize:10, color:"#FF7B5A", marginTop:2 }}>adherencia global</div>
