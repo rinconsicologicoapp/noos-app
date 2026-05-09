@@ -8679,7 +8679,7 @@ const styles = `
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:13,fontWeight:700,color:C.text }}>{p.nombre}</div>
                         <div style={{ fontSize:11,color:p.tarifaSesion?C.green:C.light,fontWeight:600,marginTop:2 }}>
-                          {p.tarifaSesion ? `\${fmt(p.tarifaSesion)} / sesión` : "Sin tarifa configurada"}
+                          {p.tarifaSesion ? `${fmt(p.tarifaSesion)} / sesión` : "Sin tarifa configurada"}
                         </div>
                       </div>
                       {btn(() => { setTarifaEditPaciente(p); setTarifaEditValor(p.tarifaSesion?String(p.tarifaSesion):""); setModal("editar-tarifa"); },
