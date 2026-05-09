@@ -7441,52 +7441,56 @@ const styles = `
     <div style={{ position:"absolute", inset:0, zIndex: screenHabitos ? 900 : 50, display:"flex", flexDirection:"column", background:"#F0F2F0",
       paddingBottom: screen === "habitos" ? "calc(72px + env(safe-area-inset-bottom, 10px))" : 0 }}>
 
-      {/* HEADER */}
-      <div style={{ background:"#F0F2F0", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", paddingBottom:0, flexShrink:0 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 16px 0" }}>
+      {/* HEADER — dark forest green como el resto de la app */}
+      <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", paddingTop:"max(14px, env(safe-area-inset-top, 14px))", paddingBottom:0, flexShrink:0 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 16px 14px" }}>
           <div onClick={() => {
             setScreenHabitos(false);
             setHabitosEditando(false);
             setHabitosTab("hoy");
             setHabitosPacienteId(null);
-            setHabitos([{ id:1, activo:false, titulo:"", descripcion:"" },{ id:2, activo:false, titulo:"", descripcion:"" },{ id:3, activo:false, titulo:"", descripcion:"" }]);
+            setHabitos([{ id:1,activo:false,titulo:"",descripcion:"" },{ id:2,activo:false,titulo:"",descripcion:"" },{ id:3,activo:false,titulo:"",descripcion:"" }]);
             setRegistrosHabito({});
             setNotaPsicologo("");
             setNotaPsicologoEdit("");
             if (screen === "habitos") showScreen("home");
           }}
-            style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.12)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0, touchAction:"manipulation" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </div>
           <div style={{ flex:1 }}>
-            <div style={{ fontSize:17, fontWeight:700, color:C.text }}>Mis hábitos</div>
-            <div style={{ fontSize:10, color:"rgba(245,238,232,0.35)", marginTop:1 }}>
+            <div style={{ fontSize:17, fontWeight:800, color:"white", letterSpacing:"-.02em" }}>
+              {usuarioActual?.rol === "psicologo" && pacienteSeleccionado?.nombre ? "Hábitos del paciente" : "Mis hábitos"}
+            </div>
+            <div style={{ fontSize:11, color:"rgba(255,255,255,.45)", marginTop:2 }}>
               {usuarioActual?.rol === "psicologo" && pacienteSeleccionado?.nombre
                 ? pacienteSeleccionado.nombre
                 : new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}
             </div>
           </div>
           <div onClick={() => { setHabitosEditando(!habitosEditando); setHabitosTab("hoy"); }}
-            style={{ padding:"6px 14px", background: habitosEditando ? "rgba(0,0,0,.11)" : "rgba(255,123,90,0.25)", borderRadius:20, cursor:"pointer" }}>
-            <span style={{ fontSize:11, fontWeight:700, color: habitosEditando ? "rgba(245,230,208,0.7)" : "#FFB347" }}>{habitosEditando ? "Cancelar" : "✏️ Editar"}</span>
+            style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 14px", background: habitosEditando ? "rgba(255,255,255,.10)" : "rgba(255,255,255,.12)", border:"1px solid rgba(255,255,255,.15)", borderRadius:20, cursor:"pointer", touchAction:"manipulation" }}>
+            {habitosEditando
+              ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              : <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>}
+            <span style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.85)" }}>{habitosEditando ? "Cancelar" : "Editar"}</span>
           </div>
         </div>
 
-        {/* TABS */}
+        {/* TABS — underline style sobre el header oscuro */}
         {!habitosEditando && (
-          <div style={{ display:"flex", margin:"12px 16px 0", gap:0, borderRadius:12, overflow:"hidden", border:"1px solid rgba(245,230,208,0.08)" }}>
+          <div style={{ display:"flex", borderTop:"1px solid rgba(255,255,255,.08)", marginTop:0 }}>
             {[["hoy","Hoy"],["mes","Este mes"]].map(([id, lb]) => (
               <div key={id} onClick={() => setHabitosTab(id)}
-                style={{ flex:1, padding:"9px 0", textAlign:"center", fontSize:12, fontWeight:600, cursor:"pointer",
-                  background: habitosTab === id ? "rgba(255,123,90,0.3)" : "transparent",
-                  color: habitosTab === id ? "#FFB347" : "rgba(0,0,0,.45)",
-                  transition:"all 0.2s" }}>
+                style={{ flex:1, padding:"10px 0", textAlign:"center", fontSize:12, fontWeight:600, cursor:"pointer",
+                  color: habitosTab === id ? "white" : "rgba(255,255,255,.4)",
+                  borderBottom: `2px solid ${habitosTab === id ? "#FF7B5A" : "transparent"}`,
+                  transition:"all 0.2s", touchAction:"manipulation" }}>
                 {lb}
               </div>
             ))}
           </div>
         )}
-        <div style={{ height:12 }}/>
       </div>
 
       {/* CONTENIDO */}
@@ -7549,16 +7553,18 @@ const styles = `
                     borderRadius:10, fontSize:12, outline:"none", fontFamily:"inherit",
                     boxSizing:"border-box", background:"#FFFFFF", resize:"none", color:C.text, lineHeight:1.6 }}/>
                 <div onClick={() => guardarNotaHabitos(pacId)}
-                  style={{ marginTop:8, padding:"9px 0", background: guardandoNota ? "rgba(139,90,58,0.4)" : "#FF7B5A",
-                    color:"white", borderRadius:10, textAlign:"center", fontSize:12, fontWeight:700, cursor:"pointer" }}>
+                  style={{ marginTop:10, padding:"10px 0", background: guardandoNota ? C.light : "#FF7B5A",
+                    color:"white", borderRadius:11, textAlign:"center", fontSize:12, fontWeight:700, cursor:"pointer",
+                    boxShadow: guardandoNota ? "none" : "0 4px 12px rgba(255,123,90,.25)", touchAction:"manipulation" }}>
                   {guardandoNota ? "Guardando..." : "Guardar nota"}
                 </div>
               </div>
             )}
 
             <div onClick={() => guardarHabitos(pacId)}
-              style={{ background:"#FF7B5A", color:"white", borderRadius:14, padding:14,
-                textAlign:"center", fontSize:14, fontWeight:700, cursor:"pointer", marginTop:4 }}>
+              style={{ background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", color:"white", borderRadius:14, padding:14,
+                textAlign:"center", fontSize:14, fontWeight:700, cursor:"pointer", marginTop:4,
+                boxShadow:"0 4px 16px rgba(255,90,54,.28)", touchAction:"manipulation" }}>
               Guardar hábitos
             </div>
           </div>
@@ -7630,9 +7636,10 @@ const styles = `
                           </div>
                         </div>
                         {racha > 0 && (
-                          <div style={{ background: racha >= 7 ? "#FF7B5A" : "rgba(255,123,90,.20)",
+                          <div style={{ display:"flex", alignItems:"center", gap:4, background: racha >= 7 ? "#FF7B5A" : "rgba(255,123,90,.15)",
                             borderRadius:20, padding:"3px 10px", flexShrink:0 }}>
-                            <span style={{ fontSize:11, fontWeight:700, color: racha >= 7 ? "white" : "#FF7B5A" }}>🔥 {racha}d</span>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill={racha >= 7 ? "white" : "#FF7B5A"} stroke="none"><path d="M17.66 11.2c-.23-.3-.51-.56-.77-.82-.67-.6-1.43-1.03-2.07-1.66C13.33 7.26 13 4.85 13.95 3c-.95.23-1.78.75-2.49 1.32-2.59 2.08-3.61 5.75-2.39 8.9.04.1.08.2.08.33 0 .22-.15.42-.35.5-.23.1-.47.04-.66-.12a.58.58 0 0 1-.14-.17c-1.13-1.43-1.31-3.48-.55-5.12C5.78 10 4.87 12.3 5 14.47c.06.5.12 1 .29 1.5.14.6.41 1.2.71 1.73 1.08 1.73 2.95 2.97 4.96 3.22 2.14.27 4.43-.25 5.95-1.9 1.76-1.94 2.23-4.78 1.19-7.15-.29-.55-.64-1.06-1.44-.67zm-4.16 4.42c-.8.3-1.27.8-1.27.8-.04.02-.08.03-.12.03a.26.26 0 0 1-.17-.07.26.26 0 0 1-.04-.26c.3-.9 1.33-1.3 1.48-2.28.1-.62-.13-1.24-.44-1.68.43.64.97 1.34 1.09 2.1.16 1.03-.54 1.08-.53 1.36z"/></svg>
+                            <span style={{ fontSize:11, fontWeight:700, color: racha >= 7 ? "white" : "#FF7B5A" }}>{racha}d</span>
                           </div>
                         )}
                       </div>
@@ -7645,7 +7652,7 @@ const styles = `
                           return (
                             <div key={f} style={{ flex:1, height:6, borderRadius:3,
                               background: est === "si" ? "#1E8880" : est === "parcial" ? "#FF7B5A" : est === "no" ? "rgba(192,82,74,0.3)" : "rgba(0,0,0,.10)",
-                              outline: esHoyF ? "1.5px solid #C4845A" : "none",
+                              outline: esHoyF ? "2px solid #FF7B5A" : "none",
                               outlineOffset: "1px" }}/>
                           );
                         })}
@@ -7674,23 +7681,22 @@ const styles = `
                         </>
                       )}
 
-                      {/* Vista psicólogo */}
+                      {/* Vista psicólogo — stats consistentes */}
                       {usuarioActual?.rol === "psicologo" && (() => {
                         const { pct, si, parcial: par, total } = statsMes(key);
+                        const statColor = "#1E8880";
                         return (
                           <div style={{ display:"flex", gap:6 }}>
-                            <div style={{ flex:1, background:"rgba(74,138,114,0.08)", borderRadius:10, padding:"8px 4px", textAlign:"center" }}>
-                              <div style={{ fontSize:15, fontWeight:700, color:"#1E8880" }}>{pct}%</div>
-                              <div style={{ fontSize:8, color:C.light }}>este mes</div>
-                            </div>
-                            <div style={{ flex:1, background:"rgba(255,123,90,0.15)", borderRadius:10, padding:"8px 4px", textAlign:"center" }}>
-                              <div style={{ fontSize:15, fontWeight:700, color:C.plum }}>{racha}</div>
-                              <div style={{ fontSize:8, color:C.light }}>racha</div>
-                            </div>
-                            <div style={{ flex:1, background:"rgba(255,123,90,.18)", borderRadius:10, padding:"8px 4px", textAlign:"center" }}>
-                              <div style={{ fontSize:15, fontWeight:700, color:C.text }}>{total}</div>
-                              <div style={{ fontSize:8, color:C.light }}>registros</div>
-                            </div>
+                            {[
+                              { val:`${pct}%`, lb:"adherencia", color:"#1E8880" },
+                              { val:racha, lb:`día${racha!==1?"s":""} racha`, color:C.plum },
+                              { val:total, lb:"registros", color:C.text },
+                            ].map(({ val, lb, color }) => (
+                              <div key={lb} style={{ flex:1, background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.07)", borderRadius:10, padding:"8px 4px", textAlign:"center" }}>
+                                <div style={{ fontSize:15, fontWeight:800, color }}>{val}</div>
+                                <div style={{ fontSize:8, color:C.light, marginTop:1 }}>{lb}</div>
+                              </div>
+                            ))}
                           </div>
                         );
                       })()}
@@ -7700,10 +7706,13 @@ const styles = `
 
                 {/* MEJOR RACHA */}
                 {mejorRacha > 0 && (
-                  <div style={{ background:"rgba(255,123,90,.18)", borderRadius:14, padding:"10px 16px",
+                  <div style={{ background:"rgba(255,123,90,.12)", border:"1px solid rgba(255,123,90,.2)", borderRadius:14, padding:"11px 16px",
                     display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                    <div style={{ fontSize:12, color:"#FF7B5A", fontWeight:600 }}>Mejor racha actual</div>
-                    <div style={{ fontSize:18, fontWeight:700, color:"#FF7B5A" }}>🔥 {mejorRacha} días</div>
+                    <div style={{ fontSize:12, color:C.plum, fontWeight:600 }}>Mejor racha actual</div>
+                    <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#FF7B5A" stroke="none"><path d="M17.66 11.2c-.23-.3-.51-.56-.77-.82-.67-.6-1.43-1.03-2.07-1.66C13.33 7.26 13 4.85 13.95 3c-.95.23-1.78.75-2.49 1.32-2.59 2.08-3.61 5.75-2.39 8.9.04.1.08.2.08.33 0 .22-.15.42-.35.5-.23.1-.47.04-.66-.12a.58.58 0 0 1-.14-.17c-1.13-1.43-1.31-3.48-.55-5.12C5.78 10 4.87 12.3 5 14.47c.06.5.12 1 .29 1.5.14.6.41 1.2.71 1.73 1.08 1.73 2.95 2.97 4.96 3.22 2.14.27 4.43-.25 5.95-1.9 1.76-1.94 2.23-4.78 1.19-7.15-.29-.55-.64-1.06-1.44-.67zm-4.16 4.42c-.8.3-1.27.8-1.27.8-.04.02-.08.03-.12.03a.26.26 0 0 1-.17-.07.26.26 0 0 1-.04-.26c.3-.9 1.33-1.3 1.48-2.28.1-.62-.13-1.24-.44-1.68.43.64.97 1.34 1.09 2.1.16 1.03-.54 1.08-.53 1.36z"/></svg>
+                      <div style={{ fontSize:18, fontWeight:800, color:C.plum }}>{mejorRacha} días</div>
+                    </div>
                   </div>
                 )}
               </>
@@ -7808,7 +7817,7 @@ const styles = `
                         : "rgba(0,0,0,.12)";
                       return (
                         <div key={f} style={{ aspectRatio:"1", borderRadius:4, background:bg,
-                          outline: esHoy ? "2px solid #C4845A" : "none",
+                          outline: esHoy ? "2px solid #FF7B5A" : "none",
                           outlineOffset:"1px" }}
                           title={`${i+1}`}/>
                       );
@@ -7826,19 +7835,22 @@ const styles = `
 
                 {/* NOTA DEL PSICÓLOGO */}
                 {notaPsicologo ? (
-                  <div style={{ background:"rgba(255,123,90,.15)", borderRadius:14, padding:"12px 14px",
-                    border:"0.5px solid rgba(255,123,90,.18)" }}>
-                    <div style={{ fontSize:10, fontWeight:700, color:"#FF7B5A", marginBottom:6,
-                      textTransform:"uppercase", letterSpacing:0.5 }}>Tu psicólogo dice</div>
-                    <div style={{ fontSize:13, color:C.text, lineHeight:1.6, fontStyle:"italic" }}>
+                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:"14px 16px",
+                    border:"1px solid rgba(0,0,0,.09)", borderLeft:"3px solid #FF7B5A",
+                    boxShadow:"0 1px 4px rgba(0,0,0,.06)" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:8 }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      <div style={{ fontSize:9, fontWeight:700, color:C.plum, textTransform:"uppercase", letterSpacing:".1em" }}>Tu psicólogo dice</div>
+                    </div>
+                    <div style={{ fontSize:13, color:C.text, lineHeight:1.65, fontStyle:"italic" }}>
                       "{notaPsicologo}"
                     </div>
                   </div>
                 ) : usuarioActual?.rol === "paciente" ? null : (
-                  <div style={{ background:"rgba(255,123,90,0.20)", borderRadius:14, padding:"12px 14px",
-                    border:"1.5px dashed rgba(255,123,90,0.2)", textAlign:"center" }}>
-                    <div style={{ fontSize:11, color:C.light }}>Sin nota de refuerzo aún</div>
-                    <div style={{ fontSize:10, color:C.light, marginTop:2 }}>Agrégala desde "Editar"</div>
+                  <div style={{ background:"rgba(0,0,0,.03)", borderRadius:14, padding:"14px 16px",
+                    border:"1.5px dashed rgba(0,0,0,.12)", textAlign:"center" }}>
+                    <div style={{ fontSize:11, color:C.light, fontWeight:500 }}>Sin nota de refuerzo aún</div>
+                    <div style={{ fontSize:10, color:C.light, marginTop:2, opacity:.7 }}>Agrégala desde "Editar"</div>
                   </div>
                 )}
               </>
