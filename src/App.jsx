@@ -4762,48 +4762,58 @@ const styles = `
 
             return (
               <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
-                {/* Header */}
-                <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"16px 18px 18px", paddingTop:"max(16px, env(safe-area-inset-top,16px))", flexShrink:0 }}>
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:2 }}>
-                    <div onClick={mesAnterior} style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.12)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>‹</div>
-                    <div style={{ textAlign:"center" }}>
-                      <div style={{ fontSize:16, fontWeight:700, color:"white" }}>{meses[mesVista]} {anioVista}</div>
-                      <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)", marginTop:2 }}>{citasDelMes.length} cita{citasDelMes.length!==1?"s":""} este mes</div>
+
+                {/* ── HEADER ── */}
+                <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"14px 18px 16px", paddingTop:"max(14px, env(safe-area-inset-top,14px))", flexShrink:0 }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                    <div onClick={mesAnterior} style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", touchAction:"manipulation" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     </div>
-                    <div onClick={mesSiguiente} style={{ width:34, height:34, borderRadius:10, background:"rgba(0,0,0,.12)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:16, color:"white" }}>›</div>
+                    <div style={{ textAlign:"center" }}>
+                      <div style={{ fontSize:17, fontWeight:800, color:"white", letterSpacing:"-.02em" }}>{meses[mesVista]} {anioVista}</div>
+                      {citasDelMes.length > 0 && (
+                        <div style={{ fontSize:10, color:"rgba(255,255,255,.45)", marginTop:2, fontWeight:500 }}>
+                          {citasDelMes.length} cita{citasDelMes.length!==1?"s":""} este mes
+                        </div>
+                      )}
+                    </div>
+                    <div onClick={mesSiguiente} style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", touchAction:"manipulation" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
                   </div>
                 </div>
 
                 <div style={{ flex:1, overflowY:"auto", paddingBottom:NAV_PB }}>
-                  {/* Grid calendario */}
-                  <div style={{ background:"#FFFFFF", margin:14, borderRadius:16, padding:12, border:"1px solid rgba(0,0,0,.11)" }}>
-                    {/* Días semana */}
-                    <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", marginBottom:6 }}>
+
+                  {/* ── GRID CALENDARIO ── */}
+                  <div style={{ background:"#FFFFFF", margin:"14px 14px 10px", borderRadius:18, padding:"14px 12px 10px", boxShadow:"0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.07)" }}>
+                    {/* Labels días semana */}
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", marginBottom:8 }}>
                       {dias.map(d => (
-                        <div key={d} style={{ textAlign:"center", fontSize:10, fontWeight:700, color:C.light, padding:"4px 0" }}>{d}</div>
+                        <div key={d} style={{ textAlign:"center", fontSize:10, fontWeight:700, color:C.light, letterSpacing:".04em" }}>{d}</div>
                       ))}
                     </div>
-                    {/* Celdas días */}
-                    <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:3 }}>
-                      {/* Espacios vacíos */}
-                      {Array.from({ length: offset }).map((_, i) => (
-                        <div key={"e"+i}/>
-                      ))}
-                      {/* Días del mes */}
+                    {/* Celdas */}
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:2 }}>
+                      {Array.from({ length: offset }).map((_, i) => <div key={"e"+i}/>)}
                       {Array.from({ length: diasEnMes }).map((_, i) => {
                         const dia = i + 1;
                         const esHoy = dia === hoy.getDate() && mesVista === hoy.getMonth() && anioVista === hoy.getFullYear();
                         const tieneCitas = citasPorDia[dia];
                         return (
-                          <div key={dia} onClick={() => tieneCitas && (tieneCitas.length === 1 ? setCitaDetalle(tieneCitas[0]) : setCitaDetalle({ _esDia: true, _citas: tieneCitas, _dia: dia }))}
-                            style={{ aspectRatio:"1", borderRadius:10, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:tieneCitas?"pointer":"default", background:esHoy?"#FFFFFF":tieneCitas?"rgba(255,123,90,0.1)":"transparent", border:esHoy?"2px solid #E8A87C":tieneCitas?"1.5px solid rgba(255,123,90,0.25)":"1.5px solid transparent", position:"relative", transition:"all 0.15s" }}>
-                            <div style={{ fontSize:13, fontWeight:esHoy||tieneCitas?700:400, color:esHoy?"#FFB347":tieneCitas?C.text:C.light }}>
+                          <div key={dia}
+                            onClick={() => tieneCitas && (tieneCitas.length === 1 ? setCitaDetalle(tieneCitas[0]) : setCitaDetalle({ _esDia:true, _citas:tieneCitas, _dia:dia }))}
+                            style={{ aspectRatio:"1", borderRadius:12, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:tieneCitas?"pointer":"default", position:"relative", transition:"all .12s",
+                              background: esHoy ? "#1E4D2B" : tieneCitas ? "rgba(255,123,90,.10)" : "transparent",
+                            }}>
+                            <div style={{ fontSize:13, fontWeight: esHoy||tieneCitas ? 700 : 400,
+                              color: esHoy ? "white" : tieneCitas ? C.text : C.light }}>
                               {dia}
                             </div>
                             {tieneCitas && (
                               <div style={{ display:"flex", gap:2, marginTop:2 }}>
                                 {tieneCitas.slice(0,3).map((c,ci) => (
-                                  <div key={ci} style={{ width:5, height:5, borderRadius:"50%", background:colStatus(c.status) }}/>
+                                  <div key={ci} style={{ width:4, height:4, borderRadius:"50%", background: esHoy ? "rgba(255,255,255,.7)" : colStatus(c.status) }}/>
                                 ))}
                               </div>
                             )}
@@ -4811,91 +4821,133 @@ const styles = `
                         );
                       })}
                     </div>
+
+                    {/* Leyenda inline */}
+                    <div style={{ display:"flex", gap:14, justifyContent:"center", marginTop:12, paddingTop:10, borderTop:"1px solid rgba(0,0,0,.06)" }}>
+                      {[["#5A8A62","Confirmada"],[C.amber,"Pendiente"],[C.red,"Cancelada"]].map(([col,lb]) => (
+                        <div key={lb} style={{ display:"flex", alignItems:"center", gap:5 }}>
+                          <div style={{ width:7, height:7, borderRadius:"50%", background:col }}/>
+                          <span style={{ fontSize:10, color:C.light, fontWeight:500 }}>{lb}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Leyenda */}
-                  <div style={{ display:"flex", gap:12, padding:"0 14px", marginBottom:14 }}>
-                    {[["#5A8A62","Confirmada"],[C.amber,"Pendiente"],[C.red,"Cancelada"]].map(([col,lb]) => (
-                      <div key={lb} style={{ display:"flex", alignItems:"center", gap:5 }}>
-                        <div style={{ width:8, height:8, borderRadius:"50%", background:col }}/>
-                        <span style={{ fontSize:10, color:C.light }}>{lb}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Próxima cita — solo paciente */}
+                  {/* ── PRÓXIMA CITA — solo paciente ── */}
                   {usuarioActual?.rol === "paciente" && (() => {
                     const ahora = new Date();
                     const proxima = citas
                       .filter(c => c.status !== "cancelada" && fechaOrden(c) > ahora.getTime() - 3600000)
                       .sort((a,b) => fechaOrden(a) - fechaOrden(b))[0];
                     if (!proxima) return null;
+                    const esVirtual = proxima.modalidad === "virtual";
                     return (
-                      <div style={{ margin:"0 14px 14px", background:"#FFFFFF", borderRadius:16, padding:14, border:"0.5px solid rgba(255,155,122,0.15)", position:"relative", overflow:"hidden" }}>
-                        <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,#C4845A,transparent)", opacity:0.6 }}/>
-                        <div style={{ fontSize:10, fontWeight:600, color:"rgba(255,155,122,0.55)", letterSpacing:0.8, textTransform:"uppercase", marginBottom:8 }}>Próxima sesión</div>
-                        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-                          <div style={{ background:"#FF7B5A", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:44 }}>
-                            <div style={{ fontSize:16, fontWeight:700, color:"white", lineHeight:1 }}>{mostrarFechaLocal(proxima,"dia")}</div>
-                            <div style={{ fontSize:8, color:"rgba(255,255,255,0.75)", fontWeight:600, textTransform:"uppercase" }}>{mostrarFechaLocal(proxima,"mes")}</div>
+                      <div style={{ margin:"0 14px 12px", background:"#FFFFFF", borderRadius:16, padding:14, boxShadow:"0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.06)", borderLeft:"3px solid #5A8A62", overflow:"hidden" }}>
+                        <div style={{ fontSize:9, fontWeight:700, color:"#5A8A62", letterSpacing:".12em", textTransform:"uppercase", marginBottom:10 }}>Próxima sesión</div>
+                        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
+                          {/* Fecha badge */}
+                          <div style={{ background:"rgba(90,138,98,.1)", border:"1px solid rgba(90,138,98,.2)", borderRadius:12, padding:"8px 10px", textAlign:"center", minWidth:46, flexShrink:0 }}>
+                            <div style={{ fontSize:20, fontWeight:900, color:"#5A8A62", lineHeight:1 }}>{mostrarFechaLocal(proxima,"dia")}</div>
+                            <div style={{ fontSize:8, fontWeight:700, color:"#5A8A62", textTransform:"uppercase", opacity:.7 }}>{mostrarFechaLocal(proxima,"mes")}</div>
                           </div>
                           <div style={{ flex:1 }}>
-                            <div style={{ fontSize:13, fontWeight:600, color:C.text }}>Sesión con {proxima.psicologoNombre}</div>
-                            <div style={{ fontSize:11, color:"rgba(245,230,208,0.5)", marginTop:2 }}>{mostrarFechaLocal(proxima,"hora")} · {proxima.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
+                            <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:3 }}>Sesión con {proxima.psicologoNombre}</div>
+                            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                              <div style={{ display:"flex", alignItems:"center", gap:4 }}>
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                <span style={{ fontSize:11, color:C.light }}>{mostrarFechaLocal(proxima,"hora")}</span>
+                              </div>
+                              <div style={{ display:"flex", alignItems:"center", gap:4 }}>
+                                {esVirtual
+                                  ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                                  : <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>}
+                                <span style={{ fontSize:11, color:C.light }}>{esVirtual?"Virtual":"Presencial"}</span>
+                              </div>
+                            </div>
                           </div>
-                          <div style={{ background:proxima.status==="confirmada"?"rgba(125,170,146,0.2)":"rgba(255,155,122,0.15)", color:proxima.status==="confirmada"?"#4ECDC4":"#FFB347", fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20 }}>
-                            {proxima.status==="confirmada"?"✅ Confirmada":"⏳ Pendiente"}
+                          {/* Status pill */}
+                          <div style={{ display:"flex", alignItems:"center", gap:4, background:proxima.status==="confirmada"?"rgba(90,138,98,.1)":"rgba(255,179,71,.12)", borderRadius:20, padding:"4px 10px", flexShrink:0 }}>
+                            <div style={{ width:6, height:6, borderRadius:"50%", background:proxima.status==="confirmada"?"#5A8A62":C.amber }}/>
+                            <span style={{ fontSize:10, fontWeight:700, color:proxima.status==="confirmada"?"#5A8A62":C.amber }}>{proxima.status==="confirmada"?"Confirmada":"Pendiente"}</span>
                           </div>
                         </div>
-                        {proxima.modalidad==="virtual" && proxima.link && (
+                        {esVirtual && proxima.link && (
                           <a href={proxima.link.startsWith("http")?proxima.link:`https://${proxima.link}`} target="_blank" rel="noreferrer"
-                            style={{ display:"block", padding:"9px 0", background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:11, fontSize:12, fontWeight:800, textAlign:"center", textDecoration:"none", marginBottom:8 }}>
-                            🎥 Unirse a la sesión
+                            style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, padding:"10px 0", background:"linear-gradient(135deg,#2D6A40,#1E4D2B)", color:"white", borderRadius:11, fontSize:12, fontWeight:800, textDecoration:"none", marginBottom:8, boxShadow:"0 4px 12px rgba(30,77,43,.25)" }}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                            Unirse a la sesión
                           </a>
                         )}
                         {proxima.status==="pendiente" && (
                           <div style={{ display:"flex", gap:8 }}>
-                            {btn(()=>{ setCitaSeleccionada(proxima); setModal("confirmar-cita"); }, "✓ Confirmar asistencia", { flex:1, padding:"8px 0", borderRadius:10, background:C.green, color:"white", fontWeight:800, fontSize:11 })}
+                            {btn(()=>{ setCitaSeleccionada(proxima); setModal("confirmar-cita"); },
+                              <span style={{ display:"flex", alignItems:"center", gap:5 }}>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                Confirmar asistencia
+                              </span>,
+                              { flex:1, padding:"9px 0", borderRadius:10, background:"#5A8A62", color:"white", fontWeight:800, fontSize:11 })}
                           </div>
                         )}
                       </div>
                     );
                   })()}
 
-                  {/* Lista citas del mes */}
+                  {/* ── LISTA CITAS DEL MES ── */}
                   <div style={{ padding:"0 14px" }}>
                     {citasDelMes.length > 0 && (
-                    <div style={{ fontSize:12, fontWeight:700, color:C.text, marginBottom:10 }}>
-                      Citas de {meses[mesVista]}
-                    </div>
+                      <div style={{ fontSize:11, fontWeight:700, color:C.light, letterSpacing:".06em", textTransform:"uppercase", marginBottom:10 }}>
+                        {meses[mesVista]} — {citasDelMes.length} cita{citasDelMes.length!==1?"s":""}
+                      </div>
                     )}
                     {loadingCitas ? (
                       <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>Cargando...</div>
-                    ) : citasDelMes.length === 0 ? null : citasDelMes
-                        .slice()
-                        .sort((a,b) => fechaOrden(a) - fechaOrden(b))
-                        .map(c => (
-                      <div key={c.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", marginBottom:10, border:"1px solid rgba(0,0,0,.11)", borderLeft:`3px solid ${colStatus(c.status)}` }}>
+                    ) : citasDelMes.length === 0 ? (
+                      <div style={{ background:"#FFFFFF", borderRadius:16, padding:"28px 20px", textAlign:"center", boxShadow:"0 1px 3px rgba(0,0,0,.05)" }}>
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" strokeLinecap="round" style={{margin:"0 auto 10px",display:"block"}}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <div style={{ fontSize:13, fontWeight:600, color:C.light }}>Sin citas este mes</div>
+                      </div>
+                    ) : citasDelMes.slice().sort((a,b) => fechaOrden(a) - fechaOrden(b)).map(c => (
+                      <div key={c.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"13px 14px", marginBottom:9, boxShadow:"0 1px 3px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.05)", borderLeft:`3px solid ${colStatus(c.status)}` }}>
+
+                        {/* Fila principal */}
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                          <div style={{ background:colStatus(c.status)+"20", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:46, flexShrink:0 }}>
-                            <div style={{ fontSize:18, fontWeight:900, color:colStatus(c.status), lineHeight:1 }}>{mostrarFechaLocal(c, "dia")}</div>
-                            <div style={{ fontSize:9, fontWeight:700, color:colStatus(c.status), textTransform:"uppercase" }}>{mostrarFechaLocal(c, "mes")}</div>
+                          {/* Fecha badge */}
+                          <div style={{ background:`${colStatus(c.status)}18`, borderRadius:10, padding:"7px 9px", textAlign:"center", minWidth:44, flexShrink:0 }}>
+                            <div style={{ fontSize:18, fontWeight:900, color:colStatus(c.status), lineHeight:1 }}>{mostrarFechaLocal(c,"dia")}</div>
+                            <div style={{ fontSize:8, fontWeight:700, color:colStatus(c.status), textTransform:"uppercase", opacity:.8 }}>{mostrarFechaLocal(c,"mes")}</div>
                           </div>
+
+                          {/* Info */}
                           <div style={{ flex:1, minWidth:0 }}>
-                            <div style={{ fontSize:13, fontWeight:800, color:C.text, marginBottom:2 }}>
+                            <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:4 }}>
                               {usuarioActual?.rol === "psicologo" ? c.pacienteNombre : `Sesión con ${c.psicologoNombre}`}
                             </div>
-                            <div style={{ fontSize:11, color:C.light }}>⏰ {mostrarFechaLocal(c, "hora")} · {c.modalidad==="virtual"?"💻 Virtual":"🏥 Presencial"}</div>
+                            <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                              <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                <span style={{ fontSize:11, color:C.light }}>{mostrarFechaLocal(c,"hora")}</span>
+                              </div>
+                              <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+                                {c.modalidad==="virtual"
+                                  ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                                  : <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>}
+                                <span style={{ fontSize:11, color:C.light }}>{c.modalidad==="virtual"?"Virtual":"Presencial"}</span>
+                              </div>
+                            </div>
                           </div>
+
+                          {/* Botón abrir link — psicólogo y paciente */}
                           {c.modalidad==="virtual" && c.link && (
-                            <a href={c.link} target="_blank" rel="noreferrer"
-                              style={{ flexShrink:0, background:`linear-gradient(135deg,${C.plum},#3D3055)`, color:"white", borderRadius:10, padding:"8px 12px", fontSize:11, fontWeight:800, textDecoration:"none", display:"flex", alignItems:"center", gap:4 }}>
-                              🔗 Abrir
+                            <a href={c.link.startsWith("http")?c.link:`https://${c.link}`} target="_blank" rel="noreferrer"
+                              style={{ flexShrink:0, background:"linear-gradient(135deg,#2D6A40,#1E4D2B)", color:"white", borderRadius:10, padding:"8px 12px", fontSize:11, fontWeight:800, textDecoration:"none", display:"flex", alignItems:"center", gap:5, boxShadow:"0 2px 8px rgba(30,77,43,.25)" }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                              Abrir
                             </a>
                           )}
+
+                          {/* Botones psicólogo */}
                           {usuarioActual?.rol === "psicologo" && (
                             <div style={{ display:"flex", gap:6, flexShrink:0 }}>
-                              {/* Botón Finalizada */}
                               <div onClick={async () => {
                                 if (!window.confirm(`¿Marcar sesión con ${c.pacienteNombre} como finalizada?\n\nEsto la registrará en finanzas y eliminará la cita.`)) return;
                                 try {
@@ -4903,58 +4955,59 @@ const styles = `
                                   const tarifas = tarifasSnap.exists() ? (tarifasSnap.data().tarifas || {}) : {};
                                   const valor = tarifas[c.pacienteId] || pacientes.find(p => p.id === c.pacienteId)?.tarifaSesion || 0;
                                   const sesId = `ses_${Date.now()}_${c.pacienteId}`;
-                                  await setDoc(doc(db, "sesionesFinanzas", sesId), {
-                                    id: sesId, psicologoId: usuarioActual.uid,
-                                    pacienteId: c.pacienteId, pacienteNombre: c.pacienteNombre,
-                                    valor, pagado: false,
-                                    fecha: c.fechaUTC || new Date().toISOString(),
-                                    citaId: c.id, creadaEn: new Date().toISOString(),
-                                  });
+                                  await setDoc(doc(db, "sesionesFinanzas", sesId), { id:sesId, psicologoId:usuarioActual.uid, pacienteId:c.pacienteId, pacienteNombre:c.pacienteNombre, valor, pagado:false, fecha:c.fechaUTC||new Date().toISOString(), citaId:c.id, creadaEn:new Date().toISOString() });
                                   await deleteDoc(doc(db, "citas", c.id));
                                   setCitas(prev => prev.filter(x => x.id !== c.id));
                                   setSesionesFinanzas(prev => [{ id:sesId, psicologoId:usuarioActual.uid, pacienteId:c.pacienteId, pacienteNombre:c.pacienteNombre, valor, pagado:false, fecha:c.fechaUTC||new Date().toISOString(), citaId:c.id, creadaEn:new Date().toISOString() }, ...prev]);
-                                  showToast(valor > 0 ? `✅ Sesión finalizada — $${Number(valor).toLocaleString("es-CO")}` : "✅ Sesión finalizada");
-                                } catch(e) { console.error(e); showToast("Error ❌"); }
-                              }} style={{ flexShrink:0, padding:"6px 10px", borderRadius:9, background:`${C.green}15`, border:`1px solid ${C.green}40`, display:"flex", alignItems:"center", gap:5, cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span style={{ fontSize:10, fontWeight:800, color:C.green }}>Finalizada</span>
+                                  showToast(valor > 0 ? `Sesión finalizada · $${Number(valor).toLocaleString("es-CO")}` : "Sesión finalizada");
+                                } catch(e) { console.error(e); showToast("Error al finalizar"); }
+                              }} style={{ flexShrink:0, padding:"7px 11px", borderRadius:9, background:"rgba(90,138,98,.12)", border:"1px solid rgba(90,138,98,.25)", display:"flex", alignItems:"center", gap:5, cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5A8A62" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span style={{ fontSize:10, fontWeight:700, color:"#5A8A62" }}>Finalizada</span>
                               </div>
-                              {/* Caneca eliminar */}
                               <div onClick={async () => {
-                                if (!window.confirm(`¿Eliminar la cita con ${c.pacienteNombre}?\n\nEsto NO se registrará en finanzas.`)) return;
+                                if (!window.confirm(`¿Eliminar la cita con ${c.pacienteNombre}?`)) return;
                                 try {
                                   await deleteDoc(doc(db, "citas", c.id));
                                   setCitas(prev => prev.filter(x => x.id !== c.id));
-                                  showToast("🗑️ Cita eliminada");
-                                } catch(e) { showToast("Error ❌"); }
-                              }} style={{ flexShrink:0, width:32, height:32, borderRadius:9, background:"rgba(255,107,107,.15)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C0524A" strokeWidth="2.5" strokeLinecap="round">
-                                  <polyline points="3 6 5 6 21 6"/>
-                                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                </svg>
+                                  showToast("Cita eliminada");
+                                } catch(e) { showToast("Error al eliminar"); }
+                              }} style={{ flexShrink:0, width:32, height:32, borderRadius:9, background:"rgba(192,82,74,.10)", border:"1px solid rgba(192,82,74,.2)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C0524A" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
                               </div>
                             </div>
                           )}
                         </div>
-                        <div style={{ display:"flex", gap:6, marginTop:10 }}>
-                          <div style={{ fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20, background:colStatus(c.status)+"20", color:colStatus(c.status) }}>
-                            {c.status==="confirmada"?"✅ Confirmada":c.status==="cancelada"?"❌ Cancelada":"⏳ Pendiente"}
+
+                        {/* Fila inferior: status + acciones paciente */}
+                        <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:10, flexWrap:"wrap" }}>
+                          {/* Status pill — sin emoji */}
+                          <div style={{ display:"flex", alignItems:"center", gap:4, background:`${colStatus(c.status)}18`, borderRadius:20, padding:"3px 10px" }}>
+                            <div style={{ width:6, height:6, borderRadius:"50%", background:colStatus(c.status) }}/>
+                            <span style={{ fontSize:10, fontWeight:700, color:colStatus(c.status) }}>
+                              {c.status==="confirmada"?"Confirmada":c.status==="cancelada"?"Cancelada":"Pendiente"}
+                            </span>
                           </div>
+
+                          {/* Acciones paciente */}
                           {c.status==="pendiente" && usuarioActual?.rol==="paciente" && (<>
-                            {btn(()=>{ setCitaSeleccionada(c); setModal("confirmar-cita"); }, "Confirmar", { padding:"3px 10px", borderRadius:9, background:C.green, color:"white", fontWeight:800, fontSize:10 })}
-                            {btn(()=>{ setCitaSeleccionada(c); setModal("cancelar-cita"); }, "Cancelar", { padding:"3px 10px", borderRadius:9, background:"rgba(255,107,107,.15)", color:C.red, fontWeight:800, fontSize:10 })}
+                            {btn(()=>{ setCitaSeleccionada(c); setModal("confirmar-cita"); }, "Confirmar", { padding:"3px 10px", borderRadius:20, background:"#5A8A62", color:"white", fontWeight:700, fontSize:10 })}
+                            {btn(()=>{ setCitaSeleccionada(c); setModal("cancelar-cita"); }, "Cancelar", { padding:"3px 10px", borderRadius:20, background:"rgba(192,82,74,.10)", border:"1px solid rgba(192,82,74,.2)", color:C.red, fontWeight:700, fontSize:10 })}
                           </>)}
                           {c.status==="confirmada" && usuarioActual?.rol==="paciente" && (
                             <div onClick={()=>{ setCitaSeleccionada(c); setRetrasoTexto(""); setRetrasoMinutos(10); setModal("demora-aviso"); }}
-                              style={{ display:"flex", alignItems:"center", gap:5, padding:"3px 10px", borderRadius:9, background:"rgba(0,0,0,.12)", border:"1px solid rgba(255,123,90,0.2)", cursor:"pointer" }}>
-                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.amberDark} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                              <span style={{ fontSize:10, fontWeight:700, color:C.amberDark }}>Me demoraré un momento</span>
+                              style={{ display:"flex", alignItems:"center", gap:5, padding:"3px 10px", borderRadius:20, background:"rgba(255,179,71,.12)", border:"1px solid rgba(255,179,71,.25)", cursor:"pointer" }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                              <span style={{ fontSize:10, fontWeight:700, color:C.amber }}>Me demoraré</span>
                             </div>
                           )}
                         </div>
+
+                        {/* Notas */}
                         {c.notas && (
-                          <div style={{ background:C.warm, borderRadius:9, padding:"7px 10px", marginTop:8, fontSize:11, color:C.light, fontStyle:"italic" }}>
-                            📝 {c.notas}
+                          <div style={{ display:"flex", alignItems:"flex-start", gap:7, background:"rgba(0,0,0,.03)", borderRadius:9, padding:"7px 10px", marginTop:9 }}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round" style={{flexShrink:0,marginTop:1}}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+                            <span style={{ fontSize:11, color:C.light, fontStyle:"italic" }}>{c.notas}</span>
                           </div>
                         )}
                       </div>
