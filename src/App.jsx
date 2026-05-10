@@ -3609,24 +3609,98 @@ const styles = `
       <span style={{ fontSize:11, color:"#FF9B7A", fontWeight:700, cursor:"pointer" }}>Contacta a tu psicólogo</span>
     </div>
 
-    {showInstall && (
-      <button
-        onClick={handleInstall}
-        disabled={installing}
-        style={{ marginTop:14, padding:"8px 20px", background:"rgba(255,123,90,0.15)", color: installing ? "rgba(255,155,122,0.25)" : "rgba(255,155,122,0.5)", borderRadius:20, fontSize:11, fontWeight:600, border:"1px solid rgba(255,123,90,0.14)", cursor: installing ? "not-allowed" : "pointer", fontFamily:"inherit", transition:"color 200ms ease", touchAction:"manipulation" }}
-      >
-        {installing ? 'Instalando…' : '⬇ Descargar App'}
-      </button>
-    )}
-    {showIOSHint && (
-      <div style={{ marginTop:14, padding:"12px 16px", background:"rgba(255,123,90,0.20)", border:"1px solid rgba(255,123,90,0.14)", borderRadius:14, textAlign:"center", maxWidth:260 }}>
-        <p style={{ fontSize:11, color:"rgba(255,155,122,0.7)", margin:0, lineHeight:1.6 }}>
-          Para instalar en iPhone: toca <strong style={{color:"rgba(255,155,122,1)"}}>⬆</strong> en Safari<br/>
-          y luego <strong style={{color:"rgba(255,155,122,1)"}}>"Agregar a pantalla de inicio"</strong>
-        </p>
-        <button onClick={() => setShowIOSHint(false)} style={{ marginTop:8, fontSize:10, color:"rgba(245,238,232,0.3)", background:"none", border:"none", cursor:"pointer", fontFamily:"inherit" }}>
-          Entendido
-        </button>
+    {(showInstall || showIOSHint) && (
+      <div style={{ width:"100%", marginTop:20 }}>
+
+        {/* Separador visual */}
+        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:18 }}>
+          <div style={{ flex:1, height:"1px", background:"rgba(255,255,255,.10)" }}/>
+          <span style={{ fontSize:10, color:"rgba(255,255,255,.25)", fontWeight:700, letterSpacing:".1em" }}>INSTALAR APP</span>
+          <div style={{ flex:1, height:"1px", background:"rgba(255,255,255,.10)" }}/>
+        </div>
+
+        {/* Android — botón prominente */}
+        {showInstall && (
+          <>
+            <button
+              onClick={handleInstall}
+              disabled={installing}
+              style={{
+                width:"100%", height:52,
+                background: installing ? "rgba(255,255,255,.06)" : "rgba(255,255,255,.11)",
+                border:"1px solid rgba(255,255,255,.22)",
+                borderRadius:14,
+                color:"rgba(255,255,255,.92)",
+                fontSize:14, fontWeight:700,
+                cursor: installing ? "not-allowed" : "pointer",
+                fontFamily:"inherit",
+                display:"flex", alignItems:"center", justifyContent:"center", gap:10,
+                transition:"all 0.2s",
+                touchAction:"manipulation",
+                WebkitTapHighlightColor:"transparent",
+                backdropFilter:"blur(12px)",
+                WebkitBackdropFilter:"blur(12px)",
+                boxShadow:"inset 0 1px 0 rgba(255,255,255,.12), 0 4px 16px rgba(0,0,0,.25)",
+              }}>
+              {installing ? (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" strokeWidth="2" strokeLinecap="round" style={{ animation:"spin 1s linear infinite" }}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                  Instalando…
+                </>
+              ) : (
+                <>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Instalar en este dispositivo
+                </>
+              )}
+            </button>
+            {!installing && (
+              <div style={{ textAlign:"center", marginTop:8, fontSize:10, color:"rgba(255,255,255,.25)", letterSpacing:".02em" }}>
+                Sin App Store · Se instala directo desde el navegador
+              </div>
+            )}
+          </>
+        )}
+
+        {/* iOS — guía paso a paso */}
+        {showIOSHint && (
+          <div style={{
+            background:"rgba(255,255,255,.08)",
+            border:"1px solid rgba(255,255,255,.16)",
+            borderRadius:16, padding:"16px 18px",
+            backdropFilter:"blur(16px)", WebkitBackdropFilter:"blur(16px)",
+            boxShadow:"inset 0 1px 0 rgba(255,255,255,.10)"
+          }}>
+            {/* Header */}
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+              <div style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,.12)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="1.75" strokeLinecap="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              </div>
+              <div>
+                <div style={{ fontSize:13, fontWeight:700, color:"white", letterSpacing:"-.01em" }}>Instalar en iPhone</div>
+                <div style={{ fontSize:10, color:"rgba(255,255,255,.40)", marginTop:1 }}>Safari · 2 pasos simples</div>
+              </div>
+            </div>
+            {/* Pasos */}
+            <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:14 }}>
+              {[
+                { n:"1", text:<>Toca <strong style={{color:"white"}}>compartir</strong> <span style={{fontSize:15}}>⬆</span> en la barra de Safari</> },
+                { n:"2", text:<>Selecciona <strong style={{color:"white"}}>"Agregar a pantalla de inicio"</strong></> },
+              ].map(({ n, text }) => (
+                <div key={n} style={{ display:"flex", alignItems:"center", gap:10 }}>
+                  <div style={{ width:24, height:24, borderRadius:"50%", background:"rgba(255,155,122,.2)", border:"1px solid rgba(255,155,122,.3)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <span style={{ fontSize:11, fontWeight:800, color:"#FF9B7A" }}>{n}</span>
+                  </div>
+                  <span style={{ fontSize:12, color:"rgba(255,255,255,.75)", lineHeight:1.4 }}>{text}</span>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => setShowIOSHint(false)}
+              style={{ width:"100%", padding:"8px 0", borderRadius:10, background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.10)", fontSize:11, fontWeight:600, color:"rgba(255,255,255,.45)", cursor:"pointer", fontFamily:"inherit", touchAction:"manipulation" }}>
+              Entendido
+            </button>
+          </div>
+        )}
       </div>
     )}
 
