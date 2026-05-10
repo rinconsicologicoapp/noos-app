@@ -2592,8 +2592,28 @@ const styles = `
     50%  { opacity: 0.85; }
     100% { opacity: 0.5; }
   }
+  /* Bottom sheet — entrada modal */
+  @keyframes sheetUp {
+    from { transform: translateY(110%); }
+    to   { transform: translateY(0); }
+  }
+  /* Overlay de modal */
+  @keyframes overlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  /* Pantalla completa — cross-dissolve nativo */
+  @keyframes screenFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  /* Pantalla overlay (habitos, nota, etc.) — slide nativo */
+  @keyframes slideUp {
+    from { transform: translateY(12px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
   @keyframes slideInRight {
-    from { opacity: 0; transform: translateX(32px); }
+    from { opacity: 0; transform: translateX(22px); }
     to   { opacity: 1; transform: translateX(0); }
   }
   @keyframes slideDown {
@@ -2605,7 +2625,7 @@ const styles = `
     to   { opacity: 0; transform: translateY(-16px) scale(0.96); }
   }
   @keyframes slideInLeft {
-    from { opacity: 0; transform: translateX(-32px); }
+    from { opacity: 0; transform: translateX(-22px); }
     to   { opacity: 1; transform: translateX(0); }
   }
   .screen-enter      { animation: fadeIn      0.22s cubic-bezier(0.25,0.46,0.45,0.94) both; }
@@ -3123,9 +3143,23 @@ const styles = `
 };
 
   const mdl = (id, children) => modal === id ? (
-    <div onClick={() => setModal(null)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.5)", zIndex:300, display:"flex", alignItems:"flex-end", borderRadius:44 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background:C.cream, borderRadius:"28px 28px 44px 44px", padding:"20px 20px 36px", width:"100%", maxHeight:"85%", overflowY:"auto" }}>
-        <div style={{ width:40, height:4, background:"rgba(0,0,0,0.15)", borderRadius:2, margin:"0 auto 16px" }}/>
+    <div onClick={() => setModal(null)} style={{
+      position:"absolute", inset:0,
+      background:"rgba(0,0,0,0.52)",
+      zIndex:300, display:"flex", alignItems:"flex-end",
+      borderRadius:44,
+      animation:"overlayIn 0.22s ease both",
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background:C.warm,
+        borderRadius:"28px 28px 44px 44px",
+        padding:"20px 20px 36px",
+        width:"100%", maxWidth:480,
+        maxHeight:"92vh", overflowY:"auto",
+        animation:"sheetUp 0.38s cubic-bezier(0.32,0.72,0,1) both",
+        boxShadow:"0 -4px 40px rgba(0,0,0,.18)",
+      }}>
+        <div style={{ width:36, height:4, background:"rgba(0,0,0,.13)", borderRadius:2, margin:"0 auto 18px" }}/>
         {children}
       </div>
     </div>
@@ -3429,7 +3463,7 @@ const styles = `
             // Recargar siempre que se abre el panel
             if (usuarioActual?.uid) cargarNotificaciones(usuarioActual.uid);
             return (
-            <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
+            <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
               {/* HEADER */}
               <div style={{ background:"rgba(240,242,240,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px", borderBottom:"1px solid rgba(0,0,0,.11)", display:"flex", alignItems:"center", gap:10, paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
                 <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)", flexShrink:0 }}>
@@ -3812,7 +3846,7 @@ const styles = `
 
           {/* HOME */}
           {!notifPanel && screen === "home" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
 
               {/* HEADER */}
               <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative", borderBottom:"1px solid rgba(0,0,0,.11)" }}>
@@ -4137,7 +4171,7 @@ const styles = `
 
           {/* PANTALLA ELEGIR COMPAÑERO */}
 {screen === "elegir-companero" && (
-  <div style={{position:"absolute",inset:0,background:"#F0F2F0",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10}}>
+  <div style={{position:"absolute",inset:0,background:"#F0F2F0",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10,animation:"screenFade 0.18s ease both"}}>
 
     {/* Header */}
     <div style={{background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)",padding:"32px 20px 32px",borderRadius:"0 0 28px 28px",flexShrink:0,position:"relative",overflow:"hidden",borderBottom:"1px solid rgba(0,0,0,.11)"}}>
@@ -4252,7 +4286,7 @@ const styles = `
 {notaAbierta && (
   <div style={{ position:"absolute", inset:0, zIndex:800, display:"flex", flexDirection:"column",
     background:"#F0F2F0",
-    animation:"slideInRight 0.25s ease" }}>
+    animation:"slideInRight 0.28s cubic-bezier(0.22,1,0.36,1) both" }}>
 
     {/* HEADER */}
     <div style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 16px",
@@ -4597,7 +4631,7 @@ const styles = `
 )}
 
 {!notifPanel && screen === "notas" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
 
     {/* HEADER */}
     <div style={{ background:"rgba(240,242,240,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 0", borderBottom:"1px solid rgba(0,0,0,.11)", paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
@@ -5008,7 +5042,7 @@ const styles = `
             };
 
             return (
-              <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
+              <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
 
                 {/* ── HEADER ── */}
                 <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"14px 18px 16px", paddingTop:"max(14px, env(safe-area-inset-top,14px))", flexShrink:0 }}>
@@ -5493,7 +5527,7 @@ const styles = `
 
           {/* LOGROS */}
           {!notifPanel && screen === "logros" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
               <div style={{ background:`linear-gradient(145deg,${C.amberDark},${C.gold})`, padding:"32px 24px 52px", textAlign:"center" }}>
                 <div style={{ fontSize:64, marginBottom:10 }}>{getRango(xp).icono}</div>
                 <div style={{ fontSize:20, fontWeight:700, color:"white", marginBottom:4 }}>{getRango(xp).nombre}</div>
@@ -6482,7 +6516,7 @@ const styles = `
 
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
 
               {/* HEADER */}
               <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"28px 20px 40px", textAlign:"center" }}>
@@ -6916,7 +6950,7 @@ const styles = `
           )}
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"fadeIn 0.22s ease both" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both", animation:"fadeIn 0.22s ease both" }}>
               {/* Skeleton mientras carga psicologoData — solo si es primera visita */}
               {!psicologoData && (
                 <div style={{ animation:"fadeIn 0.15s ease" }}>
@@ -7185,7 +7219,7 @@ const styles = `
           )}
           {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
               <div style={{ background:"rgba(240,242,240,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:12, borderBottom:"1px solid rgba(0,0,0,.11)" }}>
                 <div onClick={() => showScreen("admin-perfil")} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -7502,7 +7536,7 @@ const styles = `
   const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
   const pacientes = todosUsuarios.filter(u => u.rol === "paciente");
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
       {/* Header */}
       <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
         <div style={{ fontSize:16, fontWeight:700, color:"white" }}>🧠 Psicólogos</div>
@@ -7621,7 +7655,7 @@ const styles = `
     .filter(u => !busqueda || u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || u.email?.toLowerCase().includes(busqueda.toLowerCase()));
   const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
       <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
         <div style={{ fontSize:16, fontWeight:700, color:"white" }}>👥 Pacientes</div>
         <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>{todosUsuarios.filter(u=>u.rol==="paciente").length} pacientes registrados</div>
@@ -7815,7 +7849,7 @@ const styles = `
   const RING_COLORS = ["#1E8880", "#FF7B5A", "#FF7B5A"];
 
   return (
-    <div style={{ position:"absolute", inset:0, zIndex: screenHabitos ? 900 : 50, display:"flex", flexDirection:"column", background:"#F0F2F0",
+    <div style={{ position:"absolute", inset:0, zIndex: screenHabitos ? 900 : 50, display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both",
       paddingBottom: screen === "habitos" ? "calc(72px + env(safe-area-inset-bottom, 10px))" : 0 }}>
 
       {/* HEADER — dark forest green como el resto de la app */}
@@ -8485,7 +8519,7 @@ const styles = `
   };
 
   return (
-    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0" }}>
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
 
       {/* Header — forest green coherente con el resto de la app */}
       <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"14px 18px 0", paddingTop:"max(14px, env(safe-area-inset-top,14px))", flexShrink:0 }}>
@@ -9962,7 +9996,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
           {/* ADMIN PERFIL */}
           {!notifPanel && screen === "admin-perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
 
               {/* HEADER */}
               <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"32px 24px 48px", textAlign:"center", position:"relative", borderBottom:"0.5px solid rgba(255,155,122,0.12)" }}>
