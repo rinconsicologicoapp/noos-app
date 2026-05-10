@@ -1,12 +1,19 @@
 {
+  "id": "mipsicologo-app",
   "name": "Mi Psicólogo",
   "short_name": "Mi Psicólogo",
-  "description": "Tu espacio de acompañamiento psicológico",
+  "description": "Tu espacio seguro de acompañamiento psicológico. Agenda sesiones, registra hábitos y mantén contacto con tu psicólogo.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#07060F",
   "theme_color": "#07060F",
+  "lang": "es",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "categories": ["health", "medical", "lifestyle"],
   "icons": [
     {
       "src": "/icon-192.png",
@@ -32,5 +39,24 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mi Psicólogo"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Mis citas",
+      "short_name": "Citas",
+      "url": "/",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": []
 }

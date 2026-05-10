@@ -3,16 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#2A2018" />
+
+    <!-- PWA / instalación -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#07060F" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <meta name="apple-mobile-web-app-title" content="Mi Psicólogo" />
-    <meta name="format-detection" content="telephone=no" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
+
+    <!-- Icono y título -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
     <title>Mi Psicólogo</title>
+
+    <!-- Seguridad / privacidad -->
+    <meta name="format-detection" content="telephone=no, email=no, address=no" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- Open Graph mínimo (sin exponer datos internos) -->
+    <meta property="og:title" content="Mi Psicólogo" />
+    <meta property="og:description" content="Tu espacio de acompañamiento psicológico" />
+    <meta property="og:type" content="website" />
   </head>
   <body>
     <div id="root"></div>
