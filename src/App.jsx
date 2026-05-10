@@ -4169,90 +4169,100 @@ const styles = `
             </div>
           )}
 
-          {/* PANTALLA ELEGIR COMPAÑERO */}
+          {/* PANTALLA ELEGIR COMPAÑERO — rediseño completo */}
 {screen === "elegir-companero" && (
-  <div style={{position:"absolute",inset:0,background:"#F0F2F0",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10,animation:"screenFade 0.18s ease both"}}>
+  <div style={{position:"absolute",inset:0,background:"#F0F2F0",display:"flex",flexDirection:"column",overflowY:"auto",zIndex:10,animation:"screenFade 0.22s ease both"}}>
 
-    {/* Header */}
-    <div style={{background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)",padding:"32px 20px 32px",borderRadius:"0 0 28px 28px",flexShrink:0,position:"relative",overflow:"hidden",borderBottom:"1px solid rgba(0,0,0,.11)"}}>
-      <div style={{position:"absolute",top:0,left:0,right:0,height:"1px",background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),transparent)"}}/>
-      {[...Array(18)].map((_,i)=>(
-        <div key={i} style={{position:"absolute",width:3,height:3,borderRadius:"50%",background:"rgba(255,123,90,0.20)",left:`${(i*67)%100}%`,top:`${(i*43)%100}%`}}/>
+    {/* Header — dark forest */}
+    <div style={{background:"linear-gradient(160deg,#162A1C 0%,#0F2015 100%)",padding:"max(52px, calc(env(safe-area-inset-top)+24px)) 24px 36px",flexShrink:0,position:"relative",overflow:"hidden"}}>
+      {/* Glow sutil */}
+      <div style={{position:"absolute",top:-60,left:-40,width:200,height:200,borderRadius:"50%",background:"radial-gradient(circle,rgba(255,123,90,.10) 0%,transparent 65%)",pointerEvents:"none"}}/>
+      <div style={{position:"absolute",bottom:-30,right:-30,width:160,height:160,borderRadius:"50%",background:"radial-gradient(circle,rgba(78,205,196,.07) 0%,transparent 65%)",pointerEvents:"none"}}/>
+      {/* Dots decorativos */}
+      {[...Array(12)].map((_,i)=>(
+        <div key={i} style={{position:"absolute",width:3,height:3,borderRadius:"50%",background:"rgba(255,255,255,.08)",left:`${(i*71)%90+5}%`,top:`${(i*53)%80+10}%`,pointerEvents:"none"}}/>
       ))}
-      <div style={{fontSize:10,color:"rgba(255,179,71,0.65)",letterSpacing:"0.14em",marginBottom:8,fontWeight:700,textTransform:"uppercase"}}>Primer ingreso</div>
-      <div style={{fontSize:23,fontWeight:800,color:"white",lineHeight:1.25,letterSpacing:"-0.02em"}}>
-        Elige tu compañero{" "}
-        <span style={{color:"#FFB347"}}>de terapia</span>
+      {/* Eyebrow */}
+      <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"rgba(255,123,90,.12)",border:"1px solid rgba(255,123,90,.20)",borderRadius:20,padding:"4px 12px",marginBottom:14}}>
+        <div style={{width:6,height:6,borderRadius:"50%",background:"#FF9B7A",boxShadow:"0 0 8px rgba(255,155,122,.7)"}}/>
+        <span style={{fontSize:10,fontWeight:700,color:"rgba(255,155,122,.85)",letterSpacing:".08em",textTransform:"uppercase"}}>Bienvenida</span>
       </div>
-      <div style={{fontSize:12,color:"rgba(245,238,232,0.45)",marginTop:10,lineHeight:1.6}}>
-        Este será tu aliado en el camino.{" "}
-        <span style={{color:"rgba(255,155,122,0.65)"}}>Tómate el tiempo que necesites.</span>
+      <div style={{fontSize:26,fontWeight:900,color:"white",lineHeight:1.2,letterSpacing:"-.025em",marginBottom:10}}>
+        Elige tu compañero<br/>
+        <span style={{background:"linear-gradient(135deg,#FF9B7A,#FFD080)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>de terapia</span>
       </div>
-      <div style={{marginTop:16,height:2,width:40,background:"linear-gradient(90deg,#FF7B5A,transparent)",borderRadius:2}}/>
+      <div style={{fontSize:13,color:"rgba(255,255,255,.45)",lineHeight:1.6,maxWidth:280}}>
+        Estará contigo en cada sesión. Tómate el tiempo que necesites.
+      </div>
     </div>
 
-    {/* Área cards */}
-    <div style={{padding:"20px 16px 40px",position:"relative"}}>
+    {/* Cards con stagger animation */}
+    <div style={{padding:"20px 16px 32px"}}>
+      {Object.entries(COMPANEROS).map(([id, data], idx) => {
+        const sel = companeroSeleccionando === id;
+        return (
+          <div key={id}
+            onClick={() => setCompaneroSeleccionando(id)}
+            style={{
+              background:"#FFFFFF",
+              border: sel ? `2px solid ${data.color}` : "1.5px solid rgba(0,0,0,.09)",
+              borderRadius:20,
+              padding:"16px",
+              marginBottom:12,
+              cursor:"pointer",
+              transition:"all 0.22s cubic-bezier(0.22,1,0.36,1)",
+              display:"flex",
+              alignItems:"center",
+              gap:14,
+              transform: sel ? "translateY(-2px) scale(1.005)" : "translateY(0) scale(1)",
+              boxShadow: sel
+                ? `0 8px 28px ${data.color}28, 0 2px 8px rgba(0,0,0,.07)`
+                : "0 1px 4px rgba(0,0,0,.06), 0 2px 10px rgba(0,0,0,.04)",
+              animation:`fadeIn 0.3s cubic-bezier(0.22,1,0.36,1) ${idx * 0.07}s both`,
+              WebkitTapHighlightColor:"transparent",
+            }}>
+            {/* Avatar — background brand-colored */}
+            <div style={{width:72,height:72,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",background:data.colorClaro,borderRadius:14,overflow:"hidden",
+              outline: sel ? `3px solid ${data.color}35` : "none",
+              transition:"outline 0.2s"
+            }}>
+              <data.Componente mini={true}/>
+            </div>
 
-      {/* Patrón puntitos tenue */}
-      <svg style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",opacity:.018}} xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1.5" fill="#FFFFFF"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#dots)"/>
-      </svg>
+            {/* Info */}
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:16,fontWeight:800,color:C.text,letterSpacing:"-.01em",marginBottom:3}}>{data.nombre}</div>
+              <div style={{fontSize:12,color:C.light,lineHeight:1.5}}>{data.descripcion}</div>
+              {sel && (
+                <div style={{display:"inline-flex",alignItems:"center",gap:5,marginTop:8,background:data.color,borderRadius:20,padding:"4px 12px",animation:"checkInIn 0.25s cubic-bezier(0.34,1.56,0.64,1)"}}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span style={{fontSize:10,color:"white",fontWeight:700}}>Seleccionado</span>
+                </div>
+              )}
+            </div>
 
-      {/* Cards */}
-      {Object.entries(COMPANEROS).map(([id, data]) => (
-        <div key={id}
-          onClick={() => setCompaneroSeleccionando(id)}
-          style={{
-            background: companeroSeleccionando === id ? "rgba(255,255,255,.045)" : "rgba(255,255,255,.022)",
-            backdropFilter:"blur(20px)",
-            WebkitBackdropFilter:"blur(20px)",
-            border:`1px solid ${companeroSeleccionando === id ? data.color : "rgba(0,0,0,.11)"}`,
-            borderLeft:`3px solid ${companeroSeleccionando === id ? data.color : "rgba(0,0,0,.07)"}`,
-            borderRadius:20,
-            padding:"14px 16px",
-            marginBottom:12,
-            cursor:"pointer",
-            transition:"all 0.22s ease",
-            display:"flex",
-            alignItems:"center",
-            gap:14,
-            transform: companeroSeleccionando === id ? "translateY(-2px)" : "translateY(0)",
-            boxShadow: companeroSeleccionando === id
-              ? `0 8px 28px ${data.color}22, 0 2px 8px rgba(0,0,0,0.06)`
-              : "0 1px 4px rgba(0,0,0,0.04)",
-          }}>
-          {/* Avatar miniatura */}
-          <div style={{width:78,height:78,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",background:data.colorClaro,borderRadius:14,overflow:"hidden"}}>
-            <data.Componente mini={true}/>
+            {/* Indicador derecha */}
+            <div style={{width:26,height:26,borderRadius:"50%",
+              border:`2px solid ${sel ? data.color : "rgba(0,0,0,.14)"}`,
+              background: sel ? data.color : "transparent",
+              display:"flex",alignItems:"center",justifyContent:"center",
+              flexShrink:0,transition:"all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+              transform: sel ? "scale(1.15)" : "scale(1)",
+            }}>
+              {sel
+                ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                : <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.25)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              }
+            </div>
           </div>
-          {/* Info */}
-          <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:16,fontWeight:800,color:C.text,letterSpacing:"-0.01em"}}>{data.nombre}</div>
-            <div style={{fontSize:11,color:C.light,marginTop:4,lineHeight:1.4}}>{data.descripcion}</div>
-            {companeroSeleccionando === id && (
-              <div style={{display:"inline-flex",alignItems:"center",gap:4,marginTop:7,background:data.color,borderRadius:20,padding:"3px 12px"}}>
-                <span style={{fontSize:10,color:"white",fontWeight:700}}>✓ Seleccionado</span>
-              </div>
-            )}
-          </div>
-          {/* Check círculo */}
-          <div style={{width:24,height:24,borderRadius:12,border:`1.5px solid ${companeroSeleccionando===id ? data.color : "rgba(255,123,90,0.2)"}`,background:companeroSeleccionando===id ? data.color : "transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.2s"}}>
-            {companeroSeleccionando === id && <span style={{fontSize:12,color:"white"}}>✓</span>}
-          </div>
-        </div>
-      ))}
+        );
+      })}
 
-      {/* Botón o hint */}
-      <div style={{marginTop:10,paddingBottom:20}}>
+      {/* CTA o hint */}
+      <div style={{marginTop:8,paddingBottom:0}}>
         {companeroSeleccionando ? (
-          <div style={{animation:"checkInIn 0.3s cubic-bezier(0.34,1.56,0.64,1)"}}>
-            {btn(async () => {
+          <div style={{animation:"fadeIn 0.28s cubic-bezier(0.22,1,0.36,1) both"}}>
+            <div onClick={async () => {
               try {
                 await updateDoc(doc(db,"usuarios",usuarioActual.uid),{
                   companero: companeroSeleccionando,
@@ -4263,19 +4273,29 @@ const styles = `
                 setUsuarioActual(p=>({...p, companero: companeroSeleccionando}));
                 showScreen("home");
               } catch(e){ console.error(e); }
-            }, `Comenzar con ${COMPANEROS[companeroSeleccionando].nombre} →`, {
-              width:"100%", padding:"15px 0", borderRadius:16,
-              background:`linear-gradient(135deg,${COMPANEROS[companeroSeleccionando].color},${COMPANEROS[companeroSeleccionando].color}CC)`,
-              color:"white", fontSize:15, fontWeight:800,
-            })}
-            <div style={{textAlign:"center",fontSize:11,color:"rgba(245,238,232,0.35)",marginTop:10}}>
-              Podrás cambiarlo en 30 días
+            }}
+              style={{
+                width:"100%", height:54,
+                background:`linear-gradient(135deg,${COMPANEROS[companeroSeleccionando].color},${COMPANEROS[companeroSeleccionando].color}BB)`,
+                color:"white", borderRadius:16, fontSize:15, fontWeight:800,
+                display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+                cursor:"pointer", touchAction:"manipulation",
+                boxShadow:`0 6px 24px ${COMPANEROS[companeroSeleccionando].color}40, inset 0 1px 0 rgba(255,255,255,.18)`,
+                WebkitTapHighlightColor:"transparent",
+              }}>
+              Comenzar con {COMPANEROS[companeroSeleccionando].nombre}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            </div>
+            <div style={{textAlign:"center",fontSize:11,color:C.light,marginTop:10}}>
+              Podrás cambiarlo después de 30 días
             </div>
           </div>
         ) : (
-          <div style={{textAlign:"center",padding:"14px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
-            <div style={{fontSize:20,opacity:.25}}>☝️</div>
-            <div style={{fontSize:12,color:"rgba(245,238,232,0.30)"}}>Toca un compañero para seleccionarlo</div>
+          <div style={{textAlign:"center",padding:"18px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:8, animation:`fadeIn 0.3s ease ${Object.keys(COMPANEROS).length * 0.07 + 0.1}s both`}}>
+            <div style={{width:40,height:40,borderRadius:12,background:"rgba(0,0,0,.06)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.30)" strokeWidth="1.75" strokeLinecap="round"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><rect x="3" y="11" width="18" height="11" rx="2"/><line x1="12" y1="15" x2="12" y2="17"/></svg>
+            </div>
+            <div style={{fontSize:12,color:C.light,fontWeight:500}}>Toca uno para seleccionar tu compañero</div>
           </div>
         )}
       </div>
