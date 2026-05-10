@@ -858,6 +858,7 @@ const [regRol, setRegRol] = useState("paciente");
   const [citaHora, setCitaHora] = useState("");
   const [citaModalidad, setCitaModalidad] = useState("virtual");
   const [citaLink, setCitaLink] = useState("");
+  const [citaDireccion, setCitaDireccion] = useState("");
   const [citaNotas, setCitaNotas] = useState("");
   const [citaTitulo, setCitaTitulo] = useState("");
   const [citaDescripcion, setCitaDescripcion] = useState("");
@@ -1007,6 +1008,7 @@ const [loadingRec, setLoadingRec] = useState(false);
 const [tareasPsicologo, setTareasPsicologo] = useState([]);
 const [tareaTitulo, setTareaTitulo] = useState("");
 const [tareaDescripcion, setTareaDescripcion] = useState("");
+const [tareaLink, setTareaLink] = useState("");
 const [tareaXP, setTareaXP] = useState(80);
 const [tareaVence, setTareaVence] = useState("");
 const [tareaSinFecha, setTareaSinFecha] = useState(false);
@@ -1212,6 +1214,7 @@ const crearCita = async () => {
       tzPsicologo,                     // zona del psicólogo al crear
       modalidad:       citaModalidad,
       link:            citaLink,
+      direccion:       citaModalidad === "presencial" ? citaDireccion : "",
       notas:           citaNotas,
       status:          "pendiente",
       creadaEn:        new Date().toISOString(),
@@ -1931,10 +1934,12 @@ const crearTarea = async () => {
       pacienteNombre: pacienteSeleccionado.nombre,
       titulo: tareaTitulo,
       descripcion: tareaDescripcion,
+      link: tareaLink.trim(),
       xp: tareaXP,
       vence: tareaVence,
       completada: false,
       respuesta: "",
+      corazon: false,
       creadaEn: new Date().toISOString(),
     };
     await setDoc(doc(db, "tareas", id), nuevaTarea);
@@ -1963,6 +1968,7 @@ const crearTarea = async () => {
     }).catch(()=>{});
     setTareaTitulo("");
     setTareaDescripcion("");
+    setTareaLink("");
     setTareaXP(80);
     setTareaVence("");
     setTareaSinFecha(false);
@@ -4250,20 +4256,83 @@ const styles = `
         {(notaAbierta.tipo === "tarea" || notaAbierta.tipo === "tarea_psi") && (
           <>
             {notaAbierta.descripcion && (
-              <div style={{ fontSize:13, color:C.light, lineHeight:1.8, marginBottom:24,
-                fontStyle:"italic", paddingBottom:16, borderBottom:"1px solid rgba(0,0,0,.12)",
+              <div style={{ fontSize:13, color:C.light, lineHeight:1.8, marginBottom:notaAbierta.link ? 12 : 24,
+                fontStyle:"italic", paddingBottom:16, borderBottom: notaAbierta.link ? "none" : "1px solid rgba(0,0,0,.12)",
                 whiteSpace:"pre-wrap" }}>
                 {notaAbierta.descripcion.split('\n').map((ln, i, arr) => (
                   <span key={i}>{ln}{i < arr.length - 1 && <br/>}</span>
                 ))}
               </div>
             )}
-            {/* Vista psicólogo: solo lectura de respuesta */}
+            {/* Link de recurso de apoyo */}
+            {notaAbierta.link && (
+              <a href={notaAbierta.link.startsWith("http") ? notaAbierta.link : `https://${notaAbierta.link}`}
+                target="_blank" rel="noreferrer"
+                style={{ display:"flex", alignItems:"center", gap:10, padding:"11px 14px", background:`${C.plum}08`, border:`1px solid ${C.plum}20`, borderRadius:12, textDecoration:"none", marginBottom:24 }}>
+                <div style={{ width:32, height:32, borderRadius:9, background:`${C.plum}12`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:C.plum, marginBottom:2 }}>Recurso de apoyo</div>
+                  <div style={{ fontSize:11, color:C.light, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{notaAbierta.link}</div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            )}
+            {/* Vista psicólogo: solo lectura de respuesta + ❤️ */}
             {notaAbierta.tipo === "tarea_psi" ? (
               <div>
-                <div style={{ fontSize:11, fontWeight:700, color:C.plum, marginBottom:10,
-                  textTransform:"uppercase", letterSpacing:0.5 }}>
-                  {notaAbierta.completada ? "✅ Respondida por el paciente" : "⏳ Sin respuesta aún"}
+                {/* Status + heart button */}
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                    <div style={{ width:7, height:7, borderRadius:"50%", background: notaAbierta.completada ? "#5A8A62" : C.amber, flexShrink:0 }}/>
+                    <div style={{ fontSize:11, fontWeight:700, color: notaAbierta.completada ? "#5A8A62" : C.amber, textTransform:"uppercase", letterSpacing:.5 }}>
+                      {notaAbierta.completada ? "Respondida" : "Sin respuesta"}
+                    </div>
+                  </div>
+                  {notaAbierta.completada && notaAbierta.respuesta && (
+                    <div onClick={async () => {
+                      const nuevo = !notaAbierta.corazon;
+                      try {
+                        await updateDoc(doc(db, "tareas", notaAbierta.id), {
+                          corazon: nuevo, corazonEn: nuevo ? new Date().toISOString() : null
+                        });
+                        setNotaAbierta(prev => ({ ...prev, corazon: nuevo }));
+                        if (nuevo) {
+                          setDoc(doc(db, "notificaciones_programadas", `corazon_${notaAbierta.id}`), {
+                            pacienteId: notaAbierta.pacienteId,
+                            title: "Tu psicólogo leyó tu respuesta ❤️",
+                            body: `Le gustó tu respuesta a "${notaAbierta.titulo}"`,
+                            scheduledAt: new Date(Date.now() + 3000).toISOString(),
+                            enviada: false, creadaEn: new Date().toISOString(), tipo: "corazon_tarea",
+                          }).catch(() => {});
+                          setDoc(doc(db, "notificaciones", `corazon_${notaAbierta.id}`), {
+                            pacienteId: notaAbierta.pacienteId,
+                            titulo: "Tu psicólogo leyó tu respuesta ❤️",
+                            mensaje: `Le gustó tu respuesta a "${notaAbierta.titulo}"`,
+                            icon: "❤️", tipo: "corazon_tarea", leida: false,
+                            pushEnviada: true, creadoEn: new Date().toISOString(),
+                          }).catch(() => {});
+                          showToast("❤️ Le avisamos al paciente");
+                        }
+                      } catch(e) { showToast("Error al guardar"); }
+                    }}
+                      style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 14px", borderRadius:20, cursor:"pointer", touchAction:"manipulation",
+                        background: notaAbierta.corazon ? "rgba(255,90,110,.10)" : "rgba(0,0,0,.06)",
+                        border:`1.5px solid ${notaAbierta.corazon ? "rgba(255,90,110,.30)" : "rgba(0,0,0,.10)"}`,
+                        transition:"all 0.2s" }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24"
+                        fill={notaAbierta.corazon ? "#FF5A6E" : "none"}
+                        stroke={notaAbierta.corazon ? "#FF5A6E" : C.light}
+                        strokeWidth="2" strokeLinecap="round"
+                        style={{ transition:"all 0.2s", transform: notaAbierta.corazon ? "scale(1.2)" : "scale(1)" }}>
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                      <span style={{ fontSize:11, fontWeight:700, color: notaAbierta.corazon ? "#FF5A6E" : C.light }}>
+                        {notaAbierta.corazon ? "Te gustó" : "Me gusta"}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 {notaAbierta.respuesta ? (
                   <div style={{ fontSize:14, color:C.text, lineHeight:1.9 }}>
@@ -4279,8 +4348,19 @@ const styles = `
               </div>
             ) : notaAbierta.completada ? (
               <div>
-                <div style={{ fontSize:11, fontWeight:700, color:C.green, marginBottom:10,
-                  textTransform:"uppercase", letterSpacing:0.5 }}>✓ Tu respuesta</div>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                    <div style={{ width:7, height:7, borderRadius:"50%", background:"#5A8A62" }}/>
+                    <div style={{ fontSize:11, fontWeight:700, color:"#5A8A62", textTransform:"uppercase", letterSpacing:.5 }}>Tu respuesta</div>
+                  </div>
+                  {/* Indicador de corazón del psicólogo */}
+                  {notaAbierta.corazon && (
+                    <div style={{ display:"flex", alignItems:"center", gap:5, padding:"5px 12px", borderRadius:20, background:"rgba(255,90,110,.08)", border:"1px solid rgba(255,90,110,.2)" }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="#FF5A6E" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                      <span style={{ fontSize:10, fontWeight:700, color:"#FF5A6E" }}>Tu psicólogo lo leyó</span>
+                    </div>
+                  )}
+                </div>
                 <div style={{ fontSize:14, color:C.text, lineHeight:1.9, whiteSpace:"pre-wrap" }}>
                   {notaAbierta.respuesta}
                 </div>
@@ -4303,8 +4383,43 @@ const styles = `
           </>
         )}
 
+        {/* Autorregistro — vista paso a paso moderna */}
+        {notaAbierta.tipo === "autorregistro" && (() => {
+          const pasos = [
+            { key:"haciendo", label:"¿Qué estabas haciendo?", icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, color:C.plum },
+            { key:"sucedio",  label:"¿Qué evento sucedió?",   icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E09040" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>, color:"#E09040" },
+            { key:"despues",  label:"¿Qué hiciste después?",  icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5A8A62" strokeWidth="2" strokeLinecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>, color:"#5A8A62" },
+          ];
+          return (
+            <div>
+              {/* Fecha del registro */}
+              <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:20, paddingBottom:14, borderBottom:"1px solid rgba(0,0,0,.08)" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span style={{ fontSize:11, color:C.light }}>{notaAbierta.fecha || new Date(notaAbierta.creadaEn).toLocaleDateString("es-CO", { weekday:"long", day:"numeric", month:"long", year:"numeric" })}</span>
+              </div>
+              {/* Pasos */}
+              {pasos.map((p, idx) => (
+                <div key={p.key} style={{ marginBottom: idx < pasos.length-1 ? 20 : 0 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                    <div style={{ width:28, height:28, borderRadius:8, background:`${p.color}12`, border:`1px solid ${p.color}22`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      {p.icon}
+                    </div>
+                    <div style={{ fontSize:11, fontWeight:700, color:p.color, textTransform:"uppercase", letterSpacing:".08em" }}>{p.label}</div>
+                  </div>
+                  <div style={{ paddingLeft:36, fontSize:14, color:notaAbierta[p.key] ? C.text : C.light, lineHeight:1.75, fontStyle:notaAbierta[p.key] ? "normal" : "italic" }}>
+                    {notaAbierta[p.key] || "Sin registrar"}
+                  </div>
+                  {idx < pasos.length-1 && (
+                    <div style={{ marginLeft:14, marginTop:14, height:16, width:1, background:"rgba(0,0,0,.08)" }}/>
+                  )}
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
         {/* Si es nota/insight/clinica — mostrar texto */}
-        {notaAbierta.tipo !== "tarea" && (
+        {notaAbierta.tipo !== "tarea" && notaAbierta.tipo !== "autorregistro" && (
           notaEditando ? (
             <textarea
               value={notaTextoEdit}
@@ -7108,69 +7223,118 @@ const styles = `
 
               {mdl("agendar-cita", (
                 <div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📅 Agendar cita</div>
-                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario en tiempo real</div>
+                  {/* Header */}
+                  <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:4 }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:`${C.plum}12`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <div style={{ fontSize:18, fontWeight:800, color:C.text }}>Agendar cita</div>
+                  </div>
+                  <div style={{ fontSize:12, color:C.light, marginBottom:18 }}>El paciente ve la cita en su calendario en tiempo real</div>
 
-                  {/* Paciente — pre-llenado si viene de admin-paciente */}
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
+                  {/* Paciente */}
                   {pacienteSeleccionado ? (
-                    <div style={{ background:"rgba(255,123,90,0.15)", border:"1px solid rgba(255,123,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
-                      <span style={{ fontSize:16 }}>👤</span>
-                      <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{pacienteSeleccionado.nombre}</span>
+                    <div style={{ background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.18)", borderRadius:12, padding:"11px 13px", marginBottom:14, display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ width:32, height:32, borderRadius:9, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      </div>
+                      <div>
+                        <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:1 }}>Paciente</div>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{pacienteSeleccionado.nombre}</div>
+                      </div>
                     </div>
                   ) : (
-                    <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
-                      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
-                      <option value="">— Seleccionar paciente —</option>
-                      {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
-                    </select>
+                    <div style={{ marginBottom:14 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Paciente</div>
+                      <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box", color:C.text }}>
+                        <option value="">— Seleccionar paciente —</option>
+                        {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
+                      </select>
+                    </div>
                   )}
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
+
+                  {/* Título */}
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Título de la sesión</div>
                   <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    style={{ width:"100%", padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
-                  <textarea
-                    placeholder="Ej: Continuaremos con técnicas de respiración..."
-                    value={citaDescripcion}
-                    onChange={e => setCitaDescripcion(e.target.value)}
-                    rows={3}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12,
-                      outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
-                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#FFFFFF", color:C.text }}/>
-
-                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+                  {/* Fecha y Hora */}
+                  <div style={{ display:"flex", gap:8, marginBottom:14 }}>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Fecha</div>
                       <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 12px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Hora</div>
                       <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 12px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                   </div>
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
-                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
-                    {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
-                      <div key={val} onClick={() => setCitaModalidad(val)}
-                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.12)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.07)" }}>
-                        <div style={{ fontSize:22 }}>{ic}</div>
-                        <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
-                      </div>
-                    ))}
+
+                  {/* Modalidad */}
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:8 }}>Modalidad</div>
+                  <div style={{ display:"flex", gap:8, marginBottom:14 }}>
+                    {[
+                      { val:"presencial", lb:"Presencial", ico:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+                      { val:"virtual",    lb:"Virtual",    ico:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> },
+                    ].map(({ val, lb, ico }) => {
+                      const sel = citaModalidad === val;
+                      return (
+                        <div key={val} onClick={() => setCitaModalidad(val)}
+                          style={{ flex:1, padding:"12px 0", borderRadius:12, textAlign:"center", cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:6,
+                            border:`2px solid ${sel ? C.plum : "rgba(0,0,0,.10)"}`,
+                            background: sel ? `${C.plum}10` : "rgba(0,0,0,.03)",
+                            color: sel ? C.plum : C.light, transition:"all 0.15s" }}>
+                          {ico}
+                          <div style={{ fontSize:11, fontWeight:700 }}>{lb}</div>
+                        </div>
+                      );
+                    })}
                   </div>
+
+                  {/* Link para virtual */}
                   {citaModalidad === "virtual" && (
-                    <>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet</div>
-                      <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
-                    </>
-                  )}                  
+                    <div style={{ marginBottom:14 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>
+                        Link de videoconferencia
+                      </div>
+                      <div style={{ position:"relative" }}>
+                        <div style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)" }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        </div>
+                        <input placeholder="https://meet.google.com/xxx o Zoom..." value={citaLink} onChange={e => setCitaLink(e.target.value)}
+                          style={{ width:"100%", padding:"11px 13px 11px 36px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Dirección para presencial */}
+                  {citaModalidad === "presencial" && (
+                    <div style={{ marginBottom:14 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>
+                        Dirección del consultorio
+                      </div>
+                      <div style={{ position:"relative" }}>
+                        <div style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)" }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <input placeholder="Ej: Cra 15 #85-60, Bogotá" value={citaDireccion} onChange={e => setCitaDireccion(e.target.value)}
+                          style={{ width:"100%", padding:"11px 13px 11px 36px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                      </div>
+                      <div style={{ fontSize:10, color:C.light, marginTop:4 }}>Opcional — el paciente verá esta dirección en su cita</div>
+                    </div>
+                  )}
+
+                  {/* Notas internas */}
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Notas internas (opcional)</div>
+                  <textarea placeholder="Notas privadas para recordar sobre esta sesión..." value={citaDescripcion} onChange={e => setCitaDescripcion(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"none", lineHeight:1.55, minHeight:64, background:"#FFFFFF", color:C.text }}/>
+
                   <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar ✓", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.07)", color:C.text, borderRadius:11, fontSize:12, fontWeight:700 })}
+                    {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar cita", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:700, boxShadow:`0 4px 14px ${C.plum}25` })}
                   </div>
                 </div>
               ))}
@@ -8982,8 +9146,13 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                         {/* ── AREA CHART ── */}
                         <div style={{ marginBottom:16 }}>
-                          <div style={{ fontSize:9, color:C.light, fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:8 }}>
-                            Tendencia · últimos {ultimos30.length} días
+                          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                            <div style={{ fontSize:9, color:C.light, fontWeight:600, letterSpacing:".06em", textTransform:"uppercase" }}>
+                              Tendencia · {ultimos30.length} registros
+                            </div>
+                            <div style={{ fontSize:9, color:C.light }}>
+                              Último: {new Date(ultimos30[ultimos30.length-1].fecha + "T12:00:00").toLocaleDateString("es-CO", { day:"numeric", month:"short", year:"numeric" })}
+                            </div>
                           </div>
                           <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ height:82, display:"block" }}>
                             <defs>
@@ -9216,38 +9385,69 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
               </div>
               {mdl("assign-task", (
                 <div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📋 Asignar tarea</div>
-                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Para: <strong>{pacienteSeleccionado?.nombre}</strong></div>
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título</div>
-                  <input placeholder="Ej: Registro de pensamientos..." value={tareaTitulo} onChange={e => setTareaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción / instrucciones</div>
-                  <textarea placeholder="Explica qué debe hacer el paciente..." value={tareaDescripcion} onChange={e => setTareaDescripcion(e.target.value)}
-                    style={{ width:"100%", minHeight:80, padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:12, resize:"none", outline:"none", marginBottom:10, fontFamily:"inherit", boxSizing:"border-box" }}/>
-                  <div style={{ display:"flex", gap:10, marginBottom:10 }}>
+                  {/* Header */}
+                  <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:4 }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:`${C.plum}12`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    </div>
+                    <div style={{ fontSize:18, fontWeight:800, color:C.text }}>Asignar tarea</div>
+                  </div>
+                  <div style={{ fontSize:12, color:C.light, marginBottom:18 }}>Para: <strong style={{ color:C.text }}>{pacienteSeleccionado?.nombre}</strong></div>
+
+                  {/* Título */}
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Título *</div>
+                  <input placeholder="Ej: Registro de pensamientos automáticos..." value={tareaTitulo} onChange={e => setTareaTitulo(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+
+                  {/* Descripción */}
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Instrucciones</div>
+                  <textarea placeholder="Explica qué debe hacer el paciente paso a paso..." value={tareaDescripcion} onChange={e => setTareaDescripcion(e.target.value)}
+                    style={{ width:"100%", minHeight:80, padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.55, background:"#FFFFFF", color:C.text }}/>
+
+                  {/* URL opcional */}
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>
+                    Recurso de apoyo
+                    <span style={{ fontSize:9, color:C.light, fontWeight:500, textTransform:"none", letterSpacing:0, marginLeft:6 }}>· opcional</span>
+                  </div>
+                  <div style={{ position:"relative", marginBottom:14 }}>
+                    <div style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tareaLink ? C.plum : C.light} strokeWidth="2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </div>
+                    <input placeholder="YouTube, Spotify, artículo, libro... cualquier URL" value={tareaLink} onChange={e => setTareaLink(e.target.value)}
+                      style={{ width:"100%", padding:"11px 13px 11px 36px", border:`1.5px solid ${tareaLink ? C.plum+"55" : "rgba(0,0,0,.12)"}`, borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background: tareaLink ? `${C.plum}06` : "#FFFFFF", color:C.text, transition:"border-color 0.2s, background 0.2s" }}/>
+                  </div>
+
+                  {/* XP y Fecha */}
+                  <div style={{ display:"flex", gap:10, marginBottom:18 }}>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>⭐ XP al completar</div>
-                      <input type="number" value={tareaXP} onChange={e => setTareaXP(Number(e.target.value))}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>XP al completar</div>
+                      <div style={{ position:"relative" }}>
+                        <div style={{ position:"absolute", left:11, top:"50%", transform:"translateY(-50%)" }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
+                        <input type="number" value={tareaXP} onChange={e => setTareaXP(Number(e.target.value))}
+                          style={{ width:"100%", padding:"11px 12px 11px 30px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                      </div>
                     </div>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>📅 Fecha límite</div>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Fecha límite</div>
                       <div onClick={() => { setTareaSinFecha(!tareaSinFecha); setTareaVence(""); }}
-                        style={{ display:"flex", alignItems:"center", gap:7, marginBottom:7, cursor:"pointer" }}>
-                        <div style={{ width:18, height:18, borderRadius:5, border:`2px solid ${tareaSinFecha ? C.sage : "rgba(0,0,0,0.15)"}`, background:tareaSinFecha ? C.sage : "white", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                          {tareaSinFecha && <span style={{ color:"white", fontSize:11, fontWeight:900 }}>✓</span>}
+                        style={{ display:"flex", alignItems:"center", gap:7, marginBottom:6, cursor:"pointer" }}>
+                        <div style={{ width:17, height:17, borderRadius:5, border:`1.5px solid ${tareaSinFecha ? C.sage : "rgba(0,0,0,.15)"}`, background:tareaSinFecha ? C.sage : "transparent", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
+                          {tareaSinFecha && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
                         </div>
-                        <span style={{ fontSize:11, color:tareaSinFecha ? C.sage : C.light, fontWeight:700 }}>Sin fecha límite</span>
+                        <span style={{ fontSize:11, color:tareaSinFecha ? C.sageDark : C.light, fontWeight:600 }}>Sin límite</span>
                       </div>
                       {!tareaSinFecha && (
                         <input type="date" value={tareaVence} onChange={e => setTareaVence(e.target.value)}
-                          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                          style={{ width:"100%", padding:"10px 12px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                       )}
                     </div>
                   </div>
+
                   <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => crearTarea(), loadingTarea ? "Guardando..." : "Asignar ✓", { flex:2, padding:11, background:loadingTarea ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.07)", color:C.text, borderRadius:11, fontSize:12, fontWeight:700 })}
+                    {btn(() => crearTarea(), loadingTarea ? "Guardando..." : "Asignar tarea", { flex:2, padding:11, background:loadingTarea ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:700, boxShadow:`0 4px 14px ${C.plum}25` })}
                   </div>
                 </div>
               ))}
