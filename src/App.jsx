@@ -2584,8 +2584,13 @@ const styles = `
   @keyframes frailejDrift { 0%,100%{transform:translate(0,0)} 33%{transform:translate(2px,-4px)} 66%{transform:translate(-2px,2px)} }
   @keyframes frailejParpadear { 0%,85%,100%{transform:scaleY(1)} 91%{transform:scaleY(.06)} }
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes shimmer {
+    0%   { opacity: 0.5; }
+    50%  { opacity: 0.85; }
+    100% { opacity: 0.5; }
   }
   @keyframes slideInRight {
     from { opacity: 0; transform: translateX(32px); }
@@ -6503,7 +6508,7 @@ const styles = `
               <div style={{ padding:"0 14px", marginTop:-18, position:"relative", zIndex:10 }}>
 
                 {/* MI PSICÓLOGO */}
-                <div onClick={async () => { setPsicologoData(null); showScreen("perfil-psicologo"); }}
+                <div onClick={async () => { showScreen("perfil-psicologo"); }}
                   style={{ background:"#FFFFFF", border:"0.5px solid rgba(255,155,122,0.15)", borderRadius:16, padding:"12px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:12, cursor:"pointer" }}>
                   <div style={{ width:44, height:44, background:"rgba(255,123,90,0.15)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👨‍⚕️</div>
                   <div style={{ flex:1 }}>
@@ -6911,7 +6916,29 @@ const styles = `
           )}
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"fadeIn 0.22s ease both" }}>
+              {/* Skeleton mientras carga psicologoData — solo si es primera visita */}
+              {!psicologoData && (
+                <div style={{ animation:"fadeIn 0.15s ease" }}>
+                  {/* Skeleton header */}
+                  <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center" }}>
+                    <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </div>
+                    <div style={{ width:80, height:80, borderRadius:"50%", background:"rgba(255,255,255,.10)", margin:"0 auto 16px", animation:"shimmer 1.5s infinite" }}/>
+                    <div style={{ height:22, width:160, borderRadius:8, background:"rgba(255,255,255,.10)", margin:"0 auto 8px", animation:"shimmer 1.5s infinite 0.1s" }}/>
+                    <div style={{ height:14, width:120, borderRadius:6, background:"rgba(255,255,255,.07)", margin:"0 auto 12px", animation:"shimmer 1.5s infinite 0.2s" }}/>
+                    <div style={{ height:26, width:100, borderRadius:20, background:"rgba(255,255,255,.08)", margin:"0 auto", animation:"shimmer 1.5s infinite 0.3s" }}/>
+                  </div>
+                  {/* Skeleton body */}
+                  <div style={{ padding:"0 14px", marginTop:-20, position:"relative", zIndex:10 }}>
+                    {[1,2,3].map(i => (
+                      <div key={i} style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:12, height:80, animation:`shimmer 1.5s infinite ${i*0.1}s` }}/>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {psicologoData && <div style={{ animation:"fadeIn 0.18s ease both" }}>
               <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative", borderBottom:"1px solid rgba(0,0,0,.11)" }}>
                 <div style={{ position:"absolute", top:0, left:0, right:0, height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),transparent)" }}/>
                 <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)" }}>
@@ -7152,8 +7179,10 @@ const styles = `
                 </div>
               ))}
               {bnav("perfil")}
-            </div>
-          )}    
+            </div>}
+            {bnav("perfil")}
+          </div>
+          )}
           {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0" }}>
