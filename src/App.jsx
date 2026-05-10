@@ -896,6 +896,7 @@ const [arHaciendo, setArHaciendo] = useState("");
 const [arSucedio, setArSucedio] = useState("");
 const [arDespues, setArDespues] = useState("");
 const [editNombre, setEditNombre] = useState("");
+const [editDireccionConsultorio, setEditDireccionConsultorio] = useState("");
 const [pinAnterior, setPinAnterior] = useState("");
 const [pinNuevo, setPinNuevo] = useState("");
 const [pinNuevo2, setPinNuevo2] = useState("");
@@ -6889,7 +6890,7 @@ const styles = `
                   <div style={{ display:"flex", justifyContent:"center", gap:10, marginBottom:18 }}>
                     {[1,2,3,4,5].map(i => (
                       <div key={i} onClick={() => setResenaRating(i)} style={{ cursor:"pointer", transition:"transform 0.15s", transform: resenaRating >= i ? "scale(1.15)" : "scale(1)" }}>
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill={resenaRating >= i ? C.amber : "rgba(255,255,255,.1)"} stroke={resenaRating >= i ? C.amber : "rgba(255,255,255,.2)"} strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill={resenaRating >= i ? C.amber : "rgba(0,0,0,.10)"} stroke={resenaRating >= i ? C.amber : "rgba(0,0,0,.18)"} strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                       </div>
                     ))}
                   </div>
@@ -6963,7 +6964,7 @@ const styles = `
                 <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"1px solid rgba(0,0,0,.11)", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.11), inset 0 1px 0 rgba(0,0,0,.11)", background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)" }}>
 
                   {/* Contacto */}
-                  {(psicologoData?.telefono || psicologoData?.email) && (<>
+                  {(psicologoData?.telefono || psicologoData?.email || psicologoData?.direccionConsultorio) && (<>
                     <div style={{ display:"flex", alignItems:"center", gap:6, padding:"10px 14px 6px", fontSize:8, fontWeight:700, color:"rgba(0,0,0,.15)", letterSpacing:".16em", textTransform:"uppercase" }}>
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.15)" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                       Contacto
@@ -6987,6 +6988,18 @@ const styles = `
                         <div>
                           <div style={{ fontSize:8, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:2 }}>Correo</div>
                           <div style={{ fontSize:12, fontWeight:600, color:C.text }}>{psicologoData.email}</div>
+                        </div>
+                      </div>
+                    )}
+                    {/* Dirección del consultorio — visible para el paciente */}
+                    {psicologoData?.direccionConsultorio && (
+                      <div style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px", borderTop:"1px solid rgba(0,0,0,.06)" }}>
+                        <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.15)", border:"1px solid rgba(255,123,90,.20)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <div>
+                          <div style={{ fontSize:8, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:2 }}>Consultorio</div>
+                          <div style={{ fontSize:13, fontWeight:600, color:C.text }}>{psicologoData.direccionConsultorio}</div>
                         </div>
                       </div>
                     )}
@@ -7122,7 +7135,7 @@ const styles = `
                   <div style={{ display:"flex", justifyContent:"center", gap:10, marginBottom:18 }}>
                     {[1,2,3,4,5].map(i => (
                       <div key={i} onClick={() => setResenaRating(i)} style={{ cursor:"pointer", transition:"transform 0.15s", transform: resenaRating >= i ? "scale(1.15)" : "scale(1)" }}>
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill={resenaRating >= i ? C.amber : "rgba(255,255,255,.1)"} stroke={resenaRating >= i ? C.amber : "rgba(255,255,255,.2)"} strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill={resenaRating >= i ? C.amber : "rgba(0,0,0,.10)"} stroke={resenaRating >= i ? C.amber : "rgba(0,0,0,.18)"} strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                       </div>
                     ))}
                   </div>
@@ -9819,64 +9832,98 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 ))}
               {mdl("agendar-cita", (
                 <div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📅 Agendar cita</div>
-                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario en tiempo real</div>
-
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
-                  <div style={{ background:"rgba(255,123,90,0.15)", border:"1px solid rgba(255,123,90,0.2)", borderRadius:11, padding:"10px 13px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
-                    <span style={{ fontSize:16 }}>👤</span>
-                    <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{pacienteSeleccionado?.nombre}</span>
-                  </div>
-
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
-                  <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
-
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
-                  <textarea
-                    placeholder="Ej: Continuaremos con técnicas de respiración..."
-                    value={citaDescripcion}
-                    onChange={e => setCitaDescripcion(e.target.value)}
-                    rows={3}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12,
-                      outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
-                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#FFFFFF", color:C.text }}/>
-
-                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
-                      <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                  <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:4 }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:`${C.plum}12`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     </div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
-                      <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
-                    </div>
+                    <div style={{ fontSize:18, fontWeight:800, color:C.text }}>Agendar cita</div>
                   </div>
-
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
-                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
-                    {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
-                      <div key={val} onClick={() => setCitaModalidad(val)}
-                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.12)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.07)" }}>
-                        <div style={{ fontSize:22 }}>{ic}</div>
-                        <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
+                  <div style={{ fontSize:12, color:C.light, marginBottom:18 }}>El paciente ve la cita en su calendario en tiempo real</div>
+                  {pacienteSeleccionado ? (
+                    <div style={{ background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.18)", borderRadius:12, padding:"11px 13px", marginBottom:14, display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ width:32, height:32, borderRadius:9, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                       </div>
-                    ))}
-                  </div>
-
-                  {citaModalidad === "virtual" && (
-                    <>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet / Zoom</div>
-                      <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
-                    </>
+                      <div>
+                        <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:1 }}>Paciente</div>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{pacienteSeleccionado.nombre}</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ marginBottom:14 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Paciente</div>
+                      <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box", color:C.text }}>
+                        <option value="">— Seleccionar paciente —</option>
+                        {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
+                      </select>
+                    </div>
                   )}
-
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Título de la sesión</div>
+                  <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                  <div style={{ display:"flex", gap:8, marginBottom:14 }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Fecha</div>
+                      <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
+                        style={{ width:"100%", padding:"11px 12px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Hora</div>
+                      <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
+                        style={{ width:"100%", padding:"11px 12px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                    </div>
+                  </div>
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:8 }}>Modalidad</div>
+                  <div style={{ display:"flex", gap:8, marginBottom:14 }}>
+                    {[
+                      { val:"presencial", lb:"Presencial", ico:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+                      { val:"virtual",    lb:"Virtual",    ico:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> },
+                    ].map(({ val, lb, ico }) => {
+                      const sel = citaModalidad === val;
+                      return (
+                        <div key={val} onClick={() => setCitaModalidad(val)}
+                          style={{ flex:1, padding:"12px 0", borderRadius:12, textAlign:"center", cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:6,
+                            border:`2px solid ${sel ? C.plum : "rgba(0,0,0,.10)"}`,
+                            background: sel ? `${C.plum}10` : "rgba(0,0,0,.03)",
+                            color: sel ? C.plum : C.light, transition:"all 0.15s" }}>
+                          {ico}
+                          <div style={{ fontSize:11, fontWeight:700 }}>{lb}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {citaModalidad === "virtual" && (
+                    <div style={{ marginBottom:14 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Link de videoconferencia</div>
+                      <div style={{ position:"relative" }}>
+                        <div style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)" }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        </div>
+                        <input placeholder="https://meet.google.com/xxx o Zoom..." value={citaLink} onChange={e => setCitaLink(e.target.value)}
+                          style={{ width:"100%", padding:"11px 13px 11px 36px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                      </div>
+                    </div>
+                  )}
+                  {citaModalidad === "presencial" && (
+                    <div style={{ marginBottom:14 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Dirección del consultorio</div>
+                      <div style={{ position:"relative" }}>
+                        <div style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)" }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <input placeholder="Ej: Cra 15 #85-60, Bogotá" value={citaDireccion} onChange={e => setCitaDireccion(e.target.value)}
+                          style={{ width:"100%", padding:"11px 13px 11px 36px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                      </div>
+                      <div style={{ fontSize:10, color:C.light, marginTop:4 }}>Opcional — el paciente verá esta dirección en su cita</div>
+                    </div>
+                  )}
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Notas internas (opcional)</div>
+                  <textarea placeholder="Notas privadas para recordar sobre esta sesión..." value={citaDescripcion} onChange={e => setCitaDescripcion(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"none", lineHeight:1.55, minHeight:64, background:"#FFFFFF", color:C.text }}/>
                   <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar ✓", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.07)", color:C.text, borderRadius:11, fontSize:12, fontWeight:700 })}
+                    {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar cita", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:700, boxShadow:`0 4px 14px ${C.plum}25` })}
                   </div>
                 </div>
               ))}
@@ -9898,7 +9945,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
                   )}
-                  <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setEditBio(usuarioActual?.bio||""); setModal("edit-psico"); }} style={{ position:"absolute", bottom:2, right:2, width:28, height:28, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", border:"2px solid white", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>
+                  <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setEditBio(usuarioActual?.bio||""); setEditDireccionConsultorio(usuarioActual?.direccionConsultorio||""); setModal("edit-psico"); }} style={{ position:"absolute", bottom:2, right:2, width:28, height:28, background:C.amber, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", border:"2px solid white", boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                   </div>
                 </div>
@@ -9943,7 +9990,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   )}
                   {!usuarioActual?.especialidad && !usuarioActual?.enfoque && (
                     <span style={{ background:"rgba(0,0,0,.12)", color:"rgba(255,255,255,0.45)", fontSize:11, fontWeight:600, padding:"5px 12px", borderRadius:20, cursor:"pointer" }}
-                      onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setEditBio(usuarioActual?.bio||""); setModal("edit-psico"); }}>
+                      onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditFoto(usuarioActual?.foto||""); setEditEspecialidad(usuarioActual?.especialidad||""); setEditExperiencia(usuarioActual?.experiencia||""); setEditEnfoque(usuarioActual?.enfoque||""); setEditBio(usuarioActual?.bio||""); setEditDireccionConsultorio(usuarioActual?.direccionConsultorio||""); setModal("edit-psico"); }}>
                       ✏️ Agregar especialidad y enfoque
                     </span>
                   )}
@@ -10026,6 +10073,17 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                           <div>
                             <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:2 }}>Teléfono</div>
                             <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{usuarioActual.telefono}</div>
+                          </div>
+                        </div>
+                      )}
+                      {usuarioActual?.direccionConsultorio && (
+                        <div style={{ display:"flex", alignItems:"center", gap:11, padding:"10px 14px", borderBottom:"1px solid rgba(0,0,0,0.04)" }}>
+                          <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.18)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          </div>
+                          <div>
+                            <div style={{ fontSize:9, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:0.8, marginBottom:2 }}>Consultorio</div>
+                            <div style={{ fontSize:13, fontWeight:600, color:C.text }}>{usuarioActual.direccionConsultorio}</div>
                           </div>
                         </div>
                       )}
@@ -10286,6 +10344,16 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                   <input value={editTel} onChange={e => setEditTel(e.target.value)} placeholder="Tu teléfono"
                     style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
 
+                  {/* Dirección del consultorio */}
+                  <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Dirección del consultorio
+                  </div>
+                  <input value={editDireccionConsultorio} onChange={e => setEditDireccionConsultorio(e.target.value)}
+                    placeholder="Ej: Cra 15 #85-60, Bogotá · Consultorio 302"
+                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                  <div style={{ fontSize:10, color:C.light, marginBottom:10, marginTop:-6 }}>Visible para tus pacientes en tu perfil</div>
+
                   <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción profesional</div>
                   <textarea value={editBio} onChange={e => setEditBio(e.target.value)}
                     placeholder="Cuéntale a tus pacientes sobre tu experiencia y cómo los puedes ayudar... (visible en tu perfil)"
@@ -10300,8 +10368,9 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                           nombre: editNombre, telefono: editTel, foto: editFoto,
                           especialidad: editEspecialidad, experiencia: editExperiencia,
                           enfoque: editEnfoque, bio: editBio,
+                          direccionConsultorio: editDireccionConsultorio,
                         });
-                        setUsuarioActual(prev => ({ ...prev, nombre:editNombre, telefono:editTel, foto:editFoto, especialidad:editEspecialidad, experiencia:editExperiencia, enfoque:editEnfoque, bio:editBio }));
+                        setUsuarioActual(prev => ({ ...prev, nombre:editNombre, telefono:editTel, foto:editFoto, especialidad:editEspecialidad, experiencia:editExperiencia, enfoque:editEnfoque, bio:editBio, direccionConsultorio:editDireccionConsultorio }));
                         setModal(null);
                         showNotif("Perfil actualizado", "Los cambios fueron guardados ✅", "✏️");
                       } catch(e) { showToast("Error al guardar ❌"); }
@@ -10312,62 +10381,98 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
               {mdl("agendar-cita", (
                 <div>
-                  <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>📅 Agendar cita</div>
-                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El paciente verá la cita en su calendario en tiempo real</div>
-
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Paciente</div>
-                  <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
-                    <option value="">— Seleccionar paciente —</option>
-                    {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
-                  </select>
-
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Título de la sesión</div>
+                  <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:4 }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:`${C.plum}12`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <div style={{ fontSize:18, fontWeight:800, color:C.text }}>Agendar cita</div>
+                  </div>
+                  <div style={{ fontSize:12, color:C.light, marginBottom:18 }}>El paciente ve la cita en su calendario en tiempo real</div>
+                  {pacienteSeleccionado ? (
+                    <div style={{ background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.18)", borderRadius:12, padding:"11px 13px", marginBottom:14, display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ width:32, height:32, borderRadius:9, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      </div>
+                      <div>
+                        <div style={{ fontSize:9, color:C.light, fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:1 }}>Paciente</div>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{pacienteSeleccionado.nombre}</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ marginBottom:14 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Paciente</div>
+                      <select value={citaPacienteId} onChange={e => setCitaPacienteId(e.target.value)}
+                        style={{ width:"100%", padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box", color:C.text }}>
+                        <option value="">— Seleccionar paciente —</option>
+                        {pacientes.map(p => (<option key={p.id} value={p.id}>{p.nombre}</option>))}
+                      </select>
+                    </div>
+                  )}
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Título de la sesión</div>
                   <input placeholder="Ej: Sesión de seguimiento semanal" value={citaTitulo} onChange={e => setCitaTitulo(e.target.value)}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
-
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Descripción (opcional)</div>
-                  <textarea
-                    placeholder="Ej: Continuaremos con técnicas de respiración..."
-                    value={citaDescripcion}
-                    onChange={e => setCitaDescripcion(e.target.value)}
-                    rows={3}
-                    style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12,
-                      outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"vertical",
-                      lineHeight:1.6, minHeight:72, whiteSpace:"pre-wrap", background:"#FFFFFF", color:C.text }}/>
-
-                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+                    style={{ width:"100%", padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                  <div style={{ display:"flex", gap:8, marginBottom:14 }}>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha</div>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Fecha</div>
                       <input type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 12px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Hora</div>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Hora</div>
                       <input type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                        style={{ width:"100%", padding:"11px 12px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
                     </div>
                   </div>
-                  <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Modalidad</div>
-                  <div style={{ display:"flex", gap:8, marginBottom:12 }}>
-                    {[["presencial","🏥","Presencial"],["virtual","💻","Virtual"]].map(([val,ic,lb]) => (
-                      <div key={val} onClick={() => setCitaModalidad(val)}
-                        style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${citaModalidad===val?C.plum:"rgba(0,0,0,.12)"}`, background:citaModalidad===val?`${C.plum}15`:"rgba(0,0,0,.07)" }}>
-                        <div style={{ fontSize:22 }}>{ic}</div>
-                        <div style={{ fontSize:11, fontWeight:800, color:citaModalidad===val?C.plum:C.light }}>{lb}</div>
-                      </div>
-                    ))}
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:8 }}>Modalidad</div>
+                  <div style={{ display:"flex", gap:8, marginBottom:14 }}>
+                    {[
+                      { val:"presencial", lb:"Presencial", ico:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+                      { val:"virtual",    lb:"Virtual",    ico:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> },
+                    ].map(({ val, lb, ico }) => {
+                      const sel = citaModalidad === val;
+                      return (
+                        <div key={val} onClick={() => setCitaModalidad(val)}
+                          style={{ flex:1, padding:"12px 0", borderRadius:12, textAlign:"center", cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:6,
+                            border:`2px solid ${sel ? C.plum : "rgba(0,0,0,.10)"}`,
+                            background: sel ? `${C.plum}10` : "rgba(0,0,0,.03)",
+                            color: sel ? C.plum : C.light, transition:"all 0.15s" }}>
+                          {ico}
+                          <div style={{ fontSize:11, fontWeight:700 }}>{lb}</div>
+                        </div>
+                      );
+                    })}
                   </div>
                   {citaModalidad === "virtual" && (
-                    <>
-                      <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>🔗 Link de Meet</div>
-                      <input placeholder="https://meet.google.com/xxx" value={citaLink} onChange={e => setCitaLink(e.target.value)}
-                        style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:12, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
-                    </>
-                  )}                  
+                    <div style={{ marginBottom:14 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Link de videoconferencia</div>
+                      <div style={{ position:"relative" }}>
+                        <div style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)" }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        </div>
+                        <input placeholder="https://meet.google.com/xxx o Zoom..." value={citaLink} onChange={e => setCitaLink(e.target.value)}
+                          style={{ width:"100%", padding:"11px 13px 11px 36px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                      </div>
+                    </div>
+                  )}
+                  {citaModalidad === "presencial" && (
+                    <div style={{ marginBottom:14 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Dirección del consultorio</div>
+                      <div style={{ position:"relative" }}>
+                        <div style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)" }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <input placeholder="Ej: Cra 15 #85-60, Bogotá" value={citaDireccion} onChange={e => setCitaDireccion(e.target.value)}
+                          style={{ width:"100%", padding:"11px 13px 11px 36px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
+                      </div>
+                      <div style={{ fontSize:10, color:C.light, marginTop:4 }}>Opcional — el paciente verá esta dirección en su cita</div>
+                    </div>
+                  )}
+                  <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".08em", marginBottom:6 }}>Notas internas (opcional)</div>
+                  <textarea placeholder="Notas privadas para recordar sobre esta sesión..." value={citaDescripcion} onChange={e => setCitaDescripcion(e.target.value)}
+                    style={{ width:"100%", padding:"11px 13px", border:"1.5px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", boxSizing:"border-box", resize:"none", lineHeight:1.55, minHeight:64, background:"#FFFFFF", color:C.text }}/>
                   <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-                    {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar ✓", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.07)", color:C.text, borderRadius:11, fontSize:12, fontWeight:700 })}
+                    {btn(() => crearCita(), loadingCitas ? "Agendando..." : "Agendar cita", { flex:2, padding:11, background:loadingCitas?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:700, boxShadow:`0 4px 14px ${C.plum}25` })}
                   </div>
                 </div>
               ))}
