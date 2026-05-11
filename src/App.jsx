@@ -6361,7 +6361,6 @@ const styles = `
                     ) : (
                       pacientes.map(p => (
                         <div key={p.id} onClick={async () => {
-                          // Primero actualizar paciente, luego cargar directamente
                           setPacienteSeleccionado(p);
                           setJuegoData(null);
                           setJuegoCargado(false);
@@ -6386,9 +6385,17 @@ const styles = `
                               await setDoc(doc(db, "juegoTerapia", gId), nueva);
                               setJuegoData({ id: gId, ...nueva });
                             }
-                          } catch(e) { showToast("Error al cargar el juego ❌"); }
-                          setJuegoLoading(false);
-                          setJuegoCargado(true);
+                            setJuegoLoading(false);
+                            setJuegoCargado(true);
+                          } catch(e) {
+                            console.error("[juegoTerapia] Error:", e?.code, e?.message);
+                            const msg = e?.code === "permission-denied"
+                              ? "Sin permisos en Firestore — revisa las reglas ❌"
+                              : "Error al cargar el juego ❌";
+                            showToast(msg);
+                            setJuegoLoading(false);
+                            setPacienteSeleccionado(null);
+                          }
                         }}
                           style={{ display:"flex", alignItems:"center", gap:12,
                             background:"rgba(0,0,0,.07)", borderRadius:14,
