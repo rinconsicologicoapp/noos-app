@@ -6971,7 +6971,7 @@ const styles = `
 
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"fadeIn 0.22s ease both" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.22s ease both" }}>
               <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative", borderBottom:"1px solid rgba(0,0,0,.11)" }}>
                 <div style={{ position:"absolute", top:0, left:0, right:0, height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),transparent)" }}/>
                 <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)" }}>
@@ -7024,7 +7024,7 @@ const styles = `
                 <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"1px solid rgba(0,0,0,.11)", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.11), inset 0 1px 0 rgba(0,0,0,.11)", background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)" }}>
 
                   {/* Contacto */}
-                  {(psicologoData?.telefono || psicologoData?.email) && (<>
+                  {(psicologoData?.telefono || psicologoData?.email || psicologoData?.direccionConsultorio) && (<>
                     <div style={{ display:"flex", alignItems:"center", gap:6, padding:"10px 14px 6px", fontSize:8, fontWeight:700, color:"rgba(0,0,0,.15)", letterSpacing:".16em", textTransform:"uppercase" }}>
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.15)" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                       Contacto
@@ -7048,6 +7048,17 @@ const styles = `
                         <div>
                           <div style={{ fontSize:8, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:2 }}>Correo</div>
                           <div style={{ fontSize:12, fontWeight:600, color:C.text }}>{psicologoData.email}</div>
+                        </div>
+                      </div>
+                    )}
+                    {psicologoData?.direccionConsultorio && (
+                      <div style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px", borderTop:"1px solid rgba(0,0,0,.06)" }}>
+                        <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.15)", border:"1px solid rgba(255,123,90,.20)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <div>
+                          <div style={{ fontSize:8, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:2 }}>Consultorio</div>
+                          <div style={{ fontSize:13, fontWeight:600, color:C.text }}>{psicologoData.direccionConsultorio}</div>
                         </div>
                       </div>
                     )}
