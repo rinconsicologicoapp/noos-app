@@ -968,37 +968,37 @@ const handleInstall = async () => {
   const [navOpen, setNavOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
   const [notifPanel, setNotifPanel] = useState(false);
-  const cargarNotificaciones = async (pacienteId) => {
-  try {
-    const q = query(
-      collection(db, "notificaciones"),
-      where("pacienteId", "==", pacienteId)
-    );
-    const snap = await getDocs(q);
-    const lista = snap.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .sort((a, b) => new Date(b.creadoEn) - new Date(a.creadoEn))
-      .slice(0, 20);
-    setNotifs(lista.map(n => ({
-      id: n.id,
-      icon: n.icon || "🔔",
-      title: n.titulo || "Notificación",
-      msg: n.mensaje || "",
-      tipo: n.tipo || "",
-      time: (() => {
-        const diff = Date.now() - new Date(n.creadoEn).getTime();
-        const m = Math.floor(diff / 60000);
-        const h = Math.floor(diff / 3600000);
-        const d = Math.floor(diff / 86400000);
-        if (d > 0) return `Hace ${d} día${d > 1 ? "s" : ""}`;
-        if (h > 0) return `Hace ${h}h`;
-        if (m > 0) return `Hace ${m} min`;
-        return "Ahora";
-      })(),
-      read: n.leida || false,
-    })));
-  } catch(e) {}
-};
+  const notifUnsubRef = useRef(null);
+  const suscribirNotificaciones = (uid) => {
+    if (notifUnsubRef.current) { notifUnsubRef.current(); notifUnsubRef.current = null; }
+    if (!uid) return;
+    const relTime = (iso) => {
+      if (!iso) return "";
+      const diff = Date.now() - new Date(iso).getTime();
+      const m = Math.floor(diff/60000), h = Math.floor(diff/3600000), d = Math.floor(diff/86400000);
+      if (d > 0) return `Hace ${d} día${d>1?"s":""}`;
+      if (h > 0) return `Hace ${h}h`;
+      if (m > 0) return `Hace ${m} min`;
+      return "Ahora";
+    };
+    const q = query(collection(db, "notificaciones"), where("pacienteId", "==", uid));
+    notifUnsubRef.current = onSnapshot(q, (snap) => {
+      const lista = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a,b) => new Date(b.creadoEn) - new Date(a.creadoEn))
+        .slice(0, 40);
+      setNotifs(lista.map(n => ({
+        id: n.id,
+        icon: n.icon || "🔔",
+        title: n.titulo || "Notificación",
+        msg: n.mensaje || "",
+        tipo: n.tipo || "",
+        time: relTime(n.creadoEn),
+        ts: n.creadoEn || "",
+        read: n.leida || false,
+      })));
+    }, () => {});
+  };
   const [notifs, setNotifs] = useState([]);
   const [recordatorios, setRecordatorios] = useState([]);
 const [recTitulo, setRecTitulo] = useState("");
@@ -1109,7 +1109,7 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
           cargarNotas(uid);
           cargarAutorregistros(uid);
           cargarTareasFirestore(uid);
-          cargarNotificaciones(uid);
+          suscribirNotificaciones(uid);
           setTimeout(() => verificarCheckInHoy(uid), 800);
           if (docSnap.data().psicologoId) {
             getDoc(doc(db, "usuarios", docSnap.data().psicologoId)).then(snap => {
@@ -1134,7 +1134,7 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
         cargarCitas(uid, "psicologo");
         cargarRecordatorios(uid);
         cargarResenas(uid);
-        cargarNotificaciones(uid);
+        suscribirNotificaciones(uid);
         const pacientesSnap = await getDocs(query(collection(db, "usuarios"), where("psicologoId", "==", uid)));
         const listaPacientes = pacientesSnap.docs
           .filter(d => d.data().rol === "paciente")
@@ -2125,6 +2125,7 @@ const cerrarSesion = async () => {
     setRegistrosAnimo([]); setNotasClinicas([]);
     setRecordatorios([]); setResenas([]);
     setNotifs([]);
+    suscribirNotificaciones(null);
     // Datos admin
     setTodosUsuarios([]); setUsuariosSeleccionados([]);
     // Psicólogo
@@ -2316,7 +2317,7 @@ useEffect(() => {
           cargarCitas(user.uid, "psicologo");
           cargarRecordatorios(user.uid);
           cargarResenas(user.uid);
-          cargarNotificaciones(user.uid);
+          suscribirNotificaciones(user.uid);
           const pacientesSnap = await getDocs(query(collection(db, "usuarios"), where("psicologoId", "==", user.uid)));
         const listaPacientes = pacientesSnap.docs
           .filter(d => d.data().rol === "paciente")
@@ -3472,78 +3473,105 @@ const styles = `
 
           {/* PANEL NOTIFICACIONES */}
           {notifPanel && (() => {
-            // Recargar siempre que se abre el panel
-            if (usuarioActual?.uid) cargarNotificaciones(usuarioActual.uid);
+            const getGrupo = (ts) => {
+              if (!ts) return "Antes";
+              const diff = Math.floor((Date.now() - new Date(ts).getTime()) / 86400000);
+              if (diff === 0) return "Hoy";
+              if (diff === 1) return "Ayer";
+              if (diff < 7) return "Esta semana";
+              return "Antes";
+            };
+            const GRUPOS = ["Hoy","Ayer","Esta semana","Antes"];
+            const byGrupo = GRUPOS.map(g => ({ g, items: notifs.filter(n => getGrupo(n.ts) === g) })).filter(x => x.items.length > 0);
+            const tipoColor = (tipo) => {
+              if (tipo==="demora") return C.amber;
+              if (["cita_nueva","cita_confirmada","cita_cancelada","recordatorio_cita"].includes(tipo)) return C.sage;
+              if (["tarea_completada","racha"].includes(tipo)) return C.green;
+              return C.plum;
+            };
+            const tipoBg = (tipo) => {
+              if (tipo==="demora") return "rgba(255,179,71,.13)";
+              if (["cita_nueva","cita_confirmada","cita_cancelada","recordatorio_cita"].includes(tipo)) return "rgba(78,205,196,.13)";
+              if (["tarea_completada","racha"].includes(tipo)) return "rgba(30,77,43,.13)";
+              return "rgba(255,123,90,.13)";
+            };
+            const handleTap = (n) => {
+              markRead(n.id);
+              setNotifPanel(false);
+              const tipo = n.tipo || "";
+              if (tipo === "tarea_nueva") {
+                showScreen("notas");
+                setTimeout(() => { setNoteTab("tareas"); setTareasTab("tareas"); }, 50);
+              } else if (tipo === "tarea_completada") {
+                showScreen(usuarioActual?.rol === "psicologo" ? "psi-dashboard" : "notas");
+                if (usuarioActual?.rol !== "psicologo") setTimeout(() => { setNoteTab("tareas"); setTareasTab("tareas"); }, 50);
+              } else if (["cita_nueva","cita_confirmada","cita_cancelada","recordatorio_cita"].includes(tipo)) {
+                showScreen("calendario");
+              }
+            };
             return (
-            <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
-              {/* HEADER */}
-              <div style={{ background:"rgba(240,242,240,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px", borderBottom:"1px solid rgba(0,0,0,.11)", display:"flex", alignItems:"center", gap:10, paddingTop:"max(16px, env(safe-area-inset-top, 16px))" }}>
-                <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)", flexShrink:0 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.20s ease both" }}>
+
+              {/* ── HEADER ── */}
+              <div style={{ background:"#FFFFFF", borderBottom:"1px solid rgba(0,0,0,.07)", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", paddingBottom:14, paddingLeft:16, paddingRight:16, display:"flex", alignItems:"center", gap:12, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                <div onClick={() => setNotifPanel(false)} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(30,77,43,.09)", flexShrink:0, touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:17, fontWeight:900, color:C.text }}>Notificaciones</div>
-                  <div style={{ fontSize:11, color:C.light, marginTop:1 }}>
-                    {unread > 0 ? `${unread} sin leer` : "Todo al día"}
+                  <div style={{ fontSize:18, fontWeight:900, color:C.text, letterSpacing:"-0.02em", lineHeight:1 }}>Notificaciones</div>
+                  <div style={{ fontSize:11, color:C.light, marginTop:3, fontWeight:500 }}>
+                    {unread > 0 ? `${unread} sin leer` : "Todo al día ✓"}
                   </div>
                 </div>
-                {unread > 0 && btn(markAllRead, "Leer todas", { fontSize:11, fontWeight:600, color:C.plum, background:"rgba(255,123,90,.18)", border:"1px solid rgba(255,123,90,.20)", padding:"6px 14px", borderRadius:20 })}
+                {unread > 0 && (
+                  <div onClick={markAllRead} style={{ padding:"7px 14px", background:"rgba(30,77,43,.10)", border:"1px solid rgba(30,77,43,.18)", borderRadius:20, fontSize:11, fontWeight:700, color:C.green, cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent", flexShrink:0 }}>
+                    Leer todo
+                  </div>
+                )}
               </div>
 
-              {/* LISTA */}
-              <div style={{ flex:1, overflowY:"auto", padding:"12px 14px", paddingBottom:NAV_PB }}>
+              {/* ── LISTA ── */}
+              <div style={{ flex:1, overflowY:"auto", WebkitOverflowScrolling:"touch" }}>
                 {notifs.length === 0 ? (
-                  /* ESTADO VACÍO */
-                  <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", paddingTop:60, gap:12 }}>
-                    <div style={{ width:64, height:64, borderRadius:20, background:`${C.plum}10`, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.5" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                  <div style={{ display:"flex", flexDirection:"column", alignItems:"center", paddingTop:72, gap:16, padding:"72px 32px 0" }}>
+                    <div style={{ width:72, height:72, borderRadius:22, background:"rgba(30,77,43,.09)", border:"1px solid rgba(30,77,43,.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                     </div>
-                    <div style={{ fontSize:15, fontWeight:700, color:C.text }}>Sin notificaciones</div>
-                    <div style={{ fontSize:12, color:C.light, textAlign:"center", maxWidth:200, lineHeight:1.5 }}>Aquí aparecerán tus citas, tareas y mensajes importantes</div>
+                    <div style={{ textAlign:"center" }}>
+                      <div style={{ fontSize:16, fontWeight:800, color:C.text, marginBottom:6, letterSpacing:"-0.01em" }}>Sin notificaciones</div>
+                      <div style={{ fontSize:13, color:C.light, lineHeight:1.6 }}>Aquí verás tus citas, tareas y avisos importantes</div>
+                    </div>
                   </div>
-                ) : notifs.map((n, i) => (
-                  <div key={n.id} onClick={() => {
-                    markRead(n.id);
-                    const tipo = n.tipo || "";
-                    if (tipo === "tarea_nueva") {
-                      setNotifPanel(false);
-                      if (usuarioActual?.rol === "paciente") {
-                        showScreen("notas");
-                        setTimeout(() => { setNoteTab("tareas"); setTareasTab("tareas"); }, 50);
-                      } else {
-                        showScreen("psi-dashboard");
-                      }
-                    } else if (tipo === "tarea_completada") {
-                      setNotifPanel(false);
-                      if (usuarioActual?.rol === "psicologo") {
-                        showScreen("psi-dashboard");
-                      } else {
-                        showScreen("notas");
-                        setTimeout(() => { setNoteTab("tareas"); setTareasTab("tareas"); }, 50);
-                      }
-                    } else if (tipo === "cita_nueva" || tipo === "cita_confirmada" || tipo === "cita_cancelada" || tipo === "recordatorio_cita") {
-                      setNotifPanel(false);
-                      showScreen("calendario");
-                    }
-                  }}
-                    style={{ background:n.read?"rgba(255,255,255,.020)":"rgba(255,123,90,.11)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderRadius:16, padding:"13px 14px", marginBottom:8, border:`1px solid ${n.read?"rgba(0,0,0,.06)":"rgba(255,123,90,.15)"}`, display:"flex", gap:12, alignItems:"flex-start", cursor:"pointer", position:"relative", overflow:"hidden", transition:"all 0.15s", animation:`fadeIn 0.2s ease ${i * 0.03}s both` }}>
-                    {/* Barra lateral de color según tipo */}
-                    <div style={{ position:"absolute", left:0, top:0, bottom:0, width:3, borderRadius:"16px 0 0 16px", background:n.read?"transparent": n.tipo==="demora"?C.amber : n.tipo==="cita_nueva"||n.tipo==="recordatorio_cita"?C.sage : n.tipo==="tarea_completada"?C.green : C.plum }}/>
-                    {/* Ícono */}
-                    <div style={{ width:42, height:42, borderRadius:13, background:n.read?"rgba(0,0,0,.11)":"rgba(255,123,90,.20)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, marginLeft:6 }}>{n.icon}</div>
-                    {/* Contenido */}
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:3 }}>
-                        <div style={{ fontSize:13, fontWeight:n.read?600:800, color:n.read?C.light:C.text, flex:1, paddingRight:8 }}>{n.title}</div>
-                        <div style={{ display:"flex", alignItems:"center", gap:5, flexShrink:0 }}>
-                          <div style={{ fontSize:10, color:C.light, whiteSpace:"nowrap" }}>{n.time}</div>
-                          {!n.read && <div style={{ width:7, height:7, borderRadius:"50%", background:C.plum, flexShrink:0 }}/>}
+                ) : (
+                  <div style={{ paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
+                    {byGrupo.map(({ g, items }) => (
+                      <div key={g}>
+                        {/* Separador de grupo */}
+                        <div style={{ padding:"18px 16px 6px", fontSize:10, fontWeight:700, color:"rgba(30,77,43,.45)", letterSpacing:".14em", textTransform:"uppercase" }}>{g}</div>
+                        {/* Contenedor blanco agrupado */}
+                        <div style={{ background:"#FFFFFF", borderTop:"1px solid rgba(0,0,0,.06)", borderBottom:"1px solid rgba(0,0,0,.06)" }}>
+                          {items.map((n, idx) => (
+                            <div key={n.id} onClick={() => handleTap(n)}
+                              style={{ display:"flex", gap:12, alignItems:"flex-start", padding:"13px 16px", borderBottom: idx < items.length-1 ? "1px solid rgba(0,0,0,.05)" : "none", background:n.read ? "transparent" : "rgba(30,77,43,.04)", cursor:"pointer", transition:"background 100ms", WebkitTapHighlightColor:"transparent", touchAction:"manipulation", position:"relative" }}>
+                              {/* Punto no leído */}
+                              {!n.read && <div style={{ position:"absolute", left:5, top:"50%", transform:"translateY(-50%)", width:5, height:5, borderRadius:"50%", background:tipoColor(n.tipo), flexShrink:0 }}/>}
+                              {/* Ícono */}
+                              <div style={{ width:44, height:44, borderRadius:13, background: n.read ? "rgba(0,0,0,.06)" : tipoBg(n.tipo), display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>{n.icon}</div>
+                              {/* Texto */}
+                              <div style={{ flex:1, minWidth:0 }}>
+                                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:8, marginBottom:3 }}>
+                                  <div style={{ fontSize:13, fontWeight: n.read ? 500 : 700, color: n.read ? C.light : C.text, flex:1, lineHeight:1.3 }}>{n.title}</div>
+                                  <div style={{ fontSize:10, color:C.light, whiteSpace:"nowrap", flexShrink:0, marginTop:1, fontWeight:500 }}>{n.time}</div>
+                                </div>
+                                <div style={{ fontSize:12, color:C.light, lineHeight:1.5, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{n.msg}</div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                      <div style={{ fontSize:11, color:C.light, lineHeight:1.5, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{n.msg}</div>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             </div>
             );
@@ -3880,9 +3908,9 @@ const styles = `
                     )}
                   </div>
                   <div style={{ display:"flex", gap:8, alignItems:"center", marginTop:4 }}>
-                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(0,0,0,.11)", borderRadius:10, border:"1px solid rgba(0,0,0,.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.55)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                      {unread > 0 && <div style={{ position:"absolute", top:-3, right:-3, width:14, height:14, background:C.plum, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"white" }}>{unread}</div>}
+                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(30,77,43,.13)", borderRadius:10, border:"1px solid rgba(30,77,43,.18)", display:"flex", alignItems:"center", justifyContent:"center", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                      {unread > 0 && <div style={{ position:"absolute", top:-5, right:-5, minWidth:17, height:17, padding:"0 4px", background:C.plum, borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:900, color:"white", border:"1.5px solid white", boxSizing:"border-box" }}>{unread > 9 ? "9+" : unread}</div>}
                     </div>
                     <div onClick={() => showScreen("perfil")} style={{ width:36, height:36, background:"rgba(255,123,90,.20)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", border:"1px solid rgba(255,123,90,.20)", cursor:"pointer", overflow:"hidden" }}>
                       {avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : <AvatarSVG id="av1" size={22}/>}
@@ -7318,9 +7346,9 @@ const styles = `
                   <div style={{ fontSize:16, fontWeight:700, color:C.text, letterSpacing:"-0.01em" }}>Mis pacientes</div>
                   <div style={{ fontSize:11, color:C.light, fontWeight:600 }}>{pacientes.length} paciente{pacientes.length !== 1 ? "s" : ""} activo{pacientes.length !== 1 ? "s" : ""}</div>
                 </div>
-                <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(255,255,255,0.1)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                  {unread > 0 && <div style={{ position:"absolute", top:-4, right:-4, width:16, height:16, background:C.red, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:900, color:"white", border:`2px solid ${C.plum}` }}>{unread}</div>}
+                <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(255,255,255,.12)", borderRadius:10, border:"1px solid rgba(255,255,255,.14)", display:"flex", alignItems:"center", justifyContent:"center", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.90)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                  {unread > 0 && <div style={{ position:"absolute", top:-5, right:-5, minWidth:17, height:17, padding:"0 4px", background:C.plum, borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:900, color:"white", border:"1.5px solid #0F2015", boxSizing:"border-box" }}>{unread > 9 ? "9+" : unread}</div>}
                 </div>
               </div>
 
