@@ -6986,13 +6986,13 @@ const styles = `
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.22s ease both" }}>
 
               {/* ── HERO HEADER ───────────────────────────────────────── */}
-              <div style={{ position:"relative", background:"linear-gradient(170deg,#07060F 0%,#0D0B1E 55%,#100820 100%)", padding:"28px 20px 52px", paddingTop:"max(28px, env(safe-area-inset-top, 28px))", textAlign:"center", overflow:"hidden" }}>
-                {/* Glow radial de fondo */}
-                <div style={{ position:"absolute", top:"-30%", left:"50%", transform:"translateX(-50%)", width:280, height:280, borderRadius:"50%", background:"radial-gradient(ellipse,rgba(255,123,90,.18) 0%,transparent 70%)", pointerEvents:"none" }}/>
+              <div style={{ position:"relative", background:"linear-gradient(170deg,#162A1C 0%,#0F2015 55%,#0A1A10 100%)", padding:"28px 20px 52px", paddingTop:"max(28px, env(safe-area-inset-top, 28px))", textAlign:"center", overflow:"hidden" }}>
+                {/* Glow radial verde-coral */}
+                <div style={{ position:"absolute", top:"-30%", left:"50%", transform:"translateX(-50%)", width:280, height:280, borderRadius:"50%", background:"radial-gradient(ellipse,rgba(255,123,90,.14) 0%,transparent 70%)", pointerEvents:"none" }}/>
                 {/* Línea superior coral */}
-                <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:"linear-gradient(90deg,transparent 0%,rgba(255,123,90,.6) 40%,rgba(255,208,128,.4) 60%,transparent 100%)" }}/>
+                <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:"linear-gradient(90deg,transparent 0%,rgba(255,123,90,.55) 40%,rgba(255,208,128,.35) 60%,transparent 100%)" }}/>
                 {/* Grid decorativo sutil */}
-                <div style={{ position:"absolute", inset:0, backgroundImage:"linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px)", backgroundSize:"32px 32px", pointerEvents:"none" }}/>
+                <div style={{ position:"absolute", inset:0, backgroundImage:"linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px)", backgroundSize:"32px 32px", pointerEvents:"none" }}/>
 
                 {/* Botón volver */}
                 <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.10)", backdropFilter:"blur(8px)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
