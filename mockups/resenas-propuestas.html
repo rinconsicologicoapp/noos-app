@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Reseñas — Propuestas de diseño</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#0A1409;
+  min-height:100vh;
+  padding:48px 32px 80px;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;
+  display:flex; flex-direction:column; align-items:center;
+}
+.page-title { text-align:center; margin-bottom:48px; }
+.page-title h1 { font-size:22px; font-weight:900; letter-spacing:-.03em; color:rgba(255,255,255,.88); margin-bottom:6px; }
+.page-title p { font-size:12px; color:rgba(255,255,255,.28); letter-spacing:.04em; text-transform:uppercase; }
+
+.cols { display:flex; gap:40px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+
+.col { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.col-label {
+  font-size:9px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; text-align:center;
+  color:rgba(255,255,255,.32); border:1px solid rgba(255,255,255,.10); border-radius:20px;
+  padding:5px 16px;
+}
+
+/* Phone shell */
+.phone {
+  width:310px;
+  background:#F0F2F0;
+  border-radius:40px;
+  overflow:hidden;
+  border:6px solid #1A2E1D;
+  box-shadow:0 32px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
+  position:relative;
+}
+.phone-notch {
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:88px; height:22px; background:#1A2E1D; border-radius:0 0 16px 16px; z-index:10;
+}
+
+/* Scroll container */
+.scroll-area {
+  height:600px;
+  overflow-y:auto;
+  scrollbar-width:none;
+  background:#F0F2F0;
+  padding-top:22px;
+}
+.scroll-area::-webkit-scrollbar { display:none; }
+
+/* ────────────────────────────────────────────
+   PROPUESTA A — EDITORIAL AIRY
+──────────────────────────────────────────── */
+.a-header {
+  padding:20px 18px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.a-header-left { display:flex; align-items:center; gap:8px; }
+.a-bar { width:3px; height:16px; border-radius:2px; background:linear-gradient(180deg,#3D7A52,#1E4D2B); }
+.a-title { font-size:15px; font-weight:900; color:#1A2E1D; letter-spacing:-.025em; }
+.a-chip {
+  display:flex; align-items:center; gap:4px;
+  background:rgba(255,179,71,.11); border:1px solid rgba(255,179,71,.20);
+  border-radius:20px; padding:4px 10px;
+}
+.a-chip-star { color:#FFB347; font-size:9px; }
+.a-chip-text { font-size:10px; font-weight:800; color:#9A6800; letter-spacing:.02em; }
+
+/* Score block — full bleed oscuro */
+.a-score-block {
+  margin:0 14px 14px;
+  background:linear-gradient(150deg,#162A1C 0%,#0D1F12 100%);
+  border-radius:20px;
+  padding:22px 20px 20px;
+  position:relative;
+  overflow:hidden;
+}
+.a-score-block::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,208,128,.3),transparent);
+}
+.a-score-glow {
+  position:absolute; top:-30%; right:-5%;
+  width:120px; height:120px; border-radius:50%;
+  background:radial-gradient(ellipse,rgba(255,179,71,.14) 0%,transparent 70%);
+  pointer-events:none;
+}
+.a-score-inner { display:flex; align-items:center; gap:20px; position:relative; z-index:1; }
+.a-score-num { flex-shrink:0; }
+.a-score-big { font-size:56px; font-weight:900; color:white; letter-spacing:-.05em; line-height:1; }
+.a-score-sub { display:flex; align-items:center; gap:3px; margin-top:5px; justify-content:center; }
+.a-score-label { font-size:9px; color:rgba(255,255,255,.30); text-transform:uppercase; letter-spacing:.08em; font-weight:600; text-align:center; margin-top:4px; }
+.a-bars { flex:1; }
+.a-bar-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+.a-bar-row:last-child { margin-bottom:0; }
+.a-bar-n { font-size:9px; color:rgba(255,255,255,.35); font-weight:700; width:6px; text-align:right; }
+.a-bar-track { flex:1; height:3px; border-radius:2px; background:rgba(255,255,255,.09); overflow:hidden; }
+.a-bar-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,#FFD080,#FFB347); }
+.a-bar-cnt { font-size:9px; color:rgba(255,255,255,.28); font-weight:600; width:14px; text-align:right; }
+
+/* CTA button */
+.a-cta {
+  margin:0 14px 16px;
+  height:50px;
+  background:linear-gradient(135deg,#3D7A52,#1E4D2B);
+  border-radius:16px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  cursor:pointer;
+  box-shadow:0 4px 18px rgba(30,77,43,.35), inset 0 1px 0 rgba(255,255,255,.10);
+}
+.a-cta-text { font-size:14px; font-weight:800; color:white; letter-spacing:-.01em; }
+
+/* Divisor de sección */
+.a-divider { height:1px; background:linear-gradient(90deg,transparent,rgba(0,0,0,.07),transparent); margin:0 14px 16px; }
+
+/* Review card — sin borde, solo sombra y espacio */
+.a-review {
+  margin:0 14px 10px;
+  background:#FFFFFF;
+  border-radius:16px;
+  padding:16px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.06);
+}
+.a-review-quote {
+  position:absolute; top:10px; right:12px;
+  font-size:52px; color:rgba(0,0,0,.035);
+  font-family:Georgia,serif; font-weight:900; line-height:1;
+  user-select:none;
+}
+.a-review-head { display:flex; align-items:center; gap:9px; margin-bottom:10px; }
+.a-avatar {
+  width:32px; height:32px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:900; color:white; flex-shrink:0;
+}
+.a-reviewer-name { font-size:11px; font-weight:700; color:#1A2E1D; }
+.a-reviewer-date { font-size:10px; color:#5C7A65; margin-top:1px; }
+.a-stars-row { display:flex; gap:2px; margin-left:auto; flex-shrink:0; }
+.a-star { font-size:9px; }
+.a-review-text { font-size:13px; color:#2D4A33; line-height:1.72; }
+.a-verified-tag {
+  display:inline-flex; align-items:center; gap:4px;
+  background:rgba(30,77,43,.07); border-radius:20px;
+  padding:3px 8px; margin-top:10px;
+  font-size:9px; font-weight:700; color:#3D7A52; letter-spacing:.04em;
+}
+
+/* ────────────────────────────────────────────
+   PROPUESTA B — ULTRA MINIMAL / SIN CARDS
+──────────────────────────────────────────── */
+.b-score-section {
+  padding:20px 18px 0;
+  display:flex; align-items:flex-end; gap:14px;
+  border-bottom:1px solid rgba(0,0,0,.07);
+  padding-bottom:18px;
+  margin-bottom:0;
+}
+.b-score-num { font-size:64px; font-weight:900; color:#1A2E1D; letter-spacing:-.06em; line-height:1; }
+.b-score-right { flex:1; padding-bottom:6px; }
+.b-score-stars { display:flex; gap:3px; margin-bottom:4px; }
+.b-score-sub { font-size:10px; color:#5C7A65; font-weight:600; }
+
+.b-bars { padding:14px 18px; background:#FFFFFF; }
+.b-bar-row2 { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.b-bar-row2:last-child { margin-bottom:0; }
+.b-bar-n2 { font-size:10px; color:#5C7A65; font-weight:700; width:8px; }
+.b-bar-track2 { flex:1; height:4px; border-radius:2px; background:rgba(0,0,0,.06); overflow:hidden; }
+.b-bar-fill2 { height:100%; border-radius:2px; background:#3D7A52; }
+.b-bar-cnt2 { font-size:10px; color:#5C7A65; font-weight:600; width:16px; text-align:right; }
+
+.b-section-label {
+  padding:18px 18px 10px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.b-label-text { font-size:11px; font-weight:800; color:#5C7A65; letter-spacing:.12em; text-transform:uppercase; }
+
+.b-review { padding:16px 18px; border-bottom:1px solid rgba(0,0,0,.05); }
+.b-review:last-of-type { border-bottom:none; }
+
+.b-review-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.b-stars2 { display:flex; gap:2.5px; }
+.b-date { font-size:10px; color:#5C7A65; }
+.b-text { font-size:13px; color:#1A2E1D; line-height:1.72; margin-bottom:8px; }
+.b-author-row { display:flex; align-items:center; gap:7px; }
+.b-author-dot {
+  width:24px; height:24px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; font-weight:900; color:white;
+}
+.b-author-name { font-size:10px; color:#5C7A65; font-weight:700; }
+
+.b-cta {
+  margin:14px 14px 20px;
+  height:50px;
+  border-radius:16px;
+  border:1.5px solid rgba(30,77,43,.30);
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  background:transparent;
+}
+.b-cta-text { font-size:13px; font-weight:800; color:#1E4D2B; letter-spacing:-.01em; }
+
+/* Star SVG helper */
+.star-icon { display:inline-block; }
+
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>Reseñas — Propuestas</h1>
+  <p>Verde Bosque Calma · perfil-psicologo · rol paciente</p>
+</div>
+
+<div class="cols">
+
+  <!-- ── PROPUESTA A: Editorial Airy ── -->
+  <div class="col">
+    <div class="col-label">A · Editorial Airy</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="scroll-area">
+
+        <!-- Header sección -->
+        <div class="a-header">
+          <div class="a-header-left">
+            <div class="a-bar"></div>
+            <span class="a-title">Reseñas</span>
+          </div>
+          <div class="a-chip">
+            <span class="a-chip-star">★</span>
+            <span class="a-chip-text">5.0 · 5 reseñas</span>
+          </div>
+        </div>
+
+        <!-- Score block oscuro -->
+        <div class="a-score-block">
+          <div class="a-score-glow"></div>
+          <div class="a-score-inner">
+            <div class="a-score-num">
+              <div class="a-score-big">5.0</div>
+              <div class="a-score-sub">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <div class="a-score-label">de 5.0</div>
+            </div>
+            <div class="a-bars">
+              <div class="a-bar-row"><span class="a-bar-n">5</span><div class="a-bar-track"><div class="a-bar-fill" style="width:100%"></div></div><span class="a-bar-cnt">5</span></div>
+              <div class="a-bar-row"><span class="a-bar-n">4</span><div class="a-bar-track"><div class="a-bar-fill" style="width:0%"></div></div><span class="a-bar-cnt"></span></div>
+              <div class="a-bar-row"><span class="a-bar-n">3</span><div class="a-bar-track"><div class="a-bar-fill" style="width:0%"></div></div><span class="a-bar-cnt"></span></div>
+              <div class="a-bar-row"><span class="a-bar-n">2</span><div class="a-bar-track"><div class="a-bar-fill" style="width:0%"></div></div><span class="a-bar-cnt"></span></div>
+              <div class="a-bar-row"><span class="a-bar-n">1</span><div class="a-bar-track"><div class="a-bar-fill" style="width:0%"></div></div><span class="a-bar-cnt"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="a-cta">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <span class="a-cta-text">Escribir reseña</span>
+        </div>
+
+        <div class="a-divider"></div>
+
+        <!-- Reseña 1 -->
+        <div class="a-review">
+          <div class="a-review-quote">"</div>
+          <div class="a-review-head">
+            <div class="a-avatar" style="background:linear-gradient(135deg,#3D7A52,#1E4D2B)">H A</div>
+            <div>
+              <div class="a-reviewer-name">H*** A*****</div>
+              <div class="a-reviewer-date">10 de may. 2026</div>
+            </div>
+            <div class="a-stars-row">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+          </div>
+          <div class="a-review-text">Gran profesional, muy dedicado y analítico. Me ha dado una perspectiva nueva sobre mis experiencias.</div>
+          <div class="a-verified-tag">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Verificada
+          </div>
+        </div>
+
+        <!-- Reseña 2 -->
+        <div class="a-review">
+          <div class="a-review-quote">"</div>
+          <div class="a-review-head">
+            <div class="a-avatar" style="background:linear-gradient(135deg,#5C7A65,#3D7A52)">D R</div>
+            <div>
+              <div class="a-reviewer-name">D**** R*****</div>
+              <div class="a-reviewer-date">9 de may. 2026</div>
+            </div>
+            <div class="a-stars-row">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+          </div>
+          <div class="a-review-text">Toda una experiencia de mejoría con el psicólogo Danilo, super recomendado.</div>
+          <div class="a-verified-tag">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Verificada
+          </div>
+        </div>
+
+        <!-- Reseña 3 -->
+        <div class="a-review">
+          <div class="a-review-quote">"</div>
+          <div class="a-review-head">
+            <div class="a-avatar" style="background:linear-gradient(135deg,#2D6B41,#1E4D2B)">Y V</div>
+            <div>
+              <div class="a-reviewer-name">Y***** V****</div>
+              <div class="a-reviewer-date">4 de may. 2026</div>
+            </div>
+            <div class="a-stars-row">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+          </div>
+          <div class="a-review-text">Ha sido de gran ayuda, una experiencia muy buena, realmente la recomendaría.</div>
+          <div class="a-verified-tag">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Verificada
+          </div>
+        </div>
+
+        <div style="height:40px"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── PROPUESTA B: Ultra Minimal sin cards ── -->
+  <div class="col">
+    <div class="col-label">B · Ultra Minimal</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="scroll-area" style="background:#FFFFFF;">
+
+        <!-- Score hero — sin caja, solo tipografía -->
+        <div class="b-score-section">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:#5C7A65;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px;">Valoración global</div>
+            <div class="b-score-num">5.0</div>
+          </div>
+          <div class="b-score-right">
+            <div class="b-score-stars">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="b-score-sub">5 reseñas verificadas</div>
+          </div>
+        </div>
+
+        <!-- Barras distribución en blanco -->
+        <div class="b-bars">
+          <div class="b-bar-row2"><span class="b-bar-n2">5</span><div class="b-bar-track2"><div class="b-bar-fill2" style="width:100%"></div></div><span class="b-bar-cnt2">5</span></div>
+          <div class="b-bar-row2"><span class="b-bar-n2">4</span><div class="b-bar-track2"><div class="b-bar-fill2" style="width:0%"></div></div><span class="b-bar-cnt2">0</span></div>
+          <div class="b-bar-row2"><span class="b-bar-n2">3</span><div class="b-bar-track2"><div class="b-bar-fill2" style="width:0%"></div></div><span class="b-bar-cnt2">0</span></div>
+          <div class="b-bar-row2"><span class="b-bar-n2">2</span><div class="b-bar-track2"><div class="b-bar-fill2" style="width:0%"></div></div><span class="b-bar-cnt2">0</span></div>
+          <div class="b-bar-row2"><span class="b-bar-n2">1</span><div class="b-bar-track2"><div class="b-bar-fill2" style="width:0%"></div></div><span class="b-bar-cnt2">0</span></div>
+        </div>
+
+        <!-- CTA outlined -->
+        <div class="b-cta" style="margin-top:0;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <span class="b-cta-text">Escribir reseña</span>
+        </div>
+
+        <!-- Lista reseñas sin cards, solo separadores -->
+        <div class="b-section-label">
+          <span class="b-label-text">Opiniones</span>
+        </div>
+
+        <div style="background:#F0F2F0;height:1px;margin:0 18px;"></div>
+
+        <div class="b-review">
+          <div class="b-review-top">
+            <div class="b-stars2">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <span class="b-date">10 may. 2026</span>
+          </div>
+          <div class="b-text">Gran profesional, muy dedicado y analítico. Me ha dado una perspectiva nueva sobre mis experiencias. Sin duda, una de las mejores inversiones que he hecho en mi salud mental.</div>
+          <div class="b-author-row">
+            <div class="b-author-dot" style="background:linear-gradient(135deg,#3D7A52,#1E4D2B)">H A</div>
+            <span class="b-author-name">H*** A*****</span>
+          </div>
+        </div>
+
+        <div class="b-review">
+          <div class="b-review-top">
+            <div class="b-stars2">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <span class="b-date">9 may. 2026</span>
+          </div>
+          <div class="b-text">Toda una experiencia de mejoría. Super recomendado.</div>
+          <div class="b-author-row">
+            <div class="b-author-dot" style="background:linear-gradient(135deg,#5C7A65,#3D7A52)">D R</div>
+            <span class="b-author-name">D**** R*****</span>
+          </div>
+        </div>
+
+        <div class="b-review">
+          <div class="b-review-top">
+            <div class="b-stars2">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <span class="b-date">4 may. 2026</span>
+          </div>
+          <div class="b-text">Ha sido de gran ayuda, una experiencia muy buena, realmente la recomendaría.</div>
+          <div class="b-author-row">
+            <div class="b-author-dot" style="background:linear-gradient(135deg,#2D6B41,#1A4A2E)">Y V</div>
+            <span class="b-author-name">Y***** V****</span>
+          </div>
+        </div>
+
+        <div style="height:40px"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:48px;text-align:center;color:rgba(255,255,255,.18);font-size:11px;letter-spacing:.06em;">
+  A = cards con sombra · B = sin cards, solo separadores
+</div>
+
+</body>
+</html>
