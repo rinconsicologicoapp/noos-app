@@ -7208,138 +7208,118 @@ const styles = `
                   )}
                 </div>
 
-                {/* ── RESEÑAS ─────────────────────────────────────────── */}
+                {/* ── RESEÑAS — Ultra Minimal B ───────────────────────── */}
                 {(() => {
                   const avg = resenas.length ? resenas.reduce((a,r)=>a+r.rating,0)/resenas.length : 0;
-                  const inicialesAvatar = (nombre) => {
-                    const parts = (nombre||"").split(" ").filter(Boolean);
-                    return parts.length >= 2 ? parts[0][0]+parts[1][0] : (parts[0]?.[0]||"?");
+                  const iniciales = (nombre) => {
+                    const p = (nombre||"").split(" ").filter(Boolean);
+                    return p.length >= 2 ? p[0][0]+p[1][0] : (p[0]?.[0]||"?");
                   };
-                  return (<>
+                  const paleta = ["#3D7A52","#1E4D2B","#5C7A65","#2D6B41","#4A8C60"];
+                  return (
+                  <div style={{ background:"#FFFFFF", borderRadius:18, overflow:"hidden", marginBottom:14, marginTop:8, border:"1px solid rgba(0,0,0,.07)", boxShadow:"0 1px 3px rgba(0,0,0,.04), 0 6px 20px rgba(0,0,0,.07)" }}>
 
-                  {/* — Header sección — */}
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14, marginTop:8 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                      <div style={{ width:3, height:16, borderRadius:2, background:"linear-gradient(180deg,#3D7A52,#1E4D2B)" }}/>
-                      <span style={{ fontSize:15, fontWeight:900, color:"#1A2E1D", letterSpacing:"-0.02em" }}>Reseñas</span>
-                    </div>
-                    {resenas.length > 0 && (
-                      <div style={{ display:"flex", alignItems:"center", gap:5, background:"rgba(255,179,71,.12)", border:"1px solid rgba(255,179,71,.22)", borderRadius:20, padding:"4px 10px" }}>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        <span style={{ fontSize:10, fontWeight:800, color:"#B87A00", letterSpacing:".02em" }}>{avg.toFixed(1)} · {resenas.length} reseña{resenas.length!==1?"s":""}</span>
+                    {loadingResenas ? (
+                      <div style={{ padding:"24px 18px" }}>
+                        {[55,80,40].map((w,i)=>(
+                          <div key={i} style={{ height:10, borderRadius:5, marginBottom:i<2?10:0, width:`${w}%`,
+                            background:"linear-gradient(90deg,rgba(0,0,0,.04) 25%,rgba(0,0,0,.08) 50%,rgba(0,0,0,.04) 75%)",
+                            backgroundSize:"200% 100%", animation:"shimmer 1.5s infinite" }}/>
+                        ))}
                       </div>
-                    )}
-                  </div>
+                    ) : resenas.length === 0 ? (
+                      /* — Empty state — */
+                      <div style={{ padding:"36px 20px", textAlign:"center" }}>
+                        <div style={{ fontSize:28, opacity:.2, marginBottom:10, letterSpacing:".1em" }}>★★★★★</div>
+                        <div style={{ fontSize:13, fontWeight:800, color:"#1A2E1D", marginBottom:5 }}>Sin reseñas aún</div>
+                        <div style={{ fontSize:12, color:"#5C7A65", lineHeight:1.65 }}>Sé el primero en compartir tu experiencia</div>
+                      </div>
+                    ) : (<>
 
-                  {loadingResenas ? (
-                    /* Skeleton */
-                    <div style={{ background:"#FFFFFF", borderRadius:18, padding:"20px 18px", border:"1px solid rgba(0,0,0,.07)", marginBottom:10 }}>
-                      {[60,90,45].map((w,i)=>(
-                        <div key={i} style={{ height:10, borderRadius:5, marginBottom:i<2?10:0, width:`${w}%`,
-                          background:"linear-gradient(90deg,rgba(0,0,0,.05) 25%,rgba(0,0,0,.09) 50%,rgba(0,0,0,.05) 75%)",
-                          backgroundSize:"200% 100%", animation:"shimmer 1.5s infinite" }}/>
-                      ))}
-                    </div>
-                  ) : resenas.length === 0 ? (
-                    /* Empty state */
-                    <div style={{ background:"#FFFFFF", borderRadius:18, padding:"32px 20px", textAlign:"center", border:"1px solid rgba(0,0,0,.07)", marginBottom:14 }}>
-                      <div style={{ fontSize:32, marginBottom:10, opacity:.35 }}>★</div>
-                      <div style={{ fontSize:13, fontWeight:800, color:"#1A2E1D", marginBottom:5, letterSpacing:"-0.01em" }}>Sin reseñas aún</div>
-                      <div style={{ fontSize:12, color:"#5C7A65", lineHeight:1.6 }}>Sé el primero en compartir tu experiencia</div>
-                    </div>
-                  ) : (<>
-
-                    {/* — Card rating premium (fondo oscuro) — */}
-                    <div style={{ background:"linear-gradient(150deg,#162A1C 0%,#0F2015 100%)", borderRadius:20, padding:"20px 20px 18px", marginBottom:10, position:"relative", overflow:"hidden", boxShadow:"0 4px 24px rgba(15,32,21,.35)" }}>
-                      {/* Glow sutil */}
-                      <div style={{ position:"absolute", top:"-40%", right:"-10%", width:160, height:160, borderRadius:"50%", background:"radial-gradient(ellipse,rgba(255,179,71,.12) 0%,transparent 70%)", pointerEvents:"none" }}/>
-                      <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:"linear-gradient(90deg,transparent,rgba(255,179,71,.25),transparent)" }}/>
-
-                      <div style={{ display:"flex", alignItems:"center", gap:20, position:"relative", zIndex:1 }}>
-                        {/* Score */}
-                        <div style={{ textAlign:"center", flexShrink:0 }}>
-                          <div style={{ fontSize:52, fontWeight:900, color:"white", letterSpacing:"-0.04em", lineHeight:1 }}>
-                            {avg.toFixed(1)}
-                          </div>
-                          <div style={{ display:"flex", gap:3, justifyContent:"center", marginTop:6 }}>
-                            {[1,2,3,4,5].map(s => (
-                              <svg key={s} width="11" height="11" viewBox="0 0 24 24" fill={s<=Math.round(avg)?"#FFB347":"rgba(255,255,255,.15)"} stroke="none">
+                      {/* — Score hero tipográfico — */}
+                      <div style={{ display:"flex", alignItems:"flex-end", gap:14, padding:"22px 18px 18px", borderBottom:"1px solid rgba(0,0,0,.06)" }}>
+                        <div>
+                          <div style={{ fontSize:9, fontWeight:700, color:"#5C7A65", textTransform:"uppercase", letterSpacing:".14em", marginBottom:6 }}>Valoración global</div>
+                          <div style={{ fontSize:60, fontWeight:900, color:"#1A2E1D", letterSpacing:"-0.06em", lineHeight:1 }}>{avg.toFixed(1)}</div>
+                        </div>
+                        <div style={{ flex:1, paddingBottom:8 }}>
+                          <div style={{ display:"flex", gap:3, marginBottom:5 }}>
+                            {[1,2,3,4,5].map(s=>(
+                              <svg key={s} width="14" height="14" viewBox="0 0 24 24" fill={s<=Math.round(avg)?"#FFB347":"rgba(0,0,0,.09)"} stroke="none">
                                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                               </svg>
                             ))}
                           </div>
-                          <div style={{ fontSize:9, color:"rgba(255,255,255,.35)", marginTop:5, fontWeight:600, letterSpacing:".06em", textTransform:"uppercase" }}>
-                            de 5.0
-                          </div>
-                        </div>
-
-                        {/* Barras distribución */}
-                        <div style={{ flex:1 }}>
-                          {[5,4,3,2,1].map(star => {
-                            const count = resenas.filter(r=>r.rating===star).length;
-                            const pct = resenas.length ? (count/resenas.length)*100 : 0;
-                            return (
-                              <div key={star} style={{ display:"flex", alignItems:"center", gap:7, marginBottom:star>1?5:0 }}>
-                                <span style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,.40)", width:6, textAlign:"right" }}>{star}</span>
-                                <div style={{ flex:1, height:3, borderRadius:2, background:"rgba(255,255,255,.10)", overflow:"hidden" }}>
-                                  <div style={{ height:"100%", width:`${pct}%`, borderRadius:2, background: pct>0 ? "linear-gradient(90deg,#FFD080,#FFB347)" : "transparent", transition:"width .8s cubic-bezier(.22,1,.36,1)" }}/>
-                                </div>
-                                <span style={{ fontSize:9, color:"rgba(255,255,255,.30)", width:14, textAlign:"right", fontWeight:600 }}>{count||""}</span>
-                              </div>
-                            );
-                          })}
+                          <div style={{ fontSize:11, color:"#5C7A65", fontWeight:600 }}>{resenas.length} reseña{resenas.length!==1?"s":""} verificadas</div>
                         </div>
                       </div>
+
+                      {/* — Barras distribución — */}
+                      <div style={{ padding:"14px 18px 16px", borderBottom:"1px solid rgba(0,0,0,.06)" }}>
+                        {[5,4,3,2,1].map(star => {
+                          const count = resenas.filter(r=>r.rating===star).length;
+                          const pct = resenas.length ? (count/resenas.length)*100 : 0;
+                          return (
+                            <div key={star} style={{ display:"flex", alignItems:"center", gap:9, marginBottom:star>1?7:0 }}>
+                              <span style={{ fontSize:10, fontWeight:700, color:"#5C7A65", width:8, textAlign:"right", flexShrink:0 }}>{star}</span>
+                              <div style={{ flex:1, height:4, borderRadius:2, background:"rgba(0,0,0,.07)", overflow:"hidden" }}>
+                                <div style={{ height:"100%", width:`${pct}%`, borderRadius:2, background:"#3D7A52", transition:"width .9s cubic-bezier(.22,1,.36,1)" }}/>
+                              </div>
+                              <span style={{ fontSize:10, color:"#5C7A65", fontWeight:600, width:16, textAlign:"right", flexShrink:0 }}>{count||""}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* — Lista reseñas sin cards — */}
+                      <div style={{ padding:"4px 0 0" }}>
+                        <div style={{ padding:"14px 18px 10px" }}>
+                          <span style={{ fontSize:10, fontWeight:800, color:"#5C7A65", letterSpacing:".14em", textTransform:"uppercase" }}>Opiniones</span>
+                        </div>
+                        {resenas.filter(r=>!r.oculta).map((r,idx) => {
+                          const ini = iniciales(ofuscarNombre(r.pacienteNombre));
+                          const col = paleta[idx % paleta.length];
+                          return (
+                            <div key={r.id} style={{ padding:"14px 18px", borderTop:"1px solid rgba(0,0,0,.05)", animation:`fadeUp 0.26s cubic-bezier(.22,1,.36,1) ${idx*40}ms both` }}>
+                              {/* Fila: estrellas + fecha */}
+                              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:9 }}>
+                                <div style={{ display:"flex", gap:2.5 }}>
+                                  {[1,2,3,4,5].map(s=>(
+                                    <svg key={s} width="11" height="11" viewBox="0 0 24 24" fill={s<=r.rating?"#FFB347":"rgba(0,0,0,.09)"} stroke="none">
+                                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                    </svg>
+                                  ))}
+                                </div>
+                                <span style={{ fontSize:10, color:"#5C7A65", fontWeight:500 }}>
+                                  {new Date(r.fecha).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}
+                                </span>
+                              </div>
+                              {/* Texto */}
+                              <div style={{ fontSize:13, color:"#1A2E1D", lineHeight:1.72, marginBottom:12 }}>{r.texto}</div>
+                              {/* Autor */}
+                              <div style={{ display:"flex", alignItems:"center", gap:7 }}>
+                                <div style={{ width:24, height:24, borderRadius:8, background:`linear-gradient(135deg,${col},${col}bb)`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                                  <span style={{ fontSize:8, fontWeight:900, color:"white", letterSpacing:"-.01em" }}>{ini}</span>
+                                </div>
+                                <span style={{ fontSize:10, color:"#5C7A65", fontWeight:700 }}>{ofuscarNombre(r.pacienteNombre)}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>)}
+
+                    {/* — CTA outlined — */}
+                    <div onClick={() => { cargarResenas(usuarioActual?.psicologoId); setResenaRating(0); setResenaTexto(""); setModal("nueva-resena"); }}
+                      style={{ margin:"12px 14px 14px", height:50, border:"1.5px solid rgba(30,77,43,.28)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", gap:8, cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent", transition:"background 150ms, border-color 150ms" }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                      </svg>
+                      <span style={{ fontSize:13, fontWeight:800, color:"#1E4D2B", letterSpacing:"-0.01em" }}>Escribir reseña</span>
                     </div>
 
-                    {/* — Lista reseñas — */}
-                    {resenas.filter(r=>!r.oculta).map((r,idx) => {
-                      const iniciales = inicialesAvatar(ofuscarNombre(r.pacienteNombre));
-                      const colores = ["#3D7A52","#1E4D2B","#5C7A65","#2D6B41","#4A8C60"];
-                      const color = colores[idx % colores.length];
-                      return (
-                        <div key={r.id} style={{ background:"#FFFFFF", borderRadius:16, padding:"16px", marginBottom:8, border:"1px solid rgba(0,0,0,.06)", boxShadow:"0 1px 4px rgba(0,0,0,.04)", animation:`fadeUp 0.28s cubic-bezier(.22,1,.36,1) ${idx*45}ms both`, position:"relative" }}>
-
-                          {/* Comilla decorativa */}
-                          <div style={{ position:"absolute", top:12, right:14, fontSize:36, lineHeight:1, color:"rgba(0,0,0,.04)", fontFamily:"Georgia,serif", fontWeight:900, userSelect:"none", pointerEvents:"none" }}>"</div>
-
-                          {/* Header fila */}
-                          <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-                            {/* Avatar inicial */}
-                            <div style={{ width:32, height:32, borderRadius:10, background:`linear-gradient(135deg,${color},${color}99)`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                              <span style={{ fontSize:11, fontWeight:900, color:"white", letterSpacing:"-.02em" }}>{iniciales}</span>
-                            </div>
-                            <div style={{ flex:1 }}>
-                              <div style={{ fontSize:11, fontWeight:700, color:"#1A2E1D" }}>{ofuscarNombre(r.pacienteNombre)}</div>
-                              <div style={{ fontSize:10, color:"#5C7A65", marginTop:1 }}>{new Date(r.fecha).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}</div>
-                            </div>
-                            {/* Estrellas compactas */}
-                            <div style={{ display:"flex", gap:1.5, flexShrink:0 }}>
-                              {[1,2,3,4,5].map(s=>(
-                                <svg key={s} width="10" height="10" viewBox="0 0 24 24" fill={s<=r.rating?"#FFB347":"rgba(0,0,0,.10)"} stroke="none">
-                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                </svg>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Texto */}
-                          <div style={{ fontSize:13, color:"#2D4A33", lineHeight:1.7 }}>{r.texto}</div>
-                        </div>
-                      );
-                    })}
-                  </>)}
-
-                  {/* — CTA escribir reseña — */}
-                  <div onClick={() => { cargarResenas(usuarioActual?.psicologoId); setResenaRating(0); setResenaTexto(""); setModal("nueva-resena"); }}
-                    style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:9, width:"100%", height:52, background:"linear-gradient(135deg,#3D7A52 0%,#1E4D2B 100%)", color:"white", borderRadius:16, fontSize:14, fontWeight:800, marginTop:12, cursor:"pointer", touchAction:"manipulation", boxShadow:"0 4px 18px rgba(30,77,43,.35), inset 0 1px 0 rgba(255,255,255,.12)", letterSpacing:"-0.01em", WebkitTapHighlightColor:"transparent" }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                    </svg>
-                    Escribir reseña
                   </div>
-
-                  </>);
+                  );
                 })()}
 
                 {/* ── MÉTODOS DE PAGO ─────────────────────────────────── */}
