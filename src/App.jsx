@@ -6970,7 +6970,7 @@ const styles = `
           )}
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both", animation:"fadeIn 0.22s ease both" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"fadeIn 0.22s ease both" }}>
               {/* Skeleton mientras carga psicologoData — solo si es primera visita */}
               {!psicologoData && (
                 <div style={{ animation:"fadeIn 0.15s ease" }}>
@@ -7232,7 +7232,6 @@ const styles = `
                   </div>
                 </div>
               ))}
-              {bnav("perfil")}
             </div>}
             {bnav("perfil")}
           </div>
