@@ -839,6 +839,14 @@ const [formPinAdmin, setFormPinAdmin] = useState("");
   const [todosUsuarios, setTodosUsuarios] = useState([]);
   const [usuariosSeleccionados, setUsuariosSeleccionados] = useState([]);
   const [loadingUsuarios, setLoadingUsuarios] = useState(false);
+  const [psicoEditar, setPsicoEditar] = useState(null);
+  const [psicoEditNombre, setPsicoEditNombre] = useState("");
+  const [psicoEditTel, setPsicoEditTel] = useState("");
+  const [psicoEditEspec, setPsicoEditEspec] = useState("");
+  const [psicoEditEnfoque, setPsicoEditEnfoque] = useState("");
+  const [psicoEditBio, setPsicoEditBio] = useState("");
+  const [psicoEditLoading, setPsicoEditLoading] = useState(false);
+  const [psicoEliminar, setPsicoEliminar] = useState(null);
 const [usuarioActual, setUsuarioActual] = useState(null);
   const [regNombre, setRegNombre] = useState("");
 const [regEmail, setRegEmail] = useState("");
@@ -7659,113 +7667,224 @@ const styles = `
           {/* ADMIN — PSICÓLOGOS */}
 {!notifPanel && screen === "admin-psicologo" && (() => {
   const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
-  const pacientes = todosUsuarios.filter(u => u.rol === "paciente");
+  const pacientesAll = todosUsuarios.filter(u => u.rol === "paciente");
+
+  const abrirEditar = (p) => {
+    setPsicoEditar(p);
+    setPsicoEditNombre(p.nombre || "");
+    setPsicoEditTel(p.telefono || "");
+    setPsicoEditEspec(p.especialidad || "");
+    setPsicoEditEnfoque(p.enfoque || "");
+    setPsicoEditBio(p.bio || "");
+    setModal("editar-psicologo");
+  };
+
+  const guardarEdicion = async () => {
+    if (!psicoEditar) return;
+    if (!psicoEditNombre.trim()) { showToast("El nombre es obligatorio"); return; }
+    setPsicoEditLoading(true);
+    try {
+      const campos = { nombre: psicoEditNombre.trim() };
+      if (psicoEditTel.trim())    campos.telefono    = psicoEditTel.trim();
+      if (psicoEditEspec.trim())  campos.especialidad = psicoEditEspec.trim();
+      if (psicoEditEnfoque.trim()) campos.enfoque     = psicoEditEnfoque.trim();
+      campos.bio = psicoEditBio.trim();
+      await updateDoc(doc(db, "usuarios", psicoEditar.id), campos);
+      // Si cambió el nombre, actualizar psicologoNombre en sus pacientes
+      if (psicoEditNombre.trim() !== psicoEditar.nombre) {
+        const susPacientes = pacientesAll.filter(u => u.psicologoId === psicoEditar.id);
+        await Promise.all(susPacientes.map(pac =>
+          updateDoc(doc(db, "usuarios", pac.id), { psicologoNombre: psicoEditNombre.trim() })
+        ));
+      }
+      showToast("Psicólogo actualizado ✅");
+      setModal(null);
+      setPsicoEditar(null);
+      await cargarTodosUsuarios();
+    } catch(e) { showToast("Error al guardar ❌"); }
+    setPsicoEditLoading(false);
+  };
+
+  const confirmarEliminar = async () => {
+    if (!psicoEliminar) return;
+    try {
+      // Desvincular todos sus pacientes
+      const susPacientes = pacientesAll.filter(u => u.psicologoId === psicoEliminar.id);
+      await Promise.all(susPacientes.map(pac =>
+        updateDoc(doc(db, "usuarios", pac.id), { psicologoId: "", psicologoNombre: "" })
+      ));
+      // Eliminar documento del psicólogo
+      await deleteDoc(doc(db, "usuarios", psicoEliminar.id));
+      showToast(`${psicoEliminar.nombre} eliminado ✅`);
+      setModal(null);
+      setPsicoEliminar(null);
+      await cargarTodosUsuarios();
+    } catch(e) { showToast("Error al eliminar ❌"); }
+  };
+
   return (
     <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
+
       {/* Header */}
-      <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
-        <div style={{ fontSize:16, fontWeight:700, color:"white" }}>🧠 Psicólogos</div>
-        <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>{psicologos.length} psicólogo{psicologos.length !== 1 ? "s" : ""} registrado{psicologos.length !== 1 ? "s" : ""}</div>
+      <div style={{ background:`linear-gradient(145deg,${C.dark},#1E4D2B)`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
+        <div style={{ fontSize:17, fontWeight:900, color:"white", letterSpacing:"-0.01em" }}>Psicólogos</div>
+        <div style={{ fontSize:11, color:"rgba(255,255,255,0.55)", marginTop:2 }}>{psicologos.length} registrado{psicologos.length !== 1 ? "s" : ""}</div>
       </div>
+
       {/* Lista */}
       <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:NAV_PB }}>
         {psicologos.length === 0 ? (
           <div style={{ textAlign:"center", padding:32, color:C.light, fontSize:13 }}>No hay psicólogos registrados</div>
         ) : psicologos.map(p => {
-          const susPacientes = pacientes.filter(u => u.psicologoId === p.id);
-          const sinPsicologo = pacientes.filter(u => !u.psicologoId || u.psicologoId === "");
+          const susPacientes = pacientesAll.filter(u => u.psicologoId === p.id);
+          const sinPsicologo = pacientesAll.filter(u => !u.psicologoId || u.psicologoId === "");
           return (
-            <div key={p.id} style={{ background:"#FFFFFF", borderRadius:16, padding:14, marginBottom:12, border:"1px solid rgba(0,0,0,.11)" }}>
-              {/* Info psicólogo */}
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-                <div style={{ width:44, height:44, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.44-3.16z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.44-3.16z"/></svg>
-                </div>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontSize:14, fontWeight:800, color:C.text }}>{p.nombre}</div>
-                  <div style={{ fontSize:11, color:C.light }}>{p.email}</div>
-                </div>
-                <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:5 }}>
-                  <div style={{ background:p.inactivo?"#FFE0E0":"rgba(125,170,146,0.2)", color:p.inactivo?C.red:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
-                    {p.inactivo ? "Inactivo" : "Activo"}
+            <div key={p.id} style={{ background:"#FFFFFF", borderRadius:16, marginBottom:12, border:"1px solid rgba(0,0,0,.08)", overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,.06)" }}>
+
+              {/* — Cabecera del card — */}
+              <div style={{ padding:"14px 14px 12px", borderBottom:"1px solid rgba(0,0,0,.06)" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+                  <div style={{ width:44, height:44, background:"linear-gradient(135deg,#3D7A52,#1E4D2B)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
-                  <div onClick={async () => {
-                    try {
-                      await updateDoc(doc(db, "usuarios", p.id), { verificado: !p.verificado });
-                      showToast(p.verificado ? "Verificación removida" : "✅ Psicólogo verificado");
-                      await cargarTodosUsuarios();
-                    } catch(e) { showToast("Error ❌"); }
-                  }} style={{ display:"flex", alignItems:"center", gap:4, cursor:"pointer",
-                    background: p.verificado ? "linear-gradient(135deg,#3B82F6,#1D4ED8)" : "rgba(0,0,0,0.06)",
-                    borderRadius:20, padding:"4px 10px", transition:"all 0.2s" }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="10" fill={p.verificado ? "rgba(0,0,0,.15)" : "rgba(0,0,0,0.1)"}/>
-                      <path d="M9 12l2 2 4-4" stroke={p.verificado ? "white" : "rgba(0,0,0,0.3)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                    </svg>
-                    <span style={{ fontSize:9, fontWeight:800, color: p.verificado ? "white" : "rgba(0,0,0,0.4)" }}>
-                      {p.verificado ? "Verificado" : "Verificar"}
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:14, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>{p.nombre}</div>
+                    <div style={{ fontSize:11, color:C.light, marginTop:1, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.email}</div>
+                    {p.especialidad && <div style={{ fontSize:10, color:"#3D7A52", fontWeight:700, marginTop:2 }}>{p.especialidad}{p.enfoque ? ` · ${p.enfoque}` : ""}</div>}
+                  </div>
+                  <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:5 }}>
+                    <span style={{ background:p.inactivo?"rgba(255,107,107,.15)":"rgba(30,77,43,.12)", color:p.inactivo?C.red:"#1E4D2B", fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
+                      {p.inactivo ? "Inactivo" : "Activo"}
                     </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Pacientes actuales */}
-              <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6 }}>
-                PACIENTES ASIGNADOS ({susPacientes.length})
-              </div>
-              {susPacientes.length === 0 ? (
-                <div style={{ fontSize:11, color:C.light, fontStyle:"italic", marginBottom:8 }}>Sin pacientes aún</div>
-              ) : susPacientes.map(pac => (
-                <div key={pac.id} style={{ display:"flex", alignItems:"center", gap:8, background:"#F0F2F0", borderRadius:10, padding:"8px 10px", marginBottom:6 }}>
-                  <div style={{ fontSize:13 }}>👤</div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{pac.nombre}</div>
-                    <div style={{ fontSize:10, color:C.light }}>{pac.email}</div>
-                  </div>
-                  {btn(async () => {
-                    try {
-                      await updateDoc(doc(db, "usuarios", pac.id), { psicologoId: "", psicologoNombre: "" });
-                      showToast(`${pac.nombre} desvinculado ✅`);
-                      await cargarTodosUsuarios();
-                    } catch(e) { showToast("Error al desvincular ❌"); }
-                  }, "Quitar", { padding:"4px 10px", background:"rgba(255,107,107,.15)", color:C.red, borderRadius:8, fontSize:10, fontWeight:800 })}
-                </div>
-              ))}
-
-              {/* Buscar y asignar paciente */}
-              {sinPsicologo.length > 0 && (
-                <div style={{ marginTop:8 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6 }}>ASIGNAR PACIENTE</div>
-                  <select
-                    style={{ width:"100%", padding:"9px 12px", border:"1px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:12, background:"#FFFFFF", color:C.text, fontFamily:"inherit", marginBottom:8 }}
-                    defaultValue=""
-                    onChange={async (e) => {
-                      const pacId = e.target.value;
-                      if (!pacId) return;
-                      const pac = sinPsicologo.find(x => x.id === pacId);
-                      if (!pac) return;
+                    <div onClick={async () => {
                       try {
-                        await updateDoc(doc(db, "usuarios", pacId), {
-                          psicologoId: p.id,
-                          psicologoNombre: p.nombre,
-                        });
-                        showToast(`${pac.nombre} asignado a ${p.nombre} ✅`);
+                        await updateDoc(doc(db, "usuarios", p.id), { verificado: !p.verificado });
+                        showToast(p.verificado ? "Verificación removida" : "✅ Psicólogo verificado");
                         await cargarTodosUsuarios();
-                      } catch(err) { showToast("Error al asignar ❌"); }
-                      e.target.value = "";
-                    }}
-                  >
-                    <option value="">+ Buscar y asignar paciente...</option>
-                    {sinPsicologo.map(pac => (
-                      <option key={pac.id} value={pac.id}>{pac.nombre} — {pac.email}</option>
-                    ))}
-                  </select>
+                      } catch(e) { showToast("Error ❌"); }
+                    }} style={{ display:"flex", alignItems:"center", gap:4, cursor:"pointer", background: p.verificado ? "linear-gradient(135deg,#3B82F6,#1D4ED8)" : "rgba(0,0,0,.06)", borderRadius:20, padding:"4px 10px", touchAction:"manipulation" }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={p.verificado?"white":"rgba(0,0,0,.35)"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span style={{ fontSize:9, fontWeight:800, color: p.verificado?"white":"rgba(0,0,0,.4)" }}>{p.verificado?"Verificado":"Verificar"}</span>
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {/* Botones Editar / Eliminar */}
+                <div style={{ display:"flex", gap:8 }}>
+                  <div onClick={() => abrirEditar(p)} style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"8px 0", background:"rgba(30,77,43,.09)", border:"1px solid rgba(30,77,43,.18)", borderRadius:10, cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <span style={{ fontSize:12, fontWeight:700, color:"#1E4D2B" }}>Editar</span>
+                  </div>
+                  <div onClick={() => { setPsicoEliminar(p); setModal("confirmar-eliminar-psicologo"); }} style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"8px 0", background:"rgba(255,107,107,.08)", border:"1px solid rgba(255,107,107,.20)", borderRadius:10, cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    <span style={{ fontSize:12, fontWeight:700, color:C.red }}>Eliminar</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* — Pacientes asignados — */}
+              <div style={{ padding:"10px 14px" }}>
+                <div style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".14em", textTransform:"uppercase", marginBottom:8 }}>
+                  Pacientes asignados ({susPacientes.length})
+                </div>
+                {susPacientes.length === 0 ? (
+                  <div style={{ fontSize:11, color:C.light, fontStyle:"italic", marginBottom:6 }}>Sin pacientes aún</div>
+                ) : susPacientes.map(pac => (
+                  <div key={pac.id} style={{ display:"flex", alignItems:"center", gap:8, background:"#F0F2F0", borderRadius:10, padding:"8px 10px", marginBottom:6 }}>
+                    <div style={{ width:28, height:28, borderRadius:8, background:"rgba(30,77,43,.12)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{pac.nombre}</div>
+                      <div style={{ fontSize:10, color:C.light }}>{pac.email}</div>
+                    </div>
+                    {btn(async () => {
+                      try {
+                        await updateDoc(doc(db, "usuarios", pac.id), { psicologoId:"", psicologoNombre:"" });
+                        showToast(`${pac.nombre} desvinculado ✅`);
+                        await cargarTodosUsuarios();
+                      } catch(e) { showToast("Error ❌"); }
+                    }, "Quitar", { padding:"5px 11px", background:"rgba(255,107,107,.12)", color:C.red, borderRadius:8, fontSize:10, fontWeight:800 })}
+                  </div>
+                ))}
+
+                {/* Asignar paciente sin psicólogo */}
+                {sinPsicologo.length > 0 && (
+                  <div style={{ marginTop:8 }}>
+                    <select style={{ width:"100%", padding:"9px 12px", border:"1px solid rgba(30,77,43,.18)", borderRadius:10, fontSize:12, background:"#FFFFFF", color:C.text, fontFamily:"inherit" }}
+                      defaultValue=""
+                      onChange={async (e) => {
+                        const pacId = e.target.value;
+                        if (!pacId) return;
+                        const pac = sinPsicologo.find(x => x.id === pacId);
+                        if (!pac) return;
+                        try {
+                          await updateDoc(doc(db, "usuarios", pacId), { psicologoId: p.id, psicologoNombre: p.nombre });
+                          showToast(`${pac.nombre} asignado ✅`);
+                          await cargarTodosUsuarios();
+                        } catch(err) { showToast("Error al asignar ❌"); }
+                        e.target.value = "";
+                      }}>
+                      <option value="">+ Asignar paciente sin psicólogo...</option>
+                      {sinPsicologo.map(pac => (
+                        <option key={pac.id} value={pac.id}>{pac.nombre} — {pac.email}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
+
+      {/* Modal — Editar psicólogo */}
+      {mdl("editar-psicologo", (
+        <div>
+          <div style={{ fontSize:18, fontWeight:900, color:C.text, marginBottom:4, letterSpacing:"-0.02em" }}>Editar psicólogo</div>
+          <div style={{ fontSize:12, color:C.light, marginBottom:18 }}>{psicoEditar?.email}</div>
+          {[
+            { lb:"Nombre completo *", val:psicoEditNombre, set:setPsicoEditNombre, ph:"Nombre del psicólogo" },
+            { lb:"Teléfono", val:psicoEditTel, set:setPsicoEditTel, ph:"+57 300 000 0000" },
+            { lb:"Especialidad", val:psicoEditEspec, set:setPsicoEditEspec, ph:"Ej: Psicología Clínica" },
+            { lb:"Enfoque terapéutico", val:psicoEditEnfoque, set:setPsicoEditEnfoque, ph:"Ej: TCC, Humanista..." },
+          ].map(({ lb, val, set, ph }) => (
+            <div key={lb} style={{ marginBottom:12 }}>
+              <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:5 }}>{lb}</div>
+              <input value={val} onChange={e => set(e.target.value)} placeholder={ph}
+                style={{ width:"100%", padding:"11px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", color:C.text, background:"rgba(0,0,0,.03)" }}/>
+            </div>
+          ))}
+          <div style={{ marginBottom:18 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:5 }}>Bio / Presentación</div>
+            <textarea value={psicoEditBio} onChange={e => setPsicoEditBio(e.target.value)} placeholder="Descripción profesional..."
+              style={{ width:"100%", minHeight:80, padding:"11px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", fontFamily:"inherit", boxSizing:"border-box", color:C.text, background:"rgba(0,0,0,.03)", lineHeight:1.55 }}/>
+          </div>
+          <div style={{ display:"flex", gap:8 }}>
+            {btn(() => { setModal(null); setPsicoEditar(null); }, "Cancelar", { flex:1, padding:12, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:12, fontSize:13, fontWeight:700 })}
+            {btn(guardarEdicion, psicoEditLoading ? "Guardando..." : "Guardar cambios", { flex:2, padding:12, background:"linear-gradient(135deg,#3D7A52,#1E4D2B)", color:"white", borderRadius:12, fontSize:13, fontWeight:800, boxShadow:"0 4px 14px rgba(30,77,43,.35)" })}
+          </div>
+        </div>
+      ))}
+
+      {/* Modal — Confirmar eliminar */}
+      {mdl("confirmar-eliminar-psicologo", (
+        <div style={{ textAlign:"center" }}>
+          <div style={{ width:56, height:56, borderRadius:16, background:"rgba(255,107,107,.12)", border:"1px solid rgba(255,107,107,.20)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          </div>
+          <div style={{ fontSize:17, fontWeight:900, color:C.text, marginBottom:6, letterSpacing:"-0.015em" }}>¿Eliminar psicólogo?</div>
+          <div style={{ fontSize:13, color:C.text, fontWeight:700, marginBottom:6 }}>{psicoEliminar?.nombre}</div>
+          <div style={{ fontSize:12, color:C.light, lineHeight:1.6, marginBottom:20 }}>
+            Sus {todosUsuarios.filter(u => u.psicologoId === psicoEliminar?.id).length} paciente(s) quedarán sin psicólogo asignado. Esta acción no se puede deshacer.
+          </div>
+          <div style={{ display:"flex", gap:8 }}>
+            {btn(() => { setModal(null); setPsicoEliminar(null); }, "Cancelar", { flex:1, padding:12, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:12, fontSize:13, fontWeight:700 })}
+            {btn(confirmarEliminar, "Sí, eliminar", { flex:1, padding:12, background:"linear-gradient(135deg,#FF6B6B,#D04428)", color:"white", borderRadius:12, fontSize:13, fontWeight:800, boxShadow:"0 4px 14px rgba(255,107,107,.35)" })}
+          </div>
+        </div>
+      ))}
+
       {anav("admin-psicologo")}
     </div>
   );
