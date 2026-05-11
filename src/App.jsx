@@ -7326,44 +7326,93 @@ const styles = `
                 <div style={{ height:8 }}/>
               </div>
 
-              {/* Modal nueva reseña */}
-              {mdl("nueva-resena", (
-                <div>
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:6 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    <div style={{ fontSize:19, fontWeight:900, color:C.text, letterSpacing:"-0.02em" }}>Valorar a mi psicólogo</div>
-                  </div>
-                  <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16, lineHeight:1.5 }}>Tu reseña es anónima y pública en su perfil</div>
-                  {usuarioActual?.psicologoId && (
-                    <div style={{ background:"rgba(255,123,90,.08)", border:"1px solid rgba(255,123,90,.16)", borderRadius:12, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:18 }}>
-                      <div style={{ width:32, height:32, borderRadius:"50%", background:"linear-gradient(135deg,#FF8B6A,#D04428)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                      </div>
-                      <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{usuarioActual?.psicologoNombre || "Tu psicólogo"}</div>
-                    </div>
-                  )}
-                  <div style={{ fontSize:10, fontWeight:700, color:C.light, marginBottom:10, textTransform:"uppercase", letterSpacing:".12em", textAlign:"center" }}>¿Cómo calificarías tu experiencia?</div>
-                  <div style={{ display:"flex", justifyContent:"center", gap:8, marginBottom:20 }}>
-                    {[1,2,3,4,5].map(i => (
-                      <div key={i} onClick={() => setResenaRating(i)} style={{ cursor:"pointer", transition:"transform 180ms cubic-bezier(.34,1.56,.64,1)", transform:resenaRating>=i?"scale(1.2)":"scale(1)", touchAction:"manipulation" }}>
-                        <svg width="34" height="34" viewBox="0 0 24 24" fill={resenaRating>=i?"#FFB347":"rgba(0,0,0,.10)"} stroke={resenaRating>=i?"#FFB347":"rgba(0,0,0,.18)"} strokeWidth="1.5" style={{ filter:resenaRating>=i?"drop-shadow(0 2px 8px rgba(255,179,71,.5))":"none" }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                      </div>
-                    ))}
-                  </div>
-                  <textarea placeholder="Cuéntanos tu experiencia con tu psicólogo..." value={resenaTexto} onChange={e => setResenaTexto(e.target.value)}
-                    style={{ width:"100%", minHeight:100, padding:"12px 14px", border:"1px solid rgba(0,0,0,.12)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6, background:"rgba(0,0,0,.03)", color:C.text }}/>
-                  <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(255,179,71,.12)", border:"1px solid rgba(255,179,71,.20)", borderRadius:10, padding:"9px 13px", marginBottom:16 }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <span style={{ fontSize:11, color:C.amber, fontWeight:700 }}>Tu identidad permanecerá anónima</span>
-                  </div>
-                  <div style={{ display:"flex", gap:8 }}>
-                    {btn(() => setModal(null), "Cancelar", { flex:1, padding:12, background:"rgba(255,255,255,.08)", color:C.text, borderRadius:12, fontSize:13, fontWeight:700 })}
-                    {btn(() => enviarResena(), loadingResenas ? "Enviando..." : "Enviar reseña", { flex:2, padding:12, background:"linear-gradient(135deg,#FF8B6A,#D04428)", color:"white", borderRadius:12, fontSize:13, fontWeight:800, boxShadow:"0 4px 14px rgba(255,123,90,.35)" })}
-                  </div>
-                </div>
-              ))}
             </div>
             {bnav("perfil")}
+
+            {/* Modal reseña — fuera del div scrollable para evitar stacking context */}
+            {modal === "nueva-resena" && (
+              <div onClick={() => setModal(null)} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,.52)", zIndex:400, display:"flex", alignItems:"flex-end", animation:"overlayIn 0.22s ease both" }}>
+                <div onClick={e => e.stopPropagation()} style={{ width:"100%", background:"#FFFFFF", borderRadius:"24px 24px 0 0", paddingBottom:"max(28px, env(safe-area-inset-bottom, 28px))", animation:"sheetUp 0.38s cubic-bezier(0.32,0.72,0,1) both", boxShadow:"0 -8px 40px rgba(0,0,0,.18)", overflow:"hidden" }}>
+
+                  {/* Pill handle */}
+                  <div style={{ display:"flex", justifyContent:"center", padding:"14px 0 0" }}>
+                    <div style={{ width:40, height:4, background:"rgba(0,0,0,.12)", borderRadius:2 }}/>
+                  </div>
+
+                  {/* Header */}
+                  <div style={{ padding:"16px 20px 0", textAlign:"center" }}>
+                    <div style={{ fontSize:18, fontWeight:900, color:C.text, letterSpacing:"-0.02em", marginBottom:4 }}>Valorar a mi psicólogo</div>
+                    <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>Tu reseña es anónima y pública en su perfil</div>
+                  </div>
+
+                  <div style={{ padding:"16px 20px 0" }}>
+                    {/* Chip psicólogo */}
+                    {usuarioActual?.psicologoId && (
+                      <div style={{ display:"flex", alignItems:"center", gap:10, background:"rgba(30,77,43,.07)", border:"1px solid rgba(30,77,43,.14)", borderRadius:14, padding:"10px 14px", marginBottom:20 }}>
+                        <div style={{ width:34, height:34, borderRadius:"50%", background:"linear-gradient(135deg,#3D7A52,#1E4D2B)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div>
+                          <div style={{ fontSize:9, fontWeight:700, color:"rgba(30,77,43,.5)", textTransform:"uppercase", letterSpacing:".12em", marginBottom:2 }}>Tu psicólogo</div>
+                          <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{usuarioActual?.psicologoNombre || "Mi psicólogo"}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Estrellas */}
+                    <div style={{ textAlign:"center", marginBottom:20 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".14em", marginBottom:14 }}>
+                        {resenaRating === 0 ? "¿Cómo calificarías tu experiencia?" : resenaRating === 1 ? "Necesita mejorar" : resenaRating === 2 ? "Regular" : resenaRating === 3 ? "Buena" : resenaRating === 4 ? "Muy buena" : "¡Excelente! 🎉"}
+                      </div>
+                      <div style={{ display:"flex", justifyContent:"center", gap:10 }}>
+                        {[1,2,3,4,5].map(i => (
+                          <div key={i} onClick={() => setResenaRating(i)}
+                            style={{ cursor:"pointer", transition:"transform 180ms cubic-bezier(.34,1.56,.64,1)", transform:resenaRating>=i?"scale(1.25)":"scale(1)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                            <svg width="40" height="40" viewBox="0 0 24 24"
+                              fill={resenaRating>=i ? "#FFB347" : "rgba(0,0,0,.08)"}
+                              stroke={resenaRating>=i ? "#FFB347" : "rgba(0,0,0,.15)"}
+                              strokeWidth="1.25"
+                              style={{ filter:resenaRating>=i ? "drop-shadow(0 2px 8px rgba(255,179,71,.55))" : "none", display:"block" }}>
+                              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Textarea */}
+                    <textarea
+                      placeholder="Cuéntanos tu experiencia (opcional)..."
+                      value={resenaTexto}
+                      onChange={e => setResenaTexto(e.target.value)}
+                      style={{ width:"100%", minHeight:90, padding:"13px 14px", border:"1.5px solid rgba(0,0,0,.10)", borderRadius:14, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.65, background:"rgba(0,0,0,.025)", color:C.text, transition:"border-color 200ms" }}
+                    />
+
+                    {/* Aviso anónimo */}
+                    <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(30,77,43,.06)", border:"1px solid rgba(30,77,43,.12)", borderRadius:12, padding:"10px 13px", marginBottom:20 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      <span style={{ fontSize:11, color:"#3D7A52", fontWeight:700 }}>Tu identidad permanecerá anónima</span>
+                    </div>
+
+                    {/* Botones */}
+                    <div style={{ display:"flex", gap:10 }}>
+                      <div onClick={() => { setModal(null); setResenaTexto(""); setResenaRating(0); }}
+                        style={{ flex:1, padding:"14px 0", textAlign:"center", background:"rgba(0,0,0,.05)", border:"1px solid rgba(0,0,0,.09)", borderRadius:14, fontSize:14, fontWeight:700, color:C.light, cursor:"pointer", touchAction:"manipulation" }}>
+                        Cancelar
+                      </div>
+                      <div onClick={() => resenaRating > 0 && enviarResena()}
+                        style={{ flex:2, padding:"14px 0", textAlign:"center", borderRadius:14, fontSize:14, fontWeight:800, cursor: resenaRating > 0 ? "pointer" : "not-allowed", touchAction:"manipulation",
+                          background: resenaRating > 0 ? "linear-gradient(135deg,#3D7A52,#1E4D2B)" : "rgba(0,0,0,.08)",
+                          color: resenaRating > 0 ? "white" : "rgba(0,0,0,.28)",
+                          boxShadow: resenaRating > 0 ? "0 4px 16px rgba(30,77,43,.35)" : "none",
+                          transition:"all 200ms ease" }}>
+                        {loadingResenas ? "Enviando..." : "Enviar reseña"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </>)}
                     {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
