@@ -6991,8 +6991,6 @@ const styles = `
                 <div style={{ position:"absolute", top:"-30%", left:"50%", transform:"translateX(-50%)", width:280, height:280, borderRadius:"50%", background:"radial-gradient(ellipse,rgba(255,123,90,.14) 0%,transparent 70%)", pointerEvents:"none" }}/>
                 {/* Línea superior coral */}
                 <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:"linear-gradient(90deg,transparent 0%,rgba(255,123,90,.55) 40%,rgba(255,208,128,.35) 60%,transparent 100%)" }}/>
-                {/* Grid decorativo sutil */}
-                <div style={{ position:"absolute", inset:0, backgroundImage:"linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px)", backgroundSize:"32px 32px", pointerEvents:"none" }}/>
 
                 {/* Botón volver */}
                 <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.10)", backdropFilter:"blur(8px)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
@@ -7015,7 +7013,7 @@ const styles = `
                     <div onClick={() => { setMostrarTooltipVerif(true); setTimeout(() => setMostrarTooltipVerif(false), 2400); }}
                       style={{ position:"absolute", bottom:3, right:3, width:26, height:26, borderRadius:"50%", cursor:"pointer", zIndex:2,
                         background:"linear-gradient(135deg,#60A5FA,#1D4ED8)",
-                        border:"2.5px solid #07060F",
+                        border:"2.5px solid #0F2015",
                         display:"flex", alignItems:"center", justifyContent:"center",
                         boxShadow:"0 2px 10px rgba(29,78,216,.55)", touchAction:"manipulation" }}>
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -7078,14 +7076,14 @@ const styles = `
                   {(psicologoData?.telefono || psicologoData?.email || psicologoData?.direccionConsultorio) && (() => {
                     const rowStyle = { display:"flex", alignItems:"center", gap:12, padding:"11px 16px", borderTop:"1px solid rgba(0,0,0,.05)" };
                     const iconWrap = (bg, border) => ({ width:36, height:36, borderRadius:10, background:bg, border:`1px solid ${border}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 });
-                    const lbStyle = { fontSize:8, fontWeight:700, color:"rgba(0,0,0,.28)", textTransform:"uppercase", letterSpacing:".12em", marginBottom:2 };
-                    const valStyle = { fontSize:13, fontWeight:600, color:"#1A1A2E" };
+                    const lbStyle = { fontSize:8, fontWeight:700, color:"rgba(30,77,43,.45)", textTransform:"uppercase", letterSpacing:".12em", marginBottom:2 };
+                    const valStyle = { fontSize:13, fontWeight:600, color:"#1A2E1D" };
                     return (<>
                       <div style={{ display:"flex", alignItems:"center", gap:8, padding:"11px 16px 8px" }}>
                         <div style={{ width:20, height:20, borderRadius:6, background:"rgba(255,123,90,.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="2.5" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                         </div>
-                        <span style={{ fontSize:9, fontWeight:800, color:"rgba(0,0,0,.30)", letterSpacing:".16em", textTransform:"uppercase" }}>Contacto</span>
+                        <span style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".16em", textTransform:"uppercase" }}>Contacto</span>
                       </div>
                       {psicologoData?.telefono && (
                         <div style={rowStyle}>
@@ -7128,19 +7126,19 @@ const styles = `
                   {/* — Formación — */}
                   {(psicologoData?.especialidad || psicologoData?.enfoque) && (<>
                     <div style={{ display:"flex", alignItems:"center", gap:8, padding:"13px 16px 8px", borderTop:"1px solid rgba(0,0,0,.05)" }}>
-                      <div style={{ width:20, height:20, borderRadius:6, background:"rgba(29,78,216,.10)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" strokeWidth="2.5" strokeLinecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                      <div style={{ width:20, height:20, borderRadius:6, background:"rgba(30,77,43,.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2.5" strokeLinecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                       </div>
-                      <span style={{ fontSize:9, fontWeight:800, color:"rgba(0,0,0,.30)", letterSpacing:".16em", textTransform:"uppercase" }}>Formación</span>
+                      <span style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".16em", textTransform:"uppercase" }}>Formación</span>
                     </div>
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, padding:"6px 16px 14px", borderTop:"1px solid rgba(0,0,0,.05)" }}>
                       {[
-                        { lb:"Especialidad", val:psicologoData?.especialidad, accent:"#FF7B5A", bg:"rgba(255,123,90,.08)", border:"rgba(255,123,90,.18)" },
-                        { lb:"Enfoque",      val:psicologoData?.enfoque,      accent:"#4ECDC4", bg:"rgba(78,205,196,.08)",  border:"rgba(78,205,196,.18)"  },
+                        { lb:"Especialidad", val:psicologoData?.especialidad, accent:"#1E4D2B", bg:"rgba(30,77,43,.07)", border:"rgba(30,77,43,.14)" },
+                        { lb:"Enfoque",      val:psicologoData?.enfoque,      accent:"#3D7A52", bg:"rgba(61,122,82,.07)", border:"rgba(61,122,82,.14)" },
                       ].filter(x => x.val).map(({ lb, val, accent, bg, border }) => (
                         <div key={lb} style={{ background:bg, border:`1px solid ${border}`, borderRadius:12, padding:"10px 12px" }}>
-                          <div style={{ fontSize:8, fontWeight:700, color:accent, textTransform:"uppercase", letterSpacing:".12em", marginBottom:4, opacity:.8 }}>{lb}</div>
-                          <div style={{ fontSize:12, fontWeight:700, color:"#1A1A2E", lineHeight:1.35 }}>{val}</div>
+                          <div style={{ fontSize:8, fontWeight:700, color:accent, textTransform:"uppercase", letterSpacing:".12em", marginBottom:4 }}>{lb}</div>
+                          <div style={{ fontSize:12, fontWeight:700, color:"#1A2E1D", lineHeight:1.35 }}>{val}</div>
                         </div>
                       ))}
                     </div>
@@ -7150,12 +7148,12 @@ const styles = `
                   {psicologoData?.bio && (
                     <div style={{ padding:"13px 16px 16px", borderTop:"1px solid rgba(0,0,0,.05)" }}>
                       <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
-                        <div style={{ width:20, height:20, borderRadius:6, background:"rgba(255,123,90,.10)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <div style={{ width:20, height:20, borderRadius:6, background:"rgba(30,77,43,.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                         </div>
-                        <span style={{ fontSize:9, fontWeight:800, color:"rgba(0,0,0,.30)", letterSpacing:".16em", textTransform:"uppercase" }}>Sobre mí</span>
+                        <span style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".16em", textTransform:"uppercase" }}>Sobre mí</span>
                       </div>
-                      <div style={{ fontSize:13, color:"#3A3A4A", lineHeight:1.75, whiteSpace:"pre-wrap" }}>{psicologoData.bio}</div>
+                      <div style={{ fontSize:13, color:"#2D4A33", lineHeight:1.75, whiteSpace:"pre-wrap" }}>{psicologoData.bio}</div>
                     </div>
                   )}
                 </div>
@@ -7164,9 +7162,9 @@ const styles = `
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12, marginTop:6 }}>
                   <div style={{ display:"flex", alignItems:"center", gap:7 }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    <span style={{ fontSize:15, fontWeight:800, color:"#1A1A2E", letterSpacing:"-0.015em" }}>Reseñas</span>
+                    <span style={{ fontSize:15, fontWeight:800, color:"#1A2E1D", letterSpacing:"-0.015em" }}>Reseñas</span>
                   </div>
-                  {resenas.length > 0 && <span style={{ fontSize:10, fontWeight:700, color:"rgba(0,0,0,.28)", letterSpacing:".04em" }}>{resenas.length} verificadas</span>}
+                  {resenas.length > 0 && <span style={{ fontSize:10, fontWeight:700, color:"rgba(30,77,43,.45)", letterSpacing:".04em" }}>{resenas.length} verificadas</span>}
                 </div>
 
                 {loadingResenas ? (
@@ -7180,8 +7178,8 @@ const styles = `
                 ) : resenas.length === 0 ? (
                   <div style={{ background:"#FFFFFF", borderRadius:16, padding:"28px 20px", textAlign:"center", border:"1px solid rgba(0,0,0,.08)", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,179,71,.4)" strokeWidth="1.5" strokeLinecap="round" style={{ marginBottom:10 }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    <div style={{ fontSize:13, fontWeight:700, color:"#1A1A2E", marginBottom:4 }}>Aún no hay reseñas</div>
-                    <div style={{ fontSize:11, color:"rgba(0,0,0,.35)", lineHeight:1.5 }}>Sé el primero en compartir tu experiencia</div>
+                    <div style={{ fontSize:13, fontWeight:700, color:"#1A2E1D", marginBottom:4 }}>Aún no hay reseñas</div>
+                    <div style={{ fontSize:11, color:"#5C7A65", lineHeight:1.5 }}>Sé el primero en compartir tu experiencia</div>
                   </div>
                 ) : (<>
                   {/* Rating summary */}
@@ -7203,11 +7201,11 @@ const styles = `
                         const pct = resenas.length ? (count/resenas.length)*100 : 0;
                         return (
                           <div key={star} style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3 }}>
-                            <span style={{ fontSize:9, fontWeight:700, color:"rgba(0,0,0,.35)", width:7 }}>{star}</span>
-                            <div style={{ flex:1, height:4, borderRadius:2, background:"rgba(0,0,0,.07)", overflow:"hidden" }}>
+                            <span style={{ fontSize:9, fontWeight:700, color:"rgba(30,77,43,.45)", width:7 }}>{star}</span>
+                            <div style={{ flex:1, height:4, borderRadius:2, background:"rgba(30,77,43,.10)", overflow:"hidden" }}>
                               <div style={{ height:"100%", width:`${pct}%`, borderRadius:2, background:"linear-gradient(90deg,#FFB347,#FF8B6A)", transition:"width .6s ease" }}/>
                             </div>
-                            <span style={{ fontSize:9, color:"rgba(0,0,0,.28)", width:12, textAlign:"right" }}>{count}</span>
+                            <span style={{ fontSize:9, color:"rgba(30,77,43,.40)", width:12, textAlign:"right" }}>{count}</span>
                           </div>
                         );
                       })}
@@ -7221,10 +7219,10 @@ const styles = `
                         <div style={{ display:"flex", gap:2 }}>
                           {[1,2,3,4,5].map(s=><svg key={s} width="11" height="11" viewBox="0 0 24 24" fill={s<=r.rating?"#FFB347":"rgba(255,179,71,.2)"} stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>)}
                         </div>
-                        <div style={{ fontSize:10, color:"rgba(0,0,0,.30)", fontWeight:500 }}>{new Date(r.fecha).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}</div>
+                        <div style={{ fontSize:10, color:"#5C7A65", fontWeight:500 }}>{new Date(r.fecha).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}</div>
                       </div>
-                      <div style={{ fontSize:13, color:"#2A2A3A", lineHeight:1.6 }}>{r.texto}</div>
-                      <div style={{ fontSize:10, color:"rgba(0,0,0,.30)", marginTop:6, fontWeight:600 }}>— {ofuscarNombre(r.pacienteNombre)}</div>
+                      <div style={{ fontSize:13, color:"#1A2E1D", lineHeight:1.6 }}>{r.texto}</div>
+                      <div style={{ fontSize:10, color:"#5C7A65", marginTop:6, fontWeight:600 }}>— {ofuscarNombre(r.pacienteNombre)}</div>
                     </div>
                   ))}
                 </>)}
@@ -7250,8 +7248,8 @@ const styles = `
                   return (
                     <div style={{ marginTop:20 }}>
                       <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:12 }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A1A2E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                        <span style={{ fontSize:15, fontWeight:800, color:"#1A1A2E", letterSpacing:"-0.015em" }}>Métodos de pago</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A2E1D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        <span style={{ fontSize:15, fontWeight:800, color:"#1A2E1D", letterSpacing:"-0.015em" }}>Métodos de pago</span>
                       </div>
                       {pagosPsicologo.map((mp,i) => {
                         const info = METODOS_INFO[mp.id] || { nombre:mp.id, color:"#FF7B5A", bg:"rgba(255,123,90,.12)", border:"rgba(255,123,90,.22)" };
@@ -7261,8 +7259,8 @@ const styles = `
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={info.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                             </div>
                             <div style={{ flex:1, minWidth:0 }}>
-                              <div style={{ fontSize:13, fontWeight:700, color:"#1A1A2E" }}>{info.nombre}</div>
-                              <div style={{ fontSize:12, color:"rgba(0,0,0,.40)", marginTop:1, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{mp.numero}</div>
+                              <div style={{ fontSize:13, fontWeight:700, color:"#1A2E1D" }}>{info.nombre}</div>
+                              <div style={{ fontSize:12, color:"#5C7A65", marginTop:1, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{mp.numero}</div>
                             </div>
                             <div onClick={() => { try { navigator.clipboard?.writeText(mp.numero); } catch(e){} showToast(`${info.nombre} copiado`); }}
                               style={{ padding:"7px 14px", background:info.bg, color:info.color, borderRadius:20, fontSize:11, fontWeight:700, cursor:"pointer", border:`1px solid ${info.border}`, touchAction:"manipulation", flexShrink:0 }}>
