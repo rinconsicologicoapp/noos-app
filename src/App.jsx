@@ -7057,8 +7057,8 @@ const styles = `
 
                 {/* Avatar */}
                 <div style={{ position:"relative", width:92, height:92, margin:"0 auto 14px" }}>
-                  {/* Anillo exterior animado */}
-                  <div style={{ position:"absolute", inset:-5, borderRadius:"50%", background:"conic-gradient(from 0deg,rgba(255,123,90,.0) 0%,rgba(255,123,90,.5) 30%,rgba(255,208,128,.4) 50%,rgba(78,205,196,.3) 70%,rgba(255,123,90,.0) 100%)", animation:"spin 6s linear infinite", pointerEvents:"none" }}/>
+                  {/* Anillo exterior animado — verde bosque */}
+                  <div style={{ position:"absolute", inset:-5, borderRadius:"50%", background:"conic-gradient(from 0deg,rgba(30,77,43,0) 0%,rgba(61,122,82,.75) 35%,rgba(110,180,130,.55) 55%,rgba(30,77,43,.25) 75%,rgba(30,77,43,0) 100%)", animation:"spin 6s linear infinite", pointerEvents:"none" }}/>
                   <div style={{ position:"absolute", inset:-3, borderRadius:"50%", background:"#F0F2F0", pointerEvents:"none" }}/>
                   {psicologoData?.foto ? (
                     <img src={psicologoData.foto} alt="foto" style={{ width:92, height:92, borderRadius:"50%", objectFit:"cover", border:"2.5px solid rgba(255,123,90,.5)", display:"block", position:"relative", zIndex:1, boxShadow:"0 8px 28px rgba(0,0,0,.5)" }}/>
@@ -7346,12 +7346,12 @@ const styles = `
                   <div style={{ display:"flex", justifyContent:"center", gap:8, marginBottom:20 }}>
                     {[1,2,3,4,5].map(i => (
                       <div key={i} onClick={() => setResenaRating(i)} style={{ cursor:"pointer", transition:"transform 180ms cubic-bezier(.34,1.56,.64,1)", transform:resenaRating>=i?"scale(1.2)":"scale(1)", touchAction:"manipulation" }}>
-                        <svg width="34" height="34" viewBox="0 0 24 24" fill={resenaRating>=i?"#FFB347":"rgba(255,255,255,.12)"} stroke={resenaRating>=i?"#FFB347":"rgba(255,255,255,.25)"} strokeWidth="1.5" style={{ filter:resenaRating>=i?"drop-shadow(0 2px 8px rgba(255,179,71,.5))":"none" }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill={resenaRating>=i?"#FFB347":"rgba(0,0,0,.10)"} stroke={resenaRating>=i?"#FFB347":"rgba(0,0,0,.18)"} strokeWidth="1.5" style={{ filter:resenaRating>=i?"drop-shadow(0 2px 8px rgba(255,179,71,.5))":"none" }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                       </div>
                     ))}
                   </div>
                   <textarea placeholder="Cuéntanos tu experiencia con tu psicólogo..." value={resenaTexto} onChange={e => setResenaTexto(e.target.value)}
-                    style={{ width:"100%", minHeight:100, padding:"12px 14px", border:"1px solid rgba(255,255,255,.12)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6, background:"rgba(255,255,255,.06)", color:C.text }}/>
+                    style={{ width:"100%", minHeight:100, padding:"12px 14px", border:"1px solid rgba(0,0,0,.12)", borderRadius:12, fontSize:13, resize:"none", outline:"none", marginBottom:14, fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6, background:"rgba(0,0,0,.03)", color:C.text }}/>
                   <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(255,179,71,.12)", border:"1px solid rgba(255,179,71,.20)", borderRadius:10, padding:"9px 13px", marginBottom:16 }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <span style={{ fontSize:11, color:C.amber, fontWeight:700 }}>Tu identidad permanecerá anónima</span>
