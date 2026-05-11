@@ -6970,7 +6970,7 @@ const styles = `
           )}
 
           {/* PERFIL PSICÓLOGO — vista paciente */}
-          {!notifPanel && screen === "perfil-psicologo" && (
+          {!notifPanel && screen === "perfil-psicologo" && (<>
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.22s ease both" }}>
               <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative", borderBottom:"1px solid rgba(0,0,0,.11)" }}>
                 <div style={{ position:"absolute", top:0, left:0, right:0, height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),transparent)" }}/>
@@ -7210,9 +7210,9 @@ const styles = `
                   </div>
                 </div>
               ))}
-              {bnav("perfil")}
             </div>
-          )}    
+            {bnav("perfil")}
+          </>)}
                     {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
