@@ -6968,31 +6968,10 @@ const styles = `
               {bnav("perfil")}
             </div>
           )}
+
           {/* PERFIL PSICÓLOGO — vista paciente */}
           {!notifPanel && screen === "perfil-psicologo" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"fadeIn 0.22s ease both" }}>
-              {/* Skeleton mientras carga psicologoData — solo si es primera visita */}
-              {!psicologoData && (
-                <div style={{ animation:"fadeIn 0.15s ease" }}>
-                  {/* Skeleton header */}
-                  <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center" }}>
-                    <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    </div>
-                    <div style={{ width:80, height:80, borderRadius:"50%", background:"rgba(255,255,255,.10)", margin:"0 auto 16px", animation:"shimmer 1.5s infinite" }}/>
-                    <div style={{ height:22, width:160, borderRadius:8, background:"rgba(255,255,255,.10)", margin:"0 auto 8px", animation:"shimmer 1.5s infinite 0.1s" }}/>
-                    <div style={{ height:14, width:120, borderRadius:6, background:"rgba(255,255,255,.07)", margin:"0 auto 12px", animation:"shimmer 1.5s infinite 0.2s" }}/>
-                    <div style={{ height:26, width:100, borderRadius:20, background:"rgba(255,255,255,.08)", margin:"0 auto", animation:"shimmer 1.5s infinite 0.3s" }}/>
-                  </div>
-                  {/* Skeleton body */}
-                  <div style={{ padding:"0 14px", marginTop:-20, position:"relative", zIndex:10 }}>
-                    {[1,2,3].map(i => (
-                      <div key={i} style={{ background:"#FFFFFF", borderRadius:16, padding:16, marginBottom:12, height:80, animation:`shimmer 1.5s infinite ${i*0.1}s` }}/>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {psicologoData && <div style={{ animation:"fadeIn 0.18s ease both" }}>
               <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"24px 20px 44px", paddingTop:"max(24px, env(safe-area-inset-top, 24px))", textAlign:"center", position:"relative", borderBottom:"1px solid rgba(0,0,0,.11)" }}>
                 <div style={{ position:"absolute", top:0, left:0, right:0, height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),transparent)" }}/>
                 <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)" }}>
@@ -7045,7 +7024,7 @@ const styles = `
                 <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, border:"1px solid rgba(0,0,0,.11)", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.11), inset 0 1px 0 rgba(0,0,0,.11)", background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)" }}>
 
                   {/* Contacto */}
-                  {(psicologoData?.telefono || psicologoData?.email || psicologoData?.direccionConsultorio) && (<>
+                  {(psicologoData?.telefono || psicologoData?.email) && (<>
                     <div style={{ display:"flex", alignItems:"center", gap:6, padding:"10px 14px 6px", fontSize:8, fontWeight:700, color:"rgba(0,0,0,.15)", letterSpacing:".16em", textTransform:"uppercase" }}>
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.15)" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                       Contacto
@@ -7069,18 +7048,6 @@ const styles = `
                         <div>
                           <div style={{ fontSize:8, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:2 }}>Correo</div>
                           <div style={{ fontSize:12, fontWeight:600, color:C.text }}>{psicologoData.email}</div>
-                        </div>
-                      </div>
-                    )}
-                    {/* Dirección del consultorio — visible para el paciente */}
-                    {psicologoData?.direccionConsultorio && (
-                      <div style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px", borderTop:"1px solid rgba(0,0,0,.06)" }}>
-                        <div style={{ width:30, height:30, borderRadius:9, background:"rgba(255,123,90,.15)", border:"1px solid rgba(255,123,90,.20)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        </div>
-                        <div>
-                          <div style={{ fontSize:8, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:2 }}>Consultorio</div>
-                          <div style={{ fontSize:13, fontWeight:600, color:C.text }}>{psicologoData.direccionConsultorio}</div>
                         </div>
                       </div>
                     )}
@@ -7216,7 +7183,7 @@ const styles = `
                   <div style={{ display:"flex", justifyContent:"center", gap:10, marginBottom:18 }}>
                     {[1,2,3,4,5].map(i => (
                       <div key={i} onClick={() => setResenaRating(i)} style={{ cursor:"pointer", transition:"transform 0.15s", transform: resenaRating >= i ? "scale(1.15)" : "scale(1)" }}>
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill={resenaRating >= i ? C.amber : "rgba(0,0,0,.10)"} stroke={resenaRating >= i ? C.amber : "rgba(0,0,0,.18)"} strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill={resenaRating >= i ? C.amber : "rgba(255,255,255,.1)"} stroke={resenaRating >= i ? C.amber : "rgba(255,255,255,.2)"} strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                       </div>
                     ))}
                   </div>
@@ -7232,11 +7199,10 @@ const styles = `
                   </div>
                 </div>
               ))}
-            </div>}
-            {bnav("perfil")}
-          </div>
-          )}
-          {/* MIS PACIENTES */}
+              {bnav("perfil")}
+            </div>
+          )}    
+                    {/* MIS PACIENTES */}
           {!notifPanel && screen === "psi-dashboard" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
               <div style={{ background:"rgba(240,242,240,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:12, borderBottom:"1px solid rgba(0,0,0,.11)" }}>
