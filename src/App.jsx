@@ -7032,17 +7032,9 @@ const styles = `
                   )}
                 </div>
 
-                {/* Eyebrow */}
-                <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,123,90,.65)", letterSpacing:".18em", textTransform:"uppercase", marginBottom:6 }}>Tu psicólogo</div>
-
                 {/* Nombre */}
-                <div style={{ fontSize:26, fontWeight:900, color:"#FFFFFF", letterSpacing:"-0.025em", lineHeight:1.05, marginBottom:5 }}>
+                <div style={{ fontSize:26, fontWeight:900, color:"#FFFFFF", letterSpacing:"-0.025em", lineHeight:1.05, marginBottom:14 }}>
                   {psicologoData?.nombre || usuarioActual?.psicologoNombre || "Mi psicólogo"}
-                </div>
-
-                {/* Subtítulo */}
-                <div style={{ fontSize:12, color:"rgba(255,255,255,.40)", fontWeight:500, letterSpacing:".02em", marginBottom:14 }}>
-                  Psicólogo Clínico · Bogotá, Colombia
                 </div>
 
                 {/* Chips de info */}
