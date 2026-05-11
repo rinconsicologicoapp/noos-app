@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef, useCallback } from "react";
 import { messaging, getToken, onMessage, deleteToken } from "./firebase";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword } from "firebase/auth";
 import { auth } from "./firebase";
 import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
@@ -839,6 +839,18 @@ const [formPinAdmin, setFormPinAdmin] = useState("");
   const [todosUsuarios, setTodosUsuarios] = useState([]);
   const [usuariosSeleccionados, setUsuariosSeleccionados] = useState([]);
   const [loadingUsuarios, setLoadingUsuarios] = useState(false);
+  const [pacienteEditar, setPacienteEditar] = useState(null);
+  const [pacEditNombre, setPacEditNombre] = useState("");
+  const [pacEditTel, setPacEditTel] = useState("");
+  const [pacEditPsicoId, setPacEditPsicoId] = useState("");
+  const [pacEditLoading, setPacEditLoading] = useState(false);
+  const [pacienteEliminar, setPacienteEliminar] = useState(null);
+  const [resetPinUsuario, setResetPinUsuario] = useState(null);
+  const [resetPinGenerado, setResetPinGenerado] = useState("");
+  const [broadcastTipo, setBroadcastTipo] = useState("pacientes");
+  const [broadcastTitulo, setBroadcastTitulo] = useState("");
+  const [broadcastMensaje, setBroadcastMensaje] = useState("");
+  const [broadcastLoading, setBroadcastLoading] = useState(false);
   const [psicoEditar, setPsicoEditar] = useState(null);
   const [psicoEditNombre, setPsicoEditNombre] = useState("");
   const [psicoEditTel, setPsicoEditTel] = useState("");
@@ -1150,6 +1162,7 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
         setPacientes(listaPacientes);
         showScreen("admin-perfil");
       } else if (rol === "administrador") {
+        cargarTodosUsuarios();
         showScreen("admin-home");
       } else {
         showToast("Rol no reconocido ❌");
@@ -2333,6 +2346,7 @@ useEffect(() => {
         setPacientes(listaPacientes);
         showScreen("admin-perfil");
         } else if (data.rol === "administrador") {
+          cargarTodosUsuarios();
           showScreen("admin-home");
         }
       }
@@ -3135,7 +3149,7 @@ const styles = `
         const act = active === id;
         const c = act ? AMB : AMB_DIM;
         return (
-          <div key={id} onClick={() => { if(navigator.vibrate) navigator.vibrate([6,0,6]); showScreen(id); }}
+          <div key={id} onClick={() => { if(navigator.vibrate) navigator.vibrate([6,0,6]); if(id==="admin-psicologo"||id==="admin-pacientes") cargarTodosUsuarios(); showScreen(id); }}
             style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3, paddingBottom:4, cursor:"pointer", position:"relative" }}>
             {act && <div style={{ position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)", width:1, height:8, background:`linear-gradient(to bottom,transparent,${AMB})`, borderRadius:1 }}/>}
             <div style={{ width:38, height:30, borderRadius:10,
@@ -6975,12 +6989,13 @@ const styles = `
                       if (pinNuevo.length < 4) { showToast("El nuevo PIN debe tener 4 dígitos ❌"); return; }
                       if (pinNuevo !== pinNuevo2) { showToast("Los PINs no coinciden ❌"); return; }
                       try {
-                        await signInWithEmailAndPassword(auth, usuarioActual.email, pinAnterior + "**");
+                        const cred = await signInWithEmailAndPassword(auth, usuarioActual.email, pinAnterior + "**");
+                        await updatePassword(cred.user, pinNuevo + "**");
                         await updateDoc(doc(db, "usuarios", usuarioActual.uid), { pin: pinNuevo });
                         setModal(null);
                         setPinAnterior(""); setPinNuevo(""); setPinNuevo2("");
                         showNotif("PIN actualizado", "Tu PIN fue cambiado exitosamente 🔒", "🔒");
-                      } catch(e) { showToast("PIN actual incorrecto ❌"); }
+                      } catch(e) { showToast(e?.code === "auth/wrong-password" ? "PIN actual incorrecto ❌" : "Error al cambiar PIN ❌"); }
                     }, "Guardar", { flex:2, padding:11, background:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
@@ -7726,9 +7741,18 @@ const styles = `
     <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
 
       {/* Header */}
-      <div style={{ background:`linear-gradient(145deg,${C.dark},#1E4D2B)`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
-        <div style={{ fontSize:17, fontWeight:900, color:"white", letterSpacing:"-0.01em" }}>Psicólogos</div>
-        <div style={{ fontSize:11, color:"rgba(255,255,255,0.55)", marginTop:2 }}>{psicologos.length} registrado{psicologos.length !== 1 ? "s" : ""}</div>
+      <div style={{ background:`linear-gradient(145deg,${C.dark},#1E4D2B)`, padding:"16px 18px 14px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <div>
+            <div style={{ fontSize:17, fontWeight:900, color:"white", letterSpacing:"-0.01em" }}>Psicólogos</div>
+            <div style={{ fontSize:11, color:"rgba(255,255,255,0.55)", marginTop:2 }}>{psicologos.length} registrado{psicologos.length !== 1 ? "s" : ""}</div>
+          </div>
+          <div onClick={() => { setBroadcastTipo("psicologos"); setBroadcastTitulo(""); setBroadcastMensaje(""); setModal("broadcast"); }}
+            style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"rgba(255,255,255,.12)", border:"1px solid rgba(255,255,255,.18)", borderRadius:20, cursor:"pointer", touchAction:"manipulation" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span style={{ fontSize:11, fontWeight:700, color:"white" }}>Notificar</span>
+          </div>
+        </div>
       </div>
 
       {/* Lista */}
@@ -7892,94 +7916,301 @@ const styles = `
 
 {/* ADMIN — PACIENTES */}
 {!notifPanel && screen === "admin-pacientes" && (() => {
-  const busqueda = adminBusqueda;
-  const setBusqueda = setAdminBusqueda;
-  const pacientes = todosUsuarios
-    .filter(u => u.rol === "paciente")
-    .filter(u => !busqueda || u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || u.email?.toLowerCase().includes(busqueda.toLowerCase()));
   const psicologos = todosUsuarios.filter(u => u.rol === "psicologo");
+  const todosPacientes = todosUsuarios.filter(u => u.rol === "paciente");
+  const pacientes = todosPacientes.filter(u =>
+    !adminBusqueda ||
+    u.nombre?.toLowerCase().includes(adminBusqueda.toLowerCase()) ||
+    u.email?.toLowerCase().includes(adminBusqueda.toLowerCase())
+  );
+
+  const abrirEditarPac = (pac) => {
+    setPacienteEditar(pac);
+    setPacEditNombre(pac.nombre || "");
+    setPacEditTel(pac.telefono || "");
+    setPacEditPsicoId(pac.psicologoId || "");
+    setModal("editar-paciente");
+  };
+
+  const guardarEdicionPac = async () => {
+    if (!pacienteEditar) return;
+    if (!pacEditNombre.trim()) { showToast("El nombre es obligatorio"); return; }
+    setPacEditLoading(true);
+    try {
+      const psiObj = psicologos.find(p => p.id === pacEditPsicoId);
+      await updateDoc(doc(db, "usuarios", pacienteEditar.id), {
+        nombre:         pacEditNombre.trim(),
+        telefono:       pacEditTel.trim(),
+        psicologoId:    pacEditPsicoId || "",
+        psicologoNombre: psiObj?.nombre || "",
+      });
+      showToast("Paciente actualizado ✅");
+      setModal(null); setPacienteEditar(null);
+      await cargarTodosUsuarios();
+    } catch(e) { showToast("Error al guardar ❌"); }
+    setPacEditLoading(false);
+  };
+
+  const confirmarEliminarPac = async () => {
+    if (!pacienteEliminar) return;
+    const uid = pacienteEliminar.id;
+    try {
+      const colsSimples = ["notas","autorregistros","tareas","recursos","notificaciones","registrosAnimo","habitos","registrosHabito","notificaciones_programadas"];
+      await Promise.all(colsSimples.map(async col => {
+        const snap = await getDocs(query(collection(db, col), where("pacienteId","==",uid)));
+        await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+      }));
+      const citasSnap = await getDocs(query(collection(db,"citas"), where("pacienteId","==",uid)));
+      await Promise.all(citasSnap.docs.map(d => deleteDoc(d.ref)));
+      await deleteDoc(doc(db, "usuarios", uid));
+      showToast(`${pacienteEliminar.nombre} eliminado ✅`);
+      setModal(null); setPacienteEliminar(null);
+      await cargarTodosUsuarios();
+    } catch(e) { showToast("Error al eliminar ❌"); }
+  };
+
+  const generarPin = () => Math.floor(1000 + Math.random() * 9000).toString();
+
+  const resetearPin = async () => {
+    if (!resetPinUsuario) return;
+    const pin = generarPin();
+    try {
+      await updateDoc(doc(db, "usuarios", resetPinUsuario.id), { pin, pinResetPorAdmin: true });
+      setResetPinGenerado(pin);
+      showToast("PIN temporal guardado ✅");
+    } catch(e) { showToast("Error al resetear PIN ❌"); }
+  };
+
   return (
     <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
-      <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
-        <div style={{ fontSize:16, fontWeight:700, color:"white" }}>👥 Pacientes</div>
-        <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2 }}>{todosUsuarios.filter(u=>u.rol==="paciente").length} pacientes registrados</div>
-        {/* Buscador */}
-        <div style={{ marginTop:10, position:"relative" }}>
-          <input
-            placeholder="Buscar por nombre o correo..."
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-            style={{ width:"100%", padding:"9px 12px 9px 34px", borderRadius:12, border:"none", fontSize:12, background:"rgba(0,0,0,.11)", color:"white", fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}
-          />
-          <span style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", fontSize:14, opacity:.6 }}>🔍</span>
+
+      {/* Header */}
+      <div style={{ background:`linear-gradient(145deg,${C.dark},#1E4D2B)`, padding:"16px 18px 14px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
+          <div>
+            <div style={{ fontSize:17, fontWeight:900, color:"white", letterSpacing:"-0.01em" }}>Pacientes</div>
+            <div style={{ fontSize:11, color:"rgba(255,255,255,0.55)" }}>{todosPacientes.length} registrados</div>
+          </div>
+          <div onClick={() => { setBroadcastTipo("pacientes"); setBroadcastTitulo(""); setBroadcastMensaje(""); setModal("broadcast"); }}
+            style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"rgba(255,255,255,.12)", border:"1px solid rgba(255,255,255,.18)", borderRadius:20, cursor:"pointer", touchAction:"manipulation" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span style={{ fontSize:11, fontWeight:700, color:"white" }}>Notificar</span>
+          </div>
+        </div>
+        <div style={{ position:"relative", marginTop:10 }}>
+          <input placeholder="Buscar por nombre o correo..." value={adminBusqueda} onChange={e => setAdminBusqueda(e.target.value)}
+            style={{ width:"100%", padding:"9px 12px 9px 34px", borderRadius:12, border:"none", fontSize:12, background:"rgba(0,0,0,.18)", color:"white", fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}/>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="2" strokeLinecap="round" style={{ position:"absolute", left:11, top:"50%", transform:"translateY(-50%)" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
       </div>
+
+      {/* Lista */}
       <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:NAV_PB }}>
         {pacientes.length === 0 ? (
           <div style={{ textAlign:"center", padding:32, color:C.light, fontSize:13 }}>
-            {busqueda ? "Sin resultados" : "No hay pacientes registrados"}
+            {adminBusqueda ? "Sin resultados" : "No hay pacientes registrados"}
           </div>
         ) : pacientes.map(pac => {
           const psi = psicologos.find(p => p.id === pac.psicologoId);
           return (
-            <div key={pac.id} style={{ background:"#FFFFFF", borderRadius:16, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.11)" }}>
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-                <div style={{ width:40, height:40, background:"rgba(255,123,90,0.15)", borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{pac.nombre}</div>
-                  <div style={{ fontSize:10, color:C.light }}>{pac.email}</div>
-                </div>
-                <div style={{ background:pac.inactivo?"#FFE0E0":"rgba(125,170,146,0.15)", color:pac.inactivo?C.red:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
-                  {pac.inactivo ? "Inactivo" : "Activo"}
-                </div>
-              </div>
-              {/* Psicólogo asignado */}
-              <div style={{ fontSize:10, color:C.light, marginBottom:6, fontWeight:600 }}>PSICÓLOGO ASIGNADO</div>
-              {psi ? (
-                <div style={{ display:"flex", alignItems:"center", gap:8, background:"#F0F2F0", borderRadius:10, padding:"8px 10px", marginBottom:8 }}>
-                  <span style={{ fontSize:13 }}>🧠</span>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{psi.nombre}</div>
+            <div key={pac.id} style={{ background:"#FFFFFF", borderRadius:16, marginBottom:10, border:"1px solid rgba(0,0,0,.08)", overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,.06)" }}>
+              {/* Cabecera */}
+              <div style={{ padding:"13px 14px 10px", borderBottom:"1px solid rgba(0,0,0,.06)" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+                  <div style={{ width:40, height:40, background:"rgba(255,123,90,.12)", borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
-                  {btn(async () => {
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>{pac.nombre}</div>
+                    <div style={{ fontSize:10, color:C.light, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{pac.email}</div>
+                    {psi && <div style={{ fontSize:10, color:"#3D7A52", fontWeight:700, marginTop:2 }}>🧠 {psi.nombre}</div>}
+                  </div>
+                  {/* Toggle activo/inactivo */}
+                  <div onClick={async () => {
                     try {
-                      await updateDoc(doc(db, "usuarios", pac.id), { psicologoId: "", psicologoNombre: "" });
-                      showToast(`${pac.nombre} desvinculado ✅`);
+                      await updateDoc(doc(db,"usuarios",pac.id), { inactivo: !pac.inactivo });
+                      showToast(pac.inactivo ? `${pac.nombre} activado ✅` : `${pac.nombre} desactivado`);
                       await cargarTodosUsuarios();
                     } catch(e) { showToast("Error ❌"); }
-                  }, "Desvincular", { padding:"4px 10px", background:"rgba(255,107,107,.15)", color:C.red, borderRadius:8, fontSize:10, fontWeight:800 })}
+                  }} style={{ padding:"5px 10px", borderRadius:20, cursor:"pointer", touchAction:"manipulation",
+                    background: pac.inactivo ? "rgba(255,107,107,.12)" : "rgba(30,77,43,.12)",
+                    border: `1px solid ${pac.inactivo ? "rgba(255,107,107,.25)" : "rgba(30,77,43,.22)"}` }}>
+                    <span style={{ fontSize:9, fontWeight:800, color: pac.inactivo ? C.red : "#1E4D2B" }}>
+                      {pac.inactivo ? "Inactivo" : "Activo"}
+                    </span>
+                  </div>
                 </div>
-              ) : (
-                <div style={{ fontSize:11, color:C.light, fontStyle:"italic", marginBottom:8 }}>Sin psicólogo asignado</div>
-              )}
-              {/* Cambiar / asignar psicólogo */}
-              <select
-                style={{ width:"100%", padding:"8px 12px", border:"1px solid rgba(255,123,90,0.2)", borderRadius:10, fontSize:12, background:"#FFFFFF", color:C.text, fontFamily:"inherit" }}
-                value={pac.psicologoId || ""}
-                onChange={async (e) => {
-                  const psiId = e.target.value;
-                  const psiObj = psicologos.find(p => p.id === psiId);
-                  try {
-                    await updateDoc(doc(db, "usuarios", pac.id), {
-                      psicologoId: psiId,
-                      psicologoNombre: psiObj?.nombre || "",
-                    });
-                    showToast(psiId ? `Asignado a ${psiObj?.nombre} ✅` : "Psicólogo removido ✅");
-                    await cargarTodosUsuarios();
-                  } catch(err) { showToast("Error ❌"); }
-                }}
-              >
-                <option value="">— Sin psicólogo —</option>
-                {psicologos.map(p => (
-                  <option key={p.id} value={p.id}>{p.nombre}</option>
-                ))}
-              </select>
+                {/* Botones acción */}
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:6 }}>
+                  <div onClick={() => abrirEditarPac(pac)} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"7px 0", background:"rgba(30,77,43,.09)", border:"1px solid rgba(30,77,43,.18)", borderRadius:9, cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <span style={{ fontSize:10, fontWeight:700, color:"#1E4D2B" }}>Editar</span>
+                  </div>
+                  <div onClick={() => { setResetPinUsuario(pac); setResetPinGenerado(""); setModal("reset-pin"); }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"7px 0", background:"rgba(255,179,71,.09)", border:"1px solid rgba(255,179,71,.25)", borderRadius:9, cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span style={{ fontSize:10, fontWeight:700, color:C.amber }}>PIN</span>
+                  </div>
+                  <div onClick={() => { setPacienteEliminar(pac); setModal("confirmar-eliminar-paciente"); }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"7px 0", background:"rgba(255,107,107,.08)", border:"1px solid rgba(255,107,107,.20)", borderRadius:9, cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                    <span style={{ fontSize:10, fontWeight:700, color:C.red }}>Eliminar</span>
+                  </div>
+                </div>
+              </div>
+              {/* Cambiar psicólogo */}
+              <div style={{ padding:"10px 14px" }}>
+                <div style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".12em", textTransform:"uppercase", marginBottom:6 }}>Psicólogo asignado</div>
+                <select style={{ width:"100%", padding:"8px 12px", border:"1px solid rgba(30,77,43,.18)", borderRadius:10, fontSize:12, background:"#FFFFFF", color:C.text, fontFamily:"inherit" }}
+                  value={pac.psicologoId || ""}
+                  onChange={async (e) => {
+                    const psiId = e.target.value;
+                    const psiObj = psicologos.find(p => p.id === psiId);
+                    try {
+                      await updateDoc(doc(db,"usuarios",pac.id), { psicologoId: psiId, psicologoNombre: psiObj?.nombre || "" });
+                      showToast(psiId ? `Asignado a ${psiObj?.nombre} ✅` : "Psicólogo removido ✅");
+                      await cargarTodosUsuarios();
+                    } catch(err) { showToast("Error ❌"); }
+                  }}>
+                  <option value="">— Sin psicólogo —</option>
+                  {psicologos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                </select>
+              </div>
             </div>
           );
         })}
       </div>
+
+      {/* Modal — Editar paciente */}
+      {mdl("editar-paciente", (
+        <div>
+          <div style={{ fontSize:18, fontWeight:900, color:C.text, marginBottom:4, letterSpacing:"-0.02em" }}>Editar paciente</div>
+          <div style={{ fontSize:12, color:C.light, marginBottom:18 }}>{pacienteEditar?.email}</div>
+          {[
+            { lb:"Nombre completo *", val:pacEditNombre, set:setPacEditNombre, ph:"Nombre del paciente" },
+            { lb:"Teléfono", val:pacEditTel, set:setPacEditTel, ph:"+57 300 000 0000" },
+          ].map(({ lb, val, set, ph }) => (
+            <div key={lb} style={{ marginBottom:12 }}>
+              <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:5 }}>{lb}</div>
+              <input value={val} onChange={e => set(e.target.value)} placeholder={ph}
+                style={{ width:"100%", padding:"11px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", color:C.text, background:"rgba(0,0,0,.03)" }}/>
+            </div>
+          ))}
+          <div style={{ marginBottom:18 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:5 }}>Psicólogo asignado</div>
+            <select value={pacEditPsicoId} onChange={e => setPacEditPsicoId(e.target.value)}
+              style={{ width:"100%", padding:"11px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, background:"rgba(0,0,0,.03)", color:C.text, fontFamily:"inherit" }}>
+              <option value="">— Sin psicólogo —</option>
+              {psicologos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+            </select>
+          </div>
+          <div style={{ display:"flex", gap:8 }}>
+            {btn(() => { setModal(null); setPacienteEditar(null); }, "Cancelar", { flex:1, padding:12, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:12, fontSize:13, fontWeight:700 })}
+            {btn(guardarEdicionPac, pacEditLoading ? "Guardando..." : "Guardar", { flex:2, padding:12, background:"linear-gradient(135deg,#3D7A52,#1E4D2B)", color:"white", borderRadius:12, fontSize:13, fontWeight:800, boxShadow:"0 4px 14px rgba(30,77,43,.35)" })}
+          </div>
+        </div>
+      ))}
+
+      {/* Modal — Reset PIN */}
+      {mdl("reset-pin", (
+        <div style={{ textAlign:"center" }}>
+          <div style={{ width:52, height:52, borderRadius:14, background:"rgba(255,179,71,.12)", border:"1px solid rgba(255,179,71,.25)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 14px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div style={{ fontSize:17, fontWeight:900, color:C.text, marginBottom:4, letterSpacing:"-0.015em" }}>Resetear PIN</div>
+          <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:4 }}>{resetPinUsuario?.nombre}</div>
+          <div style={{ fontSize:12, color:C.light, marginBottom:20, lineHeight:1.6 }}>
+            Se generará un PIN temporal de 4 dígitos. Comunícaselo al paciente para que pueda ingresar.
+          </div>
+          {resetPinGenerado ? (
+            <div style={{ marginBottom:20 }}>
+              <div style={{ fontSize:11, color:C.light, marginBottom:8, textTransform:"uppercase", letterSpacing:".10em", fontWeight:700 }}>PIN temporal generado</div>
+              <div style={{ fontSize:48, fontWeight:900, color:C.text, letterSpacing:"0.12em", background:"rgba(30,77,43,.07)", borderRadius:16, padding:"16px 0", border:"2px dashed rgba(30,77,43,.25)", marginBottom:8 }}>{resetPinGenerado}</div>
+              <div style={{ fontSize:11, color:C.light, lineHeight:1.5 }}>Comunica este PIN al paciente.<br/>Podrá cambiarlo desde su perfil.</div>
+            </div>
+          ) : null}
+          <div style={{ display:"flex", gap:8 }}>
+            {btn(() => { setModal(null); setResetPinUsuario(null); setResetPinGenerado(""); }, resetPinGenerado ? "Cerrar" : "Cancelar", { flex:1, padding:12, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:12, fontSize:13, fontWeight:700 })}
+            {!resetPinGenerado && btn(resetearPin, "Generar PIN", { flex:2, padding:12, background:`linear-gradient(135deg,${C.amber},#D04428)`, color:"white", borderRadius:12, fontSize:13, fontWeight:800, boxShadow:`0 4px 14px rgba(255,179,71,.35)` })}
+          </div>
+        </div>
+      ))}
+
+      {/* Modal — Confirmar eliminar paciente */}
+      {mdl("confirmar-eliminar-paciente", (
+        <div style={{ textAlign:"center" }}>
+          <div style={{ width:56, height:56, borderRadius:16, background:"rgba(255,107,107,.12)", border:"1px solid rgba(255,107,107,.20)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          </div>
+          <div style={{ fontSize:17, fontWeight:900, color:C.text, marginBottom:6 }}>¿Eliminar paciente?</div>
+          <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:6 }}>{pacienteEliminar?.nombre}</div>
+          <div style={{ fontSize:12, color:C.light, lineHeight:1.6, marginBottom:20 }}>
+            Se eliminarán sus notas, citas, tareas, registros y notificaciones. Esta acción no se puede deshacer.
+          </div>
+          <div style={{ display:"flex", gap:8 }}>
+            {btn(() => { setModal(null); setPacienteEliminar(null); }, "Cancelar", { flex:1, padding:12, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:12, fontSize:13, fontWeight:700 })}
+            {btn(confirmarEliminarPac, "Sí, eliminar todo", { flex:1, padding:12, background:"linear-gradient(135deg,#FF6B6B,#D04428)", color:"white", borderRadius:12, fontSize:13, fontWeight:800, boxShadow:"0 4px 14px rgba(255,107,107,.35)" })}
+          </div>
+        </div>
+      ))}
+
+      {/* Modal — Broadcast */}
+      {mdl("broadcast", (
+        <div>
+          <div style={{ fontSize:18, fontWeight:900, color:C.text, marginBottom:4, letterSpacing:"-0.02em" }}>Enviar notificación</div>
+          <div style={{ fontSize:12, color:C.light, marginBottom:16 }}>Envía un aviso a un grupo de usuarios</div>
+          <div style={{ display:"flex", gap:6, marginBottom:16 }}>
+            {["pacientes","psicologos","todos"].map(tipo => (
+              <div key={tipo} onClick={() => setBroadcastTipo(tipo)}
+                style={{ flex:1, padding:"8px 0", textAlign:"center", borderRadius:10, cursor:"pointer", fontSize:11, fontWeight:700, touchAction:"manipulation",
+                  background: broadcastTipo===tipo ? "linear-gradient(135deg,#3D7A52,#1E4D2B)" : "rgba(0,0,0,.06)",
+                  color: broadcastTipo===tipo ? "white" : C.light,
+                  border: broadcastTipo===tipo ? "none" : "1px solid rgba(0,0,0,.10)" }}>
+                {tipo === "pacientes" ? "Pacientes" : tipo === "psicologos" ? "Psicólogos" : "Todos"}
+              </div>
+            ))}
+          </div>
+          <div style={{ marginBottom:12 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:5 }}>Título</div>
+            <input value={broadcastTitulo} onChange={e => setBroadcastTitulo(e.target.value)} placeholder="Título de la notificación"
+              style={{ width:"100%", padding:"11px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", color:C.text, background:"rgba(0,0,0,.03)" }}/>
+          </div>
+          <div style={{ marginBottom:20 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".10em", marginBottom:5 }}>Mensaje</div>
+            <textarea value={broadcastMensaje} onChange={e => setBroadcastMensaje(e.target.value)} placeholder="Escribe el mensaje..."
+              style={{ width:"100%", minHeight:80, padding:"11px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, resize:"none", outline:"none", fontFamily:"inherit", boxSizing:"border-box", color:C.text, background:"rgba(0,0,0,.03)", lineHeight:1.55 }}/>
+          </div>
+          <div style={{ background:"rgba(30,77,43,.07)", border:"1px solid rgba(30,77,43,.15)", borderRadius:10, padding:"9px 13px", marginBottom:16, fontSize:11, color:"#3D7A52", fontWeight:600 }}>
+            Se enviará a {broadcastTipo==="pacientes" ? `${todosPacientes.length} pacientes` : broadcastTipo==="psicologos" ? `${todosUsuarios.filter(u=>u.rol==="psicologo").length} psicólogos` : `${todosUsuarios.filter(u=>u.rol!=="administrador").length} usuarios`}
+          </div>
+          <div style={{ display:"flex", gap:8 }}>
+            {btn(() => setModal(null), "Cancelar", { flex:1, padding:12, background:"rgba(0,0,0,.08)", color:C.text, borderRadius:12, fontSize:13, fontWeight:700 })}
+            {btn(async () => {
+              if (!broadcastTitulo.trim() || !broadcastMensaje.trim()) { showToast("Completa título y mensaje"); return; }
+              setBroadcastLoading(true);
+              try {
+                const destinatarios = todosUsuarios.filter(u =>
+                  broadcastTipo === "todos" ? u.rol !== "administrador" :
+                  broadcastTipo === "pacientes" ? u.rol === "paciente" : u.rol === "psicologo"
+                );
+                await Promise.all(destinatarios.map(u =>
+                  setDoc(doc(db, "notificaciones", `broadcast_${u.id}_${Date.now()}`), {
+                    pacienteId: u.id,
+                    titulo: broadcastTitulo.trim(),
+                    mensaje: broadcastMensaje.trim(),
+                    icon: "📢",
+                    tipo: "broadcast",
+                    leida: false,
+                    creadoEn: new Date().toISOString(),
+                  })
+                ));
+                showToast(`Enviado a ${destinatarios.length} usuarios ✅`);
+                setModal(null); setBroadcastTitulo(""); setBroadcastMensaje("");
+              } catch(e) { showToast("Error al enviar ❌"); }
+              setBroadcastLoading(false);
+            }, broadcastLoading ? "Enviando..." : "Enviar", { flex:2, padding:12, background:"linear-gradient(135deg,#3D7A52,#1E4D2B)", color:"white", borderRadius:12, fontSize:13, fontWeight:800, boxShadow:"0 4px 14px rgba(30,77,43,.35)" })}
+          </div>
+        </div>
+      ))}
+
       {anav("admin-pacientes")}
     </div>
   );
