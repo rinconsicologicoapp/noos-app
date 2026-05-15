@@ -1943,6 +1943,7 @@ const cargarTareasPsicologo = (pacienteId, psicologoId) => {
 };
 
 const crearTarea = async () => {
+  if (loadingTarea) return;
   if (!tareaTitulo.trim()) { showToast("Escribe un título ❌"); return; }
   if (!pacienteSeleccionado) { showToast("No hay paciente seleccionado ❌"); return; }
   setLoadingTarea(true);
@@ -10138,7 +10139,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
 
                   <div style={{ display:"flex", gap:8 }}>
                     {btn(() => setModal(null), "Cancelar", { flex:1, padding:11, background:"rgba(0,0,0,.07)", color:C.text, borderRadius:11, fontSize:12, fontWeight:700 })}
-                    {btn(() => crearTarea(), loadingTarea ? "Guardando..." : "Asignar tarea", { flex:2, padding:11, background:loadingTarea ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:700, boxShadow:`0 4px 14px ${C.plum}25` })}
+                    {btn(() => { if (!loadingTarea) crearTarea(); }, loadingTarea ? "Guardando..." : "Asignar tarea", { flex:2, padding:11, background:loadingTarea ? C.light : C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:700, boxShadow:`0 4px 14px ${C.plum}25`, opacity:loadingTarea?0.6:1, pointerEvents:loadingTarea?"none":"auto" })}
                   </div>
                 </div>
               ))}
