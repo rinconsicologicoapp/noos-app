@@ -9934,144 +9934,152 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     )}
                   </div>
                 )}
-                <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
-                {btn(() => setModal("assign-task"), "📋 Asignar nueva tarea", { width:"100%", padding:9, background:`linear-gradient(135deg,${C.sage},${C.sageDark})`, color:"white", borderRadius:13, fontSize:13, fontWeight:800, marginBottom:10 })}
-                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, "Nota clínica privada", () => setModal("feedback"))}
-                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>, "Mis hábitos", () => {
-                  if (!pacienteSeleccionado) { showToast("Selecciona un paciente primero ❌"); return; }
-                  setHabitos([{ id:1, activo:false, titulo:"", descripcion:"" },{ id:2, activo:false, titulo:"", descripcion:"" },{ id:3, activo:false, titulo:"", descripcion:"" }]);
-                  setRegistrosHabito({});
-                  cargarHabitos(pacienteSeleccionado.id);
-                  cargarRegistrosHabito(pacienteSeleccionado.id);
-                  cargarNotaHabitos(pacienteSeleccionado.id);
-                  setHabitosPacienteId(pacienteSeleccionado.id);
-                  setHabitosTab("hoy");
-                  setHabitosEditando(false);
-                  setScreenHabitos(true);
-                })}
-                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>, "Agendar cita", () => { setCitaPacienteId(pacienteSeleccionado?.id || ""); setModal("agendar-cita"); })}                
-                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><line x1="12" y1="2" x2="12" y2="2"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="8" y1="6" x2="8" y2="2"/><line x1="16" y1="6" x2="16" y2="2"/></svg>, "Recordatorios recurrentes", () => setModal("crear-recordatorio"))}
-                {mitem(<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>, "Enviar material", () => setModal("enviar-material"))}
+                {/* ── ACCIONES ── */}
+                <div style={{ display:"flex", alignItems:"center", gap:7, margin:"20px 0 12px" }}>
+                  <div style={{ width:3, height:16, borderRadius:2, background:"linear-gradient(180deg,#3D7A52,#1E4D2B)" }}/>
+                  <span style={{ fontSize:13, fontWeight:900, color:"#1A2E1D", letterSpacing:"-0.01em" }}>Acciones</span>
+                </div>
+                <div onClick={() => setModal("assign-task")}
+                  style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:9, width:"100%", height:50, background:"linear-gradient(135deg,#3D7A52,#1E4D2B)", color:"white", borderRadius:16, fontSize:14, fontWeight:800, marginBottom:10, cursor:"pointer", touchAction:"manipulation", boxShadow:"0 4px 18px rgba(30,77,43,.30), inset 0 1px 0 rgba(255,255,255,.10)", WebkitTapHighlightColor:"transparent" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  Asignar nueva tarea
+                </div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:6 }}>
+                  {[
+                    { label:"Nota clínica", ico:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>, fn:() => setModal("feedback") },
+                    { label:"Hábitos", ico:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><polyline points="12 6 12 12 16 14"/></svg>, fn:() => {
+                      if (!pacienteSeleccionado) { showToast("Selecciona un paciente primero"); return; }
+                      setHabitos([{id:1,activo:false,titulo:"",descripcion:""},{id:2,activo:false,titulo:"",descripcion:""},{id:3,activo:false,titulo:"",descripcion:""}]);
+                      setRegistrosHabito({});
+                      cargarHabitos(pacienteSeleccionado.id); cargarRegistrosHabito(pacienteSeleccionado.id); cargarNotaHabitos(pacienteSeleccionado.id);
+                      setHabitosPacienteId(pacienteSeleccionado.id); setHabitosTab("hoy"); setHabitosEditando(false); setScreenHabitos(true);
+                    }},
+                    { label:"Agendar cita", ico:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>, fn:() => { setCitaPacienteId(pacienteSeleccionado?.id || ""); setModal("agendar-cita"); }},
+                    { label:"Recordatorio", ico:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>, fn:() => setModal("crear-recordatorio") },
+                  ].map(({ label, ico, fn }) => (
+                    <div key={label} onClick={fn} style={{ display:"flex", alignItems:"center", gap:10, padding:"13px 14px", background:"#FFFFFF", borderRadius:14, border:"1px solid rgba(0,0,0,.07)", cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.05)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                      <div style={{ width:32, height:32, borderRadius:9, background:"rgba(30,77,43,.09)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>{ico}</div>
+                      <span style={{ fontSize:12, fontWeight:700, color:"#1A2E1D", lineHeight:1.25 }}>{label}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* ── RECORDATORIOS ACTIVOS ── */}
                 {recordatorios.filter(r => r.pacienteId === pacienteSeleccionado?.id).length > 0 && (
-  <div style={{ marginTop:4, marginBottom:4 }}>
-    <div style={{ fontSize:12, fontWeight:800, color:C.light, margin:"12px 0 8px" }}>RECORDATORIOS ACTIVOS</div>
-    {recordatorios
-      .filter(r => r.pacienteId === pacienteSeleccionado?.id)
-      .map(r => (
-        <div key={r.id} style={{ background:"#FFFFFF", borderRadius:12, padding:12, marginBottom:8, border:`2px solid rgba(0,0,0,0.06)` }}>
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
-            <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.titulo}</div>
-            <div style={{ display:"flex", gap:6, alignItems:"center" }}>
-              <div onClick={() => toggleRecordatorio(r.id, r.activo)}
-                style={{ width:36, height:20, borderRadius:10, background:r.activo ? C.plum : C.light, position:"relative", cursor:"pointer" }}>
-                <div style={{ width:14, height:14, borderRadius:"50%", background:"white", position:"absolute", top:3, left:r.activo ? 19 : 3, transition:"left 0.3s" }}/>
-              </div>
-              <div onClick={() => eliminarRecordatorio(r.id)} style={{ fontSize:16, cursor:"pointer" }}>🗑️</div>
-            </div>
-          </div>
-          <div style={{ fontSize:11, color:C.light }}>
-            🕐 {r.hora} · {["D","L","M","X","J","V","S"].filter((_,i) => r.diasSemana.includes(i)).join(", ")}
-          </div>
-          <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{r.mensaje}</div>
-        </div>
-      ))}
-  </div>
-)}
-<div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>📤 Materiales enviados</div>
-{recursos.length === 0 ? (
-  <div style={{ background:"#FFFFFF", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay materiales enviados aún</div>
-) : recursos.map(r => (
-  <div key={r.id} style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.11)", borderLeft:`4px solid ${r.recibido ? C.green : C.sage}` }}>
-    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-        <div style={{ width:38, height:38, borderRadius:10, background:`${C.plum}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>
-          {r.tipo==="PDF"?"📄":r.tipo==="Audio"?"🎵":r.tipo==="Video"?"🎬":r.tipo==="Imagen"?"🖼️":"📎"}
-        </div>
-        <div>
-          <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{r.nombre}</div>
-          <div style={{ fontSize:10, color:C.light }}>{r.tipo}</div>
-        </div>
-      </div>
-      <div style={{ fontSize:10, fontWeight:800, padding:"3px 8px", borderRadius:20, background:r.recibido ? "#E8F5E9" : "#FFF3E0", color:r.recibido ? C.green : C.amber }}>
-        {r.recibido ? "✅ Recibido" : "⏳ Pendiente"}
-      </div>
-    </div>
-    <div style={{ display:"flex", justifyContent:"flex-end" }}>
-      {btn(() => { setRecursoAEliminar(r); setModal("confirmar-eliminar-recurso"); }, "🗑️ Eliminar", { padding:"6px 12px", borderRadius:9, background:"rgba(255,107,107,.15)", color:C.red, fontSize:11, fontWeight:800 })}
-    </div>
-  </div>
-))}
-<div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>📋 Tareas asignadas</div>
-{tareasPsicologo.length === 0 ? (
-  <div style={{ background:"#FFFFFF", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>No hay tareas asignadas aún</div>
-) : tareasPsicologo.map(t => (
-  <div key={t.id} onClick={() => setNotaAbierta({ ...t, tipo:"tarea_psi" })}
-    style={{ background:"#FFFFFF", borderRadius:14, padding:14, marginBottom:10, border:"1px solid rgba(0,0,0,.11)", cursor:"pointer", borderLeft:`3px solid ${t.completada ? "#5A8A62" : "#FF7B5A"}` }}>
-    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
-      <div style={{ fontSize:13, fontWeight:800, color:C.text, flex:1 }}>{t.titulo}</div>
-      <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
-        <div style={{ fontSize:10, fontWeight:800, padding:"3px 8px", borderRadius:20, background:t.completada ? "#E8F5E9" : "#FFF3E0", color:t.completada ? C.green : C.amber }}>
-          {t.completada ? "✅ Completada" : "⏳ Pendiente"}
-        </div>
-        <div style={{ display:"flex", alignItems:"center", gap:3 }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" stroke={t.visto ? "#3B82F6" : "rgba(0,0,0,0.2)"} strokeWidth="1.75" strokeLinecap="round"/>
-            <circle cx="12" cy="12" r="3" fill={t.visto ? "#3B82F6" : "rgba(0,0,0,0.15)"}/>
-          </svg>
-          <span style={{ fontSize:9, color:t.visto ? "#3B82F6" : "rgba(0,0,0,0.3)", fontWeight:600 }}>
-            {t.visto ? "Vista" : "Sin ver"}
-          </span>
-        </div>
-      </div>
-    </div>
-    {t.descripcion ? <div style={{ fontSize:11, color:C.light, marginBottom:6, lineHeight:1.5, whiteSpace:"pre-wrap" }}>{t.descripcion}</div> : null}
-    <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-      <div style={{ fontSize:10, color:C.amber, fontWeight:700 }}>⭐ +{t.xp} XP</div>
-      {t.vence ? <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>📅 Vence: {t.vence}</div> : null}
-    </div>
-    {t.respuesta ? (
-      <div style={{ marginTop:8, background:"rgba(255,123,90,.18)", borderRadius:10, padding:"8px 10px" }}>
-        <div style={{ fontSize:10, fontWeight:800, color:C.plum, marginBottom:3 }}>💬 Respuesta del paciente:</div>
-        <div style={{ fontSize:11, color:C.text, lineHeight:1.5, whiteSpace:"pre-wrap" }}>{t.respuesta}</div>
-      </div>
-    ) : null}
-    <div style={{ display:"flex", justifyContent:"flex-end", marginTop:8 }}>
-      <div onClick={async (e) => {
-        e.stopPropagation();
-        try {
-          await deleteDoc(doc(db, "tareas", t.id));
-          setTareasPsicologo(prev => prev.filter(x => x.id !== t.id));
-          showToast("🗑️ Tarea eliminada");
-        } catch(err) { showToast("Error al eliminar ❌"); }
-      }} style={{ padding:"5px 10px", borderRadius:8, background:"rgba(255,107,107,.15)", color:C.red, fontSize:11, fontWeight:800, cursor:"pointer" }}>
-        🗑️ Eliminar
-      </div>
-    </div>
-  </div>
-))}
-                <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>🔒 Notas clínicas</div>
-                {notasClinicas.length === 0 ? (
-                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:16, textAlign:"center", color:C.light, fontSize:12, marginBottom:12 }}>
-                    Aún no has escrito notas clínicas para este paciente
+                  <div style={{ marginTop:20 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:10 }}>
+                      <div style={{ width:3, height:16, borderRadius:2, background:"linear-gradient(180deg,#3D7A52,#1E4D2B)" }}/>
+                      <span style={{ fontSize:13, fontWeight:900, color:"#1A2E1D", letterSpacing:"-0.01em" }}>Recordatorios activos</span>
+                    </div>
+                    {recordatorios.filter(r => r.pacienteId === pacienteSeleccionado?.id).map(r => (
+                      <div key={r.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", marginBottom:8, border:"1px solid rgba(0,0,0,.07)", boxShadow:"0 1px 3px rgba(0,0,0,.05)" }}>
+                        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:5 }}>
+                          <div style={{ fontSize:13, fontWeight:700, color:"#1A2E1D", flex:1 }}>{r.titulo}</div>
+                          <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                            <div onClick={() => toggleRecordatorio(r.id, r.activo)} style={{ width:38, height:22, borderRadius:11, background:r.activo?"#3D7A52":"rgba(0,0,0,.15)", position:"relative", cursor:"pointer", transition:"background 200ms", flexShrink:0, touchAction:"manipulation" }}>
+                              <div style={{ width:16, height:16, borderRadius:"50%", background:"white", position:"absolute", top:3, left:r.activo?19:3, transition:"left 250ms cubic-bezier(.34,1.56,.64,1)", boxShadow:"0 1px 3px rgba(0,0,0,.20)" }}/>
+                            </div>
+                            <div onClick={() => eliminarRecordatorio(r.id)} style={{ width:28, height:28, borderRadius:8, background:"rgba(255,107,107,.10)", border:"1px solid rgba(255,107,107,.16)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", touchAction:"manipulation" }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5C7A65" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          <span style={{ fontSize:11, color:"#5C7A65" }}>{r.hora} · {["D","L","M","X","J","V","S"].filter((_,i) => r.diasSemana.includes(i)).join(", ")}</span>
+                        </div>
+                        {r.mensaje && <div style={{ fontSize:11, color:"#5C7A65", marginTop:3, lineHeight:1.5 }}>{r.mensaje}</div>}
+                      </div>
+                    ))}
                   </div>
-                ) : notasClinicas.map(n => (
-                  <div key={n.id} onClick={() => setNotaAbierta({ ...n, tipo:"clinica" })}
-                    style={{ background:"#FFFFFF", borderRadius:14, padding:14, border:"1px solid rgba(0,0,0,.11)", borderLeft:"3px solid #8B7BA0", marginBottom:10, cursor:"pointer" }}>
-                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                      <div style={{ fontSize:12, fontWeight:800, color:C.text }}>{n.titulo}</div>
-                      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                        <div style={{ fontSize:10, color:C.light }}>{new Date(n.creadaEn).toLocaleDateString('es-CO', { day:'numeric', month:'short' })}</div>
-                        <div onClick={async () => {
-                          try {
-                            await deleteDoc(doc(db, "notasClinicas", n.id));
-                            setNotasClinicas(prev => prev.filter(x => x.id !== n.id));
-                            showToast("🗑️ Nota clínica eliminada");
-                          } catch(e) { showToast("Error al eliminar ❌"); }
-                        }} style={{ cursor:"pointer", fontSize:14, color:C.light }}>🗑️</div>
+                )}
+
+                {/* ── TAREAS ASIGNADAS ── */}
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", margin:"20px 0 10px" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:7 }}>
+                    <div style={{ width:3, height:16, borderRadius:2, background:"linear-gradient(180deg,#3D7A52,#1E4D2B)" }}/>
+                    <span style={{ fontSize:13, fontWeight:900, color:"#1A2E1D", letterSpacing:"-0.01em" }}>Tareas asignadas</span>
+                  </div>
+                  {tareasPsicologo.length > 0 && <span style={{ fontSize:10, fontWeight:700, color:"rgba(30,77,43,.45)" }}>{tareasPsicologo.filter(t=>t.completada).length}/{tareasPsicologo.length} completadas</span>}
+                </div>
+                {tareasPsicologo.length === 0 ? (
+                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:"22px 16px", textAlign:"center", border:"1px solid rgba(0,0,0,.07)", marginBottom:12 }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(30,77,43,.25)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom:7 }}><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    <div style={{ fontSize:12, color:"#5C7A65" }}>Sin tareas asignadas aún</div>
+                  </div>
+                ) : tareasPsicologo.map((t, idx) => (
+                  <div key={t.id} onClick={() => setNotaAbierta({ ...t, tipo:"tarea_psi" })}
+                    style={{ background:"#FFFFFF", borderRadius:16, padding:"14px 15px", marginBottom:8, border:"1px solid rgba(0,0,0,.07)", cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.05)", animation:`fadeUp 0.24s cubic-bezier(.22,1,.36,1) ${idx*35}ms both` }}>
+                    <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:10, marginBottom:6 }}>
+                      <div style={{ fontSize:13, fontWeight:800, color:"#1A2E1D", flex:1, lineHeight:1.35 }}>{t.titulo}</div>
+                      <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4, flexShrink:0 }}>
+                        <div style={{ fontSize:9, fontWeight:800, padding:"4px 9px", borderRadius:20, letterSpacing:".04em", background:t.completada?"rgba(30,77,43,.12)":"rgba(255,179,71,.13)", color:t.completada?"#1E4D2B":"#9A6800" }}>
+                          {t.completada ? "Completada" : "Pendiente"}
+                        </div>
+                        <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={t.visto?"#3B82F6":"rgba(0,0,0,.22)"} strokeWidth="2" strokeLinecap="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3" fill={t.visto?"#3B82F6":"rgba(0,0,0,.15)"} stroke="none"/></svg>
+                          <span style={{ fontSize:9, color:t.visto?"#3B82F6":"rgba(0,0,0,.30)", fontWeight:600 }}>{t.visto?"Vista":"Sin ver"}</span>
+                        </div>
                       </div>
                     </div>
-                    <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>{n.texto}</div>
-                    <div style={{ display:"inline-block", background:"rgba(255,123,90,.15)", color:C.plum, fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20, marginTop:5 }}>🔒 Solo visible para ti</div>
+                    {t.descripcion ? <div style={{ fontSize:12, color:"#5C7A65", marginBottom:8, lineHeight:1.6, whiteSpace:"pre-wrap" }}>{t.descripcion}</div> : null}
+                    <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:4, background:"rgba(255,179,71,.12)", border:"1px solid rgba(255,179,71,.20)", borderRadius:20, padding:"3px 9px" }}>
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="#FFB347" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <span style={{ fontSize:10, color:"#9A6800", fontWeight:700 }}>+{t.xp} XP</span>
+                      </div>
+                      {t.vence && <div style={{ fontSize:10, color:"#5C7A65", fontWeight:600 }}>{t.vence}</div>}
+                    </div>
+                    {t.respuesta ? (
+                      <div style={{ marginTop:10, background:"rgba(30,77,43,.07)", border:"1px solid rgba(30,77,43,.12)", borderRadius:10, padding:"9px 11px" }}>
+                        <div style={{ fontSize:9, fontWeight:800, color:"#3D7A52", marginBottom:4, textTransform:"uppercase", letterSpacing:".10em" }}>Respuesta del paciente</div>
+                        <div style={{ fontSize:12, color:"#1A2E1D", lineHeight:1.6, whiteSpace:"pre-wrap" }}>{t.respuesta}</div>
+                      </div>
+                    ) : null}
+                    <div style={{ display:"flex", justifyContent:"flex-end", marginTop:10 }}>
+                      <div onClick={async (e) => {
+                        e.stopPropagation();
+                        try { await deleteDoc(doc(db, "tareas", t.id)); setTareasPsicologo(prev => prev.filter(x => x.id !== t.id)); showToast("Tarea eliminada");
+                        } catch(err) { showToast("Error al eliminar ❌"); }
+                      }} style={{ display:"flex", alignItems:"center", gap:5, padding:"5px 11px", borderRadius:9, background:"rgba(255,107,107,.09)", border:"1px solid rgba(255,107,107,.16)", color:C.red, fontSize:11, fontWeight:700, cursor:"pointer", touchAction:"manipulation" }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                        Eliminar
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* ── NOTAS CLÍNICAS ── */}
+                <div style={{ display:"flex", alignItems:"center", gap:7, margin:"20px 0 10px" }}>
+                  <div style={{ width:3, height:16, borderRadius:2, background:"linear-gradient(180deg,#3D7A52,#1E4D2B)" }}/>
+                  <span style={{ fontSize:13, fontWeight:900, color:"#1A2E1D", letterSpacing:"-0.01em" }}>Notas clínicas</span>
+                </div>
+                {notasClinicas.length === 0 ? (
+                  <div style={{ background:"#FFFFFF", borderRadius:14, padding:"22px 16px", textAlign:"center", border:"1px solid rgba(0,0,0,.07)", marginBottom:12 }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(30,77,43,.25)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom:7 }}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <div style={{ fontSize:12, color:"#5C7A65" }}>Aún no hay notas clínicas</div>
+                  </div>
+                ) : notasClinicas.map((n, idx) => (
+                  <div key={n.id} onClick={() => setNotaAbierta({ ...n, tipo:"clinica" })}
+                    style={{ background:"#FFFFFF", borderRadius:16, padding:"14px 15px", border:"1px solid rgba(0,0,0,.07)", marginBottom:8, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.05)", animation:`fadeUp 0.24s cubic-bezier(.22,1,.36,1) ${idx*30}ms both` }}>
+                    <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:6 }}>
+                      <div style={{ fontSize:13, fontWeight:800, color:"#1A2E1D", flex:1, lineHeight:1.3 }}>{n.titulo}</div>
+                      <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
+                        <span style={{ fontSize:10, color:"#5C7A65" }}>{new Date(n.creadaEn).toLocaleDateString('es-CO',{day:'numeric',month:'short'})}</span>
+                        <div onClick={async (e) => {
+                          e.stopPropagation();
+                          try { await deleteDoc(doc(db, "notasClinicas", n.id)); setNotasClinicas(prev => prev.filter(x => x.id !== n.id)); showToast("Nota eliminada");
+                          } catch(e) { showToast("Error al eliminar ❌"); }
+                        }} style={{ width:26, height:26, borderRadius:7, background:"rgba(255,107,107,.09)", border:"1px solid rgba(255,107,107,.16)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", touchAction:"manipulation" }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ fontSize:12, color:"#5C7A65", lineHeight:1.6, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:3, WebkitBoxOrient:"vertical" }}>{n.texto}</div>
+                    <div style={{ display:"inline-flex", alignItems:"center", gap:4, background:"rgba(30,77,43,.08)", border:"1px solid rgba(30,77,43,.14)", borderRadius:20, padding:"3px 9px", marginTop:8 }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      <span style={{ fontSize:9, fontWeight:700, color:"#3D7A52" }}>Solo visible para ti</span>
+                    </div>
                   </div>
                 ))}
               </div>
