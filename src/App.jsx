@@ -1466,17 +1466,32 @@ const guardarHabitos = async (pacienteId) => {
       });
     }
 
-    // ── Notificaciones push diarias para el paciente ──────────────────────
-    // Solo el paciente o cuando el psicólogo guarda hábitos del paciente
-    const notifPacienteId = pacienteId;
+    // ── Notificaciones — SIEMPRE al paciente, NUNCA al psicólogo ──────────
+    const esPsicoloGuardando = usuarioActual?.rol === "psicologo";
     const activeHabits = habitos.filter(h => h.activo && h.titulo.trim());
+
     if (activeHabits.length > 0) {
+      const nombres = activeHabits.map(h => h.titulo.trim()).join(", ");
+
+      // 1. Notificación in-app al paciente cuando el psicólogo asigna o edita hábitos
+      if (esPsicoloGuardando) {
+        setDoc(doc(db, "notificaciones", `habitos_asignados_${pacienteId}_${Date.now()}`), {
+          pacienteId,
+          titulo: "Hábitos actualizados",
+          mensaje: `Tu psicólogo configuró tus hábitos: ${nombres}`,
+          icon: "🌱",
+          tipo: "habitos_actualizados",
+          leida: false,
+          pushEnviada: false,
+          creadoEn: new Date().toISOString(),
+        }).catch(() => {});
+      }
+
+      // 2. Push diario de recordatorio — siempre al dueño del hábito (pacienteId)
       const horaStr = activeHabits[0].frecuencia?.horaRecordatorio || "20:00";
       const [hh, mm] = horaStr.split(":").map(Number);
-      const nombres = activeHabits.map(h => h.titulo.trim()).join(", ");
       const titulo = "Tus hábitos de hoy";
       const body = `Recuerda registrar: ${nombres}`;
-      // Crear recordatorio para los próximos 7 días
       const ahora = new Date();
       for (let i = 0; i < 7; i++) {
         const fecha = new Date(ahora);
@@ -1484,8 +1499,8 @@ const guardarHabitos = async (pacienteId) => {
         fecha.setHours(hh, mm, 0, 0);
         if (fecha > ahora) {
           const fechaKey = `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,'0')}-${String(fecha.getDate()).padStart(2,'0')}`;
-          setDoc(doc(db, "notificaciones_programadas", `habito_rec_${notifPacienteId}_${fechaKey}`), {
-            pacienteId: notifPacienteId,
+          setDoc(doc(db, "notificaciones_programadas", `habito_rec_${pacienteId}_${fechaKey}`), {
+            pacienteId, // SIEMPRE el dueño del hábito, nunca el psicólogo
             title: titulo, body,
             scheduledAt: fecha.toISOString(),
             enviada: false,
