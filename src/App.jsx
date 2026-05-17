@@ -3929,54 +3929,72 @@ const styles = `
           {!notifPanel && screen === "home" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
 
-              {/* HEADER */}
-              <div style={{ background:"linear-gradient(180deg,#162A1C 0%,#0F2015 100%)", padding:"20px 20px 44px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative", borderBottom:"1px solid rgba(0,0,0,.11)" }}>
-                <div style={{ position:"absolute", top:0, left:0, right:0, height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,123,90,.35),rgba(255,179,71,.2),transparent)" }}/>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                  <div>
-                    <div style={{ fontSize:9, color:"rgba(255,179,71,0.65)", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:7, fontWeight:700 }}>
+              {/* ── HEADER ───────────────────────────────────────────── */}
+              <div style={{ background:"linear-gradient(175deg,#162A1C 0%,#0F2015 65%,#0A1A10 100%)", padding:"20px 20px 52px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative", overflow:"hidden" }}>
+                {/* Glow radial sutil */}
+                <div style={{ position:"absolute", top:"-20%", right:"-10%", width:200, height:200, borderRadius:"50%", background:"radial-gradient(ellipse,rgba(61,122,82,.18) 0%,transparent 70%)", pointerEvents:"none" }}/>
+                {/* Línea de luz superior */}
+                <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:"linear-gradient(90deg,transparent,rgba(110,180,130,.35),transparent)" }}/>
+
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+                  <div style={{ flex:1 }}>
+                    {/* Fecha */}
+                    <div style={{ fontSize:9, color:"rgba(110,180,130,.6)", letterSpacing:"1.8px", textTransform:"uppercase", marginBottom:8, fontWeight:700 }}>
                       {new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' })}
                     </div>
-                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.6)", fontWeight:400, lineHeight:1 }}>{(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días," : h < 18 ? "Buenas tardes," : "Buenas noches,"; })()}</div>
-                    <div style={{ fontSize:26, color:"white", fontWeight:700, marginTop:2, letterSpacing:"-0.025em", lineHeight:1.1 }}>
+                    {/* Saludo + nombre */}
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,.45)", fontWeight:400, lineHeight:1, marginBottom:3 }}>
+                      {(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días," : h < 18 ? "Buenas tardes," : "Buenas noches,"; })()}
+                    </div>
+                    <div style={{ fontSize:28, color:"white", fontWeight:900, letterSpacing:"-0.03em", lineHeight:1.05 }}>
                       {usuarioActual?.nombre?.split(" ")[0] || "Bienvenido"}
                     </div>
+                    {/* Racha badge con llama */}
                     {(usuarioActual?.racha || 0) > 0 && (
-                      <div style={{ display:"inline-flex", alignItems:"center", gap:5, background:"rgba(255,179,71,.14)", border:"1px solid rgba(255,179,71,.18)", borderRadius:20, padding:"3px 10px", marginTop:6 }}>
-                        <svg width="8" height="8" viewBox="0 0 24 24" fill="#FFB347"><circle cx="12" cy="12" r="10"/></svg>
-                        <span style={{ fontSize:9, color:"#FFB347", fontWeight:700 }}>{usuarioActual.racha} día{usuarioActual.racha !== 1 ? "s" : ""} de racha</span>
+                      <div style={{ display:"inline-flex", alignItems:"center", gap:5, background:"rgba(255,179,71,.14)", border:"1px solid rgba(255,179,71,.22)", borderRadius:20, padding:"4px 10px", marginTop:8 }}>
+                        <svg width="10" height="12" viewBox="0 0 10 14" fill="none">
+                          <path d="M5 1C5 1 7.5 3.5 7.5 6C7.5 6 6.5 5.5 6 4.5C6 4.5 6.5 8 4 9.5C4 9.5 4.5 7.5 3.5 7C3.5 7 2 9 3 11C1.5 10 0.5 8.5 0.5 7C0.5 5 2 3 5 1Z" fill="#FFB347"/>
+                          <path d="M5 9C5 9 6.5 10 6 11.5C6.5 11 7.5 10 7.5 8.5C7.5 10.5 6 12.5 5 13C3.5 12.5 2.5 11 3 9.5C3 10 3.5 10.5 4 10.5C3.5 9.5 4 8 5 9Z" fill="#FFD080"/>
+                        </svg>
+                        <span style={{ fontSize:9, color:"#FFB347", fontWeight:800, letterSpacing:".02em" }}>{usuarioActual.racha} día{usuarioActual.racha !== 1 ? "s" : ""} de racha</span>
                       </div>
                     )}
                   </div>
-                  <div style={{ display:"flex", gap:8, alignItems:"center", marginTop:4 }}>
-                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:36, height:36, background:"rgba(30,77,43,.13)", borderRadius:10, border:"1px solid rgba(30,77,43,.18)", display:"flex", alignItems:"center", justifyContent:"center", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                      {unread > 0 && <div style={{ position:"absolute", top:-5, right:-5, minWidth:17, height:17, padding:"0 4px", background:C.plum, borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:900, color:"white", border:"1.5px solid white", boxSizing:"border-box" }}>{unread > 9 ? "9+" : unread}</div>}
+
+                  {/* Controles derecha */}
+                  <div style={{ display:"flex", gap:8, alignItems:"center", flexShrink:0 }}>
+                    <div onClick={() => setNotifPanel(true)} style={{ position:"relative", cursor:"pointer", width:38, height:38, background:"rgba(255,255,255,.08)", borderRadius:11, border:"1px solid rgba(255,255,255,.10)", display:"flex", alignItems:"center", justifyContent:"center", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.75)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                      {unread > 0 && <div style={{ position:"absolute", top:-4, right:-4, minWidth:16, height:16, padding:"0 3px", background:C.plum, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", fontSize:7.5, fontWeight:900, color:"white", border:"1.5px solid #0F2015", boxSizing:"border-box" }}>{unread > 9 ? "9+" : unread}</div>}
                     </div>
-                    <div onClick={() => showScreen("perfil")} style={{ width:36, height:36, background:"rgba(255,123,90,.20)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", border:"1px solid rgba(255,123,90,.20)", cursor:"pointer", overflow:"hidden" }}>
+                    <div onClick={() => showScreen("perfil")} style={{ width:38, height:38, background:"rgba(255,255,255,.10)", borderRadius:11, border:"1px solid rgba(255,255,255,.12)", cursor:"pointer", overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
                       {avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : <AvatarSVG id="av1" size={22}/>}
                     </div>
                   </div>
                 </div>
 
-                {/* BARRA XP */}
-                <div onClick={() => showScreen("logros")} style={{ display:"flex", alignItems:"center", gap:10, marginTop:14, cursor:"pointer" }}>
-                  <div style={{ flex:1, height:3, background:"rgba(0,0,0,.11)", borderRadius:2, overflow:"hidden" }}>
-                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:"linear-gradient(90deg,#FF7B5A,#FFB347,#FFD080)", borderRadius:2, transition:"width 0.5s ease", boxShadow:"0 0 8px rgba(255,208,128,.4)" }}/>
+                {/* XP bar */}
+                <div onClick={() => showScreen("logros")} style={{ display:"flex", alignItems:"center", gap:10, marginTop:16, cursor:"pointer", touchAction:"manipulation" }}>
+                  <div style={{ flex:1, height:5, background:"rgba(255,255,255,.08)", borderRadius:3, overflow:"hidden" }}>
+                    <div style={{ height:"100%", width:`${Math.min((xp % 50) / 50 * 100, 100)}%`, background:"linear-gradient(90deg,#3D7A52,#6EB482)", borderRadius:3, transition:"width 0.7s cubic-bezier(.22,1,.36,1)" }}/>
                   </div>
-                  <span style={{ fontSize:9, color:"rgba(255,208,128,0.65)", whiteSpace:"nowrap", letterSpacing:"0.5px", fontWeight:600 }}>◆ {xp} XP</span>
+                  <span style={{ fontSize:9, color:"rgba(110,180,130,.65)", whiteSpace:"nowrap", fontWeight:700, letterSpacing:".04em" }}>{xp} XP</span>
                 </div>
               </div>
 
-              {/* PRÓXIMA CITA */}
+              {/* ── CUERPO ───────────────────────────────────────────── */}
               <div style={{ padding:"0 14px", marginTop:-24, position:"relative", zIndex:10 }}>
+
+                {/* PRÓXIMA CITA */}
                 {citas.length === 0 ? (
-                  <div style={{ background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:16, padding:14, textAlign:"center", marginBottom:12, boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.06)" }}>
-                    <div style={{ width:36, height:36, background:"rgba(255,123,90,.18)", border:"1px solid rgba(255,123,90,.18)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 8px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <div style={{ background:"#FFFFFF", borderRadius:18, padding:"14px 16px", marginBottom:12, boxShadow:"0 1px 3px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.07)", display:"flex", alignItems:"center", gap:12 }}>
+                    <div style={{ width:40, height:40, background:"rgba(30,77,43,.09)", border:"1px solid rgba(30,77,43,.14)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     </div>
-                    <div style={{ fontSize:12, fontWeight:600, color:C.text }}>Sin citas agendadas</div>
-                    <div style={{ fontSize:11, color:C.light, marginTop:3 }}>Tu psicólogo agendará tu próxima sesión</div>
+                    <div>
+                      <div style={{ fontSize:13, fontWeight:700, color:"#1A2E1D" }}>Sin citas agendadas</div>
+                      <div style={{ fontSize:11, color:"#5C7A65", marginTop:2 }}>Tu psicólogo agendará tu próxima sesión</div>
+                    </div>
                   </div>
                 ) : (
                   (() => {
@@ -3985,196 +4003,173 @@ const styles = `
                       .filter(c => c.status !== "cancelada" && fechaOrden(c) > ahora.getTime() - 3600000)
                       .sort((a,b) => fechaOrden(a) - fechaOrden(b))[0];
                     if (!proxima) return null;
+                    const diff = fechaOrden(proxima) - Date.now();
+                    const dias = Math.floor(diff / 86400000);
+                    const horas = Math.floor((diff % 86400000) / 3600000);
+                    const mins = Math.floor((diff % 3600000) / 60000);
+                    const esAhora = diff <= 0;
                     return (
-                      <div style={{ background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:16, padding:14, marginBottom:12, overflow:"hidden", position:"relative", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.07), inset 0 1px 0 rgba(0,0,0,.12)" }}>
-                        <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,#FF7B5A,#FFB347,transparent)" }}/>
-                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-                          <span style={{ fontSize:10, fontWeight:700, color:"rgba(255,179,71,0.65)", letterSpacing:"0.12em", textTransform:"uppercase" }}>Próxima cita</span>
-                          <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                            {(() => {
-                              const diff = fechaOrden(proxima) - new Date().getTime();
-                              if (diff <= 0) return <span style={{ fontSize:10, fontWeight:700, color:C.plum }}>¡Es ahora!</span>;
-                              const dias = Math.floor(diff / 86400000);
-                              const horas = Math.floor((diff % 86400000) / 3600000);
-                              const mins = Math.floor((diff % 3600000) / 60000);
-                              return (
-                                <span style={{ fontSize:10, fontWeight:600, color:C.amber, background:"rgba(255,179,71,.14)", border:"1px solid rgba(255,179,71,.15)", padding:"3px 8px", borderRadius:20 }}>
+                      <div style={{ background:"#FFFFFF", borderRadius:18, marginBottom:12, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.05), 0 10px 30px rgba(0,0,0,.09)" }}>
+                        {/* Franja superior verde bosque */}
+                        <div style={{ height:3, background:"linear-gradient(90deg,#1E4D2B,#3D7A52,#6EB482)" }}/>
+                        <div style={{ padding:"14px 16px" }}>
+                          {/* Header fila */}
+                          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(30,77,43,.50)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                              <span style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.50)", letterSpacing:".14em", textTransform:"uppercase" }}>Próxima cita</span>
+                            </div>
+                            <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                              {esAhora ? (
+                                <span style={{ fontSize:10, fontWeight:800, color:"#1E4D2B", background:"rgba(30,77,43,.12)", border:"1px solid rgba(30,77,43,.20)", padding:"3px 9px", borderRadius:20 }}>¡Es ahora!</span>
+                              ) : (
+                                <span style={{ fontSize:10, fontWeight:700, color:"#5C7A65", background:"rgba(30,77,43,.07)", border:"1px solid rgba(30,77,43,.12)", padding:"3px 9px", borderRadius:20 }}>
                                   {dias > 0 ? `En ${dias}d ${horas}h` : horas > 0 ? `En ${horas}h ${mins}m` : `En ${mins} min`}
                                 </span>
-                              );
-                            })()}
-                            <div style={{ background:proxima.status==="confirmada"?"rgba(78,205,196,.20)":"rgba(255,179,71,.16)", color:proxima.status==="confirmada"?C.sage:C.amber, fontSize:10, fontWeight:600, padding:"3px 9px", borderRadius:20, border:`1px solid ${proxima.status==="confirmada"?"rgba(78,205,196,.20)":"rgba(255,179,71,.18)"}` }}>
-                              {proxima.status==="confirmada"?"Confirmada":"Pendiente"}
+                              )}
+                              <div style={{ fontSize:9, fontWeight:700, padding:"3px 9px", borderRadius:20,
+                                background: proxima.status==="confirmada" ? "rgba(30,77,43,.10)" : "rgba(255,179,71,.12)",
+                                color: proxima.status==="confirmada" ? "#1E4D2B" : "#9A6800",
+                                border: `1px solid ${proxima.status==="confirmada" ? "rgba(30,77,43,.18)" : "rgba(255,179,71,.20)"}` }}>
+                                {proxima.status==="confirmada" ? "Confirmada" : "Pendiente"}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-                          <div style={{ background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", borderRadius:10, padding:"8px 10px", textAlign:"center", minWidth:44, boxShadow:"0 2px 8px rgba(255,90,54,.3)" }}>
-                            <div style={{ fontSize:16, fontWeight:700, color:"white", lineHeight:1 }}>
-                              {mostrarFechaLocal(proxima, "dia")}
+
+                          {/* Fecha + info */}
+                          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+                            <div style={{ background:"linear-gradient(135deg,#1E4D2B,#3D7A52)", borderRadius:12, padding:"10px 12px", textAlign:"center", minWidth:48, flexShrink:0, boxShadow:"0 3px 10px rgba(30,77,43,.30)" }}>
+                              <div style={{ fontSize:18, fontWeight:900, color:"white", lineHeight:1, letterSpacing:"-0.02em" }}>
+                                {mostrarFechaLocal(proxima, "dia")}
+                              </div>
+                              <div style={{ fontSize:8, color:"rgba(255,255,255,.70)", fontWeight:700, textTransform:"uppercase", marginTop:2, letterSpacing:".06em" }}>
+                                {mostrarFechaLocal(proxima, "mes")}
+                              </div>
                             </div>
-                            <div style={{ fontSize:8, color:"rgba(255,255,255,0.80)", fontWeight:600, textTransform:"uppercase" }}>
-                              {mostrarFechaLocal(proxima, "mes")}
+                            <div style={{ flex:1, minWidth:0 }}>
+                              <div style={{ fontSize:14, fontWeight:800, color:"#1A2E1D", letterSpacing:"-0.015em", lineHeight:1.2, marginBottom:4 }}>
+                                Sesión con {proxima.psicologoNombre}
+                              </div>
+                              <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5C7A65" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                <span style={{ fontSize:12, color:"#5C7A65" }}>{mostrarFechaLocal(proxima, "hora")}</span>
+                                <span style={{ width:3, height:3, borderRadius:"50%", background:"rgba(92,122,101,.35)", display:"inline-block" }}/>
+                                <span style={{ fontSize:12, color:"#5C7A65" }}>{proxima.modalidad==="virtual" ? "Virtual" : "Presencial"}</span>
+                              </div>
                             </div>
                           </div>
-                          <div style={{ flex:1 }}>
-                            <div style={{ fontSize:13, fontWeight:600, color:C.text, letterSpacing:"-0.01em" }}>Sesión con {proxima.psicologoNombre}</div>
-                            <div style={{ fontSize:11, color:C.light, marginTop:3 }}>{mostrarFechaLocal(proxima, "hora")} · {proxima.modalidad==="virtual"?"Virtual":"Presencial"}</div>
-                          </div>
-                        </div>
-                        {proxima.modalidad==="virtual" && proxima.link && (
-                          <a href={proxima.link.startsWith("http") ? proxima.link : `https://${proxima.link}`} target="_blank" rel="noreferrer"
-                            style={{ display:"block", padding:"11px 0", background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", color:"white", borderRadius:12, fontSize:12, fontWeight:700, textAlign:"center", textDecoration:"none", marginBottom:10, boxShadow:"0 2px 8px rgba(255,90,54,.35)" }}>
-                            Unirse a la sesión
-                          </a>
-                        )}
-                        {proxima.status === "pendiente" && (
+
+                          {/* Acciones */}
+                          {proxima.modalidad==="virtual" && proxima.link && (
+                            <a href={proxima.link.startsWith("http") ? proxima.link : `https://${proxima.link}`} target="_blank" rel="noreferrer"
+                              style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:7, padding:"12px 0", background:"linear-gradient(135deg,#3D7A52,#1E4D2B)", color:"white", borderRadius:13, fontSize:13, fontWeight:800, textDecoration:"none", marginBottom:8, boxShadow:"0 3px 12px rgba(30,77,43,.35)", letterSpacing:"-0.01em" }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                              Unirse a la sesión
+                            </a>
+                          )}
                           <div style={{ display:"flex", gap:8 }}>
-                            {btn(() => { setCitaSeleccionada(proxima); setModal("confirmar-cita"); }, "Confirmar asistencia", { flex:1, padding:"9px 0", borderRadius:10, background:"linear-gradient(135deg,#6AEDE4,#28B0A8)", color:"white", fontWeight:700, fontSize:12, boxShadow:"0 2px 8px rgba(40,176,168,.3)" })}
+                            {proxima.status === "pendiente" && (
+                              <div onClick={() => { setCitaSeleccionada(proxima); setModal("confirmar-cita"); }}
+                                style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"10px 0", background:"rgba(30,77,43,.09)", border:"1px solid rgba(30,77,43,.18)", borderRadius:12, cursor:"pointer", touchAction:"manipulation" }}>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span style={{ fontSize:12, fontWeight:800, color:"#1E4D2B" }}>Confirmar asistencia</span>
+                              </div>
+                            )}
+                            {proxima.status === "confirmada" && (
+                              <div onClick={() => { setCitaSeleccionada(proxima); setRetrasoTexto(""); setRetrasoMinutos(10); setModal("demora-aviso"); }}
+                                style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"10px 0", background:"rgba(255,107,107,.07)", border:"1px solid rgba(255,107,107,.18)", borderRadius:12, cursor:"pointer", touchAction:"manipulation" }}>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                <span style={{ fontSize:12, fontWeight:800, color:C.red }}>Voy tarde</span>
+                              </div>
+                            )}
+                            <div onClick={() => showScreen("calendario")}
+                              style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"10px 0", background:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.07)", borderRadius:12, cursor:"pointer", touchAction:"manipulation" }}>
+                              <span style={{ fontSize:12, fontWeight:700, color:"#5C7A65" }}>Ver mis citas</span>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5C7A65" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                            </div>
                           </div>
-                        )}
-                        {proxima.status === "confirmada" && (
-                          <div onClick={() => { setCitaSeleccionada(proxima); setRetrasoTexto(""); setRetrasoMinutos(10); setModal("demora-aviso"); }}
-                            style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"9px 0", borderRadius:10, background:"rgba(255,107,107,.08)", border:"1px solid rgba(255,107,107,.20)", cursor:"pointer", marginBottom:8 }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            <span style={{ fontSize:12, fontWeight:700, color:C.red }}>Voy tarde</span>
-                          </div>
-                        )}
-                        {btn(() => showScreen("calendario"), "Ver todas mis citas →", { width:"100%", padding:"9px 0", borderRadius:10, background:C.warm, color:C.plum, fontWeight:800, fontSize:12 })}
+                        </div>
                       </div>
                     );
                   })()
                 )}
-                {/* ACCESOS RÁPIDOS GRID */}
-                <div style={{ display:"flex", gap:8, marginBottom:8, alignItems:"center" }}>
-                  {/* Libro diario */}
+
+                {/* ── ACCESOS RÁPIDOS — 3 cols uniformes ── */}
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:12 }}>
+
+                  {/* Diario */}
                   <div onClick={async () => {
                     if (usuarioActual?.diarioBiometria && usuarioActual?.webauthnCredentialId) {
                       try {
                         const credIdBuffer = Uint8Array.from(atob(usuarioActual.webauthnCredentialId), c => c.charCodeAt(0));
-                        const assertion = await navigator.credentials.get({
-                          publicKey: {
-                            challenge: crypto.getRandomValues(new Uint8Array(32)),
-                            allowCredentials: [{ type:"public-key", id:credIdBuffer }],
-                            userVerification: "required", timeout: 60000,
-                          }
-                        });
+                        const assertion = await navigator.credentials.get({ publicKey: { challenge: crypto.getRandomValues(new Uint8Array(32)), allowCredentials: [{ type:"public-key", id:credIdBuffer }], userVerification:"required", timeout:60000 } });
                         if (assertion) showScreen("diario");
                       } catch(e) { showToast("Huella no reconocida — intenta de nuevo"); }
-                    } else {
-                      showScreen("diario");
-                    }
-                  }}
-                    style={{ position:"relative", width:72, height:62, flexShrink:0,
-                      cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
-                    <svg width="72" height="62" viewBox="0 0 72 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <ellipse cx="36" cy="57" rx="22" ry="4" fill="rgba(0,0,0,0.35)"/>
-                      <rect x="10" y="8" width="11" height="44" rx="2" fill="url(#lomoGrad)"/>
-                      <rect x="20" y="6" width="38" height="46" rx="2" fill="url(#portadaGrad)"/>
-                      <path d="M20 6 L10 8 L10 11 L20 9 Z" fill="#D04428"/>
-                      <path d="M20 6 L58 6 L58 9 L20 9 Z" fill="#FF9B7A"/>
-                      <rect x="56" y="8" width="4" height="42" rx="1" fill="rgba(0,0,0,.12)"/>
-                      {[14,19,24,29,34,39,44].map((y,i) => (
-                        <line key={i} x1="57" y1={y} x2="59" y2={y} stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                      ))}
-                      <rect x="21" y="7" width="12" height="44" fill="url(#brilloGrad)" rx="1" opacity="0.20"/>
-                      {[18,24,30,36,42].map((y,i) => (
-                        <line key={i} x1="26" y1={y} x2="52" y2={y} stroke="rgba(0,0,0,.10)" strokeWidth="1"/>
-                      ))}
-                      <rect x="46" y="5" width="4" height="14" rx="1" fill="#FFD080" opacity="0.90"/>
-                      <path d="M46 18 L48 22 L50 18 Z" fill="#FFD080" opacity="0.90"/>
-                      <rect x="26" y="12" width="24" height="2.5" rx="1" fill="rgba(0,0,0,.15)"/>
-                      <rect x="29" y="17" width="18" height="1.5" rx="0.75" fill="rgba(0,0,0,.12)"/>
-                      <defs>
-                        <linearGradient id="lomoGrad" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#D04428"/><stop offset="100%" stopColor="#FF7B5A"/>
-                        </linearGradient>
-                        <linearGradient id="portadaGrad" x1="0" y1="0" x2="1" y2="1">
-                          <stop offset="0%" stopColor="#FF8B6A"/><stop offset="50%" stopColor="#FF6040"/><stop offset="100%" stopColor="#D04428"/>
-                        </linearGradient>
-                        <linearGradient id="brilloGrad" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="white" stopOpacity="1"/><stop offset="100%" stopColor="white" stopOpacity="0"/>
-                        </linearGradient>
-                      </defs>
-                    </svg>
+                    } else { showScreen("diario"); }
+                  }} style={{ background:"#FFFFFF", borderRadius:16, padding:"14px 10px 12px", display:"flex", flexDirection:"column", alignItems:"center", gap:8, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.07)", border:"1px solid rgba(0,0,0,.06)", position:"relative", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                    <div style={{ width:40, height:40, background:"rgba(255,123,90,.10)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                      </svg>
+                    </div>
+                    <span style={{ fontSize:10, fontWeight:800, color:"#1A2E1D", letterSpacing:"-0.01em", textAlign:"center", lineHeight:1.2 }}>Mi diario</span>
                     {usuarioActual?.diarioBiometria && (
-                      <div style={{ position:"absolute", top:0, right:0, width:14, height:14, borderRadius:"50%",
-                        background:"#FFFFFF", border:"1px solid rgba(255,123,90,0.4)",
-                        display:"flex", alignItems:"center", justifyContent:"center" }}>
-                        <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="3" strokeLinecap="round">
-                          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                        </svg>
+                      <div style={{ position:"absolute", top:8, right:8, width:12, height:12, borderRadius:"50%", background:"rgba(255,123,90,.15)", border:"1px solid rgba(255,123,90,.30)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                        <svg width="6" height="6" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="3" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                       </div>
                     )}
                   </div>
 
-                  {/* Para no olvidar */}
+                  {/* Notas */}
                   <div onClick={() => { showScreen("notas"); setTimeout(()=>setNoteTab("insights"), 50); }}
-                    style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"#FFFFFF",
-                      backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
-                      border:"1px solid rgba(255,255,255,.065)", borderRadius:12, padding:"9px 10px",
-                      cursor:"pointer", WebkitTapHighlightColor:"transparent", boxShadow:"inset 0 1px 0 rgba(0,0,0,.11)" }}>
-                    <div style={{ width:26, height:26, background:"rgba(255,123,90,.18)", border:"1px solid rgba(255,123,90,.15)", borderRadius:8,
-                      display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    style={{ background:"#FFFFFF", borderRadius:16, padding:"14px 10px 12px", display:"flex", flexDirection:"column", alignItems:"center", gap:8, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.07)", border:"1px solid rgba(0,0,0,.06)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                    <div style={{ width:40, height:40, background:"rgba(30,77,43,.09)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
                     </div>
-                    <div>
-                      <div style={{ fontSize:11, fontWeight:700, color:C.text, lineHeight:1.2 }}>Para no olvidar</div>
-                      <div style={{ fontSize:9, color:C.light }}>Nueva nota</div>
-                    </div>
+                    <span style={{ fontSize:10, fontWeight:800, color:"#1A2E1D", letterSpacing:"-0.01em", textAlign:"center", lineHeight:1.2 }}>Mis notas</span>
                   </div>
 
-                  {/* Mando mini juego */}
+                  {/* Mini juego */}
                   <div onClick={() => showScreen("juego")}
-                    style={{ position:"relative", width:72, height:62, flexShrink:0,
-                      cursor:"pointer", WebkitTapHighlightColor:"transparent" }}>
-                    <div style={{ position:"absolute", inset:0, borderRadius:14, overflow:"hidden",
-                      background:"#131028", border:"0.5px solid rgba(255,123,90,0.3)" }}>
-                      <div style={{ position:"absolute", left:-8, top:-8, width:44, height:44, borderRadius:"50%",
-                        background:"radial-gradient(circle,rgba(255,123,90,0.45) 0%,transparent 70%)" }}/>
-                      <div style={{ position:"absolute", right:-4, bottom:-4, width:32, height:32, borderRadius:"50%",
-                        background:"radial-gradient(circle,rgba(78,205,196,0.35) 0%,transparent 70%)" }}/>
-                      <div style={{ position:"absolute", left:"40%", top:-4, width:24, height:24, borderRadius:"50%",
-                        background:"radial-gradient(circle,rgba(255,208,128,0.2) 0%,transparent 70%)" }}/>
+                    style={{ background:"#1A1035", borderRadius:16, padding:"14px 10px 12px", display:"flex", flexDirection:"column", alignItems:"center", gap:8, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.10), 0 4px 14px rgba(0,0,0,.20)", border:"1px solid rgba(255,255,255,.06)", position:"relative", overflow:"hidden", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                    {/* Glow fondo */}
+                    <div style={{ position:"absolute", top:-10, left:-10, width:60, height:60, borderRadius:"50%", background:"radial-gradient(circle,rgba(255,123,90,.30) 0%,transparent 70%)", pointerEvents:"none" }}/>
+                    <div style={{ position:"absolute", bottom:-8, right:-8, width:44, height:44, borderRadius:"50%", background:"radial-gradient(circle,rgba(78,205,196,.22) 0%,transparent 70%)", pointerEvents:"none" }}/>
+                    <div style={{ width:40, height:40, display:"flex", alignItems:"center", justifyContent:"center", position:"relative", zIndex:1 }}>
+                      <svg width="26" height="22" viewBox="0 0 26 22" fill="none">
+                        <path d="M4 9C3 6 3.5 3 6 2.5L9 2C10.2 2 11 2.8 11 4C11 2.8 11.8 2 13 2L16 2.5C18.5 3 19 6 18 9L16.5 14.5C15.5 17 14 18 12.5 17.5L13 17.5L10.5 17.5C9 18 7.5 17 6.5 14.5Z" fill="url(#gameGrad)" stroke="rgba(255,255,255,.12)" strokeWidth=".5"/>
+                        <circle cx="18" cy="7.5" r="2" fill="#FF7B5A"/>
+                        <circle cx="15.5" cy="6" r="2" fill="#FFB347"/>
+                        <circle cx="18" cy="10" r="2" fill="#4ECDC4"/>
+                        <rect x="6" y="8" width="2" height="5" rx=".8" fill="rgba(255,255,255,.25)"/>
+                        <rect x="4.5" y="9.5" width="5" height="2" rx=".8" fill="rgba(255,255,255,.25)"/>
+                        <circle cx="10.5" cy="11" r="1.8" fill="rgba(0,0,0,.4)"/>
+                        <circle cx="10.5" cy="11" r="1.2" fill="#1E1035"/>
+                        <defs><linearGradient id="gameGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3D2A5C"/><stop offset="100%" stopColor="#1E1035"/></linearGradient></defs>
+                      </svg>
                     </div>
-                    <svg width="72" height="62" viewBox="0 0 72 62" fill="none" xmlns="http://www.w3.org/2000/svg"
-                      style={{ position:"relative", zIndex:1 }}>
-                      <defs>
-                        <linearGradient id="mcS" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#3D2A5C"/><stop offset="100%" stopColor="#1E1035"/>
-                        </linearGradient>
-                      </defs>
-                      <ellipse cx="36" cy="57" rx="20" ry="3" fill="rgba(0,0,0,0.3)"/>
-                      <path d="M16 28 C13 20 15 11 21 10 L30 9 C33 9 35 11 36 13 C37 11 39 9 42 9 L51 10 C57 11 59 20 56 28 L52 40 C50 45 46 47 41 46 L38 45 C37 44 35 44 34 45 L31 46 C26 47 22 45 20 40 Z" fill="url(#mcS)"/>
-                      <path d="M21 10 C28 8 44 8 51 10 C57 12 59 21 56 28 L54 28 C54 21 52 13 47 11 C41 9 31 9 25 11 C20 13 18 21 18 28 L16 28 C13 21 15 12 21 10 Z" fill="rgba(255,255,255,0.1)"/>
-                      <rect x="19" y="25" width="4" height="9" rx="1.5" fill="rgba(0,0,0,.12)"/>
-                      <rect x="17" y="27" width="8" height="5" rx="1.5" fill="rgba(0,0,0,.12)"/>
-                      <circle cx="49" cy="24" r="3" fill="#FF7B5A"/>
-                      <circle cx="43" cy="23" r="3" fill="#FFB347"/>
-                      <circle cx="49" cy="29" r="3" fill="#4ECDC4"/>
-                      <circle cx="55" cy="24" r="3" fill="#6EEDDF"/>
-                      <circle cx="29" cy="35" r="4" fill="#120A24"/>
-                      <circle cx="29" cy="35" r="3" fill="#1E1035"/>
-                      <circle cx="29" cy="34.5" r="1.5" fill="rgba(255,255,255,0.1)"/>
-                      <circle cx="41" cy="35" r="4" fill="#120A24"/>
-                      <circle cx="41" cy="35" r="3" fill="#1E1035"/>
-                      <circle cx="41" cy="34.5" r="1.5" fill="rgba(255,255,255,0.1)"/>
-                      <rect x="34" y="27" width="4" height="2" rx="1" fill="rgba(255,255,255,0.2)"/>
-                    </svg>
+                    <span style={{ fontSize:10, fontWeight:800, color:"rgba(255,255,255,.80)", letterSpacing:"-0.01em", textAlign:"center", lineHeight:1.2, position:"relative", zIndex:1 }}>Mini juego</span>
                     {juegoData?.turnoActual === "pac" && (
-                      <div style={{ position:"absolute", top:4, right:4, width:7, height:7,
-                        borderRadius:"50%", background:"#A78BFA",
-                        animation:"pulseXP 1.5s ease infinite", zIndex:2 }}/>
+                      <div style={{ position:"absolute", top:8, right:8, width:8, height:8, borderRadius:"50%", background:"#A78BFA", animation:"pulseXP 1.5s ease infinite" }}/>
                     )}
                   </div>
                 </div>
 
-                {/* FRASE MES */}
+                {/* ── FRASE DEL MES ── */}
                 {fraseDelMes ? (
-                  <div style={{ background:"rgba(255,208,128,.06)", border:"1px solid rgba(255,208,128,.12)", borderRadius:14, padding:"12px 14px", marginBottom:12 }}>
-                    <div style={{ fontSize:10, color:"rgba(255,208,128,.55)", fontWeight:700, marginBottom:6, letterSpacing:"0.12em", textTransform:"uppercase" }}>Frase del mes</div>
-                    <div style={{ fontSize:13, color:C.text, lineHeight:1.6, fontStyle:"italic" }}>"{fraseDelMes}"</div>
-                    <div style={{ fontSize:10, color:C.light, marginTop:6 }}>— {psicologoData?.nombre || "Tu psicólogo"}</div>
+                  <div style={{ background:"#FFFFFF", borderRadius:16, padding:"14px 16px", marginBottom:12, boxShadow:"0 1px 3px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.06)", border:"1px solid rgba(0,0,0,.06)", position:"relative", overflow:"hidden" }}>
+                    {/* Comilla decorativa */}
+                    <div style={{ position:"absolute", top:4, right:12, fontSize:52, lineHeight:1, color:"rgba(0,0,0,.04)", fontFamily:"Georgia,serif", fontWeight:900, userSelect:"none", pointerEvents:"none" }}>"</div>
+                    <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:9 }}>
+                      <div style={{ width:16, height:16, borderRadius:5, background:"rgba(30,77,43,.10)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="2.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      </div>
+                      <span style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".14em", textTransform:"uppercase" }}>Frase del mes</span>
+                    </div>
+                    <div style={{ fontSize:13, color:"#1A2E1D", lineHeight:1.72, fontStyle:"italic", paddingRight:20 }}>"{fraseDelMes}"</div>
+                    <div style={{ fontSize:10, color:"#5C7A65", marginTop:8, fontWeight:600 }}>— {psicologoData?.nombre || "Tu psicólogo"}</div>
                   </div>
                 ) : null}
               </div>
