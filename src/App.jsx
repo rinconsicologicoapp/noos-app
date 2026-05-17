@@ -2381,6 +2381,9 @@ useEffect(() => {
   if (screen === "home" && usuarioActual?.uid && usuarioActual.rol === "paciente") {
     cargarCitas(usuarioActual.uid, "paciente");
   }
+  if (screen === "psi-pagos" && usuarioActual?.uid && usuarioActual.rol === "psicologo") {
+    cargarSesionesFirestore();
+  }
 }, [screen]);
 useEffect(() => {
   if (usuarioActual?.uid && !xpCargado) {
@@ -8966,16 +8969,19 @@ const styles = `
   };
 
   // ── FINANZAS ────────────────────────────────────────────────────────────
-  const cargarSesiones = async () => {
+  const cargarSesionesFirestore = async () => {
     if (loadingFinanzas) return;
     setLoadingFinanzas(true);
     try {
       const snap = await getDocs(query(collection(db, "sesionesFinanzas"), where("psicologoId", "==", usuarioActual.uid)));
       setSesionesFinanzas(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.fecha) - new Date(a.fecha)));
-    } catch(e) {}
+    } catch(e) {
+      console.error("[finanzas] Error cargando sesiones:", e?.code, e?.message);
+      showToast("Error al cargar finanzas ❌");
+    }
     setLoadingFinanzas(false);
   };
-  if (pagosMainTab === "finanzas" && sesionesFinanzas.length === 0 && !loadingFinanzas) cargarSesiones();
+  const cargarSesiones = cargarSesionesFirestore;
 
   const fmt = (n) => n ? "$" + Number(n).toLocaleString("es-CO") : "$0";
   const mesesFull = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
