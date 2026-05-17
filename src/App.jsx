@@ -549,7 +549,7 @@ function NubeFrase({ frase, color }) {
         position:"relative",
         boxShadow:`0 4px 20px ${color}18`,
       }}>
-        <div style={{fontSize:12,color:"#FFFFFF",lineHeight:1.6,textAlign:"center",fontStyle:"italic"}}>
+        <div style={{fontSize:12,color:"#1A2E1D",lineHeight:1.6,textAlign:"center",fontStyle:"italic"}}>
           "{frase}"
         </div>
         {/* Colita de nube apuntando hacia abajo al compañero */}
