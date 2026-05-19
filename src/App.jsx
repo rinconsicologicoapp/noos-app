@@ -1173,6 +1173,7 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
         cargarRecordatorios(uid);
         cargarResenas(uid);
         suscribirNotificaciones(uid);
+        cargarSesionesClinicasPsicologo();
         const pacientesSnap = await getDocs(query(collection(db, "usuarios"), where("psicologoId", "==", uid)));
         const listaPacientes = pacientesSnap.docs
           .filter(d => d.data().rol === "paciente")
@@ -1578,16 +1579,16 @@ const cargarSesionesClinicasPaciente = async () => {
   setLoadingSesionesClinicas(false);
 };
 
-const cargarSesionesClinicasPsicologo = async (pacId) => {
-  if (!pacId||!usuarioActual?.uid) return;
+const cargarSesionesClinicasPsicologo = async () => {
+  if (!usuarioActual?.uid) return;
   setLoadingSesionesClinicas(true);
   try {
+    // Query solo por psicologoId (evita índice compuesto). Filtro por paciente en render.
     const snap = await getDocs(query(collection(db,"sesionesClinicas"),
-      where("pacienteId","==",pacId),
       where("psicologoId","==",usuarioActual.uid)
     ));
     setSesionesClinicas(snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.numero||0)-(a.numero||0)));
-  } catch(e){ console.error("sesionesClinicas psi:",e?.code); }
+  } catch(e){ console.error("sesionesClinicas psi:",e?.code, e?.message); }
   setLoadingSesionesClinicas(false);
 };
 
@@ -1627,7 +1628,7 @@ const eliminarSesionClinica = async (sesionId, pacId) => {
     setConfirmEliminarSesion(null);
     setSesionAbierta(null);
     showToast("Sesión eliminada");
-    if (pacId) await cargarSesionesClinicasPsicologo(pacId);
+    await cargarSesionesClinicasPsicologo();
   } catch(e) { showToast("Error al eliminar ❌"); }
 };
 
@@ -1664,7 +1665,7 @@ const enviarSesionClinica = async (pacId) => {
     showToast(eraVisible ? "Sesión actualizada ✅" : "Sesión enviada al paciente ✅");
     setMostrarFormSesion(false); setSesionCurrentId(null);
     setSesionTitulo(""); setSesionResumen(""); setSesionNivel(5); setSesionVisible(false);
-    await cargarSesionesClinicasPsicologo(pacId);
+    await cargarSesionesClinicasPsicologo();
   } catch(e){ showToast("Error al enviar ❌"); console.error(e?.code); }
   setSesionEnviando(false);
 };
@@ -2480,6 +2481,7 @@ useEffect(() => {
           cargarRecordatorios(user.uid);
           cargarResenas(user.uid);
           suscribirNotificaciones(user.uid);
+          cargarSesionesClinicasPsicologo();
           const pacientesSnap = await getDocs(query(collection(db, "usuarios"), where("psicologoId", "==", user.uid)));
         const listaPacientes = pacientesSnap.docs
           .filter(d => d.data().rol === "paciente")
@@ -10393,7 +10395,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                           setSesionCurrentId(id); setSesionTitulo(""); setSesionResumen("");
                           setSesionNivel(5); setSesionVisible(false); setSesionAutoSaved(false);
                           setMostrarFormSesion(true);
-                          cargarSesionesClinicasPsicologo(pacId);
+                          cargarSesionesClinicasPsicologo();
                         }} style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 13px", background:"rgba(30,77,43,.10)", border:"1px solid rgba(30,77,43,.18)", borderRadius:20, cursor:"pointer", touchAction:"manipulation" }}>
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                           <span style={{ fontSize:11, fontWeight:800, color:"#1E4D2B" }}>Nueva sesión</span>
