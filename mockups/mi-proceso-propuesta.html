@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Proceso — Propuesta de diseño</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #0A1409;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px 80px;
+  gap: 48px;
+}
+
+/* ── Títulos de sección ── */
+.section-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .20em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.25);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
+  padding: 5px 16px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.col-wrap {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Phone shell ── */
+.phone {
+  width: 300px;
+  border-radius: 44px;
+  border: 5px solid #162A1C;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.06),
+    0 32px 80px rgba(0,0,0,.65);
+  position: relative;
+}
+.phone-notch {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 80px; height: 20px;
+  background: #162A1C;
+  border-radius: 0 0 14px 14px;
+  z-index: 10;
+}
+.phone-screen {
+  height: 620px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  transition: background-color 0.6s cubic-bezier(.22,1,.36,1);
+}
+.phone-screen::-webkit-scrollbar { display: none; }
+
+/* ── Paleta de niveles (backgrounds suaves) ── */
+.bg-0  { background: #F0F2F0; }
+.bg-1  { background: #EAF2F8; }
+.bg-2  { background: #E5F2EE; }
+.bg-3  { background: #E5F3EB; }
+.bg-4  { background: #ECF6E5; }
+.bg-5  { background: #F4F8E0; }
+.bg-6  { background: #FAF8DC; }
+.bg-7  { background: #FDF3D0; }
+.bg-8  { background: #FDECD0; }
+.bg-9  { background: #FDE8E4; }
+.bg-10 { background: #FDE4E0; }
+
+/* ── Colores de los segmentos (más saturados) ── */
+:root {
+  --seg-1:  #7DB8D8;
+  --seg-2:  #4ECDC4;
+  --seg-3:  #52B87A;
+  --seg-4:  #72C462;
+  --seg-5:  #A4CC44;
+  --seg-6:  #D4C83A;
+  --seg-7:  #E8A82A;
+  --seg-8:  #E08040;
+  --seg-9:  #D46050;
+  --seg-10: #C84040;
+}
+
+/* ── Header verde bosque (igual que el resto de la app) ── */
+.header {
+  background: linear-gradient(175deg, #162A1C 0%, #0F2015 65%, #0A1A10 100%);
+  padding: 28px 18px 20px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.header::before {
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(110,180,130,.30),transparent);
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.header-back {
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.10);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.header-title {
+  font-size: 17px;
+  font-weight: 900;
+  color: #FFFFFF;
+  letter-spacing: -0.025em;
+}
+.header-sub {
+  font-size: 10px;
+  color: rgba(110,180,130,.60);
+  font-weight: 600;
+  letter-spacing: .04em;
+  padding-left: 40px;
+  margin-top: 2px;
+}
+
+/* ── Body del paciente ── */
+.patient-body {
+  padding: 14px 14px 80px;
+  transition: background-color 0.6s cubic-bezier(.22,1,.36,1);
+}
+
+/* ── Card del medidor ── */
+.meter-card {
+  background: #FFFFFF;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow:
+    0 1px 3px rgba(0,0,0,.05),
+    0 8px 24px rgba(0,0,0,.09);
+  border: 1px solid rgba(0,0,0,.06);
+  position: relative;
+  overflow: hidden;
+}
+.meter-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.meter-dot {
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #3D7A52, #1E4D2B);
+}
+.meter-label-text {
+  font-size: 9px;
+  font-weight: 800;
+  color: rgba(30,77,43,.45);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.meter-date {
+  font-size: 9px;
+  color: #5C7A65;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+/* ── Barra de 10 segmentos ── */
+.bar-container {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.bar-segment {
+  flex: 1;
+  height: 20px;
+  border-radius: 5px;
+  background: rgba(0,0,0,.07);
+  transition: background-color 0.4s ease, transform 0.15s ease;
+  cursor: pointer;
+  position: relative;
+}
+.bar-segment.filled {
+  transform: none;
+}
+.bar-segment:hover {
+  transform: scaleY(1.08);
+}
+
+/* ── Sesiones list ── */
+.sessions-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.sessions-dot {
+  width: 3px; height: 16px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #3D7A52, #1E4D2B);
+}
+.sessions-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: #1A2E1D;
+  letter-spacing: -0.02em;
+}
+.sessions-count {
+  font-size: 10px;
+  color: rgba(30,77,43,.45);
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.session-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 14px 15px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 4px 14px rgba(0,0,0,.06);
+}
+.session-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.session-number {
+  font-size: 9px;
+  font-weight: 800;
+  color: rgba(30,77,43,.45);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.session-date {
+  font-size: 9px;
+  color: #5C7A65;
+  font-weight: 500;
+}
+.session-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1A2E1D;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  margin-bottom: 7px;
+}
+.session-summary {
+  font-size: 12px;
+  color: #5C7A65;
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+.session-reflection {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(30,77,43,.05);
+  border: 1px solid rgba(30,77,43,.10);
+  border-radius: 10px;
+  cursor: text;
+}
+.session-reflection-text {
+  font-size: 11px;
+  color: rgba(30,77,43,.45);
+  font-style: italic;
+}
+
+/* ── Nav bar ── */
+.nav-bar {
+  position: sticky;
+  bottom: 0;
+  left: 0; right: 0;
+  background: #FFFFFF;
+  border-top: 0.5px solid rgba(255,155,122,.15);
+  padding: 10px 4px 16px;
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.nav-item-label {
+  font-size: 8px;
+  color: rgba(0,0,0,.30);
+  font-weight: 500;
+}
+.nav-item-label.active {
+  color: #FFB347;
+  font-weight: 700;
+}
+.nav-pip {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: #FFB347;
+}
+
+/* ═══ VISTA PSICÓLOGO ═══ */
+.psi-screen {
+  background: #F0F2F0;
+  height: 620px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.psi-screen::-webkit-scrollbar { display: none; }
+
+.psi-header {
+  background: linear-gradient(175deg, #162A1C 0%, #0F2015 100%);
+  padding: 28px 18px 20px;
+  position: relative;
+}
+.psi-header::before {
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(110,180,130,.30),transparent);
+}
+.psi-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.psi-back {
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.10);
+  display: flex; align-items: center; justify-content: center;
+}
+.psi-header-text { flex: 1; }
+.psi-header-title { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: -.02em; }
+.psi-header-sub   { font-size: 10px; color: rgba(255,255,255,.40); margin-top: 2px; }
+
+.psi-body { padding: 14px 14px 80px; }
+
+/* Form */
+.form-section-label {
+  font-size: 9px;
+  font-weight: 800;
+  color: rgba(30,77,43,.45);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  margin-top: 14px;
+}
+.form-input {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 13px;
+  color: #1A2E1D;
+  font-family: inherit;
+  outline: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+.form-textarea {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 12px;
+  color: #1A2E1D;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  line-height: 1.6;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  min-height: 80px;
+}
+.autosave-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  color: #5C7A65;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+/* Medidor psicólogo */
+.psi-meter-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid rgba(0,0,0,.07);
+  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.07);
+  margin-top: 6px;
+}
+.psi-meter-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,.06);
+  transition: background-color 0.4s ease;
+}
+.psi-preview-dot {
+  width: 20px; height: 20px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: background-color 0.4s ease;
+}
+.psi-preview-text {
+  font-size: 11px;
+  color: #1A2E1D;
+  font-weight: 600;
+}
+.psi-preview-level {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 800;
+  color: #3D7A52;
+}
+
+.psi-bar-container {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.psi-bar-segment {
+  flex: 1;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(0,0,0,.07);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.12s ease;
+}
+.psi-bar-segment:hover {
+  transform: scaleY(1.10);
+}
+.psi-bar-segment.filled {
+  /* color set by JS */
+}
+.psi-bar-nums {
+  display: flex;
+  gap: 3px;
+}
+.psi-bar-num {
+  flex: 1;
+  text-align: center;
+  font-size: 7px;
+  color: rgba(0,0,0,.28);
+  font-weight: 700;
+}
+
+/* Toggle + Send */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: #FFFFFF;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,.07);
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+.toggle-info { flex: 1; }
+.toggle-label { font-size: 12px; font-weight: 700; color: #1A2E1D; }
+.toggle-sub   { font-size: 10px; color: #5C7A65; margin-top: 2px; }
+.toggle-switch {
+  width: 42px; height: 24px;
+  border-radius: 12px;
+  background: #3D7A52;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.toggle-thumb {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 3px; left: 21px;
+  transition: left 0.2s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+}
+.toggle-switch.off { background: rgba(0,0,0,.15); }
+.toggle-switch.off .toggle-thumb { left: 3px; }
+
+.send-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(135deg, #3D7A52, #1E4D2B);
+  color: white;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  margin-top: 12px;
+  box-shadow: 0 4px 18px rgba(30,77,43,.35), inset 0 1px 0 rgba(255,255,255,.10);
+  border: none;
+  font-family: inherit;
+  transition: opacity .15s;
+}
+.send-btn:active { opacity: .85; }
+
+/* ── Existing session mini card en lista del psi ── */
+.psi-session-item {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.psi-session-num {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  background: rgba(30,77,43,.10);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 900; color: #1E4D2B;
+  flex-shrink: 0;
+}
+.psi-session-info { flex: 1; }
+.psi-session-title { font-size: 12px; font-weight: 700; color: #1A2E1D; }
+.psi-session-meta  { font-size: 10px; color: #5C7A65; margin-top: 2px; }
+.psi-session-badge {
+  font-size: 9px; font-weight: 700;
+  padding: 3px 8px; border-radius: 20px;
+  flex-shrink: 0;
+}
+.badge-shared {
+  background: rgba(30,77,43,.10);
+  color: #1E4D2B;
+  border: 1px solid rgba(30,77,43,.18);
+}
+.badge-draft {
+  background: rgba(255,179,71,.12);
+  color: #9A6800;
+  border: 1px solid rgba(255,179,71,.22);
+}
+
+/* Interactive hint */
+.hint {
+  font-size: 10px;
+  color: rgba(255,255,255,.22);
+  text-align: center;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+/* Page title */
+.page-title { text-align: center; }
+.page-title h1 {
+  font-size: 18px; font-weight: 900;
+  color: rgba(255,255,255,.80);
+  letter-spacing: -.03em; margin-bottom: 5px;
+}
+.page-title p {
+  font-size: 11px;
+  color: rgba(255,255,255,.25);
+  letter-spacing: .06em; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>Mi Proceso</h1>
+  <p>Paleta Verde Bosque Calma · Propuesta interactiva</p>
+</div>
+
+<!-- ───────────────── DOS COLUMNAS ───────────────── -->
+<div class="col-wrap">
+
+  <!-- ══ VISTA PACIENTE ══ -->
+  <div class="col">
+    <div class="section-label">Vista · Rol Paciente</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen bg-0" id="patientScreen">
+
+        <!-- Header verde bosque (fijo) -->
+        <div class="header">
+          <div class="header-top">
+            <div class="header-back">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.80)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </div>
+            <div class="header-title">Mi Proceso</div>
+            <div style="width:32px"></div>
+          </div>
+          <div class="header-sub">5 sesiones registradas</div>
+        </div>
+
+        <!-- Body con fondo dinámico -->
+        <div class="patient-body" id="patientBody">
+
+          <!-- Medidor -->
+          <div class="meter-card">
+            <div class="meter-label-row">
+              <div class="meter-dot"></div>
+              <span class="meter-label-text">Mi avance</span>
+              <span class="meter-date" id="patMeterDate">Actualizado · 15 may</span>
+            </div>
+            <div class="bar-container" id="patientBar">
+              <!-- Generado por JS -->
+            </div>
+            <div style="font-size:9px; color:#5C7A65; font-weight:500; margin-top:4px;">
+              Nivel <span id="patLevelNum">6</span> de 10
+            </div>
+          </div>
+
+          <!-- Sesiones -->
+          <div class="sessions-header">
+            <div class="sessions-dot"></div>
+            <span class="sessions-title">Sesiones</span>
+            <span class="sessions-count">5 registradas</span>
+          </div>
+
+          <!-- Sesión 5 -->
+          <div class="session-card">
+            <div class="session-card-top">
+              <span class="session-number">Sesión 5</span>
+              <span class="session-date">15 may 2026</span>
+            </div>
+            <div class="session-title">"Primeros cambios reales"</div>
+            <div class="session-summary">Hoy fue una sesión especial. Pudiste hablar de algo que llevabas tiempo guardando, y lo hiciste con mucha valentía. Estamos viendo los primeros cambios en cómo respondes ante situaciones difíciles.</div>
+            <div class="session-reflection">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(30,77,43,.40)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              <span class="session-reflection-text">Escribe tu reflexión personal...</span>
+            </div>
+          </div>
+
+          <!-- Sesión 4 -->
+          <div class="session-card">
+            <div class="session-card-top">
+              <span class="session-number">Sesión 4</span>
+              <span class="session-date">8 may 2026</span>
+            </div>
+            <div class="session-title">"Identificando patrones"</div>
+            <div class="session-summary">Trabajamos en reconocer esas situaciones que se repiten. Fue una sesión de mucho descubrimiento.</div>
+            <div class="session-reflection" style="background:rgba(30,77,43,.07); border-color:rgba(30,77,43,.14);">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              <span style="font-size:11px; color:#1A2E1D; font-style:italic;">"Entendí por qué reacciono así."</span>
+            </div>
+          </div>
+
+          <!-- Sesión 3 colapsada -->
+          <div class="session-card" style="opacity:.75;">
+            <div class="session-card-top">
+              <span class="session-number">Sesión 3</span>
+              <span class="session-date">1 may 2026</span>
+            </div>
+            <div class="session-title">"Construyendo herramientas"</div>
+            <div class="session-summary">Aprendimos una técnica que puedes usar cuando sientas que la ansiedad sube.</div>
+          </div>
+
+          <!-- Más sesiones compactas -->
+          <div style="display:flex; gap:8px;">
+            <div class="session-card" style="flex:1; opacity:.55;">
+              <div class="session-card-top">
+                <span class="session-number">Sesión 2</span>
+                <span class="session-date">24 abr</span>
+              </div>
+              <div style="font-size:12px; font-weight:700; color:#1A2E1D;">Primera exploración</div>
+            </div>
+            <div class="session-card" style="flex:1; opacity:.40;">
+              <div class="session-card-top">
+                <span class="session-number">Sesión 1</span>
+                <span class="session-date">17 abr</span>
+              </div>
+              <div style="font-size:12px; font-weight:700; color:#1A2E1D;">Inicio</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nav bar -->
+        <div class="nav-bar">
+          <div class="nav-item">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.30)" stroke-width="1.75" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="nav-item-label">Inicio</span>
+          </div>
+          <div class="nav-item">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.30)" stroke-width="1.75" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span class="nav-item-label">Notas</span>
+          </div>
+          <div class="nav-item">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.30)" stroke-width="1.75" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span class="nav-item-label">Citas</span>
+          </div>
+          <div class="nav-item">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#FFB347" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+            <div class="nav-pip"></div>
+            <span class="nav-item-label active">Perfil</span>
+          </div>
+        </div>
+
+      </div><!-- /phone-screen -->
+    </div><!-- /phone -->
+    <div class="hint">← Usa el slider del psicólogo para ver el color cambiar</div>
+  </div>
+
+  <!-- ══ VISTA PSICÓLOGO ══ -->
+  <div class="col">
+    <div class="section-label">Vista · Rol Psicólogo</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="psi-screen">
+
+        <!-- Header -->
+        <div class="psi-header">
+          <div class="psi-header-row">
+            <div class="psi-back">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.80)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </div>
+            <div class="psi-header-text">
+              <div class="psi-header-title">Nueva sesión</div>
+              <div class="psi-header-sub">Valentina García · Sesión #6</div>
+            </div>
+            <div style="font-size:9px; font-weight:700; color:rgba(110,180,130,.60); background:rgba(30,77,43,.18); border:1px solid rgba(30,77,43,.25); padding:4px 10px; border-radius:20px;">Borrador</div>
+          </div>
+        </div>
+
+        <div class="psi-body">
+
+          <!-- Sesiones previas mini -->
+          <div style="display:flex; align-items:center; gap:7px; margin-bottom:10px;">
+            <div class="sessions-dot"></div>
+            <span style="font-size:11px; font-weight:900; color:#1A2E1D; letter-spacing:-.01em;">Sesiones anteriores</span>
+          </div>
+          <div class="psi-session-item">
+            <div class="psi-session-num">5</div>
+            <div class="psi-session-info">
+              <div class="psi-session-title">Primeros cambios reales</div>
+              <div class="psi-session-meta">15 may · Nivel 6</div>
+            </div>
+            <div class="psi-session-badge badge-shared">Compartida</div>
+          </div>
+          <div class="psi-session-item">
+            <div class="psi-session-num">4</div>
+            <div class="psi-session-info">
+              <div class="psi-session-title">Identificando patrones</div>
+              <div class="psi-session-meta">8 may · Nivel 5</div>
+            </div>
+            <div class="psi-session-badge badge-shared">Compartida</div>
+          </div>
+
+          <!-- Separador -->
+          <div style="height:1px; background:rgba(0,0,0,.07); margin:14px 0;"></div>
+
+          <!-- Formulario nueva sesión -->
+          <div style="display:flex; align-items:center; gap:7px; margin-bottom:10px;">
+            <div class="sessions-dot"></div>
+            <span style="font-size:11px; font-weight:900; color:#1A2E1D; letter-spacing:-.01em;">Registrar sesión 6</span>
+          </div>
+
+          <div class="form-section-label">Título</div>
+          <input class="form-input" value="Herramientas para el día a día" readonly/>
+
+          <div class="form-section-label" style="margin-top:10px;">Resumen para el paciente</div>
+          <textarea class="form-textarea" readonly>Hoy consolidamos las herramientas que hemos trabajado. Fue una sesión muy práctica donde buscamos cómo aplicar lo aprendido en situaciones reales de tu semana...</textarea>
+          <div class="autosave-badge">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Borrador guardado automáticamente
+          </div>
+
+          <!-- Medidor -->
+          <div class="form-section-label" style="margin-top:12px;">Nivel de avance del paciente</div>
+          <div class="psi-meter-card">
+            <!-- Preview de color -->
+            <div class="psi-meter-preview" id="psiPreview">
+              <div class="psi-preview-dot" id="psiPreviewDot"></div>
+              <span class="psi-preview-text">Vista previa del fondo del paciente</span>
+              <span class="psi-preview-level" id="psiPreviewLevel">Niv 6</span>
+            </div>
+            <!-- Barra interactiva -->
+            <div class="psi-bar-container" id="psiBar">
+              <!-- Generado por JS -->
+            </div>
+            <div class="psi-bar-nums" id="psiNums">
+              <!-- Generado por JS -->
+            </div>
+          </div>
+
+          <!-- Toggle + Enviar -->
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Compartir con paciente</div>
+              <div class="toggle-sub">La sesión le llegará como notificación</div>
+            </div>
+            <div class="toggle-switch" id="psiToggle" onclick="toggleSwitch()">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+
+          <button class="send-btn" id="sendBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Enviar al paciente
+          </button>
+          <div style="font-size:9px; color:#5C7A65; text-align:center; margin-top:6px; font-weight:500;">Llegará como push al celular · iOS y Android</div>
+
+        </div>
+      </div>
+    </div>
+    <div class="hint">↑ Toca los segmentos de la barra para cambiar el nivel</div>
+  </div>
+
+</div><!-- /col-wrap -->
+
+<!-- ───── PALETA DE REFERENCIA ───── -->
+<div style="text-align:center; margin-top:8px;">
+  <div class="section-label" style="margin-bottom:16px;">Referencia · 10 niveles de color</div>
+  <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+  </div>
+  <div id="paletteRow" style="display:flex; gap:4px; justify-content:center; flex-wrap:wrap; max-width:500px;"></div>
+  <div style="font-size:9px; color:rgba(255,255,255,.20); margin-top:8px; letter-spacing:.06em;">← frío · progreso creciente · cálido →</div>
+</div>
+
+<script>
+// ── Data de los 10 niveles ──
+const LEVELS = [
+  { bg: '#EAF2F8', seg: '#7DB8D8', label: 'Nivel 1'  },
+  { bg: '#E5F2EE', seg: '#4ECDC4', label: 'Nivel 2'  },
+  { bg: '#E5F3EB', seg: '#52B87A', label: 'Nivel 3'  },
+  { bg: '#ECF6E5', seg: '#72C462', label: 'Nivel 4'  },
+  { bg: '#F4F8E0', seg: '#A4CC44', label: 'Nivel 5'  },
+  { bg: '#FAF8DC', seg: '#D4C83A', label: 'Nivel 6'  },
+  { bg: '#FDF3D0', seg: '#E8A82A', label: 'Nivel 7'  },
+  { bg: '#FDECD0', seg: '#E08040', label: 'Nivel 8'  },
+  { bg: '#FDE8E4', seg: '#D46050', label: 'Nivel 9'  },
+  { bg: '#FDE4E0', seg: '#C84040', label: 'Nivel 10' },
+];
+
+let currentLevel = 6; // 1-indexed
+let toggleOn = true;
+
+// ── Render barra paciente ──
+function renderPatientBar() {
+  const bar = document.getElementById('patientBar');
+  bar.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'bar-segment' + (i <= currentLevel ? ' filled' : '');
+    seg.style.background = i <= currentLevel ? LEVELS[i-1].seg : 'rgba(0,0,0,.07)';
+    bar.appendChild(seg);
+  }
+  document.getElementById('patLevelNum').textContent = currentLevel;
+}
+
+// ── Render barra psicólogo (interactiva) ──
+function renderPsiBar() {
+  const bar = document.getElementById('psiBar');
+  const nums = document.getElementById('psiNums');
+  bar.innerHTML = ''; nums.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'psi-bar-segment' + (i <= currentLevel ? ' filled' : '');
+    seg.style.background = i <= currentLevel ? LEVELS[i-1].seg : 'rgba(0,0,0,.07)';
+    const lvl = i;
+    seg.onclick = () => { currentLevel = lvl; updateAll(); };
+    bar.appendChild(seg);
+
+    const num = document.createElement('div');
+    num.className = 'psi-bar-num';
+    num.textContent = i;
+    nums.appendChild(num);
+  }
+}
+
+// ── Actualizar todo ──
+function updateAll() {
+  const L = LEVELS[currentLevel - 1];
+
+  // Fondo pantalla paciente (transition css)
+  document.getElementById('patientScreen').style.background = L.bg;
+  document.getElementById('patientBody').style.background = 'transparent';
+
+  // Preview psicólogo
+  const preview = document.getElementById('psiPreview');
+  preview.style.background = L.bg;
+  document.getElementById('psiPreviewDot').style.background = L.seg;
+  document.getElementById('psiPreviewLevel').textContent = 'Niv ' + currentLevel;
+
+  // Re-render barras
+  renderPatientBar();
+  renderPsiBar();
+}
+
+// ── Toggle ──
+function toggleSwitch() {
+  toggleOn = !toggleOn;
+  const sw = document.getElementById('psiToggle');
+  sw.className = 'toggle-switch' + (toggleOn ? '' : ' off');
+}
+
+// ── Paleta de referencia ──
+function renderPalette() {
+  const row = document.getElementById('paletteRow');
+  LEVELS.forEach((L, i) => {
+    const chip = document.createElement('div');
+    chip.style.cssText = `
+      width:32px; height:32px; border-radius:8px;
+      background:${L.seg}; cursor:pointer;
+      border:2px solid ${i+1===currentLevel ? '#1A2E1D' : 'transparent'};
+      transition:transform .12s, border-color .2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    `;
+    chip.title = L.label;
+    chip.onclick = () => { currentLevel = i+1; updateAll(); renderPalette(); };
+    chip.onmouseover = () => { chip.style.transform='scale(1.15)'; };
+    chip.onmouseout  = () => { chip.style.transform='scale(1)'; };
+    row.appendChild(chip);
+  });
+}
+
+// ── Init ──
+updateAll();
+renderPalette();
+</script>
+</body>
+</html>
