@@ -1069,6 +1069,8 @@ const [sesionNivel, setSesionNivel] = useState(5);
 const [sesionVisible, setSesionVisible] = useState(false);
 const [sesionAutoSaved, setSesionAutoSaved] = useState(false);
 const [sesionEnviando, setSesionEnviando] = useState(false);
+const [sesionAbierta, setSesionAbierta] = useState(null);
+const [confirmEliminarSesion, setConfirmEliminarSesion] = useState(null);
 const [modalIngreso, setModalIngreso] = useState(false);
 const [ingresoMotivo, setIngresoMotivo] = useState("");
 const [ingresoValor, setIngresoValor] = useState("");
@@ -1607,6 +1609,28 @@ const autoGuardarSesion = async (titulo, resumen, nivel, visible, pacId, sesId) 
   } catch(e){ console.error("auto-save sesion:",e?.code); }
 };
 
+const abrirEdicionSesion = (sesion) => {
+  setSesionAbierta(null);
+  setSesionCurrentId(sesion.id);
+  setSesionTitulo(sesion.titulo || "");
+  setSesionResumen(sesion.resumenPaciente || "");
+  setSesionNivel(sesion.nivelAvance || 5);
+  setSesionVisible(sesion.visible || false);
+  setSesionAutoSaved(false);
+  setMostrarFormSesion(true);
+};
+
+const eliminarSesionClinica = async (sesionId, pacId) => {
+  try {
+    await deleteDoc(doc(db, "sesionesClinicas", sesionId));
+    setSesionesClinicas(prev => prev.filter(s => s.id !== sesionId));
+    setConfirmEliminarSesion(null);
+    setSesionAbierta(null);
+    showToast("Sesión eliminada");
+    if (pacId) await cargarSesionesClinicasPsicologo(pacId);
+  } catch(e) { showToast("Error al eliminar ❌"); }
+};
+
 const triggerAutoSave = (titulo, resumen, nivel, visible, pacId, sesId) => {
   if (sesionAutoSaveRef.current) clearTimeout(sesionAutoSaveRef.current);
   sesionAutoSaveRef.current = setTimeout(()=>autoGuardarSesion(titulo,resumen,nivel,visible,pacId,sesId),800);
@@ -1616,18 +1640,28 @@ const enviarSesionClinica = async (pacId) => {
   if (!pacId||!sesionCurrentId||!usuarioActual?.uid) return;
   setSesionEnviando(true);
   try {
-    await updateDoc(doc(db,"sesionesClinicas",sesionCurrentId),{visible:true,actualizadoEn:new Date().toISOString()});
-    const msg = sesionTitulo ? `Tu psicólogo compartió: "${sesionTitulo}"` : "Tu psicólogo actualizó tu proceso";
+    // Detectar si era ya visible (edición) o nuevo
+    const eraVisible = sesionesClinicas.find(s=>s.id===sesionCurrentId)?.visible === true;
+    await setDoc(doc(db,"sesionesClinicas",sesionCurrentId),{
+      visible:true, actualizadoEn:new Date().toISOString(),
+      titulo:sesionTitulo||"", resumenPaciente:sesionResumen||"", nivelAvance:sesionNivel,
+    },{merge:true});
+    const accion = eraVisible ? "actualizó" : "compartió";
+    const titulo = eraVisible ? "Mi Proceso — Sesión actualizada" : "Mi Proceso — Nueva sesión";
+    const msg = sesionTitulo ? `Tu psicólogo ${accion}: "${sesionTitulo}"` : `Tu psicólogo ${accion} tu sesión`;
+    const pushTag = `sesion_push_${sesionCurrentId}_${Date.now()}`;
+    // Notificación in-app
     setDoc(doc(db,"notificaciones",`sesion_${sesionCurrentId}`),{
-      pacienteId:pacId, titulo:"Mi Proceso — Nueva sesión", mensaje:msg,
+      pacienteId:pacId, titulo, mensaje:msg,
       icon:"📋", tipo:"sesion_clinica", leida:false, pushEnviada:false, creadoEn:new Date().toISOString(),
     }).catch(()=>{});
-    setDoc(doc(db,"notificaciones_programadas",`sesion_push_${sesionCurrentId}`),{
+    // Push notification al móvil del paciente
+    setDoc(doc(db,"notificaciones_programadas",pushTag),{
       pacienteId:pacId, title:"Mi Proceso",
-      body:msg, scheduledAt:new Date(Date.now()+3000).toISOString(),
+      body:msg, scheduledAt:new Date(Date.now()+2000).toISOString(),
       enviada:false, creadaEn:new Date().toISOString(), tipo:"sesion_clinica",
     }).catch(()=>{});
-    showToast("Sesión enviada al paciente ✅");
+    showToast(eraVisible ? "Sesión actualizada ✅" : "Sesión enviada al paciente ✅");
     setMostrarFormSesion(false); setSesionCurrentId(null);
     setSesionTitulo(""); setSesionResumen(""); setSesionNivel(5); setSesionVisible(false);
     await cargarSesionesClinicasPsicologo(pacId);
@@ -4464,8 +4498,8 @@ const styles = `
                   )}
 
                   {sesionesClinicas.map((s,idx)=>(
-                    <div key={s.id} style={{ background:"#FFFFFF", borderRadius:16, padding:"15px 15px", marginBottom:10, border:"1px solid rgba(0,0,0,.06)", boxShadow:"0 1px 3px rgba(0,0,0,.04), 0 4px 14px rgba(0,0,0,.06)", animation:`fadeUp 0.26s cubic-bezier(.22,1,.36,1) ${idx*40}ms both` }}>
-                      {/* Franja color del nivel de esa sesión */}
+                    <div key={s.id} onClick={()=>setSesionAbierta(s)}
+                      style={{ background:"#FFFFFF", borderRadius:16, padding:"15px 15px", marginBottom:10, border:"1px solid rgba(0,0,0,.06)", boxShadow:"0 1px 3px rgba(0,0,0,.04), 0 4px 14px rgba(0,0,0,.06)", animation:`fadeUp 0.26s cubic-bezier(.22,1,.36,1) ${idx*40}ms both`, cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
                       <div style={{ display:"flex", gap:2, marginBottom:12 }}>
                         {[1,2,3,4,5,6,7,8,9,10].map(i=>(
                           <div key={i} style={{ flex:1, height:3, borderRadius:2, background: i<=(s.nivelAvance||0) ? PROCESO_COLORS[i-1].seg : "rgba(0,0,0,.06)" }}/>
@@ -4473,10 +4507,13 @@ const styles = `
                       </div>
                       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
                         <span style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".14em", textTransform:"uppercase" }}>Sesión {s.numero}</span>
-                        <span style={{ fontSize:10, color:"#5C7A65", fontWeight:500 }}>{new Date(s.fecha||"").toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}</span>
+                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                          <span style={{ fontSize:10, color:"#5C7A65", fontWeight:500 }}>{new Date(s.fecha||"").toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(30,77,43,.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </div>
                       </div>
-                      {s.titulo && <div style={{ fontSize:14, fontWeight:800, color:"#1A2E1D", letterSpacing:"-0.015em", lineHeight:1.3, marginBottom:8 }}>{s.titulo}</div>}
-                      {s.resumenPaciente && <div style={{ fontSize:13, color:"#2D4A33", lineHeight:1.72 }}>{s.resumenPaciente}</div>}
+                      {s.titulo && <div style={{ fontSize:14, fontWeight:800, color:"#1A2E1D", letterSpacing:"-0.015em", lineHeight:1.3, marginBottom:s.resumenPaciente?6:0 }}>{s.titulo}</div>}
+                      {s.resumenPaciente && <div style={{ fontSize:12, color:"#5C7A65", lineHeight:1.6, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{s.resumenPaciente}</div>}
                     </div>
                   ))}
                 </div>
@@ -10424,15 +10461,16 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                           <div style={{ fontSize:12, color:"#5C7A65" }}>Sin sesiones registradas aún</div>
                         </div>
                       ) : sesionesPac.map((s,idx)=>(
-                        <div key={s.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", marginBottom:8, border:"1px solid rgba(0,0,0,.06)", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                          <div style={{ display:"flex", gap:2, marginBottom:8 }}>
-                            {[1,2,3,4,5,6,7,8,9,10].map(i=>(
-                              <div key={i} style={{ flex:1, height:3, borderRadius:2, background:i<=(s.nivelAvance||0)?PROCESO_COLORS[i-1].seg:"rgba(0,0,0,.07)" }}/>
-                            ))}
-                          </div>
-                          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
-                            <span style={{ fontSize:10, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".12em", textTransform:"uppercase" }}>Sesión {s.numero}</span>
-                            <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                        <div key={s.id} style={{ background:"#FFFFFF", borderRadius:14, marginBottom:8, border:"1px solid rgba(0,0,0,.06)", boxShadow:"0 1px 3px rgba(0,0,0,.04)", overflow:"hidden" }}>
+                          {/* Tap en el card abre el detalle */}
+                          <div onClick={()=>setSesionAbierta({...s, _pacId: pacId})} style={{ padding:"12px 14px", cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                            <div style={{ display:"flex", gap:2, marginBottom:8 }}>
+                              {[1,2,3,4,5,6,7,8,9,10].map(i=>(
+                                <div key={i} style={{ flex:1, height:3, borderRadius:2, background:i<=(s.nivelAvance||0)?PROCESO_COLORS[i-1].seg:"rgba(0,0,0,.07)" }}/>
+                              ))}
+                            </div>
+                            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
+                              <span style={{ fontSize:10, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".12em", textTransform:"uppercase" }}>Sesión {s.numero}</span>
                               <span style={{ fontSize:9, fontWeight:700, padding:"3px 8px", borderRadius:20,
                                 background:s.visible?"rgba(30,77,43,.10)":"rgba(255,179,71,.12)",
                                 color:s.visible?"#1E4D2B":"#9A6800",
@@ -10440,9 +10478,20 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                                 {s.visible?"Compartida":"Borrador"}
                               </span>
                             </div>
+                            {s.titulo && <div style={{ fontSize:12, fontWeight:700, color:"#1A2E1D", marginBottom:2, lineHeight:1.3 }}>{s.titulo}</div>}
+                            <div style={{ fontSize:10, color:"#5C7A65" }}>{new Date(s.fecha||"").toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}</div>
                           </div>
-                          {s.titulo && <div style={{ fontSize:12, fontWeight:700, color:"#1A2E1D", marginBottom:2, lineHeight:1.3 }}>{s.titulo}</div>}
-                          <div style={{ fontSize:10, color:"#5C7A65" }}>{new Date(s.fecha||"").toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}</div>
+                          {/* Acciones editar/eliminar */}
+                          <div style={{ display:"flex", borderTop:"1px solid rgba(0,0,0,.05)" }}>
+                            <div onClick={()=>abrirEdicionSesion(s)} style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"9px 0", cursor:"pointer", touchAction:"manipulation", borderRight:"1px solid rgba(0,0,0,.05)" }}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                              <span style={{ fontSize:10, fontWeight:700, color:"#3D7A52" }}>Editar</span>
+                            </div>
+                            <div onClick={()=>setConfirmEliminarSesion({id:s.id,pacId})} style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"9px 0", cursor:"pointer", touchAction:"manipulation" }}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#D46050" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                              <span style={{ fontSize:10, fontWeight:700, color:"#D46050" }}>Eliminar</span>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -11462,6 +11511,84 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
           )}
 
         </div>
+
+        {/* ── SESSION DETAIL SHEET — funciona desde cualquier pantalla ── */}
+        {sesionAbierta && (() => {
+          const s = sesionAbierta;
+          const nivel = s.nivelAvance || 0;
+          const bgColor = nivel > 0 ? PROCESO_COLORS[nivel-1].bg : "#F4F6F4";
+          const esPsi = usuarioActual?.rol === "psicologo";
+          const pacId = s._pacId || null;
+          return (
+            <div onClick={()=>setSesionAbierta(null)}
+              style={{ position:"absolute", inset:0, background:"rgba(0,0,0,.50)", zIndex:500, display:"flex", alignItems:"flex-end", animation:"overlayIn 0.22s ease both" }}>
+              <div onClick={e=>e.stopPropagation()}
+                style={{ width:"100%", height:"91%", background:bgColor, borderRadius:"24px 24px 0 0", animation:"sheetUp 0.38s cubic-bezier(0.32,0.72,0,1) both", display:"flex", flexDirection:"column", overflow:"hidden", boxShadow:"0 -8px 40px rgba(0,0,0,.22)" }}>
+                <div style={{ display:"flex", justifyContent:"center", paddingTop:12, paddingBottom:4, flexShrink:0 }}>
+                  <div style={{ width:40, height:4, borderRadius:2, background:"rgba(0,0,0,.14)" }}/>
+                </div>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"8px 18px 14px", flexShrink:0 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                    <div style={{ width:36, height:36, borderRadius:10, background:"rgba(30,77,43,.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    </div>
+                    <div>
+                      <div style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".14em", textTransform:"uppercase" }}>Sesión {s.numero}</div>
+                      <div style={{ fontSize:11, color:"#5C7A65", fontWeight:500 }}>{new Date(s.fecha||"").toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+                    </div>
+                  </div>
+                  <div onClick={()=>setSesionAbierta(null)} style={{ width:32, height:32, borderRadius:10, background:"rgba(0,0,0,.07)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.50)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </div>
+                </div>
+                <div style={{ padding:"0 18px 18px", flexShrink:0 }}>
+                  <div style={{ display:"flex", gap:4 }}>
+                    {[1,2,3,4,5,6,7,8,9,10].map(i=>(
+                      <div key={i} style={{ flex:1, height:22, borderRadius:7, background: i<=nivel ? PROCESO_COLORS[i-1].seg : "rgba(0,0,0,.08)", boxShadow: i===nivel ? `0 2px 8px ${PROCESO_COLORS[i-1].seg}60` : "none" }}/>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ flex:1, overflowY:"auto", padding:"0 18px 32px", WebkitOverflowScrolling:"touch" }}>
+                  {s.titulo && <div style={{ fontSize:22, fontWeight:900, color:"#1A2E1D", letterSpacing:"-0.025em", lineHeight:1.2, marginBottom:14 }}>{s.titulo}</div>}
+                  {s.resumenPaciente ? (
+                    <div style={{ fontSize:14, color:"#2D4A33", lineHeight:1.78, whiteSpace:"pre-wrap" }}>{s.resumenPaciente}</div>
+                  ) : (
+                    <div style={{ fontSize:13, color:"rgba(30,77,43,.35)", fontStyle:"italic" }}>Sin resumen en esta sesión.</div>
+                  )}
+                  {esPsi && (
+                    <div style={{ display:"flex", gap:8, marginTop:28 }}>
+                      <div onClick={()=>abrirEdicionSesion(s)} style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:7, padding:"13px 0", background:"rgba(30,77,43,.10)", border:"1px solid rgba(30,77,43,.20)", borderRadius:14, cursor:"pointer", touchAction:"manipulation" }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <span style={{ fontSize:13, fontWeight:800, color:"#1E4D2B" }}>Editar sesión</span>
+                      </div>
+                      <div onClick={()=>{ setSesionAbierta(null); setConfirmEliminarSesion({id:s.id,pacId}); }} style={{ width:50, display:"flex", alignItems:"center", justifyContent:"center", background:"rgba(212,96,80,.10)", border:"1px solid rgba(212,96,80,.22)", borderRadius:14, cursor:"pointer", touchAction:"manipulation" }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D46050" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ── CONFIRMAR ELIMINAR SESIÓN ── */}
+        {confirmEliminarSesion && (
+          <div onClick={()=>setConfirmEliminarSesion(null)}
+            style={{ position:"absolute", inset:0, background:"rgba(0,0,0,.52)", zIndex:500, display:"flex", alignItems:"center", justifyContent:"center", padding:24, animation:"overlayIn 0.18s ease both" }}>
+            <div onClick={e=>e.stopPropagation()} style={{ background:"#FFFFFF", borderRadius:22, padding:"24px 20px", width:"100%", animation:"scaleIn 0.2s cubic-bezier(.22,1,.36,1) both", textAlign:"center" }}>
+              <div style={{ width:52, height:52, borderRadius:14, background:"rgba(212,96,80,.10)", border:"1px solid rgba(212,96,80,.20)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 14px" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D46050" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+              </div>
+              <div style={{ fontSize:17, fontWeight:900, color:"#1A2E1D", marginBottom:8 }}>¿Eliminar sesión?</div>
+              <div style={{ fontSize:13, color:"#5C7A65", lineHeight:1.6, marginBottom:22 }}>Esta sesión se borrará permanentemente. No se puede deshacer.</div>
+              <div style={{ display:"flex", gap:8 }}>
+                <div onClick={()=>setConfirmEliminarSesion(null)} style={{ flex:1, padding:"13px 0", textAlign:"center", background:"rgba(0,0,0,.06)", borderRadius:13, fontSize:13, fontWeight:700, color:"#1A2E1D", cursor:"pointer", touchAction:"manipulation" }}>Cancelar</div>
+                <div onClick={()=>eliminarSesionClinica(confirmEliminarSesion.id, confirmEliminarSesion.pacId)} style={{ flex:1, padding:"13px 0", textAlign:"center", background:"linear-gradient(135deg,#D46050,#A84030)", borderRadius:13, fontSize:13, fontWeight:800, color:"white", cursor:"pointer", touchAction:"manipulation", boxShadow:"0 4px 14px rgba(212,96,80,.35)" }}>Eliminar</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* TOAST */}
         {toast && (
