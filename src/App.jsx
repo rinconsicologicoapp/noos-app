@@ -989,6 +989,7 @@ const handleInstall = async () => {
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'}));
   const [notifPanel, setNotifPanel] = useState(false);
   const notifUnsubRef = useRef(null);
+  const sesionAutoSaveRef = useRef(null);
   const suscribirNotificaciones = (uid) => {
     if (notifUnsubRef.current) { notifUnsubRef.current(); notifUnsubRef.current = null; }
     if (!uid) return;
@@ -1056,6 +1057,16 @@ const [editandoPagos, setEditandoPagos] = useState(false);
 const [pagoEditTemp, setPagoEditTemp] = useState([]);
 const [pagosPsicologo, setPagosPsicologo] = useState([]);
 const [sesionesFinanzas, setSesionesFinanzas] = useState([]);
+const [sesionesClinicas, setSesionesClinicas] = useState([]);
+const [loadingSesionesClinicas, setLoadingSesionesClinicas] = useState(false);
+const [mostrarFormSesion, setMostrarFormSesion] = useState(false);
+const [sesionCurrentId, setSesionCurrentId] = useState(null);
+const [sesionTitulo, setSesionTitulo] = useState("");
+const [sesionResumen, setSesionResumen] = useState("");
+const [sesionNivel, setSesionNivel] = useState(5);
+const [sesionVisible, setSesionVisible] = useState(false);
+const [sesionAutoSaved, setSesionAutoSaved] = useState(false);
+const [sesionEnviando, setSesionEnviando] = useState(false);
 const [modalIngreso, setModalIngreso] = useState(false);
 const [ingresoMotivo, setIngresoMotivo] = useState("");
 const [ingresoValor, setIngresoValor] = useState("");
@@ -1130,6 +1141,7 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
           cargarAutorregistros(uid);
           cargarTareasFirestore(uid);
           suscribirNotificaciones(uid);
+          cargarSesionesClinicasPaciente();
           setTimeout(() => verificarCheckInHoy(uid), 800);
           if (docSnap.data().psicologoId) {
             getDoc(doc(db, "usuarios", docSnap.data().psicologoId)).then(snap => {
@@ -1542,6 +1554,80 @@ const guardarNotaHabitos = async (pacienteId) => {
     showToast("✅ Nota guardada");
   } catch(e) { showToast("Error al guardar nota ❌"); }
   finally { setGuardandoNota(false); }
+};
+
+// ── MI PROCESO ────────────────────────────────────────────────────────────
+const cargarSesionesClinicasPaciente = async () => {
+  if (!usuarioActual?.uid) return;
+  setLoadingSesionesClinicas(true);
+  try {
+    const snap = await getDocs(query(collection(db,"sesionesClinicas"), where("pacienteId","==",usuarioActual.uid)));
+    setSesionesClinicas(
+      snap.docs.map(d=>({id:d.id,...d.data()}))
+        .filter(s=>s.visible===true)
+        .sort((a,b)=>(b.numero||0)-(a.numero||0))
+    );
+  } catch(e){ console.error("sesionesClinicas paciente:",e?.code); }
+  setLoadingSesionesClinicas(false);
+};
+
+const cargarSesionesClinicasPsicologo = async (pacId) => {
+  if (!pacId||!usuarioActual?.uid) return;
+  setLoadingSesionesClinicas(true);
+  try {
+    const snap = await getDocs(query(collection(db,"sesionesClinicas"),
+      where("pacienteId","==",pacId),
+      where("psicologoId","==",usuarioActual.uid)
+    ));
+    setSesionesClinicas(snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.numero||0)-(a.numero||0)));
+  } catch(e){ console.error("sesionesClinicas psi:",e?.code); }
+  setLoadingSesionesClinicas(false);
+};
+
+const autoGuardarSesion = async (titulo, resumen, nivel, visible, pacId, sesId) => {
+  if (!pacId||!usuarioActual?.uid||!sesId) return;
+  try {
+    const q = query(collection(db,"sesionesClinicas"),where("pacienteId","==",pacId),where("psicologoId","==",usuarioActual.uid));
+    const snap = await getDocs(q);
+    const existing = snap.docs.find(d=>d.id===sesId);
+    const numero = existing ? (existing.data().numero||snap.docs.length) : snap.docs.length+1;
+    await setDoc(doc(db,"sesionesClinicas",sesId),{
+      id:sesId, psicologoId:usuarioActual.uid, pacienteId:pacId,
+      numero, titulo:titulo||"", resumenPaciente:resumen||"",
+      nivelAvance:nivel||5, visible:visible||false,
+      fecha:new Date().toISOString(), actualizadoEn:new Date().toISOString(),
+    },{merge:true});
+    setSesionAutoSaved(true);
+    setTimeout(()=>setSesionAutoSaved(false),2500);
+  } catch(e){ console.error("auto-save sesion:",e?.code); }
+};
+
+const triggerAutoSave = (titulo, resumen, nivel, visible, pacId, sesId) => {
+  if (sesionAutoSaveRef.current) clearTimeout(sesionAutoSaveRef.current);
+  sesionAutoSaveRef.current = setTimeout(()=>autoGuardarSesion(titulo,resumen,nivel,visible,pacId,sesId),800);
+};
+
+const enviarSesionClinica = async (pacId) => {
+  if (!pacId||!sesionCurrentId||!usuarioActual?.uid) return;
+  setSesionEnviando(true);
+  try {
+    await updateDoc(doc(db,"sesionesClinicas",sesionCurrentId),{visible:true,actualizadoEn:new Date().toISOString()});
+    const msg = sesionTitulo ? `Tu psicólogo compartió: "${sesionTitulo}"` : "Tu psicólogo actualizó tu proceso";
+    setDoc(doc(db,"notificaciones",`sesion_${sesionCurrentId}`),{
+      pacienteId:pacId, titulo:"Mi Proceso — Nueva sesión", mensaje:msg,
+      icon:"📋", tipo:"sesion_clinica", leida:false, pushEnviada:false, creadoEn:new Date().toISOString(),
+    }).catch(()=>{});
+    setDoc(doc(db,"notificaciones_programadas",`sesion_push_${sesionCurrentId}`),{
+      pacienteId:pacId, title:"Mi Proceso",
+      body:msg, scheduledAt:new Date(Date.now()+3000).toISOString(),
+      enviada:false, creadaEn:new Date().toISOString(), tipo:"sesion_clinica",
+    }).catch(()=>{});
+    showToast("Sesión enviada al paciente ✅");
+    setMostrarFormSesion(false); setSesionCurrentId(null);
+    setSesionTitulo(""); setSesionResumen(""); setSesionNivel(5); setSesionVisible(false);
+    await cargarSesionesClinicasPsicologo(pacId);
+  } catch(e){ showToast("Error al enviar ❌"); console.error(e?.code); }
+  setSesionEnviando(false);
 };
 
 const registrarHabito = async (habitoId, fecha, estado) => {
@@ -2174,7 +2260,7 @@ const cerrarSesion = async () => {
     setAdminBusqueda("");
     // Pagos — limpiar para que no se filtren entre cuentas
     setMetodosPago([]); setPagoEditTemp([]); setEditandoPagos(false);
-    setSesionesFinanzas([]); setDiarioCargado(false); setDiarioEntradas([]);
+    setSesionesFinanzas([]); setSesionesClinicas([]); setDiarioCargado(false); setDiarioEntradas([]);
     // Formularios
     setEmailValue(""); setPinValue("");
     // Ir al login
@@ -2398,6 +2484,9 @@ useEffect(() => {
   }
   if (screen === "psi-pagos" && usuarioActual?.uid && usuarioActual.rol === "psicologo") {
     cargarSesionesFirestore();
+  }
+  if (screen === "mi-proceso" && usuarioActual?.uid && usuarioActual.rol === "paciente") {
+    cargarSesionesClinicasPaciente();
   }
 }, [screen]);
 useEffect(() => {
@@ -2798,6 +2887,20 @@ const styles = `
     cardBg:    "#FFFFFF",               // cards elevadas
     headerBg:  "rgba(240,242,240,0.97)", // header blur
   };
+
+  // Paleta Mi Proceso — 10 niveles frío→cálido (seg=barra, bg=fondo pantalla)
+  const PROCESO_COLORS = [
+    { seg:"#7DB8D8", bg:"#EAF2F8" }, // 1 azul suave  — inicio
+    { seg:"#4ECDC4", bg:"#E5F2EE" }, // 2 teal         — explorando
+    { seg:"#52B87A", bg:"#E5F3EB" }, // 3 verde pálido — descubriendo
+    { seg:"#72C462", bg:"#ECF6E5" }, // 4 verde claro  — avanzando
+    { seg:"#A4CC44", bg:"#F4F8E0" }, // 5 verde-amarillo— creciendo
+    { seg:"#D4C83A", bg:"#FAF8DC" }, // 6 amarillo      — consolidando
+    { seg:"#E8A82A", bg:"#FDF3D0" }, // 7 ámbar         — fortaleciendo
+    { seg:"#E08040", bg:"#FDECD0" }, // 8 naranja       — floreciendo
+    { seg:"#D46050", bg:"#FDE8E4" }, // 9 salmón        — potenciando
+    { seg:"#C84040", bg:"#FDE4E0" }, // 10 coral         — plenitud
+  ];
 
   const AvatarSVG = ({ id, size = 28 }) => {
     const s = size;
@@ -4120,16 +4223,29 @@ const styles = `
                     )}
                   </div>
 
-                  {/* Notas */}
-                  <div onClick={() => { showScreen("notas"); setTimeout(()=>setNoteTab("insights"), 50); }}
-                    style={{ background:"#FFFFFF", borderRadius:16, padding:"14px 10px 12px", display:"flex", flexDirection:"column", alignItems:"center", gap:8, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.07)", border:"1px solid rgba(0,0,0,.06)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
-                    <div style={{ width:40, height:40, background:"rgba(30,77,43,.09)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                      </svg>
-                    </div>
-                    <span style={{ fontSize:10, fontWeight:800, color:"#1A2E1D", letterSpacing:"-0.01em", textAlign:"center", lineHeight:1.2 }}>Mis notas</span>
-                  </div>
+                  {/* Mi Proceso */}
+                  {(() => {
+                    const ultimaSes = sesionesClinicas[0];
+                    const nivel = ultimaSes?.nivelAvance || 0;
+                    const col = nivel > 0 ? PROCESO_COLORS[nivel-1] : null;
+                    return (
+                      <div onClick={() => showScreen("mi-proceso")}
+                        style={{ borderRadius:16, padding:"14px 10px 12px", display:"flex", flexDirection:"column", alignItems:"center", gap:8, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.08)", border:"1px solid rgba(0,0,0,.06)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent", background: col ? col.bg : "#FFFFFF", position:"relative", overflow:"hidden", transition:"background 0.6s ease" }}>
+                        {/* Mini barra 10 segmentos */}
+                        <div style={{ width:"100%", display:"flex", gap:2 }}>
+                          {[1,2,3,4,5,6,7,8,9,10].map(i=>(
+                            <div key={i} style={{ flex:1, height:4, borderRadius:2, background: i<=nivel ? PROCESO_COLORS[i-1].seg : "rgba(0,0,0,.08)", transition:"background 0.4s ease" }}/>
+                          ))}
+                        </div>
+                        <div style={{ width:40, height:40, background:"rgba(30,77,43,.11)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                          </svg>
+                        </div>
+                        <span style={{ fontSize:10, fontWeight:800, color:"#1A2E1D", letterSpacing:"-0.01em", textAlign:"center", lineHeight:1.2 }}>Mi Proceso</span>
+                      </div>
+                    );
+                  })()}
 
                   {/* Mini juego */}
                   <div onClick={() => showScreen("juego")}
@@ -4244,6 +4360,95 @@ const styles = `
               {bnav("home")}
             </div>
           )}
+
+          {/* ── MI PROCESO — vista paciente ───────────────────── */}
+          {!notifPanel && screen === "mi-proceso" && (() => {
+            const ultimaSes = sesionesClinicas[0];
+            const nivel = ultimaSes?.nivelAvance || 0;
+            const bgPantalla = nivel > 0 ? PROCESO_COLORS[nivel-1].bg : "#F0F2F0";
+            return (<>
+              <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:bgPantalla, animation:"screenFade 0.22s ease both", transition:"background 0.7s ease" }}>
+
+                {/* Header verde bosque */}
+                <div style={{ background:"linear-gradient(175deg,#162A1C 0%,#0F2015 65%,#0A1A10 100%)", padding:"20px 18px 48px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative", overflow:"hidden" }}>
+                  <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:"linear-gradient(90deg,transparent,rgba(110,180,130,.30),transparent)" }}/>
+                  <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                    <div onClick={() => showScreen("perfil")} style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.10)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", touchAction:"manipulation", flexShrink:0 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.80)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </div>
+                    <div>
+                      <div style={{ fontSize:17, fontWeight:900, color:"#FFFFFF", letterSpacing:"-0.02em" }}>Mi Proceso</div>
+                      <div style={{ fontSize:10, color:"rgba(110,180,130,.55)", fontWeight:600, marginTop:2 }}>
+                        {sesionesClinicas.length > 0 ? `${sesionesClinicas.length} sesión${sesionesClinicas.length!==1?"es":""} registrada${sesionesClinicas.length!==1?"s":""}` : "Tu historial terapéutico"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cuerpo */}
+                <div style={{ padding:"0 14px", marginTop:-22, position:"relative", zIndex:10, paddingBottom:"calc(20px + env(safe-area-inset-bottom, 0px))" }}>
+
+                  {/* Card del medidor */}
+                  <div style={{ background:"#FFFFFF", borderRadius:18, padding:"16px 16px 14px", marginBottom:14, boxShadow:"0 1px 3px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.09)", border:"1px solid rgba(0,0,0,.06)" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:12 }}>
+                      <div style={{ width:3, height:16, borderRadius:2, background:"linear-gradient(180deg,#3D7A52,#1E4D2B)" }}/>
+                      <span style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".16em", textTransform:"uppercase" }}>Mi avance</span>
+                      {ultimaSes && <span style={{ fontSize:9, color:"#5C7A65", fontWeight:500, marginLeft:"auto" }}>Actualizado · {new Date(ultimaSes.actualizadoEn||ultimaSes.fecha||"").toLocaleDateString('es-CO',{day:'numeric',month:'short'})}</span>}
+                    </div>
+                    {/* Barra 10 segmentos — solo visual, sin números */}
+                    <div style={{ display:"flex", gap:3 }}>
+                      {[1,2,3,4,5,6,7,8,9,10].map(i=>(
+                        <div key={i} style={{ flex:1, height:18, borderRadius:5, background: i<=nivel ? PROCESO_COLORS[i-1].seg : "rgba(0,0,0,.07)", transition:"background 0.5s ease" }}/>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Lista sesiones */}
+                  {loadingSesionesClinicas ? (
+                    <div style={{ background:"#FFFFFF", borderRadius:16, padding:"20px", border:"1px solid rgba(0,0,0,.06)" }}>
+                      {[70,90,55].map((w,i)=>(
+                        <div key={i} style={{ height:10, borderRadius:5, marginBottom:i<2?10:0, width:`${w}%`, background:"linear-gradient(90deg,rgba(0,0,0,.05) 25%,rgba(0,0,0,.09) 50%,rgba(0,0,0,.05) 75%)", backgroundSize:"200% 100%", animation:"shimmer 1.5s infinite" }}/>
+                      ))}
+                    </div>
+                  ) : sesionesClinicas.length === 0 ? (
+                    <div style={{ background:"#FFFFFF", borderRadius:16, padding:"32px 20px", textAlign:"center", border:"1px solid rgba(0,0,0,.06)", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ width:48, height:48, borderRadius:14, background:"rgba(30,77,43,.09)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 12px" }}>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(30,77,43,.40)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                      </div>
+                      <div style={{ fontSize:13, fontWeight:800, color:"#1A2E1D", marginBottom:6 }}>Aún no hay sesiones</div>
+                      <div style={{ fontSize:12, color:"#5C7A65", lineHeight:1.65 }}>Tu psicólogo irá compartiendo el resumen de cada sesión aquí</div>
+                    </div>
+                  ) : (
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:7 }}>
+                        <div style={{ width:3, height:16, borderRadius:2, background:"linear-gradient(180deg,#3D7A52,#1E4D2B)" }}/>
+                        <span style={{ fontSize:13, fontWeight:900, color:"#1A2E1D", letterSpacing:"-0.02em" }}>Sesiones</span>
+                      </div>
+                      <span style={{ fontSize:10, fontWeight:700, color:"rgba(30,77,43,.40)", letterSpacing:".04em" }}>{sesionesClinicas.length} registrada{sesionesClinicas.length!==1?"s":""}</span>
+                    </div>
+                  )}
+
+                  {sesionesClinicas.map((s,idx)=>(
+                    <div key={s.id} style={{ background:"#FFFFFF", borderRadius:16, padding:"15px 15px", marginBottom:10, border:"1px solid rgba(0,0,0,.06)", boxShadow:"0 1px 3px rgba(0,0,0,.04), 0 4px 14px rgba(0,0,0,.06)", animation:`fadeUp 0.26s cubic-bezier(.22,1,.36,1) ${idx*40}ms both` }}>
+                      {/* Franja color del nivel de esa sesión */}
+                      <div style={{ display:"flex", gap:2, marginBottom:12 }}>
+                        {[1,2,3,4,5,6,7,8,9,10].map(i=>(
+                          <div key={i} style={{ flex:1, height:3, borderRadius:2, background: i<=(s.nivelAvance||0) ? PROCESO_COLORS[i-1].seg : "rgba(0,0,0,.06)" }}/>
+                        ))}
+                      </div>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                        <span style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".14em", textTransform:"uppercase" }}>Sesión {s.numero}</span>
+                        <span style={{ fontSize:10, color:"#5C7A65", fontWeight:500 }}>{new Date(s.fecha||"").toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}</span>
+                      </div>
+                      {s.titulo && <div style={{ fontSize:14, fontWeight:800, color:"#1A2E1D", letterSpacing:"-0.015em", lineHeight:1.3, marginBottom:8 }}>{s.titulo}</div>}
+                      {s.resumenPaciente && <div style={{ fontSize:13, color:"#2D4A33", lineHeight:1.72 }}>{s.resumenPaciente}</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {bnav("home")}
+            </>);
+          })()}
 
           {/* PANTALLA ELEGIR COMPAÑERO — rediseño completo */}
 {screen === "elegir-companero" && (
@@ -10098,6 +10303,116 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                     </div>
                   </div>
                 ))}
+                {/* ── MI PROCESO — sección psicólogo ── */}
+                {(() => {
+                  const pacId = pacienteSeleccionado?.id;
+                  const sesionesPac = sesionesClinicas.filter(s=>s.pacienteId===pacId);
+                  const ultimaNivel = sesionesPac[0]?.nivelAvance||0;
+                  return (
+                    <div style={{ marginTop:20 }}>
+                      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:7 }}>
+                          <div style={{ width:3, height:16, borderRadius:2, background:"linear-gradient(180deg,#3D7A52,#1E4D2B)" }}/>
+                          <span style={{ fontSize:13, fontWeight:900, color:"#1A2E1D", letterSpacing:"-0.01em" }}>Mi Proceso</span>
+                        </div>
+                        <div onClick={() => {
+                          if (!pacId) return;
+                          const id = `sp_${usuarioActual.uid}_${pacId}_${Date.now()}`;
+                          setSesionCurrentId(id); setSesionTitulo(""); setSesionResumen("");
+                          setSesionNivel(5); setSesionVisible(false); setSesionAutoSaved(false);
+                          setMostrarFormSesion(true);
+                          cargarSesionesClinicasPsicologo(pacId);
+                        }} style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 13px", background:"rgba(30,77,43,.10)", border:"1px solid rgba(30,77,43,.18)", borderRadius:20, cursor:"pointer", touchAction:"manipulation" }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                          <span style={{ fontSize:11, fontWeight:800, color:"#1E4D2B" }}>Nueva sesión</span>
+                        </div>
+                      </div>
+
+                      {/* Formulario nueva sesión */}
+                      {mostrarFormSesion && sesionCurrentId && (
+                        <div style={{ background:"#FFFFFF", borderRadius:16, padding:"14px", marginBottom:10, border:"1px solid rgba(30,77,43,.14)", boxShadow:"0 1px 3px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.08)" }}>
+                          {/* Título */}
+                          <div style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".14em", textTransform:"uppercase", marginBottom:5 }}>Título</div>
+                          <input value={sesionTitulo} onChange={e=>{setSesionTitulo(e.target.value); triggerAutoSave(e.target.value,sesionResumen,sesionNivel,sesionVisible,pacId,sesionCurrentId);}} placeholder="Ej: Sesión 6 — Herramientas del día a día"
+                            style={{ width:"100%", padding:"10px 12px", border:"1px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", color:"#1A2E1D", background:"rgba(0,0,0,.02)", marginBottom:10 }}/>
+
+                          {/* Resumen */}
+                          <div style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".14em", textTransform:"uppercase", marginBottom:5 }}>Resumen para el paciente</div>
+                          <textarea value={sesionResumen} onChange={e=>{setSesionResumen(e.target.value); triggerAutoSave(sesionTitulo,e.target.value,sesionNivel,sesionVisible,pacId,sesionCurrentId);}} placeholder="Escríbelo en primera persona, cálido y cercano..."
+                            style={{ width:"100%", minHeight:88, padding:"10px 12px", border:"1px solid rgba(0,0,0,.09)", borderRadius:11, fontSize:12, resize:"none", outline:"none", fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.65, color:"#1A2E1D", background:"rgba(0,0,0,.02)", marginBottom:6 }}/>
+                          {sesionAutoSaved && <div style={{ display:"flex", alignItems:"center", gap:4, fontSize:9, color:"#3D7A52", fontWeight:600, marginBottom:10 }}>
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Borrador guardado
+                          </div>}
+
+                          {/* Nivel de avance */}
+                          <div style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".14em", textTransform:"uppercase", marginBottom:8 }}>Nivel de avance</div>
+                          <div style={{ display:"flex", gap:3, marginBottom:4 }}>
+                            {[1,2,3,4,5,6,7,8,9,10].map(i=>(
+                              <div key={i} onClick={()=>{setSesionNivel(i); triggerAutoSave(sesionTitulo,sesionResumen,i,sesionVisible,pacId,sesionCurrentId);}}
+                                style={{ flex:1, height:24, borderRadius:6, cursor:"pointer", background: i<=sesionNivel ? PROCESO_COLORS[i-1].seg : "rgba(0,0,0,.07)", transform: i===sesionNivel?"scaleY(1.15)":"scaleY(1)", transition:"background 0.2s ease, transform 0.12s ease", touchAction:"manipulation" }}/>
+                            ))}
+                          </div>
+                          {/* Preview fondo paciente */}
+                          <div style={{ display:"flex", alignItems:"center", gap:8, padding:"7px 10px", borderRadius:9, marginBottom:12, background: sesionNivel>0?PROCESO_COLORS[sesionNivel-1].bg:"rgba(0,0,0,.04)", border:"1px solid rgba(0,0,0,.06)", transition:"background 0.4s ease" }}>
+                            <div style={{ width:12, height:12, borderRadius:4, background:sesionNivel>0?PROCESO_COLORS[sesionNivel-1].seg:"rgba(0,0,0,.12)", flexShrink:0 }}/>
+                            <span style={{ fontSize:10, color:"#5C7A65", fontWeight:500 }}>Así verá el paciente el fondo de su pantalla</span>
+                          </div>
+
+                          {/* Toggle + Enviar */}
+                          <div style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", background:"rgba(0,0,0,.03)", border:"1px solid rgba(0,0,0,.07)", borderRadius:12, marginBottom:10 }}>
+                            <div style={{ flex:1 }}>
+                              <div style={{ fontSize:12, fontWeight:700, color:"#1A2E1D" }}>Compartir con paciente</div>
+                              <div style={{ fontSize:10, color:"#5C7A65", marginTop:1 }}>{sesionVisible?"Activo — le llegará notificación":"Borrador — solo lo ves tú"}</div>
+                            </div>
+                            <div onClick={()=>{const v=!sesionVisible; setSesionVisible(v); triggerAutoSave(sesionTitulo,sesionResumen,sesionNivel,v,pacId,sesionCurrentId);}}
+                              style={{ width:42, height:24, borderRadius:12, background:sesionVisible?"#3D7A52":"rgba(0,0,0,.15)", position:"relative", cursor:"pointer", transition:"background 0.2s", flexShrink:0, touchAction:"manipulation" }}>
+                              <div style={{ width:18, height:18, borderRadius:"50%", background:"white", position:"absolute", top:3, left:sesionVisible?21:3, transition:"left 0.22s cubic-bezier(.34,1.56,.64,1)", boxShadow:"0 1px 4px rgba(0,0,0,.25)" }}/>
+                            </div>
+                          </div>
+
+                          <div style={{ display:"flex", gap:8 }}>
+                            {btn(()=>{setMostrarFormSesion(false); setSesionCurrentId(null); setSesionTitulo(""); setSesionResumen(""); setSesionNivel(5); setSesionVisible(false);},"Cancelar",{flex:1,padding:11,background:"rgba(0,0,0,.06)",color:"#1A2E1D",borderRadius:12,fontSize:12,fontWeight:700})}
+                            {btn(()=>enviarSesionClinica(pacId),
+                              sesionEnviando?"Enviando...":<span style={{display:"flex",alignItems:"center",gap:6}}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Enviar</span>,
+                              {flex:2,padding:11,background:sesionVisible?"linear-gradient(135deg,#3D7A52,#1E4D2B)":"rgba(0,0,0,.12)",color:sesionVisible?"white":"rgba(0,0,0,.35)",borderRadius:12,fontSize:13,fontWeight:800,boxShadow:sesionVisible?"0 4px 14px rgba(30,77,43,.35)":"none",cursor:sesionVisible?"pointer":"not-allowed"})}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Lista sesiones del paciente */}
+                      {loadingSesionesClinicas ? (
+                        <div style={{ background:"#FFFFFF", borderRadius:14, padding:"16px", border:"1px solid rgba(0,0,0,.06)" }}>
+                          <div style={{ height:10, borderRadius:5, width:"70%", background:"linear-gradient(90deg,rgba(0,0,0,.05) 25%,rgba(0,0,0,.09) 50%,rgba(0,0,0,.05) 75%)", backgroundSize:"200% 100%", animation:"shimmer 1.5s infinite" }}/>
+                        </div>
+                      ) : sesionesPac.length === 0 && !mostrarFormSesion ? (
+                        <div style={{ background:"#FFFFFF", borderRadius:14, padding:"20px 16px", textAlign:"center", border:"1px solid rgba(0,0,0,.06)" }}>
+                          <div style={{ fontSize:12, color:"#5C7A65" }}>Sin sesiones registradas aún</div>
+                        </div>
+                      ) : sesionesPac.map((s,idx)=>(
+                        <div key={s.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", marginBottom:8, border:"1px solid rgba(0,0,0,.06)", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                          <div style={{ display:"flex", gap:2, marginBottom:8 }}>
+                            {[1,2,3,4,5,6,7,8,9,10].map(i=>(
+                              <div key={i} style={{ flex:1, height:3, borderRadius:2, background:i<=(s.nivelAvance||0)?PROCESO_COLORS[i-1].seg:"rgba(0,0,0,.07)" }}/>
+                            ))}
+                          </div>
+                          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
+                            <span style={{ fontSize:10, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".12em", textTransform:"uppercase" }}>Sesión {s.numero}</span>
+                            <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                              <span style={{ fontSize:9, fontWeight:700, padding:"3px 8px", borderRadius:20,
+                                background:s.visible?"rgba(30,77,43,.10)":"rgba(255,179,71,.12)",
+                                color:s.visible?"#1E4D2B":"#9A6800",
+                                border:`1px solid ${s.visible?"rgba(30,77,43,.18)":"rgba(255,179,71,.22)"}` }}>
+                                {s.visible?"Compartida":"Borrador"}
+                              </span>
+                            </div>
+                          </div>
+                          {s.titulo && <div style={{ fontSize:12, fontWeight:700, color:"#1A2E1D", marginBottom:2, lineHeight:1.3 }}>{s.titulo}</div>}
+                          <div style={{ fontSize:10, color:"#5C7A65" }}>{new Date(s.fecha||"").toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}</div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
               {mdl("assign-task", (
                 <div>
