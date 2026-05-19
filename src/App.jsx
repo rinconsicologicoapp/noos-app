@@ -990,6 +990,8 @@ const handleInstall = async () => {
   const [notifPanel, setNotifPanel] = useState(false);
   const notifUnsubRef = useRef(null);
   const sesionAutoSaveRef = useRef(null);
+  const navHistoryRef = useRef([]); // stack de pantallas visitadas
+  const appStateRef = useRef({ notifPanel:false, modal:null, screenHabitos:false }); // evita stale closures en Android back
   const suscribirNotificaciones = (uid) => {
     if (notifUnsubRef.current) { notifUnsubRef.current(); notifUnsubRef.current = null; }
     if (!uid) return;
@@ -1156,12 +1158,14 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
             });
           }
           setCompanero(docSnap.data().companero || null);
+          clearNavHistory();
           if (!docSnap.data().companero) {
             showScreen("elegir-companero");
           } else {
             showScreen("home");
           }
       } else if (rol === "psicologo") {
+        clearNavHistory();
         setUsuarioActual({ uid, ...docSnap.data() });
         cargarCitas(uid, "psicologo");
         cargarRecordatorios(uid);
@@ -1174,6 +1178,7 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
         setPacientes(listaPacientes);
         showScreen("admin-perfil");
       } else if (rol === "administrador") {
+        clearNavHistory();
         cargarTodosUsuarios();
         showScreen("admin-home");
       } else {
@@ -2489,6 +2494,33 @@ useEffect(() => {
     cargarSesionesClinicasPaciente();
   }
 }, [screen]);
+// Mantener appStateRef sincronizado para el listener de Android (evita stale closures)
+useEffect(() => { appStateRef.current.notifPanel = notifPanel; }, [notifPanel]);
+useEffect(() => { appStateRef.current.modal = modal; }, [modal]);
+useEffect(() => { appStateRef.current.screenHabitos = screenHabitos; }, [screenHabitos]);
+
+// Botón físico Android — popstate
+useEffect(() => {
+  window.history.pushState({ appNav: true }, '');
+  const onPop = () => {
+    window.history.pushState({ appNav: true }, ''); // re-empuja para que el próximo back funcione
+    const st = appStateRef.current;
+    if (st.notifPanel) { setNotifPanel(false); return; }
+    if (st.modal)      { setModal(null);        return; }
+    if (st.screenHabitos) { setScreenHabitos(false); return; }
+    const hist = navHistoryRef.current;
+    if (hist.length > 0) {
+      const prev = hist[hist.length - 1];
+      navHistoryRef.current = hist.slice(0, -1);
+      setScreenDir("back");
+      setScreen(prev);
+    }
+    // Si el stack está vacío, el usuario ya está en la pantalla raíz — no hace nada (la PWA no se cierra)
+  };
+  window.addEventListener('popstate', onPop);
+  return () => window.removeEventListener('popstate', onPop);
+}, []); // eslint-disable-line
+
 useEffect(() => {
   if (usuarioActual?.uid && !xpCargado) {
     getDoc(doc(db, "usuarios", usuarioActual.uid)).then(snap => {
@@ -2657,35 +2689,38 @@ const showScreen = (id) => {
   setNotifPanel(false);
   setModal(null);
   setScreenDir("forward");
-  setScreen(id);
+  // Empuja la pantalla ACTUAL al stack antes de navegar (si es diferente)
+  setScreen(prev => {
+    if (prev && prev !== id) {
+      navHistoryRef.current = [...navHistoryRef.current.slice(-29), prev];
+    }
+    return id;
+  });
 };
 
-const BACK_MAP = {
-  "perfil":           "home",
-  "calendario":       "home",
-  "notas":            "home",
-  "logros":           "home",
-  "perfil-psicologo": "home",
-  "habitos":          "home",
-  "diario":           "home",
-  "juego":            "admin-perfil",
-  "psi-dashboard":    "admin-perfil",
-  "admin-paciente":   "psi-dashboard",
-  "admin-pagos":      "admin-perfil",
-  "psi-pagos":        "admin-perfil",
-  "admin-psicologo":  "admin-perfil",
-  "admin-pacientes":  "admin-perfil",
-};
+// Limpiar historia al hacer login (para no poder volver al login)
+const clearNavHistory = () => { navHistoryRef.current = []; };
 
 const goBack = () => {
-  if (notifPanel) { setNotifPanel(false); return; }
-  if (modal) { setModal(null); return; }
-  const destino = BACK_MAP[screen];
-  if (destino) {
+  if (notifPanel)      { setNotifPanel(false);    return; }
+  if (modal)           { setModal(null);           return; }
+  if (screenHabitos)   { setScreenHabitos(false);  return; }
+
+  const hist = navHistoryRef.current;
+  if (hist.length > 0) {
+    const prev = hist[hist.length - 1];
+    navHistoryRef.current = hist.slice(0, -1);
     setScreenDir("back");
     setNotifPanel(false);
     setModal(null);
-    setScreen(destino);
+    setScreen(prev);
+  } else {
+    // Fallback contextual si el stack está vacío
+    setScreenDir("back");
+    const fallback = usuarioActual?.rol === "psicologo" ? "admin-perfil"
+                   : usuarioActual?.rol === "administrador" ? "admin-home"
+                   : "home";
+    setScreen(fallback);
   }
 };
 
@@ -4373,7 +4408,7 @@ const styles = `
                 <div style={{ background:"linear-gradient(175deg,#162A1C 0%,#0F2015 65%,#0A1A10 100%)", padding:"20px 18px 48px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative", overflow:"hidden" }}>
                   <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:"linear-gradient(90deg,transparent,rgba(110,180,130,.30),transparent)" }}/>
                   <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-                    <div onClick={() => showScreen("perfil")} style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.10)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", touchAction:"manipulation", flexShrink:0 }}>
+                    <div onClick={() => goBack()} style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.10)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", touchAction:"manipulation", flexShrink:0 }}>
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.80)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     </div>
                     <div>
@@ -7270,7 +7305,7 @@ const styles = `
                 <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:"linear-gradient(90deg,transparent,rgba(110,180,130,.4),transparent)" }}/>
 
                 {/* Botón volver — pill */}
-                <div onClick={() => showScreen("perfil")} style={{ position:"absolute", top:"max(14px, env(safe-area-inset-top, 14px))", left:16, display:"flex", alignItems:"center", gap:6, padding:"8px 14px", cursor:"pointer", borderRadius:20, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.12)", backdropFilter:"blur(12px)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                <div onClick={() => goBack()} style={{ position:"absolute", top:"max(14px, env(safe-area-inset-top, 14px))", left:16, display:"flex", alignItems:"center", gap:6, padding:"8px 14px", cursor:"pointer", borderRadius:20, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.12)", backdropFilter:"blur(12px)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.80)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                   <span style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.70)", letterSpacing:".01em" }}>Volver</span>
                 </div>
@@ -7654,7 +7689,7 @@ const styles = `
           {!notifPanel && screen === "psi-dashboard" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
               <div style={{ background:"rgba(240,242,240,0.97)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", padding:"16px 18px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:12, borderBottom:"1px solid rgba(0,0,0,.11)" }}>
-                <div onClick={() => showScreen("admin-perfil")} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)", flexShrink:0 }}>
+                <div onClick={() => goBack()} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(0,0,0,.11)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 <div style={{ flex:1 }}>
@@ -9977,7 +10012,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
           {!notifPanel && screen === "admin-paciente" && (
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:"calc(140px + env(safe-area-inset-bottom, 0px))" }}>
               <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"16px 22px 20px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", display:"flex", alignItems:"center", gap:14 }}>
-                <div onClick={() => showScreen("psi-dashboard")} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,0.1)", flexShrink:0 }}>
+                <div onClick={() => goBack()} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,0.1)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
                 <div style={{ width:50, height:50, background:"rgba(0,0,0,.12)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26 }}>👤</div>
