@@ -1173,7 +1173,6 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
         cargarRecordatorios(uid);
         cargarResenas(uid);
         suscribirNotificaciones(uid);
-        cargarSesionesClinicasPsicologo();
         const pacientesSnap = await getDocs(query(collection(db, "usuarios"), where("psicologoId", "==", uid)));
         const listaPacientes = pacientesSnap.docs
           .filter(d => d.data().rol === "paciente")
@@ -2481,7 +2480,6 @@ useEffect(() => {
           cargarRecordatorios(user.uid);
           cargarResenas(user.uid);
           suscribirNotificaciones(user.uid);
-          cargarSesionesClinicasPsicologo();
           const pacientesSnap = await getDocs(query(collection(db, "usuarios"), where("psicologoId", "==", user.uid)));
         const listaPacientes = pacientesSnap.docs
           .filter(d => d.data().rol === "paciente")
@@ -2530,6 +2528,14 @@ useEffect(() => {
     cargarSesionesClinicasPaciente();
   }
 }, [screen]);
+// Cargar sesiones clínicas cuando el psicólogo está autenticado
+// (useEffect garantiza que usuarioActual ya está en el estado — el login directo era demasiado temprano)
+useEffect(() => {
+  if (usuarioActual?.uid && usuarioActual.rol === "psicologo") {
+    cargarSesionesClinicasPsicologo();
+  }
+}, [usuarioActual?.uid]); // eslint-disable-line
+
 // Mantener appStateRef sincronizado para el listener de Android (evita stale closures)
 useEffect(() => { appStateRef.current.notifPanel = notifPanel; }, [notifPanel]);
 useEffect(() => { appStateRef.current.modal = modal; }, [modal]);
