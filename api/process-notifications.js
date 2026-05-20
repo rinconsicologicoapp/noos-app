@@ -26,49 +26,81 @@ async function getTokenDeUsuario(db, uid) {
 // Con solo data, el SW es el único que controla el display.
 async function enviarFCM(db, token, titulo, mensaje, data = {}, stats = null) {
   if (!token) { if (stats) stats.tokenNulo++; return false; }
+
+  // Tipos que SIEMPRE requieren interacción (no desaparecen solos)
+  const REQUIRE_INTERACTION_TIPOS = [
+    'cita_nueva','recordatorio_cita','cita_confirmada','cita_cancelada',
+    'tarea_nueva','demora','sesion_clinica',
+  ];
+  const requireInteraction =
+    data.requireInteraction === 'true' ||
+    REQUIRE_INTERACTION_TIPOS.includes(data.tipo);
+
+  const tag = data.tag || data.citaId || data.tipo || 'general';
+
   try {
     await getMessaging().send({
       token,
-      // Sin notification payload — el SW lee titulo/mensaje desde data
+      // data payload — el SW lee titulo/mensaje y puede hacer lógica adicional
       data: Object.fromEntries(
         Object.entries({
           ...data,
           titulo,
           mensaje,
           timestamp: String(Date.now()),
+          requireInteraction: String(requireInteraction),
         }).map(([k, v]) => [k, String(v)])
       ),
       android: {
         priority: 'high',
-        notification: undefined,
+        ttl: 0, // entrega inmediata — 0 segundos de caché
+        // Notification para Android garantiza delivery incluso en Doze mode
+        notification: {
+          title: titulo,
+          body: mensaje,
+          icon: 'ic_launcher',   // ícono de la app instalada (Chrome PWA)
+          color: '#162A1C',
+          channelId: 'default',
+          defaultSound: true,
+          defaultVibrateTimings: true,
+          priority: 'PRIORITY_HIGH',
+          visibility: 'PRIVATE',  // visible en pantalla bloqueada sin contenido sensible
+          tag,
+        },
       },
       apns: {
         payload: {
           aps: {
             alert: { title: titulo, body: mensaje },
-            sound: 'default',
+            sound: 'default',   // sonido del sistema iOS
             badge: 1,
             'content-available': 1,
             'mutable-content': 1,
+            'interruption-level': 'active',  // iOS 15+ — fuerza sonido + vibración
           },
         },
         headers: {
-          'apns-priority': '10',
+          'apns-priority': '10',          // máxima prioridad APNS
           'apns-push-type': 'alert',
+          'apns-expiration': '0',         // entrega inmediata o no entrega
         },
       },
       webpush: {
-        headers: { Urgency: 'high' },
-        // notification field hace que Chrome en Android muestre la notif
-        // incluso en Doze mode sin necesitar que el SW esté activo.
-        // El SW usa shownTags para evitar el doble display.
+        headers: {
+          Urgency: 'very-high',   // máxima urgencia RFC 8030 — entrega inmediata
+          TTL: '0',               // no cachear en servidor de push
+        },
+        // webpush notification — Chrome muestra esto incluso cuando la app está cerrada
         notification: {
           title: titulo,
           body:  mensaje,
           icon:  '/icon-192.png',
           badge: '/icon-192.png',
-          tag:   data.tag || data.citaId || data.tipo || 'general',
-          requireInteraction: data.requireInteraction === 'true',
+          tag,
+          renotify:           true,           // re-vibra aunque el tag ya exista
+          requireInteraction,                 // no desaparece hasta que el usuario la toca
+          vibrate:            [0,250,100,250,100,500],  // patrón agresivo de vibración
+          silent:             false,
           data,
         },
         fcmOptions: {

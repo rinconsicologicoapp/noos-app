@@ -13,11 +13,18 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// ─── Tipos que SIEMPRE muestran notificación aunque la app esté abierta ────────
+// ─── Tipos críticos — SIEMPRE muestran notificación aunque la app esté abierta ─
 const TIPOS_CRITICOS = [
   'cita_nueva','recordatorio_cita','cita_confirmada','cita_cancelada',
   'tarea_nueva','tarea_completada','demora','nueva_resena',
   'notif_programada','recordatorio_recurrente','juego_turno',
+  'sesion_clinica','habitos_actualizados','broadcast', // nuevos tipos
+];
+
+// ─── Tipos que SIEMPRE requieren interacción (no desaparecen solos) ───────────
+const TIPOS_PERSISTENTES = [
+  'cita_nueva','recordatorio_cita','cita_confirmada','cita_cancelada',
+  'tarea_nueva','demora','sesion_clinica',
 ];
 
 // ─── Track para evitar doble notificación entre push y onBackgroundMessage ─────
@@ -29,38 +36,59 @@ function mostrarNotificacion(data) {
   const titulo = data.titulo  || 'Mi Psicólogo';
   const cuerpo = data.mensaje || '';
   const tag    = data.tag || data.citaId || tipo;
+  const requireInteraction =
+    data.requireInteraction === 'true' || TIPOS_PERSISTENTES.includes(tipo);
 
   // Evitar duplicado si ya la mostró onBackgroundMessage o el push handler
   if (shownTags.has(tag)) return Promise.resolve();
   shownTags.add(tag);
-  setTimeout(() => shownTags.delete(tag), 8000);
+  setTimeout(() => shownTags.delete(tag), 2500); // ventana corta — permite re-alertas
 
+  // Patrones de vibración agresivos — se sienten incluso en bolsillo
   const vibracion = {
-    'recordatorio_cita': data.requireInteraction === 'true' ? [400,100,400,100,600] : [200,100,200],
-    'demora':            [300,80,300,80,300],
-    'tarea_completada':  [150,50,150],
-    'notif_programada':  [200,100,400],
-  }[tipo] || [200,100,200];
+    'cita_nueva':           [0, 300, 100, 300, 100, 600, 200, 400],
+    'recordatorio_cita':    [0, 400, 100, 400, 100, 800],
+    'cita_confirmada':      [0, 200, 100, 200, 100, 400],
+    'cita_cancelada':       [0, 500, 200, 500],
+    'tarea_nueva':          [0, 250, 100, 250, 100, 500],
+    'tarea_completada':     [0, 150, 80,  150, 80,  300],
+    'demora':               [0, 500, 150, 500, 150, 800],
+    'sesion_clinica':       [0, 300, 100, 300, 100, 600],
+    'habito_recordatorio':  [0, 200, 100, 200],
+    'habitos_actualizados': [0, 200, 100, 200, 100, 300],
+    'broadcast':            [0, 250, 100, 250],
+    'nueva_resena':         [0, 200, 100, 200],
+    'recordatorio_recurrente': [0, 250, 100, 250, 100, 400],
+  }[tipo] || [0, 300, 100, 300, 100, 500]; // patrón por defecto más agresivo
 
   const icono = {
-    'cita_nueva':        '/icons/icon-calendar.png',
-    'recordatorio_cita': '/icons/icon-calendar.png',
-    'cita_confirmada':   '/icons/icon-check.png',
-    'cita_cancelada':    '/icons/icon-cancel.png',
-    'tarea_completada':  '/icons/icon-task.png',
-    'nueva_resena':      '/icons/icon-star.png',
-    'demora':            '/icons/icon-clock.png',
-    'notif_programada':  '/icons/icon-bell.png',
+    'cita_nueva':           '/icons/icon-calendar.png',
+    'recordatorio_cita':    '/icons/icon-calendar.png',
+    'cita_confirmada':      '/icons/icon-check.png',
+    'cita_cancelada':       '/icons/icon-cancel.png',
+    'tarea_nueva':          '/icons/icon-task.png',
+    'tarea_completada':     '/icons/icon-task.png',
+    'nueva_resena':         '/icons/icon-star.png',
+    'demora':               '/icons/icon-clock.png',
+    'notif_programada':     '/icons/icon-bell.png',
+    'sesion_clinica':       '/icon-192.png',
+    'habito_recordatorio':  '/icon-192.png',
+    'broadcast':            '/icon-192.png',
   }[tipo] || '/icon-192.png';
 
   const acciones = {
     'recordatorio_cita': data.link
-      ? [{ action:'join',    title:'🔗 Unirse ahora' }, { action:'dismiss', title:'Descartar' }]
-      : [{ action:'open',    title:'📅 Ver cita'     }, { action:'dismiss', title:'Descartar' }],
-    'cita_nueva':       [{ action:'open', title:'📅 Ver cita'   }, { action:'dismiss', title:'Más tarde' }],
-    'tarea_completada': [{ action:'open', title:'✅ Ver tarea'  }, { action:'dismiss', title:'OK'        }],
-    'demora':           [{ action:'open', title:'⏱ Ver aviso'   }, { action:'dismiss', title:'Entendido' }],
-    'nueva_resena':     [{ action:'open', title:'⭐ Ver reseña' }, { action:'dismiss', title:'Cerrar'    }],
+      ? [{ action:'join',    title:'Unirse ahora' }, { action:'dismiss', title:'Descartar' }]
+      : [{ action:'open',    title:'Ver cita'     }, { action:'dismiss', title:'Descartar' }],
+    'cita_nueva':        [{ action:'open',    title:'Ver cita'     }, { action:'dismiss', title:'Más tarde'  }],
+    'cita_confirmada':   [{ action:'open',    title:'Ver cita'     }, { action:'dismiss', title:'OK'         }],
+    'cita_cancelada':    [{ action:'open',    title:'Ver detalles' }, { action:'dismiss', title:'Entendido'  }],
+    'tarea_nueva':       [{ action:'open',    title:'Ver tarea'    }, { action:'dismiss', title:'Más tarde'  }],
+    'tarea_completada':  [{ action:'open',    title:'Ver tarea'    }, { action:'dismiss', title:'OK'         }],
+    'demora':            [{ action:'open',    title:'Ver aviso'    }, { action:'dismiss', title:'Entendido'  }],
+    'sesion_clinica':    [{ action:'open',    title:'Mi Proceso'   }, { action:'dismiss', title:'Más tarde'  }],
+    'nueva_resena':      [{ action:'open',    title:'Ver reseña'   }, { action:'dismiss', title:'Cerrar'     }],
+    'broadcast':         [{ action:'open',    title:'Abrir'        }, { action:'dismiss', title:'Descartar'  }],
   }[tipo] || [{ action:'open', title:'Abrir' }, { action:'dismiss', title:'Descartar' }];
 
   return self.registration.showNotification(titulo, {
@@ -68,10 +96,10 @@ function mostrarNotificacion(data) {
     icon:               icono,
     badge:              '/icon-192.png',
     tag,
-    renotify:           false,
+    renotify:           true,            // siempre re-vibra aunque el tag ya exista
     data,
     vibrate:            vibracion,
-    requireInteraction: data.requireInteraction === 'true' || tipo === 'demora',
+    requireInteraction,                  // persiste hasta que el usuario la toca
     silent:             false,
     timestamp:          Date.now(),
     dir:                'ltr',
