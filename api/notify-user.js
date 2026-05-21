@@ -90,7 +90,7 @@ module.exports = async function handler(req, res) {
       },
       webpush: {
         headers: {
-          Urgency: 'very-high',
+          Urgency: 'high',
           TTL:     '0',
         },
         notification: {

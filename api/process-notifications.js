@@ -87,7 +87,7 @@ async function enviarFCM(db, token, titulo, mensaje, data = {}, stats = null) {
       },
       webpush: {
         headers: {
-          Urgency: 'very-high',   // máxima urgencia RFC 8030 — entrega inmediata
+          Urgency: 'high',   // máxima urgencia RFC 8030 — entrega inmediata
           TTL: '0',               // no cachear en servidor de push
         },
         // webpush notification — Chrome muestra esto incluso cuando la app está cerrada
