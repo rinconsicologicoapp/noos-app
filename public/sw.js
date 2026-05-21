@@ -18,7 +18,7 @@ const TIPOS_CRITICOS = [
   'cita_nueva','recordatorio_cita','cita_confirmada','cita_cancelada',
   'tarea_nueva','tarea_completada','demora','nueva_resena',
   'notif_programada','recordatorio_recurrente','juego_turno',
-  'sesion_clinica','habitos_actualizados','broadcast', // nuevos tipos
+  'sesion_clinica','habitos_actualizados','broadcast','recurso_nuevo', // nuevos tipos
 ];
 
 // ─── Tipos que SIEMPRE requieren interacción (no desaparecen solos) ───────────

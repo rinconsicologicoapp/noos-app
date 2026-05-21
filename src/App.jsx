@@ -1888,6 +1888,22 @@ const enviarRecurso = async () => {
     };
     await setDoc(doc(db, "recursos", id), nuevoRecurso);
     setRecursos(prev => [nuevoRecurso, ...prev]);
+    // Notificación in-app al paciente
+    setDoc(doc(db, "notificaciones", `recurso_${id}`), {
+      pacienteId: pacienteSeleccionado.id,
+      titulo: "📎 Nuevo material de tu psicólogo",
+      mensaje: `Te enviaron: "${recursoNombre}" (${recursoTipo})`,
+      icon: "📎", tipo: "recurso_nuevo", leida: false, pushEnviada: false,
+      creadoEn: new Date().toISOString(),
+    }).catch(() => {});
+    // Push al paciente
+    setDoc(doc(db, "notificaciones_programadas", `recurso_push_${id}`), {
+      pacienteId: pacienteSeleccionado.id,
+      title: "📎 Nuevo material",
+      body: `Tu psicólogo te envió: "${recursoNombre}"`,
+      scheduledAt: new Date(Date.now() + 3000).toISOString(),
+      enviada: false, creadaEn: new Date().toISOString(), tipo: "recurso_nuevo",
+    }).catch(() => {});
     setRecursoNombre("");
     setRecursoUrl("");
     setRecursoTipo("PDF");
@@ -4450,18 +4466,30 @@ const styles = `
                     {btn(async () => {
                       if (!citaSeleccionada) return;
                       try {
+                        const ts = Date.now();
                         const msg = `${usuarioActual.nombre} llegará aproximadamente ${retrasoMinutos} minutos tarde a la sesión del ${citaSeleccionada.fecha} a las ${citaSeleccionada.hora}${retrasoTexto.trim() ? `. "${retrasoTexto.trim()}"` : "."}`;
-                        await setDoc(doc(db, "notificaciones", `demora_${citaSeleccionada.id}_${Date.now()}`), {
+                        // In-app bell del psicólogo
+                        await setDoc(doc(db, "notificaciones", `demora_${citaSeleccionada.id}_${ts}`), {
                           pacienteId: citaSeleccionada.psicologoId,
                           destinatarioId: citaSeleccionada.psicologoId,
-                          titulo: `Aviso de demora — ${retrasoMinutos} min`,
+                          titulo: `⏱ Aviso de demora — ${retrasoMinutos} min`,
                           mensaje: msg,
                           icon: "⏱", tipo: "demora", leida: false, pushEnviada: false,
                           creadoEn: new Date().toISOString(),
                         });
+                        // Push notification al móvil del psicólogo
+                        setDoc(doc(db, "notificaciones_programadas", `demora_push_${citaSeleccionada.id}_${ts}`), {
+                          pacienteId: usuarioActual.uid,
+                          destinatarioId: citaSeleccionada.psicologoId,
+                          title: `⏱ Demora — ${retrasoMinutos} min`,
+                          body: msg,
+                          scheduledAt: new Date(Date.now() + 2000).toISOString(),
+                          enviada: false, creadaEn: new Date().toISOString(), tipo: "demora",
+                          requireInteraction: "true",
+                        }).catch(() => {});
                         showToast("Aviso enviado a tu psicólogo");
                         setModal(null);
-                      } catch(e) { showToast("Error al enviar el aviso"); }
+                      } catch(e) { showToast("Error al enviar el aviso"); console.error(e?.code, e?.message); }
                     }, "Enviar aviso", { flex:2, padding:11, background:`linear-gradient(135deg,${C.amber},${C.amberDark})`, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                   </div>
                 </div>
@@ -5914,21 +5942,28 @@ const styles = `
                       {btn(async () => {
                         if (!citaSeleccionada) return;
                         try {
+                          const ts = Date.now();
                           const msg = `${usuarioActual.nombre} llegará aproximadamente ${retrasoMinutos} minutos tarde a la sesión del ${citaSeleccionada.fecha} a las ${citaSeleccionada.hora}${retrasoTexto.trim() ? `. "${retrasoTexto.trim()}"` : "."}`;
-                          await setDoc(doc(db, "notificaciones", `demora_${citaSeleccionada.id}_${Date.now()}`), {
+                          await setDoc(doc(db, "notificaciones", `demora_${citaSeleccionada.id}_${ts}`), {
                             pacienteId: citaSeleccionada.psicologoId,
                             destinatarioId: citaSeleccionada.psicologoId,
-                            titulo: `Aviso de demora — ${retrasoMinutos} min`,
+                            titulo: `⏱ Aviso de demora — ${retrasoMinutos} min`,
                             mensaje: msg,
-                            icon: "⏱",
-                            tipo: "demora",
-                            leida: false,
-                            pushEnviada: false,
+                            icon: "⏱", tipo: "demora", leida: false, pushEnviada: false,
                             creadoEn: new Date().toISOString(),
                           });
+                          setDoc(doc(db, "notificaciones_programadas", `demora_push_${citaSeleccionada.id}_${ts}`), {
+                            pacienteId: usuarioActual.uid,
+                            destinatarioId: citaSeleccionada.psicologoId,
+                            title: `⏱ Demora — ${retrasoMinutos} min`,
+                            body: msg,
+                            scheduledAt: new Date(Date.now() + 2000).toISOString(),
+                            enviada: false, creadaEn: new Date().toISOString(), tipo: "demora",
+                            requireInteraction: "true",
+                          }).catch(() => {});
                           showToast("Aviso enviado a tu psicólogo");
                           setModal(null);
-                        } catch(e) { showToast("Error al enviar el aviso"); }
+                        } catch(e) { showToast("Error al enviar el aviso"); console.error(e?.code, e?.message); }
                       }, "Enviar aviso", { flex:2, padding:11, background:`linear-gradient(135deg,${C.amber},${C.amberDark})`, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
                     </div>
                   </div>
