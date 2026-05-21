@@ -66,10 +66,9 @@ module.exports = async function handler(req, res) {
           channelId: 'default',
           defaultSound: true,
           defaultVibrateTimings: true,
-          priority: 'PRIORITY_HIGH',
-          visibility: 'PRIVATE',
+          priority: 'high',       // valores válidos: 'min'|'low'|'default'|'high'|'max'
+          visibility: 'private',  // valores válidos: 'private'|'public'|'secret'
           tag,
-          clickAction: 'FLUTTER_NOTIFICATION_CLICK',
         },
       },
       apns: {

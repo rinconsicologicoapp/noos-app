@@ -63,8 +63,8 @@ async function enviarFCM(db, token, titulo, mensaje, data = {}, stats = null) {
           channelId: 'default',
           defaultSound: true,
           defaultVibrateTimings: true,
-          priority: 'PRIORITY_HIGH',
-          visibility: 'PRIVATE',  // visible en pantalla bloqueada sin contenido sensible
+          priority: 'high',
+          visibility: 'private',
           tag,
         },
       },
