@@ -2327,6 +2327,23 @@ const cargarTodosUsuarios = async () => {
   }
   setLoadingUsuarios(false);
 };
+// Elimina la cuenta de Firebase Auth vía API serverless (requiere Admin SDK)
+const eliminarCuentaAuth = async (uid) => {
+  try {
+    const idToken = await auth.currentUser?.getIdToken();
+    if (!idToken) return { ok: false, error: 'Sin sesión' };
+    const res = await fetch('/api/delete-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uidToDelete: uid, idToken }),
+    });
+    return await res.json();
+  } catch(e) {
+    console.error('[eliminarCuentaAuth]', e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
 const handleEliminarUsuarios = async () => {
   if (usuariosSeleccionados.length === 0) {
     showToast("Selecciona al menos un usuario ❌");
@@ -2336,6 +2353,7 @@ const handleEliminarUsuarios = async () => {
   try {
     for (const uid of usuariosSeleccionados) {
       await deleteDoc(doc(db, "usuarios", uid));
+      await eliminarCuentaAuth(uid); // borra email + contraseña de Firebase Auth
     }
     showToast(`${usuariosSeleccionados.length} usuario(s) eliminado(s) ✅`);
     setUsuariosSeleccionados([]);
@@ -8093,13 +8111,15 @@ const styles = `
       await Promise.all(susPacientes.map(pac =>
         updateDoc(doc(db, "usuarios", pac.id), { psicologoId: "", psicologoNombre: "" })
       ));
-      // Eliminar documento del psicólogo
+      // Eliminar documento Firestore
       await deleteDoc(doc(db, "usuarios", psicoEliminar.id));
+      // Eliminar cuenta de Firebase Auth (email + contraseña)
+      await eliminarCuentaAuth(psicoEliminar.id);
       showToast(`${psicoEliminar.nombre} eliminado ✅`);
       setModal(null);
       setPsicoEliminar(null);
       await cargarTodosUsuarios();
-    } catch(e) { showToast("Error al eliminar ❌"); }
+    } catch(e) { showToast("Error al eliminar ❌"); console.error(e); }
   };
 
   return (
@@ -8320,7 +8340,8 @@ const styles = `
     if (!pacienteEliminar) return;
     const uid = pacienteEliminar.id;
     try {
-      const colsSimples = ["notas","autorregistros","tareas","recursos","notificaciones","registrosAnimo","habitos","registrosHabito","notificaciones_programadas"];
+      // Borrar datos de Firestore
+      const colsSimples = ["notas","autorregistros","tareas","recursos","notificaciones","registrosAnimo","habitos","registrosHabito","notificaciones_programadas","sesionesClinicas"];
       await Promise.all(colsSimples.map(async col => {
         const snap = await getDocs(query(collection(db, col), where("pacienteId","==",uid)));
         await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
@@ -8328,10 +8349,12 @@ const styles = `
       const citasSnap = await getDocs(query(collection(db,"citas"), where("pacienteId","==",uid)));
       await Promise.all(citasSnap.docs.map(d => deleteDoc(d.ref)));
       await deleteDoc(doc(db, "usuarios", uid));
+      // Borrar email + contraseña de Firebase Auth
+      await eliminarCuentaAuth(uid);
       showToast(`${pacienteEliminar.nombre} eliminado ✅`);
       setModal(null); setPacienteEliminar(null);
       await cargarTodosUsuarios();
-    } catch(e) { showToast("Error al eliminar ❌"); }
+    } catch(e) { showToast("Error al eliminar ❌"); console.error(e); }
   };
 
   const generarPin = () => Math.floor(1000 + Math.random() * 9000).toString();
