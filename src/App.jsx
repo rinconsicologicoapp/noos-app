@@ -1071,6 +1071,8 @@ const [sesionAutoSaved, setSesionAutoSaved] = useState(false);
 const [sesionEnviando, setSesionEnviando] = useState(false);
 const [sesionAbierta, setSesionAbierta] = useState(null);
 const [confirmEliminarSesion, setConfirmEliminarSesion] = useState(null);
+const [testPushResult, setTestPushResult] = useState(null);
+const [testPushLoading, setTestPushLoading] = useState(false);
 const [modalIngreso, setModalIngreso] = useState(false);
 const [ingresoMotivo, setIngresoMotivo] = useState("");
 const [ingresoValor, setIngresoValor] = useState("");
@@ -9966,52 +9968,40 @@ const styles = `
         );
       })}
 
-      {/* ── TEST PUSH ── */}
-      {(() => {
-        const [pushResult, setPushResult] = React.useState(null);
-        const [pushLoading, setPushLoading] = React.useState(false);
-        const testPush = async () => {
-          setPushLoading(true); setPushResult(null);
+      {/* ── TEST PUSH — estados en scope del componente, no en IIFE ── */}
+      <div style={{ background:"#FFFFFF", borderRadius:14, padding:"14px 16px", marginBottom:14, border:"1px solid rgba(0,0,0,.08)" }}>
+        <div style={{ fontSize:11, fontWeight:800, color:"#1A2E1D", marginBottom:6 }}>Probar notificaciones push</div>
+        <div style={{ fontSize:11, color:"#5C7A65", marginBottom:10, lineHeight:1.55 }}>
+          Envía una push de prueba a este dispositivo. Si la recibes con el celular bloqueado, el sistema funciona.
+        </div>
+        <div onClick={async () => {
+          if (testPushLoading) return;
+          setTestPushLoading(true); setTestPushResult(null);
           try {
             const idToken = await auth.currentUser?.getIdToken();
-            if (!idToken) { setPushResult({ ok:false, msg:"Sin sesión activa" }); return; }
+            if (!idToken) { setTestPushResult({ ok:false, msg:"Sin sesión activa" }); setTestPushLoading(false); return; }
             const res = await fetch("/api/notify-user", {
               method:"POST", headers:{"Content-Type":"application/json"},
-              body: JSON.stringify({
-                recipientUid: usuarioActual.uid, idToken,
-                title: "🔔 Test — Mi Psicólogo",
-                body: "¡Las notificaciones push funcionan correctamente!",
-                tipo: "cita_nueva",
-              })
+              body: JSON.stringify({ recipientUid: usuarioActual.uid, idToken, title:"🔔 Test — Mi Psicólogo", body:"¡Las notificaciones push funcionan!", tipo:"cita_nueva" })
             });
             const data = await res.json();
-            if (data.ok) setPushResult({ ok:true, msg:"✅ Push enviada — deberías recibirla en 1-3 segundos" });
-            else if (data.reason === "sin-token-fcm") setPushResult({ ok:false, msg:"⚠️ Sin token FCM: activa las notificaciones en Perfil → Notificaciones" });
-            else setPushResult({ ok:false, msg:`❌ ${data.error || data.reason}` });
-          } catch(e) { setPushResult({ ok:false, msg:`❌ Error: ${e.message}` }); }
-          setPushLoading(false);
-        };
-        return (
-          <div style={{ background:"#FFFFFF", borderRadius:14, padding:"14px 16px", marginBottom:14, border:"1px solid rgba(0,0,0,.08)" }}>
-            <div style={{ fontSize:11, fontWeight:800, color:"#1A2E1D", marginBottom:6, letterSpacing:"-.005em" }}>Probar notificaciones push</div>
-            <div style={{ fontSize:11, color:"#5C7A65", marginBottom:10, lineHeight:1.55 }}>
-              Envía una push de prueba a este dispositivo. Si la recibes con el celular bloqueado, el sistema funciona.
-            </div>
-            <div onClick={pushLoading ? undefined : testPush}
-              style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:7, height:40, background: pushLoading ? "rgba(0,0,0,.07)" : "linear-gradient(135deg,#3D7A52,#1E4D2B)", borderRadius:11, cursor: pushLoading ? "default" : "pointer", touchAction:"manipulation" }}>
-              {pushLoading
-                ? <span style={{fontSize:11,fontWeight:700,color:"#5C7A65"}}>Enviando...</span>
-                : <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span style={{fontSize:12,fontWeight:800,color:"white"}}>Enviar push de prueba</span></>
-              }
-            </div>
-            {pushResult && (
-              <div style={{ marginTop:9, padding:"8px 12px", borderRadius:9, background: pushResult.ok ? "rgba(30,77,43,.08)" : "rgba(255,107,107,.08)", fontSize:11, color: pushResult.ok ? "#1E4D2B" : "#C04040", fontWeight:600, lineHeight:1.5 }}>
-                {pushResult.msg}
-              </div>
-            )}
+            if (data.ok) setTestPushResult({ ok:true, msg:"✅ Push enviada — deberías recibirla en 1-3 segundos" });
+            else if (data.reason === "sin-token-fcm") setTestPushResult({ ok:false, msg:"⚠️ Sin token FCM: activa notificaciones en Perfil" });
+            else setTestPushResult({ ok:false, msg:`❌ ${data.error || data.reason}` });
+          } catch(e) { setTestPushResult({ ok:false, msg:`❌ Error: ${e.message}` }); }
+          setTestPushLoading(false);
+        }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:7, height:40, background: testPushLoading ? "rgba(0,0,0,.07)" : "linear-gradient(135deg,#3D7A52,#1E4D2B)", borderRadius:11, cursor: testPushLoading ? "default" : "pointer", touchAction:"manipulation" }}>
+          {testPushLoading
+            ? <span style={{fontSize:11,fontWeight:700,color:"#5C7A65"}}>Enviando...</span>
+            : <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span style={{fontSize:12,fontWeight:800,color:"white"}}>Enviar push de prueba</span></>
+          }
+        </div>
+        {testPushResult && (
+          <div style={{ marginTop:9, padding:"8px 12px", borderRadius:9, background: testPushResult.ok ? "rgba(30,77,43,.08)" : "rgba(255,107,107,.08)", fontSize:11, color: testPushResult.ok ? "#1E4D2B" : "#C04040", fontWeight:600, lineHeight:1.5 }}>
+            {testPushResult.msg}
           </div>
-        );
-      })()}
+        )}
+      </div>
 
       <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
       {mitem("➕", "Agregar usuario", () => { cargarTodosUsuarios(); setModal("registro-admin"); })}
