@@ -4836,13 +4836,7 @@ const styles = `
                         });
                         setNotaAbierta(prev => ({ ...prev, corazon: nuevo }));
                         if (nuevo) {
-                          setDoc(doc(db, "notificaciones_programadas", `corazon_${notaAbierta.id}`), {
-                            pacienteId: notaAbierta.pacienteId,
-                            title: "Tu psicólogo leyó tu respuesta ❤️",
-                            body: `Le gustó tu respuesta a "${notaAbierta.titulo}"`,
-                            scheduledAt: new Date(Date.now() + 3000).toISOString(),
-                            enviada: false, creadaEn: new Date().toISOString(), tipo: "corazon_tarea",
-                          }).catch(() => {});
+                          enviarPushDirecto(notaAbierta.pacienteId, "Tu psicólogo leyó tu respuesta", `Le gustó tu respuesta a "${notaAbierta.titulo}"`, "corazon_tarea");
                           setDoc(doc(db, "notificaciones", `corazon_${notaAbierta.id}`), {
                             pacienteId: notaAbierta.pacienteId,
                             titulo: "Tu psicólogo leyó tu respuesta ❤️",
@@ -4991,14 +4985,7 @@ const styles = `
             setCelebrando(true); setTimeout(() => setCelebrando(false), 1500);
             if (notaAbierta.psicologoId) {
               const _trid = `tarea_resp_${notaAbierta.id}`;
-              setDoc(doc(db, "notificaciones_programadas", _trid), {
-                pacienteId:    usuarioActual.uid,
-                destinatarioId: notaAbierta.psicologoId,
-                title: "Tarea completada 🎯",
-                body: `${usuarioActual.nombre} completó: "${notaAbierta.titulo}"`,
-                scheduledAt: new Date(Date.now() + 3000).toISOString(),
-                enviada: false, creadaEn: new Date().toISOString(), tipo: "tarea_completada",
-              }).catch(e => console.error("notif tarea_completada:", e.code || e.message));
+              enviarPushDirecto(notaAbierta.psicologoId, "Tarea completada", `${usuarioActual.nombre} completó: "${notaAbierta.titulo}"`, "tarea_completada");
               setDoc(doc(db, "notificaciones", _trid), {
                 pacienteId: notaAbierta.psicologoId,
                 titulo: "Tarea completada 🎯",
@@ -5317,14 +5304,7 @@ const styles = `
                   setCelebrando(true); setTimeout(() => setCelebrando(false), 1500);
                   if (t.psicologoId) {
                     const _tchid = `tarea_check_${t.id}`;
-                    setDoc(doc(db, "notificaciones_programadas", _tchid), {
-                      pacienteId:    usuarioActual.uid,
-                      destinatarioId: t.psicologoId,
-                      title: "Tarea completada ✅",
-                      body: `${usuarioActual.nombre} marcó como completada: "${t.titulo}"`,
-                      scheduledAt: new Date(Date.now() + 3000).toISOString(),
-                      enviada: false, creadaEn: new Date().toISOString(), tipo: "tarea_completada",
-                    }).catch(e => console.error("notif tarea_completada:", e.code || e.message));
+                    enviarPushDirecto(t.psicologoId, "Tarea completada", `${usuarioActual.nombre} completó: "${t.titulo}"`, "tarea_completada");
                     setDoc(doc(db, "notificaciones", _tchid), {
                       pacienteId: t.psicologoId,
                       titulo: "Tarea completada ✅",
@@ -5386,14 +5366,7 @@ const styles = `
               sumarXP(tareaRespondiendo.xp || 80, "Tarea completada ✅");
               if (tareaRespondiendo.psicologoId) {
                 const _trespid = `tarea_resp_${tareaRespondiendo.id}`;
-                setDoc(doc(db, "notificaciones_programadas", _trespid), {
-                  pacienteId:    usuarioActual.uid,
-                  destinatarioId: tareaRespondiendo.psicologoId,
-                  title: "Tarea completada 🎯",
-                  body: `${usuarioActual.nombre} completó: "${tareaRespondiendo.titulo}"`,
-                  scheduledAt: new Date(Date.now() + 3000).toISOString(),
-                  enviada: false, creadaEn: new Date().toISOString(), tipo: "tarea_completada",
-                }).catch(e => console.error("notif tarea_completada:", e.code || e.message));
+                enviarPushDirecto(tareaRespondiendo.psicologoId, "Tarea completada", `${usuarioActual.nombre} completó: "${tareaRespondiendo.titulo}"`, "tarea_completada");
                 setDoc(doc(db, "notificaciones", _trespid), {
                   pacienteId: tareaRespondiendo.psicologoId,
                   titulo: "Tarea completada 🎯",
@@ -6609,18 +6582,8 @@ const styles = `
                   const miNombre = usuarioActual?.nombre || (miRol === "pac" ? "Tu paciente" : "Tu psicólogo");
                   const now = new Date();
 
-                  // ── NOTIFICACIÓN INMEDIATA (5 segundos) ─────────────────
-                  const notifInmedId = `juego_mov_${juegoId}_${Date.now()}`;
-                  setDoc(doc(db, "notificaciones_programadas", notifInmedId), {
-                    pacienteId: oponenteId,
-                    title: "¡Es tu turno! 🎮",
-                    body: `${miNombre} acaba de jugar en Triki. ¡Ahora te toca a ti!`,
-                    scheduledAt: new Date(now.getTime() + 5000).toISOString(),
-                    enviada: false,
-                    creadaEn: now.toISOString(),
-                    tipo: "juego_turno_inmediato",
-                    juegoId,
-                  }).catch(() => {});
+                  // ── PUSH DIRECTO — turno inmediato ──────────────────────
+                  enviarPushDirecto(oponenteId, "Es tu turno", `${miNombre} acaba de jugar. Ahora te toca a ti.`, "juego_turno_inmediato");
 
                   // ── RECORDATORIO A LAS 4PM si aún no ha jugado ──────────
                   const at4pm = new Date(now);
