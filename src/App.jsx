@@ -1578,6 +1578,20 @@ const cargarSesionesClinicasPaciente = async () => {
   setLoadingSesionesClinicas(false);
 };
 
+// ── FINANZAS — debe estar en scope del componente para que el useEffect lo acceda ──
+const cargarSesionesFirestore = async () => {
+  if (loadingFinanzas) return;
+  setLoadingFinanzas(true);
+  try {
+    const snap = await getDocs(query(collection(db, "sesionesFinanzas"), where("psicologoId", "==", usuarioActual.uid)));
+    setSesionesFinanzas(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.fecha) - new Date(a.fecha)));
+  } catch(e) {
+    console.error("[finanzas] Error cargando sesiones:", e?.code, e?.message);
+    showToast("Error al cargar finanzas ❌");
+  }
+  setLoadingFinanzas(false);
+};
+
 const cargarSesionesClinicasPsicologo = async () => {
   if (!usuarioActual?.uid) return;
   setLoadingSesionesClinicas(true);
@@ -4487,7 +4501,7 @@ const styles = `
                   <div style={{ background:"#FFFFFF", borderRadius:18, padding:"16px 16px 14px", marginBottom:14, boxShadow:"0 1px 3px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.09)", border:"1px solid rgba(0,0,0,.06)" }}>
                     <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:12 }}>
                       <div style={{ width:3, height:16, borderRadius:2, background:"linear-gradient(180deg,#3D7A52,#1E4D2B)" }}/>
-                      <span style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".16em", textTransform:"uppercase" }}>Mi avance</span>
+                      <span style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".10em", textTransform:"uppercase" }}>Termómetro del proceso psicológico</span>
                       {ultimaSes && <span style={{ fontSize:9, color:"#5C7A65", fontWeight:500, marginLeft:"auto" }}>Actualizado · {new Date(ultimaSes.actualizadoEn||ultimaSes.fecha||"").toLocaleDateString('es-CO',{day:'numeric',month:'short'})}</span>}
                     </div>
                     {/* Barra 10 segmentos — solo visual, sin números */}
@@ -9286,19 +9300,7 @@ const styles = `
     } catch(e) { showToast("Error ❌"); }
   };
 
-  // ── FINANZAS ────────────────────────────────────────────────────────────
-  const cargarSesionesFirestore = async () => {
-    if (loadingFinanzas) return;
-    setLoadingFinanzas(true);
-    try {
-      const snap = await getDocs(query(collection(db, "sesionesFinanzas"), where("psicologoId", "==", usuarioActual.uid)));
-      setSesionesFinanzas(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.fecha) - new Date(a.fecha)));
-    } catch(e) {
-      console.error("[finanzas] Error cargando sesiones:", e?.code, e?.message);
-      showToast("Error al cargar finanzas ❌");
-    }
-    setLoadingFinanzas(false);
-  };
+  // cargarSesionesFirestore vive en el scope del componente (ver línea ~2330)
   const cargarSesiones = cargarSesionesFirestore;
 
   const fmt = (n) => n ? "$" + Number(n).toLocaleString("es-CO") : "$0";
@@ -10448,7 +10450,7 @@ style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", backg
                           </div>}
 
                           {/* Nivel de avance */}
-                          <div style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".14em", textTransform:"uppercase", marginBottom:8 }}>Nivel de avance</div>
+                          <div style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".10em", textTransform:"uppercase", marginBottom:8 }}>Termómetro del proceso psicológico</div>
                           <div style={{ display:"flex", gap:3, marginBottom:4 }}>
                             {[1,2,3,4,5,6,7,8,9,10].map(i=>(
                               <div key={i} onClick={()=>{setSesionNivel(i); triggerAutoSave(sesionTitulo,sesionResumen,i,sesionVisible,pacId,sesionCurrentId);}}
