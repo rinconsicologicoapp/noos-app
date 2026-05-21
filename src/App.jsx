@@ -5671,6 +5671,24 @@ const styles = `
                             {btn(()=>{ setCitaSeleccionada(c); setModal("confirmar-cita"); }, "Confirmar", { padding:"3px 10px", borderRadius:20, background:"#5A8A62", color:"white", fontWeight:700, fontSize:10 })}
                             {btn(()=>{ setCitaSeleccionada(c); setModal("cancelar-cita"); }, "Cancelar", { padding:"3px 10px", borderRadius:20, background:"rgba(192,82,74,.10)", border:"1px solid rgba(192,82,74,.2)", color:C.red, fontWeight:700, fontSize:10 })}
                           </>)}
+                          {/* Botón recordar confirmar — solo psicólogo, solo citas pendientes */}
+                          {c.status==="pendiente" && usuarioActual?.rol==="psicologo" && (
+                            <div onClick={async () => {
+                              const fechaTexto = mostrarFechaLocal(c, "completa") || c.fecha;
+                              const horaTexto  = mostrarFechaLocal(c, "hora") || c.hora;
+                              enviarPushDirecto(
+                                c.pacienteId,
+                                "Recordatorio de cita",
+                                `Tienes una sesión el ${fechaTexto} a las ${horaTexto}. Puedes confirmar tu asistencia cuando quieras desde la app.`,
+                                "recordatorio_cita",
+                                { citaId: c.id }
+                              );
+                              showToast("Recordatorio enviado");
+                            }} style={{ display:"flex", alignItems:"center", gap:5, padding:"4px 11px", borderRadius:20, background:"rgba(30,77,43,.08)", border:"1px solid rgba(30,77,43,.18)", cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                              <span style={{ fontSize:10, fontWeight:700, color:"#3D7A52" }}>Recordar al paciente</span>
+                            </div>
+                          )}
                           {c.status==="confirmada" && usuarioActual?.rol==="paciente" && (
                             <div onClick={()=>{ setCitaSeleccionada(c); setRetrasoTexto(""); setRetrasoMinutos(10); setModal("demora-aviso"); }}
                               style={{ display:"flex", alignItems:"center", gap:5, padding:"3px 10px", borderRadius:20, background:"rgba(255,179,71,.12)", border:"1px solid rgba(255,179,71,.25)", cursor:"pointer" }}>
@@ -9818,6 +9836,21 @@ const styles = `
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2.5" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
                       </div>
                     </div>
+                    {/* Recordar pago — solo si no está cobrado */}
+                    {!s.pagado && s.pacienteId && (
+                      <div onClick={async () => {
+                        enviarPushDirecto(
+                          s.pacienteId,
+                          "Un pequeño recordatorio",
+                          "Cuando tengas un momento, te agradecemos gestionar el pago de tu última sesión. Gracias por tu confianza.",
+                          "recordatorio_pago"
+                        );
+                        showToast("Recordatorio enviado");
+                      }} style={{ display:"flex", alignItems:"center", gap:6, marginTop:9, padding:"8px 12px", background:"rgba(30,77,43,.06)", border:"1px solid rgba(30,77,43,.14)", borderRadius:10, cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <span style={{ fontSize:11, fontWeight:700, color:"#3D7A52" }}>Recordar pago al paciente</span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

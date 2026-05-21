@@ -19,7 +19,7 @@ const TIPOS_CRITICOS = [
   'tarea_nueva','tarea_completada','demora','nueva_resena',
   'notif_programada','recordatorio_recurrente','juego_turno',
   'sesion_clinica','habitos_actualizados','broadcast','recurso_nuevo',
-  'corazon_tarea','juego_turno_inmediato','habito_recordatorio',
+  'corazon_tarea','juego_turno_inmediato','habito_recordatorio','recordatorio_pago',
 ];
 
 // ─── Tipos que SIEMPRE requieren interacción (no desaparecen solos) ───────────
@@ -88,6 +88,7 @@ function mostrarNotificacion(data) {
     'juego_turno':           [{ action:'open', title:'Jugar'          }, { action:'dismiss', title:'Mañana'     }],
     'habito_recordatorio':   [{ action:'open', title:'Registrar'      }, { action:'dismiss', title:'Después'    }],
     'broadcast':             [{ action:'open', title:'Ver mensaje'    }, { action:'dismiss', title:'Cerrar'     }],
+    'recordatorio_pago':     [{ action:'open', title:'Abrir app'     }, { action:'dismiss', title:'Gracias'     }],
   }[tipo] || [{ action:'open', title:'Abrir app' }, { action:'dismiss', title:'Descartar' }];
 
   return self.registration.showNotification(titulo, {
