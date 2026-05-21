@@ -1263,24 +1263,15 @@ const crearCita = async () => {
     await setDoc(doc(db, "citas", id), nuevaCita);
     setCitas(prev => [...prev, nuevaCita].sort((a,b) => fechaOrden(a) - fechaOrden(b)));
 
-    // Notificación inmediata via notificaciones_programadas (evita race condition del cron)
-    // ID incluye timestamp para que no se sobreescriba si hay doble ejecución
+    // Push directo al paciente — sin cola, entrega inmediata
     const notifId = `cita_nueva_${id}_${Date.now()}`;
-    const scheduledAt = new Date(Date.now() + 5000).toISOString(); // 5 segundos desde ahora
-    await setDoc(doc(db, "notificaciones_programadas", notifId), {
-      pacienteId:  pacienteIdFinal,
-      psicologoId: usuarioActual.uid,
-      title:       `🧠 Sesión psicológica agendada`,
-      body:        `${citaFecha} a las ${citaHora} — ${citaModalidad === "virtual" ? "Virtual 💻" : "Presencial 🏥"}`,
-      fechaUTC,
-      modalidad:   citaModalidad,
-      scheduledAt,
-      enviada:     false,
-      creadaEn:    new Date().toISOString(),
-      tipo:        "cita_nueva",
-      citaId:      id,
-      link:        citaLink,
-    });
+    enviarPushDirecto(
+      pacienteIdFinal,
+      "📅 Sesión psicológica agendada",
+      `${citaFecha} a las ${citaHora} — ${citaModalidad === "virtual" ? "Virtual" : "Presencial"}`,
+      "cita_nueva",
+      { citaId: id, link: citaLink }
+    );
     // También guardar en notificaciones para el panel (sin push)
     await setDoc(doc(db, "notificaciones", notifId), {
       pacienteId:  pacienteIdFinal,
@@ -1330,15 +1321,14 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
     if (nuevoStatus === "confirmada") {
       showNotif("Cita confirmada ✅", "Tu psicólogo fue notificado", "✅");
       if (cita?.psicologoId) {
-        setDoc(doc(db, "notificaciones_programadas", `conf_cita_${citaId}`), {
-          pacienteId:    usuarioActual.uid,
-          destinatarioId: cita.psicologoId,
-          title: "Cita confirmada ✅",
-          body: `${usuarioActual.nombre} confirmó la sesión del ${cita.fecha} a las ${cita.hora}`,
-          scheduledAt: new Date(Date.now() + 3000).toISOString(),
-          enviada: false, creadaEn: new Date().toISOString(), tipo: "cita_confirmada",
-          citaId,
-        }).catch(e => console.error("notif cita_confirmada:", e.code || e.message));
+        // Push directo al psicólogo — inmediato
+        enviarPushDirecto(
+          cita.psicologoId,
+          "✅ Cita confirmada",
+          `${usuarioActual.nombre} confirmó la sesión del ${cita.fecha} a las ${cita.hora}`,
+          "cita_confirmada", { citaId }
+        );
+        // In-app bell del psicólogo
         setDoc(doc(db, "notificaciones", `conf_cita_${citaId}`), {
           pacienteId: cita.psicologoId,
           titulo: "Cita confirmada ✅",
@@ -1351,15 +1341,13 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
     if (nuevoStatus === "cancelada") {
       showNotif("Cita cancelada", "Tu psicólogo fue notificado", "❌");
       if (cita?.psicologoId) {
-        setDoc(doc(db, "notificaciones_programadas", `canc_cita_${citaId}`), {
-          pacienteId:    usuarioActual.uid,
-          destinatarioId: cita.psicologoId,
-          title: "Cita cancelada ❌",
-          body: `${usuarioActual.nombre} canceló la sesión del ${cita.fecha} a las ${cita.hora}`,
-          scheduledAt: new Date(Date.now() + 3000).toISOString(),
-          enviada: false, creadaEn: new Date().toISOString(), tipo: "cita_cancelada",
-          citaId,
-        }).catch(e => console.error("notif cita_cancelada:", e.code || e.message));
+        // Push directo al psicólogo — inmediato
+        enviarPushDirecto(
+          cita.psicologoId,
+          "❌ Cita cancelada",
+          `${usuarioActual.nombre} canceló la sesión del ${cita.fecha} a las ${cita.hora}`,
+          "cita_cancelada", { citaId }
+        );
         setDoc(doc(db, "notificaciones", `canc_cita_${citaId}`), {
           pacienteId: cita.psicologoId,
           titulo: "Cita cancelada ❌",
@@ -1664,17 +1652,13 @@ const enviarSesionClinica = async (pacId) => {
     const titulo = eraVisible ? "Mi Proceso — Sesión actualizada" : "Mi Proceso — Nueva sesión";
     const msg = sesionTitulo ? `Tu psicólogo ${accion}: "${sesionTitulo}"` : `Tu psicólogo ${accion} tu sesión`;
     const pushTag = `sesion_push_${sesionCurrentId}_${Date.now()}`;
-    // Notificación in-app
+    // In-app bell del paciente
     setDoc(doc(db,"notificaciones",`sesion_${sesionCurrentId}`),{
       pacienteId:pacId, titulo, mensaje:msg,
-      icon:"📋", tipo:"sesion_clinica", leida:false, pushEnviada:false, creadoEn:new Date().toISOString(),
+      icon:"📋", tipo:"sesion_clinica", leida:false, pushEnviada:true, creadoEn:new Date().toISOString(),
     }).catch(()=>{});
-    // Push notification al móvil del paciente
-    setDoc(doc(db,"notificaciones_programadas",pushTag),{
-      pacienteId:pacId, title:"Mi Proceso",
-      body:msg, scheduledAt:new Date(Date.now()+2000).toISOString(),
-      enviada:false, creadaEn:new Date().toISOString(), tipo:"sesion_clinica",
-    }).catch(()=>{});
+    // Push directo — inmediato, sin cola
+    enviarPushDirecto(pacId, "Mi Proceso", msg, "sesion_clinica");
     showToast(eraVisible ? "Sesión actualizada ✅" : "Sesión enviada al paciente ✅");
     setMostrarFormSesion(false); setSesionCurrentId(null);
     setSesionTitulo(""); setSesionResumen(""); setSesionNivel(5); setSesionVisible(false);
@@ -1896,14 +1880,8 @@ const enviarRecurso = async () => {
       icon: "📎", tipo: "recurso_nuevo", leida: false, pushEnviada: false,
       creadoEn: new Date().toISOString(),
     }).catch(() => {});
-    // Push al paciente
-    setDoc(doc(db, "notificaciones_programadas", `recurso_push_${id}`), {
-      pacienteId: pacienteSeleccionado.id,
-      title: "📎 Nuevo material",
-      body: `Tu psicólogo te envió: "${recursoNombre}"`,
-      scheduledAt: new Date(Date.now() + 3000).toISOString(),
-      enviada: false, creadaEn: new Date().toISOString(), tipo: "recurso_nuevo",
-    }).catch(() => {});
+    // Push directo al paciente — inmediato
+    enviarPushDirecto(pacienteSeleccionado.id, "📎 Nuevo material", `Tu psicólogo te envió: "${recursoNombre}"`, "recurso_nuevo");
     setRecursoNombre("");
     setRecursoUrl("");
     setRecursoTipo("PDF");
@@ -2136,18 +2114,13 @@ const crearTarea = async () => {
       creadaEn: new Date().toISOString(),
     };
     await setDoc(doc(db, "tareas", id), nuevaTarea);
-    // onSnapshot actualiza tareasPsicologo automáticamente — no añadir manualmente (causaría duplicado)
-    // Push al paciente via notificaciones_programadas (flujo confiable, misma ruta que cita_nueva)
-    setDoc(doc(db, "notificaciones_programadas", `tarea_nueva_${id}`), {
-      pacienteId:  pacienteSeleccionado.id,
-      psicologoId: usuarioActual.uid,
-      title:       "📋 Nueva tarea de tu psicólogo",
-      body:        `"${tareaTitulo}" — revísala en tu app`,
-      scheduledAt: new Date(Date.now() + 3000).toISOString(),
-      enviada:     false,
-      creadaEn:    new Date().toISOString(),
-      tipo:        "tarea_nueva",
-    }).catch(e => console.error("notif tarea_nueva:", e.code || e.message));
+    // Push directo al paciente — inmediato, sin cola
+    enviarPushDirecto(
+      pacienteSeleccionado.id,
+      "📋 Nueva tarea de tu psicólogo",
+      `"${tareaTitulo}" — revísala en tu app`,
+      "tarea_nueva"
+    );
     // Panel in-app (sin push duplicado)
     setDoc(doc(db, "notificaciones", `tarea_nueva_${id}`), {
       pacienteId:  pacienteSeleccionado.id,
@@ -2357,6 +2330,21 @@ const cargarTodosUsuarios = async () => {
   }
   setLoadingUsuarios(false);
 };
+// ── Envío push INMEDIATO (bypass cola cron) ───────────────────────────────────
+// Llama al endpoint serverless que usa Firebase Admin SDK para enviar FCM al instante.
+// Uso: fire-and-forget — no espera respuesta para no bloquear la UI.
+const enviarPushDirecto = async (recipientUid, title, body, tipo = "general", extraData = {}) => {
+  try {
+    const idToken = await auth.currentUser?.getIdToken();
+    if (!idToken || !recipientUid) return;
+    fetch("/api/notify-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ recipientUid, title, body, tipo, idToken, ...extraData }),
+    }).catch(() => {}); // fire and forget — no bloquea
+  } catch(e) { /* silencioso — el in-app bell siempre existe como fallback */ }
+};
+
 // Elimina la cuenta de Firebase Auth vía API serverless (requiere Admin SDK)
 const eliminarCuentaAuth = async (uid) => {
   try {
@@ -4477,16 +4465,8 @@ const styles = `
                           icon: "⏱", tipo: "demora", leida: false, pushEnviada: false,
                           creadoEn: new Date().toISOString(),
                         });
-                        // Push notification al móvil del psicólogo
-                        setDoc(doc(db, "notificaciones_programadas", `demora_push_${citaSeleccionada.id}_${ts}`), {
-                          pacienteId: usuarioActual.uid,
-                          destinatarioId: citaSeleccionada.psicologoId,
-                          title: `⏱ Demora — ${retrasoMinutos} min`,
-                          body: msg,
-                          scheduledAt: new Date(Date.now() + 2000).toISOString(),
-                          enviada: false, creadaEn: new Date().toISOString(), tipo: "demora",
-                          requireInteraction: "true",
-                        }).catch(() => {});
+                        // Push directo al psicólogo — inmediato
+                        enviarPushDirecto(citaSeleccionada.psicologoId, `⏱ Demora — ${retrasoMinutos} min`, msg, "demora");
                         showToast("Aviso enviado a tu psicólogo");
                         setModal(null);
                       } catch(e) { showToast("Error al enviar el aviso"); console.error(e?.code, e?.message); }
