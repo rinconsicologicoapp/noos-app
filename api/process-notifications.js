@@ -41,25 +41,24 @@ async function enviarFCM(db, token, titulo, mensaje, data = {}, stats = null) {
   try {
     await getMessaging().send({
       token,
-      // data payload — el SW lee titulo/mensaje y puede hacer lógica adicional
+      // data-only: el SW controla el display completamente — sin race conditions
       data: Object.fromEntries(
         Object.entries({
           ...data,
           titulo,
           mensaje,
+          tag,                               // tag explícito → anti-duplicado confiable
           timestamp: String(Date.now()),
           requireInteraction: String(requireInteraction),
         }).map(([k, v]) => [k, String(v)])
       ),
       android: {
         priority: 'high',
-        ttl: 0, // entrega inmediata — 0 segundos de caché
-        // Notification para Android garantiza delivery incluso en Doze mode
+        ttl: 0,
         notification: {
           title: titulo,
           body: mensaje,
-          icon: 'ic_launcher',   // ícono de la app instalada (Chrome PWA)
-          color: '#162A1C',
+          color: '#162A1C',   // ic_launcher eliminado — no es para PWA
           channelId: 'default',
           defaultSound: true,
           defaultVibrateTimings: true,
@@ -72,37 +71,22 @@ async function enviarFCM(db, token, titulo, mensaje, data = {}, stats = null) {
         payload: {
           aps: {
             alert: { title: titulo, body: mensaje },
-            sound: 'default',   // sonido del sistema iOS
+            sound: 'default',
             badge: 1,
             'content-available': 1,
             'mutable-content': 1,
-            'interruption-level': 'active',  // iOS 15+ — fuerza sonido + vibración
+            'interruption-level': 'active',
           },
         },
         headers: {
-          'apns-priority': '10',          // máxima prioridad APNS
-          'apns-push-type': 'alert',
-          'apns-expiration': '0',         // entrega inmediata o no entrega
+          'apns-priority':   '10',
+          'apns-push-type':  'alert',
+          'apns-expiration': '0',
         },
       },
       webpush: {
-        headers: {
-          Urgency: 'high',   // máxima urgencia RFC 8030 — entrega inmediata
-          TTL: '0',               // no cachear en servidor de push
-        },
-        // webpush notification — Chrome muestra esto incluso cuando la app está cerrada
-        notification: {
-          title: titulo,
-          body:  mensaje,
-          icon:  '/icon-192.png',
-          badge: '/icon-192.png',
-          tag,
-          renotify:           true,           // re-vibra aunque el tag ya exista
-          requireInteraction,                 // no desaparece hasta que el usuario la toca
-          vibrate:            [0,250,100,250,100,500],  // patrón agresivo de vibración
-          silent:             false,
-          data,
-        },
+        headers: { Urgency: 'high', TTL: '0' },
+        // SIN notification field: el SW controla el display — evita race conditions iOS
         fcmOptions: {
           link: data.link || 'https://mipsicologo.vercel.app',
         },

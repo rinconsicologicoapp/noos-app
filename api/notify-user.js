@@ -45,20 +45,24 @@ module.exports = async function handler(req, res) {
     const tag = customTag || `${tipo}_${Date.now()}`;
     const appLink = link || 'https://mipsicologo.vercel.app';
 
-    // 3. Enviar FCM con máxima agresividad
+    // 3. Enviar FCM — data-only en webpush para que el SW controle el display
+    // Si enviamos notification+data, el browser muestra la notif Y el SW también → duplicado
     await getMessaging().send({
       token: fcmToken,
+      // data payload: el SW lee titulo/mensaje/tipo/tag para mostrar la notificación
       data: {
         titulo: title,
         mensaje: body,
         tipo,
-        tag,
+        tag,                                    // tag explícito → anti-duplicado funciona
         requireInteraction: String(requireInteraction),
         timestamp: String(Date.now()),
+        link: appLink,
       },
       android: {
         priority: 'high',
         ttl: 0,
+        // notification en Android garantiza entrega en Doze mode vía sistema operativo
         notification: {
           title,
           body,
@@ -66,8 +70,8 @@ module.exports = async function handler(req, res) {
           channelId: 'default',
           defaultSound: true,
           defaultVibrateTimings: true,
-          priority: 'high',       // valores válidos: 'min'|'low'|'default'|'high'|'max'
-          visibility: 'private',  // valores válidos: 'private'|'public'|'secret'
+          priority: 'high',
+          visibility: 'private',
           tag,
         },
       },
@@ -75,35 +79,26 @@ module.exports = async function handler(req, res) {
         payload: {
           aps: {
             alert: { title, body },
-            sound: 'default',
+            sound: 'default',            // sonido del sistema iOS
             badge: 1,
-            'content-available': 1,
+            'content-available': 1,      // permite wakeup del SW en iOS
             'mutable-content': 1,
-            'interruption-level': 'active',
+            'interruption-level': 'active', // iOS 15+: ignora Focus/DND
           },
         },
         headers: {
-          'apns-priority':    '10',
-          'apns-push-type':   'alert',
-          'apns-expiration':  '0',
+          'apns-priority':   '10',       // máxima prioridad APNS
+          'apns-push-type':  'alert',
+          'apns-expiration': '0',        // entrega inmediata o nunca
         },
       },
       webpush: {
         headers: {
-          Urgency: 'high',
-          TTL:     '0',
+          Urgency: 'high',  // RFC 8030: máxima urgencia
+          TTL:     '0',     // sin cacheo en servidor de push
         },
-        notification: {
-          title,
-          body,
-          icon:               '/icon-192.png',
-          badge:              '/icon-192.png',
-          tag,
-          renotify:           true,
-          requireInteraction,
-          vibrate:            [0, 300, 100, 300, 100, 600],
-          silent:             false,
-        },
+        // SIN campo notification: el SW controla el display completamente
+        // Esto evita el race condition browser-shows + SW-also-shows en iOS
         fcmOptions: { link: appLink },
       },
     });
