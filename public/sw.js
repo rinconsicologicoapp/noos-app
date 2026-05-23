@@ -108,18 +108,22 @@ function mostrarNotificacion(data) {
   });
 }
 
-// ─── RUTA 1: push event directo (más confiable en todos los navegadores) ───────
+// ─── RUTA 1: push event directo ─────────────────────────────────────────────
 self.addEventListener('push', (event) => {
+  // En iOS, event.data puede ser null en edge cases — manejarlo silenciosamente
   if (!event.data) return;
 
   let data = {};
-  let tieneNotificationField = false;
   try {
     const raw = event.data.json();
-    data = raw.data || raw;
-    // Si el payload tiene notification field, Chrome ya mostró la notif automáticamente
-    tieneNotificationField = !!(raw.notification);
-  } catch {}
+    // Normalizar payload: FCM puede enviar en raw.data (data-only) o en raw (directo)
+    data = {
+      ...(raw.data || raw),
+      // Merge título/mensaje desde notification field si no están en data
+      titulo:  raw.data?.titulo  || raw.notification?.title || data.titulo  || 'Mi Psicólogo',
+      mensaje: raw.data?.mensaje || raw.notification?.body  || data.mensaje || '',
+    };
+  } catch { return; }
 
   const tipo = data.tipo || 'general';
   const tag  = data.tag || data.citaId || tipo;
@@ -127,26 +131,49 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     clients.matchAll({ type:'window', includeUncontrolled:true }).then(async (list) => {
       const appVisible = list.some(c => c.visibilityState === 'visible');
+
+      // En background (app no visible): SIEMPRE mostrar si es tipo crítico
+      // En foreground (app visible): solo mostrar tipos críticos
       if (!TIPOS_CRITICOS.includes(tipo) && appVisible) return;
 
-      // Si Chrome ya mostró la notif via notification field, solo mostrar si app visible
-      // para el caso foreground. En background Chrome la maneja sola.
-      if (tieneNotificationField) {
+      // En iOS, el sistema puede haber mostrado la notif directamente.
+      // Verificar con timeout para evitar race condition.
+      // Solo omitir si la notif ya está visible CON el mismo tag exacto.
+      try {
         const existing = await self.registration.getNotifications({ tag });
-        if (existing.length > 0) return; // ya está visible, no duplicar
-      }
+        // En iOS, getNotifications() a veces falla o devuelve resultados incorrectos.
+        // Solo omitir si hay una notif visible Y la app está en background (push reciente).
+        if (existing.length > 0 && !appVisible) {
+          // Re-notify para que siga siendo visible (actualiza el contenido)
+          return self.registration.showNotification(data.titulo, {
+            body:    data.mensaje,
+            icon:    '/icon-192.png',
+            badge:   '/icon-192.png',
+            tag,
+            renotify: false, // no re-alertar, solo mantener visible
+            data,
+            silent:  true,
+          });
+        }
+      } catch { /* getNotifications no disponible o falló — continuar mostrando */ }
+
       return mostrarNotificacion(data);
     })
   );
 });
 
-// ─── RUTA 2: onBackgroundMessage de Firebase (respaldo para cuando push falla) ─
+// ─── RUTA 2: onBackgroundMessage — iOS usa principalmente este camino ─────────
 messaging.onBackgroundMessage((payload) => {
-  const data = payload.data || {};
+  // Normalizar: FCM puede entregar datos en payload.data (data fields) o payload.notification
+  const data = {
+    ...(payload.data || {}),
+    titulo:  payload.data?.titulo  || payload.notification?.title || 'Mi Psicólogo',
+    mensaje: payload.data?.mensaje || payload.notification?.body  || '',
+  };
   const tipo = data.tipo || 'general';
-  const tag  = data.tag || data.citaId || tipo;
+  const tag  = data.tag  || data.citaId || tipo;
 
-  // Si ya lo manejó el push event handler, no duplicar
+  // Si el push event handler ya la procesó, no duplicar
   if (shownTags.has(tag)) return Promise.resolve();
 
   return clients.matchAll({ type:'window', includeUncontrolled:true }).then((list) => {
