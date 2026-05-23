@@ -1363,26 +1363,34 @@ const actualizarStatusCita = async (citaId, nuevoStatus) => {
   } catch(e) { showToast("Error al actualizar cita ❌"); }
 };
 const activarNotificaciones = async () => {
+  // Detectar iOS (Safari PWA) vs Android para flujos distintos
+  const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   try {
     if (Notification.permission === "denied") {
-      showToast("⚙️ Ve a Ajustes > Apps > Chrome > Notificaciones y actívalas");
+      showToast(esIOS
+        ? "⚙️ Ve a Ajustes > Mi Psicólogo > Notificaciones y actívalas"
+        : "⚙️ Ve a Ajustes > Apps > Chrome > Notificaciones y actívalas");
       return;
     }
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
-      showToast("⚙️ Permiso denegado — actívalas desde Ajustes del navegador");
+      showToast("⚙️ Permiso denegado — actívalo desde los Ajustes del sistema");
       return;
     }
     const swReg = await navigator.serviceWorker.ready;
-    // Reset completo: Firebase IDB + suscripción del browser
-    // Necesario en Android PWA — sin esto queda estado corrupto que bloquea PushManager
-    try { await deleteToken(messaging); } catch (_) {}
-    try {
-      const oldSub = await swReg.pushManager.getSubscription();
-      if (oldSub) await oldSub.unsubscribe();
-    } catch (_) {}
-    // Pausa obligatoria en Android — el PushManager necesita un tick tras el unsubscribe
-    await new Promise(r => setTimeout(r, 600));
+
+    if (!esIOS) {
+      // Solo Android: reset para limpiar estado corrupto del PushManager
+      try { await deleteToken(messaging); } catch (_) {}
+      try {
+        const oldSub = await swReg.pushManager.getSubscription();
+        if (oldSub) await oldSub.unsubscribe();
+      } catch (_) {}
+      // Android necesita un tick tras el unsubscribe
+      await new Promise(r => setTimeout(r, 600));
+    }
+
     const token = await getToken(messaging, {
       vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
       serviceWorkerRegistration: swReg,
@@ -1392,13 +1400,18 @@ const activarNotificaciones = async () => {
       setUsuarioActual(prev => ({ ...prev, fcmToken: token }));
       showToast("✅ Notificaciones activadas — recibirás avisos aunque el celular esté bloqueado");
     } else {
-      showToast("⚠️ No se pudo obtener el token — intenta de nuevo");
+      showToast(esIOS
+        ? "⚠️ iOS: asegúrate de abrir la app desde el ícono de inicio (no desde Safari)"
+        : "⚠️ No se pudo obtener el token — intenta de nuevo");
     }
   } catch(e) {
-    if (e.message?.includes('push service') || e.message?.includes('Registration failed')) {
-      showToast("⚠️ Android: ve a Ajustes > Apps > Chrome > Batería > 'Sin restricciones', luego intenta de nuevo");
+    console.error('[notif-activar]', e.message);
+    if (esIOS) {
+      showToast("⚠️ iOS: la app debe estar instalada en pantalla de inicio desde Safari");
+    } else if (e.message?.includes('push service') || e.message?.includes('Registration failed')) {
+      showToast("⚠️ Ve a Ajustes > Apps > Chrome > Batería > 'Sin restricciones', luego intenta de nuevo");
     } else {
-      showToast("❌ Error activando notificaciones: " + e.message);
+      showToast("❌ Error: " + (e.message || "intenta de nuevo"));
     }
   }
 };
@@ -2640,12 +2653,11 @@ useEffect(() => {
       const titulo = data.titulo || payload.notification?.title || "Nueva notificación";
       if (usuarioActual?.uid) cargarNotificaciones(usuarioActual.uid);
       showToast(`🔔 ${titulo}`);
-      if (navigator.serviceWorker?.controller) {
-        navigator.serviceWorker.controller.postMessage({
-          type: "FCM_FOREGROUND",
-          tag: data.tag || data.citaId || data.tipo || "",
-        });
-      }
+      // navigator.serviceWorker.controller puede ser null en iOS — usar optional chaining completo
+      navigator.serviceWorker?.controller?.postMessage({
+        type: "FCM_FOREGROUND",
+        tag: data.tag || data.citaId || data.tipo || "",
+      });
       if (data.tipo === "recordatorio_cita" && data.citaId) {
         setNotifCitaActiva({ titulo: data.titulo, mensaje: data.mensaje, link: data.link || "", citaId: data.citaId });
         if (notifCitaTimer) clearTimeout(notifCitaTimer);

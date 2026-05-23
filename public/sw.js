@@ -31,6 +31,17 @@ const TIPOS_PERSISTENTES = [
 // ─── Track para evitar doble notificación entre push y onBackgroundMessage ─────
 const shownTags = new Set();
 
+// ─── Badge count nativo (iOS 16.4+ / Chrome Android) ─────────────────────────
+let badgeCount = 0;
+function incrementarBadge() {
+  badgeCount++;
+  if (self.navigator?.setAppBadge) self.navigator.setAppBadge(badgeCount).catch(() => {});
+}
+function limpiarBadge() {
+  badgeCount = 0;
+  if (self.navigator?.clearAppBadge) self.navigator.clearAppBadge().catch(() => {});
+}
+
 // ─── Función central que muestra la notificación ──────────────────────────────
 function mostrarNotificacion(data) {
   const tipo   = data.tipo    || 'general';
@@ -43,7 +54,8 @@ function mostrarNotificacion(data) {
   // Evitar duplicado si ya la mostró onBackgroundMessage o el push handler
   if (shownTags.has(tag)) return Promise.resolve();
   shownTags.add(tag);
-  setTimeout(() => shownTags.delete(tag), 2500); // ventana corta — permite re-alertas
+  setTimeout(() => shownTags.delete(tag), 2500);
+  incrementarBadge();
 
   // Firma táctil única por tipo — identifica la notificación sin mirar la pantalla
   const vibracion = {
@@ -186,6 +198,7 @@ messaging.onBackgroundMessage((payload) => {
 // ─── Click en notificación ────────────────────────────────────────────────────
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+  limpiarBadge();
   if (event.action === 'dismiss') return;
   const data = event.notification.data || {};
   const url  = data.link || 'https://mipsicologo.vercel.app';
@@ -194,10 +207,13 @@ self.addEventListener('notificationclick', (event) => {
       for (const c of list) {
         if ('focus' in c) { c.postMessage({ type:'NOTIFICATION_CLICK', data }); return c.focus(); }
       }
-      if (clients.openWindow) return clients.openWindow(url.startsWith('http') ? url : 'https://mipsicologo.vercel.app');
+      return clients.openWindow(url.startsWith('http') ? url : 'https://mipsicologo.vercel.app');
     })
   );
 });
+
+// ─── Descarte de notificación — limpiar badge ─────────────────────────────────
+self.addEventListener('notificationclose', () => { limpiarBadge(); });
 
 self.addEventListener('install',  () => self.skipWaiting());
 self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
