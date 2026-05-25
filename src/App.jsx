@@ -1252,7 +1252,14 @@ const handleSolicitarRegistro = async () => {
     setRegFecha(""); setRegContactoNombre(""); setRegContactoTel("");
     showScreen("registro-enviado");
   } catch(e) {
-    showToast("Error al enviar solicitud ❌");
+    console.error("handleSolicitarRegistro error:", e.code, e.message);
+    if (e.code === "permission-denied") {
+      showToast("Permiso denegado — el admin debe agregar la regla Firestore ❌");
+    } else if (e.code === "unavailable" || e.message?.includes("network")) {
+      showToast("Sin conexión. Verifica tu internet ❌");
+    } else {
+      showToast(`Error: ${e.code || e.message || "desconocido"} ❌`);
+    }
   }
   setRegLoading(false);
 };
