@@ -4071,9 +4071,9 @@ const styles = `
         <span style={{ fontSize:10, color:"rgba(255,255,255,.22)", fontWeight:700, letterSpacing:".10em", whiteSpace:"nowrap" }}>PACIENTE NUEVO</span>
         <div style={{ flex:1, height:"1px", background:"rgba(255,255,255,.07)" }}/>
       </div>
-      <button onClick={() => showScreen("registro")} style={{ width:"100%", height:46, background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.10)", borderRadius:14, color:"rgba(255,255,255,.65)", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit", letterSpacing:"-0.005em", touchAction:"manipulation", WebkitTapHighlightColor:"transparent", display:"flex", alignItems:"center", justifyContent:"center", gap:7 }}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-        Solicitar acceso como paciente
+      <button onClick={() => showScreen("registro")} style={{ width:"100%", height:50, background:"rgba(78,205,196,.12)", border:"1px solid rgba(78,205,196,.30)", borderRadius:14, color:"#6EEDDF", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit", letterSpacing:"-0.005em", touchAction:"manipulation", WebkitTapHighlightColor:"transparent", display:"flex", alignItems:"center", justifyContent:"center", gap:8, boxShadow:"0 0 0 0 rgba(78,205,196,0), 0 4px 16px rgba(78,205,196,.08), inset 0 1px 0 rgba(110,237,223,.12)", transition:"all 180ms ease" }}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6EEDDF" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Registro para nuevos pacientes
       </button>
     </div>
 
@@ -4094,11 +4094,11 @@ const styles = `
               onClick={handleInstall}
               disabled={installing}
               style={{
-                width:"100%", height:52,
-                background: installing ? "rgba(255,255,255,.06)" : "rgba(255,255,255,.11)",
-                border:"1px solid rgba(255,255,255,.22)",
+                width:"100%", height:50,
+                background: installing ? "rgba(255,255,255,.06)" : "rgba(255,179,71,.10)",
+                border: installing ? "1px solid rgba(255,255,255,.14)" : "1px solid rgba(255,179,71,.30)",
                 borderRadius:14,
-                color:"rgba(255,255,255,.92)",
+                color: installing ? "rgba(255,255,255,.55)" : "rgba(255,208,128,.92)",
                 fontSize:14, fontWeight:700,
                 cursor: installing ? "not-allowed" : "pointer",
                 fontFamily:"inherit",
@@ -4108,7 +4108,7 @@ const styles = `
                 WebkitTapHighlightColor:"transparent",
                 backdropFilter:"blur(12px)",
                 WebkitBackdropFilter:"blur(12px)",
-                boxShadow:"inset 0 1px 0 rgba(255,255,255,.12), 0 4px 16px rgba(0,0,0,.25)",
+                boxShadow: installing ? "none" : "0 4px 16px rgba(255,179,71,.08), inset 0 1px 0 rgba(255,208,128,.14)",
               }}>
               {installing ? (
                 <>
@@ -4117,7 +4117,7 @@ const styles = `
                 </>
               ) : (
                 <>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,208,128,.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   Instalar en este dispositivo
                 </>
               )}
