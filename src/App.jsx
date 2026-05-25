@@ -1273,6 +1273,7 @@ const cargarSolicitudesRegistro = async () => {
 
 const handleAprobarSolicitud = async (sol) => {
   try {
+    window._adminCreatingUser = true;
     const { user: nuevoUser } = await createUserWithEmailAndPassword(auth, sol.email, sol.pin + "**");
     const uid = nuevoUser.uid;
     await setDoc(doc(db, "usuarios", uid), {
@@ -1295,11 +1296,13 @@ const handleAprobarSolicitud = async (sol) => {
     const adminEmail = usuarioActual.email;
     await signOut(auth);
     await signInWithEmailAndPassword(auth, adminEmail, formPinAdmin + "**");
+    window._adminCreatingUser = false;
     showToast(`✅ ${sol.nombre} aprobado y cuenta creada`);
     cargarSolicitudesRegistro();
     cargarTodosUsuarios();
     setModal(null);
   } catch(e) {
+    window._adminCreatingUser = false;
     console.log(e);
     showToast("Error al aprobar: " + (e.message || "❌"));
   }
@@ -2590,6 +2593,7 @@ const sumarXP = async (puntos, motivo) => {
 };
 useEffect(() => {
   const unsub = auth.onAuthStateChanged(async (user) => {
+    if (window._adminCreatingUser) { setCheckingAuth(false); return; }
     if (user) {
       const docSnap = await getDoc(doc(db, "usuarios", user.uid));
       if (docSnap.exists()) {
