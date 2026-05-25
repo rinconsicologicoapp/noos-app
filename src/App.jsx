@@ -7992,17 +7992,24 @@ const styles = `
                 )}
 
                 {/* LISTA PACIENTES */}
-                <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>👤 Lista de pacientes</div>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+                  <div style={{ fontSize:13, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>Mis pacientes</div>
+                  {pacientes.length > 0 && (
+                    <div style={{ fontSize:11, fontWeight:700, color:C.green, background:`${C.green}18`, padding:"3px 10px", borderRadius:20 }}>{pacientes.length}</div>
+                  )}
+                </div>
                 {pacientes.length === 0 ? (
-                  <div style={{ textAlign:"center", padding:40, color:C.light }}>
-                    <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
-                      <LucideIcon name="users" color={C.light} size={40}/>
+                  <div style={{ textAlign:"center", padding:"40px 24px", color:C.light }}>
+                    <div style={{ width:56, height:56, borderRadius:"50%", background:"rgba(0,0,0,.05)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 12px" }}>
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" fill="#B8C8B8"/><path d="M1 20c0-4 3.6-7 8-7" stroke="#B8C8B8" strokeWidth="2" strokeLinecap="round"/><circle cx="17" cy="9" r="3" fill="#B8C8B8"/><path d="M13 20c0-3 2.7-5 6-5" stroke="#B8C8B8" strokeWidth="2" strokeLinecap="round"/></svg>
                     </div>
-                    <div style={{ fontSize:14, fontWeight:700 }}>Sin pacientes aún</div>
-                    <div style={{ fontSize:12, marginTop:4 }}>El admin debe crear y asignarte pacientes</div>
+                    <div style={{ fontSize:14, fontWeight:700, color:C.text }}>Sin pacientes aún</div>
+                    <div style={{ fontSize:12, marginTop:4, lineHeight:1.5 }}>El admin debe crear y asignarte pacientes</div>
                   </div>
                 ) : (
-                  pacientes.map(p => (
+                  pacientes.map(p => {
+                    const isEmoji = p.avatar && typeof p.avatar === "string" && /^\p{Emoji}/u.test(p.avatar) && p.avatar.length <= 4;
+                    return (
                     <div key={p.id} onClick={async () => {
                       let pacienteFresh = p;
                       try {
@@ -8021,25 +8028,29 @@ const styles = `
                       setHabitosPacienteId(p.id);
                       showScreen("admin-paciente");
                     }}
-                      style={{ background:"#FFFFFF", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:9, border:"1px solid rgba(0,0,0,.11)", cursor:"pointer" }}>
-                      <div style={{ width:46, height:46, borderRadius:14, overflow:"hidden",
-                        background:"#D8E4D8",
-                        display:"flex", alignItems:"center", justifyContent:"center",
-                        fontSize:18, fontWeight:800, color:"#4A7A55", flexShrink:0 }}>
+                      style={{ background:"#FFFFFF", borderRadius:16, padding:"11px 14px", display:"flex", alignItems:"center", gap:13, marginBottom:8, border:"1px solid rgba(0,0,0,.07)", cursor:"pointer", boxShadow:"0 1px 4px rgba(0,0,0,.04)", transition:"box-shadow 140ms ease", WebkitTapHighlightColor:"transparent", touchAction:"manipulation" }}>
+                      {/* Avatar */}
+                      <div style={{ width:48, height:48, borderRadius:"50%", overflow:"hidden", flexShrink:0, background:"#EEF2EE", border:"1.5px solid rgba(0,0,0,.07)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                         {p.foto
-                          ? <img src={p.foto} alt="" style={{ width:46, height:46, objectFit:"cover" }}/>
-                          : (p.avatar && typeof p.avatar === "string" && !p.avatar.startsWith("http"))
-                            ? <span style={{ fontSize:22 }}>{p.avatar}</span>
-                            : <span>{p.nombre?.charAt(0).toUpperCase()}</span>
+                          ? <img src={p.foto} alt="" style={{ width:48, height:48, objectFit:"cover" }}/>
+                          : isEmoji
+                            ? <span style={{ fontSize:24, lineHeight:1 }}>{p.avatar}</span>
+                            : <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="8" r="4" fill="#AABCAA"/>
+                                <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="#AABCAA"/>
+                              </svg>
                         }
                       </div>
-                      <div style={{ flex:1 }}>
-                        <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{p.nombre}</div>
-                        <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{p.email}</div>                        
+                      {/* Info */}
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontSize:14, fontWeight:700, color:C.text, letterSpacing:"-0.01em", lineHeight:1.2 }}>{p.nombre}</div>
+                        <div style={{ fontSize:11, color:C.light, marginTop:3, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.email}</div>
                       </div>
-                      <div style={{ color:C.light, fontSize:20, fontWeight:300 }}>›</div>
+                      {/* Chevron */}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.light} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}><polyline points="9 18 15 12 9 6"/></svg>
                     </div>
-                  ))
+                    );
+                  })
                 )}                               
 
 {recordatorios.filter(r => r.pacienteId === pacienteSeleccionado?.id).length > 0 && (
