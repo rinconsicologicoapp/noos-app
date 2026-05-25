@@ -2413,8 +2413,14 @@ const toggleSeleccion = (uid) => {
   );
 };
   const handleCrearUsuarioAdmin = async () => {
+  if (formLoading) return;
   if (!formNombre || !formEmail || !formTel || !formFecha || formPin.length < 4) {
     showToast("Completa todos los campos ❌");
+    return;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(formEmail.trim())) {
+    showToast("El correo no es válido (ej: nombre@correo.com) ❌");
     return;
   }
   setFormLoading(true);
@@ -8149,45 +8155,68 @@ const styles = `
   return (
     <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
 
-      {/* Header */}
-      <div style={{ background:`linear-gradient(145deg,${C.dark},#1E4D2B)`, padding:"16px 18px 14px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <div>
-            <div style={{ fontSize:17, fontWeight:900, color:"white", letterSpacing:"-0.01em" }}>Psicólogos</div>
-            <div style={{ fontSize:11, color:"rgba(255,255,255,0.55)", marginTop:2 }}>{psicologos.length} registrado{psicologos.length !== 1 ? "s" : ""}</div>
+      {/* ── HEADER ── */}
+      <div style={{ background:`linear-gradient(150deg, #0F2015 0%, #1A3525 60%, #0F2015 100%)`, padding:"18px 18px 16px", paddingTop:"max(18px, env(safe-area-inset-top, 18px))", flexShrink:0, position:"relative", overflow:"hidden" }}>
+        <div style={{ position:"absolute", top:-20, right:-10, width:100, height:100, borderRadius:"50%", background:"rgba(78,205,196,.08)", filter:"blur(24px)", pointerEvents:"none" }}/>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:0, position:"relative" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+            <div onClick={() => goBack()} style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.10)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </div>
+            <div>
+              <div style={{ fontSize:9, fontWeight:700, color:"rgba(110,237,223,.6)", letterSpacing:".16em", textTransform:"uppercase", marginBottom:2 }}>Administración</div>
+              <div style={{ fontSize:19, fontWeight:900, color:"white", letterSpacing:"-0.02em", lineHeight:1.1 }}>Psicólogos <span style={{ fontWeight:500, fontSize:14, color:"rgba(255,255,255,.45)" }}>({psicologos.length})</span></div>
+            </div>
           </div>
           <div onClick={() => { setBroadcastTipo("psicologos"); setBroadcastTitulo(""); setBroadcastMensaje(""); setModal("broadcast"); }}
-            style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"rgba(255,255,255,.12)", border:"1px solid rgba(255,255,255,.18)", borderRadius:20, cursor:"pointer", touchAction:"manipulation" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            style={{ display:"flex", alignItems:"center", gap:5, padding:"8px 13px", background:"rgba(255,255,255,.10)", border:"1px solid rgba(255,255,255,.14)", borderRadius:20, cursor:"pointer", touchAction:"manipulation" }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             <span style={{ fontSize:11, fontWeight:700, color:"white" }}>Notificar</span>
           </div>
         </div>
       </div>
 
-      {/* Lista */}
-      <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:NAV_PB }}>
+      {/* ── LISTA ── */}
+      <div style={{ flex:1, overflowY:"auto", padding:"14px 14px", paddingBottom:NAV_PB }}>
         {psicologos.length === 0 ? (
-          <div style={{ textAlign:"center", padding:32, color:C.light, fontSize:13 }}>No hay psicólogos registrados</div>
+          <div style={{ background:"white", borderRadius:20, padding:"40px 24px", textAlign:"center", border:"1px solid rgba(0,0,0,.07)" }}>
+            <div style={{ width:64, height:64, borderRadius:18, background:"rgba(30,77,43,.08)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 14px" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="1.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:4 }}>Sin psicólogos aún</div>
+            <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>Agrega psicólogos desde el panel principal</div>
+          </div>
         ) : psicologos.map(p => {
           const susPacientes = pacientesAll.filter(u => u.psicologoId === p.id);
           const sinPsicologo = pacientesAll.filter(u => !u.psicologoId || u.psicologoId === "");
           return (
-            <div key={p.id} style={{ background:"#FFFFFF", borderRadius:16, marginBottom:12, border:"1px solid rgba(0,0,0,.08)", overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,.06)" }}>
+            <div key={p.id} style={{ background:"white", borderRadius:20, marginBottom:14, border:"1px solid rgba(0,0,0,.07)", overflow:"hidden", boxShadow:"0 2px 8px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04)" }}>
 
               {/* — Cabecera del card — */}
-              <div style={{ padding:"14px 14px 12px", borderBottom:"1px solid rgba(0,0,0,.06)" }}>
-                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-                  <div style={{ width:44, height:44, background:"linear-gradient(135deg,#3D7A52,#1E4D2B)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <div style={{ padding:"16px 16px 14px" }}>
+                <div style={{ display:"flex", alignItems:"flex-start", gap:12, marginBottom:14 }}>
+                  <div style={{ width:48, height:48, background:"linear-gradient(135deg,#3D7A52,#1E4D2B)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, boxShadow:"0 4px 12px rgba(30,77,43,.30)" }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontSize:14, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>{p.nombre}</div>
-                    <div style={{ fontSize:11, color:C.light, marginTop:1, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.email}</div>
-                    {p.especialidad && <div style={{ fontSize:10, color:"#3D7A52", fontWeight:700, marginTop:2 }}>{p.especialidad}{p.enfoque ? ` · ${p.enfoque}` : ""}</div>}
+                    <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3 }}>
+                      <div style={{ fontSize:15, fontWeight:800, color:C.text, letterSpacing:"-0.015em", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.nombre}</div>
+                      {p.verificado && (
+                        <div style={{ width:16, height:16, borderRadius:"50%", background:"linear-gradient(135deg,#3B82F6,#1D4ED8)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, boxShadow:"0 2px 6px rgba(59,130,246,.40)" }}>
+                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ fontSize:11, color:C.light, marginBottom:4, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.email}</div>
+                    {p.especialidad && (
+                      <div style={{ fontSize:10, fontWeight:700, color:"#3D7A52", background:"rgba(30,77,43,.08)", padding:"3px 8px", borderRadius:20, display:"inline-block" }}>
+                        {p.especialidad}{p.enfoque ? ` · ${p.enfoque}` : ""}
+                      </div>
+                    )}
                   </div>
-                  <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:5 }}>
-                    <span style={{ background:p.inactivo?"rgba(255,107,107,.15)":"rgba(30,77,43,.12)", color:p.inactivo?C.red:"#1E4D2B", fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
-                      {p.inactivo ? "Inactivo" : "Activo"}
+                  <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:6 }}>
+                    <span style={{ background:p.inactivo?"rgba(255,107,107,.12)":"rgba(30,77,43,.10)", color:p.inactivo?C.red:"#1E4D2B", fontSize:9, fontWeight:800, padding:"4px 9px", borderRadius:20, letterSpacing:".04em" }}>
+                      {p.inactivo ? "Inactivo" : "● Activo"}
                     </span>
                     <div onClick={async () => {
                       try {
@@ -8196,40 +8225,55 @@ const styles = `
                         await cargarTodosUsuarios();
                       } catch(e) { showToast("Error ❌"); }
                     }} style={{ display:"flex", alignItems:"center", gap:4, cursor:"pointer", background: p.verificado ? "linear-gradient(135deg,#3B82F6,#1D4ED8)" : "rgba(0,0,0,.06)", borderRadius:20, padding:"4px 10px", touchAction:"manipulation" }}>
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={p.verificado?"white":"rgba(0,0,0,.35)"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span style={{ fontSize:9, fontWeight:800, color: p.verificado?"white":"rgba(0,0,0,.4)" }}>{p.verificado?"Verificado":"Verificar"}</span>
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={p.verificado?"white":"rgba(0,0,0,.35)"} strokeWidth="3.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span style={{ fontSize:9, fontWeight:800, color: p.verificado?"white":"rgba(0,0,0,.4)", letterSpacing:".02em" }}>{p.verificado?"Verificado":"Verificar"}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Botones Editar / Eliminar */}
-                <div style={{ display:"flex", gap:8 }}>
-                  <div onClick={() => abrirEditar(p)} style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"8px 0", background:"rgba(30,77,43,.09)", border:"1px solid rgba(30,77,43,.18)", borderRadius:10, cursor:"pointer", touchAction:"manipulation" }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    <span style={{ fontSize:12, fontWeight:700, color:"#1E4D2B" }}>Editar</span>
+                {/* Toggle activo + Editar / Eliminar */}
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:7 }}>
+                  <div onClick={async () => {
+                    try {
+                      await updateDoc(doc(db, "usuarios", p.id), { inactivo: !p.inactivo });
+                      showToast(!p.inactivo ? "Psicólogo desactivado" : "Psicólogo activado ✅");
+                      await cargarTodosUsuarios();
+                    } catch(e) { showToast("Error ❌"); }
+                  }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"9px 0", background: p.inactivo ? "rgba(30,77,43,.09)" : "rgba(255,107,107,.08)", border:`1px solid ${p.inactivo ? "rgba(30,77,43,.18)" : "rgba(255,107,107,.20)"}`, borderRadius:11, cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={p.inactivo?"#1E4D2B":C.red} strokeWidth="2" strokeLinecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+                    <span style={{ fontSize:10, fontWeight:700, color: p.inactivo?"#1E4D2B":C.red }}>{p.inactivo?"Activar":"Pausar"}</span>
                   </div>
-                  <div onClick={() => { setPsicoEliminar(p); setModal("confirmar-eliminar-psicologo"); }} style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"8px 0", background:"rgba(255,107,107,.08)", border:"1px solid rgba(255,107,107,.20)", borderRadius:10, cursor:"pointer", touchAction:"manipulation" }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                    <span style={{ fontSize:12, fontWeight:700, color:C.red }}>Eliminar</span>
+                  <div onClick={() => abrirEditar(p)} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"9px 0", background:"rgba(30,77,43,.09)", border:"1px solid rgba(30,77,43,.18)", borderRadius:11, cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <span style={{ fontSize:10, fontWeight:700, color:"#1E4D2B" }}>Editar</span>
+                  </div>
+                  <div onClick={() => { setPsicoEliminar(p); setModal("confirmar-eliminar-psicologo"); }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"9px 0", background:"rgba(255,107,107,.08)", border:"1px solid rgba(255,107,107,.20)", borderRadius:11, cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                    <span style={{ fontSize:10, fontWeight:700, color:C.red }}>Eliminar</span>
                   </div>
                 </div>
               </div>
 
               {/* — Pacientes asignados — */}
-              <div style={{ padding:"10px 14px" }}>
-                <div style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".14em", textTransform:"uppercase", marginBottom:8 }}>
-                  Pacientes asignados ({susPacientes.length})
+              <div style={{ background:"#F7F9F7", borderTop:"1px solid rgba(0,0,0,.05)", padding:"12px 16px" }}>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+                  <div style={{ fontSize:9, fontWeight:700, color:"rgba(30,77,43,.50)", letterSpacing:".14em", textTransform:"uppercase" }}>
+                    Pacientes ({susPacientes.length})
+                  </div>
+                  {susPacientes.length > 0 && (
+                    <div style={{ fontSize:10, fontWeight:700, color:"#3D7A52" }}>{susPacientes.length} asignado{susPacientes.length!==1?"s":""}</div>
+                  )}
                 </div>
                 {susPacientes.length === 0 ? (
-                  <div style={{ fontSize:11, color:C.light, fontStyle:"italic", marginBottom:6 }}>Sin pacientes aún</div>
+                  <div style={{ fontSize:11, color:C.light, fontStyle:"italic", marginBottom:8, textAlign:"center", padding:"8px 0" }}>Sin pacientes asignados aún</div>
                 ) : susPacientes.map(pac => (
-                  <div key={pac.id} style={{ display:"flex", alignItems:"center", gap:8, background:"#F0F2F0", borderRadius:10, padding:"8px 10px", marginBottom:6 }}>
-                    <div style={{ width:28, height:28, borderRadius:8, background:"rgba(30,77,43,.12)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <div key={pac.id} style={{ display:"flex", alignItems:"center", gap:8, background:"white", borderRadius:11, padding:"8px 10px", marginBottom:6, border:"1px solid rgba(0,0,0,.06)" }}>
+                    <div style={{ width:28, height:28, borderRadius:8, background:"rgba(255,123,90,.10)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{pac.nombre}</div>
-                      <div style={{ fontSize:10, color:C.light }}>{pac.email}</div>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:C.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{pac.nombre}</div>
+                      <div style={{ fontSize:10, color:C.light, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{pac.email}</div>
                     </div>
                     {btn(async () => {
                       try {
@@ -8237,14 +8281,13 @@ const styles = `
                         showToast(`${pac.nombre} desvinculado ✅`);
                         await cargarTodosUsuarios();
                       } catch(e) { showToast("Error ❌"); }
-                    }, "Quitar", { padding:"5px 11px", background:"rgba(255,107,107,.12)", color:C.red, borderRadius:8, fontSize:10, fontWeight:800 })}
+                    }, "Quitar", { padding:"5px 11px", background:"rgba(255,107,107,.10)", color:C.red, borderRadius:8, fontSize:10, fontWeight:800, border:"1px solid rgba(255,107,107,.18)" })}
                   </div>
                 ))}
 
-                {/* Asignar paciente sin psicólogo */}
                 {sinPsicologo.length > 0 && (
-                  <div style={{ marginTop:8 }}>
-                    <select style={{ width:"100%", padding:"9px 12px", border:"1px solid rgba(30,77,43,.18)", borderRadius:10, fontSize:12, background:"#FFFFFF", color:C.text, fontFamily:"inherit" }}
+                  <div style={{ marginTop:susPacientes.length>0?6:0 }}>
+                    <select style={{ width:"100%", padding:"9px 12px", border:"1px solid rgba(30,77,43,.18)", borderRadius:11, fontSize:11, background:"white", color:C.text, fontFamily:"inherit", color:C.light }}
                       defaultValue=""
                       onChange={async (e) => {
                         const pacId = e.target.value;
@@ -8396,82 +8439,106 @@ const styles = `
   return (
     <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
 
-      {/* Header */}
-      <div style={{ background:`linear-gradient(145deg,${C.dark},#1E4D2B)`, padding:"16px 18px 14px", paddingTop:"max(16px, env(safe-area-inset-top, 16px))", flexShrink:0 }}>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
-          <div>
-            <div style={{ fontSize:17, fontWeight:900, color:"white", letterSpacing:"-0.01em" }}>Pacientes</div>
-            <div style={{ fontSize:11, color:"rgba(255,255,255,0.55)" }}>{todosPacientes.length} registrados</div>
+      {/* ── HEADER ── */}
+      <div style={{ background:`linear-gradient(150deg, #0F2015 0%, #1A3525 60%, #0F2015 100%)`, padding:"18px 18px 14px", paddingTop:"max(18px, env(safe-area-inset-top, 18px))", flexShrink:0, position:"relative", overflow:"hidden" }}>
+        <div style={{ position:"absolute", top:-24, left:-12, width:90, height:90, borderRadius:"50%", background:"rgba(255,123,90,.08)", filter:"blur(20px)", pointerEvents:"none" }}/>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12, position:"relative" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+            <div onClick={() => goBack()} style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.10)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </div>
+            <div>
+              <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,155,122,.65)", letterSpacing:".16em", textTransform:"uppercase", marginBottom:2 }}>Administración</div>
+              <div style={{ fontSize:19, fontWeight:900, color:"white", letterSpacing:"-0.02em", lineHeight:1.1 }}>Pacientes <span style={{ fontWeight:500, fontSize:14, color:"rgba(255,255,255,.45)" }}>({todosPacientes.length})</span></div>
+            </div>
           </div>
           <div onClick={() => { setBroadcastTipo("pacientes"); setBroadcastTitulo(""); setBroadcastMensaje(""); setModal("broadcast"); }}
-            style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"rgba(255,255,255,.12)", border:"1px solid rgba(255,255,255,.18)", borderRadius:20, cursor:"pointer", touchAction:"manipulation" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            style={{ display:"flex", alignItems:"center", gap:5, padding:"8px 13px", background:"rgba(255,255,255,.10)", border:"1px solid rgba(255,255,255,.14)", borderRadius:20, cursor:"pointer", touchAction:"manipulation" }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             <span style={{ fontSize:11, fontWeight:700, color:"white" }}>Notificar</span>
           </div>
         </div>
-        <div style={{ position:"relative", marginTop:10 }}>
+        {/* Buscador */}
+        <div style={{ position:"relative" }}>
           <input placeholder="Buscar por nombre o correo..." value={adminBusqueda} onChange={e => setAdminBusqueda(e.target.value)}
-            style={{ width:"100%", padding:"9px 12px 9px 34px", borderRadius:12, border:"none", fontSize:12, background:"rgba(0,0,0,.18)", color:"white", fontFamily:"inherit", outline:"none", boxSizing:"border-box" }}/>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="2" strokeLinecap="round" style={{ position:"absolute", left:11, top:"50%", transform:"translateY(-50%)" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            style={{ width:"100%", padding:"10px 12px 10px 36px", borderRadius:13, border:"1px solid rgba(255,255,255,.12)", fontSize:12, background:"rgba(255,255,255,.10)", color:"white", fontFamily:"inherit", outline:"none", boxSizing:"border-box", backdropFilter:"blur(8px)" }}/>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" strokeWidth="2" strokeLinecap="round" style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          {adminBusqueda && (
+            <div onClick={() => setAdminBusqueda("")} style={{ position:"absolute", right:10, top:"50%", transform:"translateY(-50%)", width:20, height:20, borderRadius:"50%", background:"rgba(255,255,255,.20)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Lista */}
-      <div style={{ flex:1, overflowY:"auto", padding:14, paddingBottom:NAV_PB }}>
+      {/* ── LISTA ── */}
+      <div style={{ flex:1, overflowY:"auto", padding:"14px 14px", paddingBottom:NAV_PB }}>
         {pacientes.length === 0 ? (
-          <div style={{ textAlign:"center", padding:32, color:C.light, fontSize:13 }}>
-            {adminBusqueda ? "Sin resultados" : "No hay pacientes registrados"}
+          <div style={{ background:"white", borderRadius:20, padding:"40px 24px", textAlign:"center", border:"1px solid rgba(0,0,0,.07)" }}>
+            <div style={{ width:64, height:64, borderRadius:18, background:"rgba(255,123,90,.08)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 14px" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.5" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div style={{ fontSize:14, fontWeight:800, color:C.text, marginBottom:4 }}>
+              {adminBusqueda ? "Sin resultados para esa búsqueda" : "No hay pacientes registrados"}
+            </div>
+            <div style={{ fontSize:12, color:C.light, lineHeight:1.5 }}>
+              {adminBusqueda ? "Intenta con otro nombre o correo" : "Agrega pacientes desde el panel principal"}
+            </div>
           </div>
         ) : pacientes.map(pac => {
           const psi = psicologos.find(p => p.id === pac.psicologoId);
           return (
-            <div key={pac.id} style={{ background:"#FFFFFF", borderRadius:16, marginBottom:10, border:"1px solid rgba(0,0,0,.08)", overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,.06)" }}>
+            <div key={pac.id} style={{ background:"white", borderRadius:20, marginBottom:12, border:"1px solid rgba(0,0,0,.07)", overflow:"hidden", boxShadow:"0 2px 8px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04)" }}>
               {/* Cabecera */}
-              <div style={{ padding:"13px 14px 10px", borderBottom:"1px solid rgba(0,0,0,.06)" }}>
-                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-                  <div style={{ width:40, height:40, background:"rgba(255,123,90,.12)", borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <div style={{ padding:"15px 16px 14px" }}>
+                <div style={{ display:"flex", alignItems:"flex-start", gap:12, marginBottom:13 }}>
+                  <div style={{ width:44, height:44, background:"linear-gradient(135deg, rgba(255,123,90,.18) 0%, rgba(255,90,54,.12) 100%)", borderRadius:13, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, border:"1px solid rgba(255,123,90,.20)" }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontSize:13, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>{pac.nombre}</div>
-                    <div style={{ fontSize:10, color:C.light, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{pac.email}</div>
-                    {psi && <div style={{ fontSize:10, color:"#3D7A52", fontWeight:700, marginTop:2 }}>🧠 {psi.nombre}</div>}
+                    <div style={{ fontSize:14, fontWeight:800, color:C.text, letterSpacing:"-0.015em", marginBottom:2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{pac.nombre}</div>
+                    <div style={{ fontSize:11, color:C.light, marginBottom:psi?4:0, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{pac.email}</div>
+                    {psi && (
+                      <div style={{ display:"inline-flex", alignItems:"center", gap:4, background:"rgba(30,77,43,.08)", padding:"3px 8px", borderRadius:20 }}>
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="2.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span style={{ fontSize:10, fontWeight:700, color:"#3D7A52" }}>{psi.nombre}</span>
+                      </div>
+                    )}
                   </div>
-                  {/* Toggle activo/inactivo */}
                   <div onClick={async () => {
                     try {
                       await updateDoc(doc(db,"usuarios",pac.id), { inactivo: !pac.inactivo });
                       showToast(pac.inactivo ? `${pac.nombre} activado ✅` : `${pac.nombre} desactivado`);
                       await cargarTodosUsuarios();
                     } catch(e) { showToast("Error ❌"); }
-                  }} style={{ padding:"5px 10px", borderRadius:20, cursor:"pointer", touchAction:"manipulation",
-                    background: pac.inactivo ? "rgba(255,107,107,.12)" : "rgba(30,77,43,.12)",
-                    border: `1px solid ${pac.inactivo ? "rgba(255,107,107,.25)" : "rgba(30,77,43,.22)"}` }}>
-                    <span style={{ fontSize:9, fontWeight:800, color: pac.inactivo ? C.red : "#1E4D2B" }}>
-                      {pac.inactivo ? "Inactivo" : "Activo"}
+                  }} style={{ padding:"5px 10px", borderRadius:20, cursor:"pointer", touchAction:"manipulation", flexShrink:0,
+                    background: pac.inactivo ? "rgba(255,107,107,.10)" : "rgba(30,77,43,.10)",
+                    border: `1px solid ${pac.inactivo ? "rgba(255,107,107,.22)" : "rgba(30,77,43,.20)"}` }}>
+                    <span style={{ fontSize:9, fontWeight:800, color: pac.inactivo ? C.red : "#1E4D2B", letterSpacing:".02em" }}>
+                      {pac.inactivo ? "Inactivo" : "● Activo"}
                     </span>
                   </div>
                 </div>
                 {/* Botones acción */}
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:6 }}>
-                  <div onClick={() => abrirEditarPac(pac)} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"7px 0", background:"rgba(30,77,43,.09)", border:"1px solid rgba(30,77,43,.18)", borderRadius:9, cursor:"pointer", touchAction:"manipulation" }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:7 }}>
+                  <div onClick={() => abrirEditarPac(pac)} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"9px 0", background:"rgba(30,77,43,.09)", border:"1px solid rgba(30,77,43,.18)", borderRadius:11, cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     <span style={{ fontSize:10, fontWeight:700, color:"#1E4D2B" }}>Editar</span>
                   </div>
-                  <div onClick={() => { setResetPinUsuario(pac); setResetPinGenerado(""); setModal("reset-pin"); }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"7px 0", background:"rgba(255,179,71,.09)", border:"1px solid rgba(255,179,71,.25)", borderRadius:9, cursor:"pointer", touchAction:"manipulation" }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <div onClick={() => { setResetPinUsuario(pac); setResetPinGenerado(""); setModal("reset-pin"); }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"9px 0", background:"rgba(255,179,71,.09)", border:"1px solid rgba(255,179,71,.22)", borderRadius:11, cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <span style={{ fontSize:10, fontWeight:700, color:C.amber }}>PIN</span>
                   </div>
-                  <div onClick={() => { setPacienteEliminar(pac); setModal("confirmar-eliminar-paciente"); }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"7px 0", background:"rgba(255,107,107,.08)", border:"1px solid rgba(255,107,107,.20)", borderRadius:9, cursor:"pointer", touchAction:"manipulation" }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                  <div onClick={() => { setPacienteEliminar(pac); setModal("confirmar-eliminar-paciente"); }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"9px 0", background:"rgba(255,107,107,.07)", border:"1px solid rgba(255,107,107,.18)", borderRadius:11, cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
                     <span style={{ fontSize:10, fontWeight:700, color:C.red }}>Eliminar</span>
                   </div>
                 </div>
               </div>
-              {/* Cambiar psicólogo */}
-              <div style={{ padding:"10px 14px" }}>
-                <div style={{ fontSize:9, fontWeight:800, color:"rgba(30,77,43,.45)", letterSpacing:".12em", textTransform:"uppercase", marginBottom:6 }}>Psicólogo asignado</div>
-                <select style={{ width:"100%", padding:"8px 12px", border:"1px solid rgba(30,77,43,.18)", borderRadius:10, fontSize:12, background:"#FFFFFF", color:C.text, fontFamily:"inherit" }}
+              {/* Asignar psicólogo */}
+              <div style={{ background:"#F7F9F7", borderTop:"1px solid rgba(0,0,0,.05)", padding:"10px 16px" }}>
+                <div style={{ fontSize:9, fontWeight:700, color:"rgba(30,77,43,.50)", letterSpacing:".14em", textTransform:"uppercase", marginBottom:7 }}>Psicólogo asignado</div>
+                <select style={{ width:"100%", padding:"9px 12px", border:"1px solid rgba(30,77,43,.18)", borderRadius:11, fontSize:12, background:"white", color: pac.psicologoId ? C.text : C.light, fontFamily:"inherit" }}
                   value={pac.psicologoId || ""}
                   onChange={async (e) => {
                     const psiId = e.target.value;
@@ -8482,7 +8549,7 @@ const styles = `
                       await cargarTodosUsuarios();
                     } catch(err) { showToast("Error ❌"); }
                   }}>
-                  <option value="">— Sin psicólogo —</option>
+                  <option value="">— Sin psicólogo asignado —</option>
                   {psicologos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
               </div>
@@ -9926,61 +9993,208 @@ const styles = `
   );
 })()}
 
-{!notifPanel && screen === "admin-home" && (
-  <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB }}>
-    <div style={{ background:`linear-gradient(145deg,${C.dark},${C.plum})`, padding:"18px 22px 22px", display:"flex", alignItems:"center", gap:12 }}>
-      <div style={{ width:44, height:44, display:"flex", alignItems:"center", justifyContent:"center" }}>
-        <LucideIcon name="crown" color="#FFB347" size={34}/>
+{/* ADMIN — PAGOS */}
+{!notifPanel && screen === "admin-pagos" && (() => {
+  const pacientesConPago = todosUsuarios.filter(u => u.rol === "paciente");
+  const totalRecaudado = pacientesConPago.reduce((sum, p) => sum + (p.montoPagado || 0), 0);
+  const pendientes = pacientesConPago.filter(p => p.estadoPago === "pendiente" || !p.estadoPago).length;
+  const alDia = pacientesConPago.filter(p => p.estadoPago === "al_dia").length;
+  return (
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
+      {/* Header */}
+      <div style={{ background:`linear-gradient(150deg, #0F2015 0%, #1A3525 60%, #0F2015 100%)`, padding:"18px 18px 22px", paddingTop:"max(18px, env(safe-area-inset-top, 18px))", flexShrink:0, position:"relative", overflow:"hidden" }}>
+        <div style={{ position:"absolute", top:-20, right:-10, width:100, height:100, borderRadius:"50%", background:"rgba(255,179,71,.10)", filter:"blur(24px)", pointerEvents:"none" }}/>
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20, position:"relative" }}>
+          <div onClick={() => goBack()} style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.10)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </div>
+          <div>
+            <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,179,71,.65)", letterSpacing:".16em", textTransform:"uppercase", marginBottom:2 }}>Administración</div>
+            <div style={{ fontSize:19, fontWeight:900, color:"white", letterSpacing:"-0.02em" }}>Pagos</div>
+          </div>
+        </div>
+        {/* KPI cards */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, position:"relative" }}>
+          {[
+            { val: `$${totalRecaudado.toLocaleString("es-CO")}`, lb:"Recaudado", color:"#FFD080" },
+            { val: alDia, lb:"Al día", color:"#6EEDDF" },
+            { val: pendientes, lb:"Pendientes", color:"#FF9B7A" },
+          ].map(({ val, lb, color }) => (
+            <div key={lb} style={{ background:"rgba(255,255,255,.07)", border:"1px solid rgba(255,255,255,.09)", borderRadius:12, padding:"12px 8px", textAlign:"center" }}>
+              <div style={{ fontSize:20, fontWeight:900, color, letterSpacing:"-0.02em", lineHeight:1 }}>{val}</div>
+              <div style={{ fontSize:9, fontWeight:600, color:"rgba(255,255,255,.45)", marginTop:3, letterSpacing:".04em" }}>{lb}</div>
+            </div>
+          ))}
+        </div>
       </div>
-      <div style={{ flex:1 }}>
-        <div style={{ fontSize:16, fontWeight:700, color:"white" }}>Panel Administrador</div>
-        <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontWeight:600 }}>Mipsicologo · Control total</div>
+
+      <div style={{ flex:1, overflowY:"auto", padding:"16px 14px", paddingBottom:NAV_PB }}>
+        {/* Coming soon banner */}
+        <div style={{ background:"white", borderRadius:20, padding:"28px 20px", textAlign:"center", border:"1px solid rgba(0,0,0,.07)", boxShadow:"0 2px 8px rgba(0,0,0,.06)", marginBottom:14 }}>
+          <div style={{ width:64, height:64, borderRadius:18, background:"linear-gradient(135deg,rgba(255,179,71,.15),rgba(255,123,90,.10))", border:"1px solid rgba(255,179,71,.22)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFB347" strokeWidth="1.5" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div style={{ fontSize:16, fontWeight:900, color:C.text, letterSpacing:"-0.02em", marginBottom:6 }}>Gestión de pagos</div>
+          <div style={{ fontSize:12, color:C.light, lineHeight:1.6, marginBottom:20, maxWidth:260, margin:"0 auto 20px" }}>
+            Módulo completo de cobros, historial y recordatorios. Disponible próximamente.
+          </div>
+          <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(255,179,71,.10)", border:"1px solid rgba(255,179,71,.20)", borderRadius:20, padding:"7px 16px" }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.amber} strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span style={{ fontSize:11, fontWeight:700, color:C.amber }}>En desarrollo</span>
+          </div>
+        </div>
+
+        {/* Lista de pacientes con estado de pago */}
+        <div style={{ fontSize:9, fontWeight:700, color:C.light, letterSpacing:".14em", textTransform:"uppercase", marginBottom:10 }}>Pacientes</div>
+        {pacientesConPago.length === 0 ? (
+          <div style={{ background:"white", borderRadius:16, padding:20, textAlign:"center", color:C.light, fontSize:12, border:"1px solid rgba(0,0,0,.07)" }}>Sin pacientes registrados</div>
+        ) : pacientesConPago.map(pac => {
+          const estado = pac.estadoPago || "pendiente";
+          const estadoColor = estado === "al_dia" ? "#1E4D2B" : estado === "vencido" ? C.red : C.amber;
+          const estadoBg = estado === "al_dia" ? "rgba(30,77,43,.10)" : estado === "vencido" ? "rgba(255,107,107,.10)" : "rgba(255,179,71,.10)";
+          const estadoLabel = estado === "al_dia" ? "Al día" : estado === "vencido" ? "Vencido" : "Pendiente";
+          const psiObj = todosUsuarios.find(u => u.id === pac.psicologoId);
+          return (
+            <div key={pac.id} style={{ background:"white", borderRadius:16, marginBottom:9, border:"1px solid rgba(0,0,0,.07)", overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
+              <div style={{ padding:"13px 14px", display:"flex", alignItems:"center", gap:11 }}>
+                <div style={{ width:38, height:38, borderRadius:11, background:"rgba(255,123,90,.10)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:13, fontWeight:800, color:C.text, letterSpacing:"-0.01em", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{pac.nombre}</div>
+                  {psiObj && <div style={{ fontSize:10, color:C.light, marginTop:1 }}>🧠 {psiObj.nombre}</div>}
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:5 }}>
+                  <span style={{ background:estadoBg, color:estadoColor, fontSize:9, fontWeight:800, padding:"3px 9px", borderRadius:20, letterSpacing:".02em" }}>{estadoLabel}</span>
+                  {pac.montoPagado > 0 && <div style={{ fontSize:11, fontWeight:800, color:C.text }}>${(pac.montoPagado||0).toLocaleString("es-CO")}</div>}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {anav("admin-pagos")}
+    </div>
+  );
+})()}
+
+{!notifPanel && screen === "admin-home" && (
+  <div style={{ height:"100%", overflowY:"auto", background:"#F0F2F0", paddingBottom:NAV_PB }}>
+
+    {/* ── HEADER ── */}
+    <div style={{ background:`linear-gradient(150deg, #0F2015 0%, #1A3525 55%, #0F2015 100%)`, padding:"20px 22px 24px", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", position:"relative", overflow:"hidden" }}>
+      {/* decorative blobs */}
+      <div style={{ position:"absolute", top:-30, right:-20, width:120, height:120, borderRadius:"50%", background:"rgba(255,123,90,.10)", filter:"blur(32px)", pointerEvents:"none" }}/>
+      <div style={{ position:"absolute", bottom:-20, left:10, width:80, height:80, borderRadius:"50%", background:"rgba(78,205,196,.08)", filter:"blur(24px)", pointerEvents:"none" }}/>
+      <div style={{ display:"flex", alignItems:"center", gap:13, marginBottom:20, position:"relative" }}>
+        <div style={{ width:48, height:48, borderRadius:14, background:"linear-gradient(135deg, rgba(255,179,71,.22) 0%, rgba(255,123,90,.18) 100%)", border:"1px solid rgba(255,179,71,.25)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 4px 16px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.10)" }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFB347" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4l3 12h14l3-12-6 4-4-8-4 8-6-4z"/></svg>
+        </div>
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,179,71,.7)", letterSpacing:".18em", textTransform:"uppercase", marginBottom:3 }}>Control total</div>
+          <div style={{ fontSize:20, fontWeight:900, color:"white", letterSpacing:"-0.025em", lineHeight:1.1 }}>Panel Admin</div>
+        </div>
+        <div onClick={() => { setBroadcastTipo("todos"); setBroadcastTitulo(""); setBroadcastMensaje(""); setModal("broadcast"); }}
+          style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 13px", background:"rgba(255,255,255,.10)", border:"1px solid rgba(255,255,255,.14)", borderRadius:20, cursor:"pointer", touchAction:"manipulation" }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <span style={{ fontSize:11, fontWeight:700, color:"white" }}>Broadcast</span>
+        </div>
+      </div>
+
+      {/* Mini stats en el header */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, position:"relative" }}>
+        {[
+          { val: todosUsuarios.filter(u=>u.rol==="psicologo"&&!u.inactivo).length, lb:"Psicólogos", color:"#6EEDDF" },
+          { val: todosUsuarios.filter(u=>u.rol==="paciente").length, lb:"Pacientes", color:"#FF9B7A" },
+          { val: todosUsuarios.filter(u=>u.inactivo).length, lb:"Inactivos", color:"#FFB347" },
+          { val: todosUsuarios.length, lb:"Total", color:"rgba(255,255,255,.7)" },
+        ].map(({ val, lb, color }) => (
+          <div key={lb} style={{ background:"rgba(255,255,255,.07)", border:"1px solid rgba(255,255,255,.09)", borderRadius:12, padding:"10px 8px", textAlign:"center", backdropFilter:"blur(8px)" }}>
+            <div style={{ fontSize:22, fontWeight:900, color, letterSpacing:"-0.02em", lineHeight:1 }}>{val || "0"}</div>
+            <div style={{ fontSize:9, fontWeight:600, color:"rgba(255,255,255,.45)", marginTop:3, letterSpacing:".04em" }}>{lb}</div>
+          </div>
+        ))}
       </div>
     </div>
-    <div style={{ padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
 
-      {/* ESTADÍSTICAS */}
-      <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>📊 Estadísticas generales</div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:9, marginBottom:18 }}>
+    <div style={{ padding:"16px 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
+
+      {/* ── ACCIONES RÁPIDAS ── */}
+      <div style={{ fontSize:9, fontWeight:700, color:C.light, letterSpacing:".14em", textTransform:"uppercase", marginBottom:10 }}>Acciones</div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
         {[
-        ["🧠", "Psicólogos activos", todosUsuarios.filter(u=>u.rol==="psicologo"&&!u.inactivo).length || "—"],
-        ["👥", "Pacientes totales", todosUsuarios.filter(u=>u.rol==="paciente").length || "—"],
-        ["🔒", "Cuentas inactivas", todosUsuarios.filter(u=>u.inactivo).length || "0"],
-        ["👤", "Total usuarios", todosUsuarios.length || "—"]
-      ].map(([ic,lb,val]) => (
-          <div key={lb} style={{ background:"#FFFFFF", borderRadius:14, padding:13, border:"1px solid rgba(0,0,0,.11)" }}>
-            <div style={{ fontSize:24, marginBottom:4 }}>{ic}</div>
-            <div style={{ fontSize:20, fontWeight:900, color:C.plum }}>{val}</div>
-            <div style={{ fontSize:10, color:C.light, fontWeight:700 }}>{lb}</div>
+          { ic:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>, label:"Agregar usuario", sub:"Crear cuenta nueva", bg:"rgba(255,123,90,.09)", border:"rgba(255,123,90,.18)", fn:() => { cargarTodosUsuarios(); setModal("registro-admin"); } },
+          { ic:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3D7A52" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>, label:"Gestionar usuarios", sub:"Ver, editar, desactivar", bg:"rgba(30,77,43,.08)", border:"rgba(30,77,43,.16)", fn:() => { cargarTodosUsuarios(); setModal("gestionar-usuarios"); } },
+          { ic:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFB347" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, label:"Pagos", sub:"Historial y cobros", bg:"rgba(255,179,71,.09)", border:"rgba(255,179,71,.18)", fn:() => showScreen("admin-pagos") },
+          { ic:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6EEDDF" strokeWidth="2" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>, label:"Reportes", sub:"Métricas del sistema", bg:"rgba(110,237,223,.09)", border:"rgba(110,237,223,.18)", fn:() => showNotif("Reportes","Función disponible pronto","📊") },
+        ].map(({ ic, label, sub, bg, border, fn }) => (
+          <div key={label} onClick={fn} style={{ background:bg, border:`1px solid ${border}`, borderRadius:16, padding:"14px 14px 12px", cursor:"pointer", touchAction:"manipulation", transition:"transform 120ms ease, box-shadow 120ms ease", boxShadow:"0 1px 3px rgba(0,0,0,.06)" }}
+            onTouchStart={e => e.currentTarget.style.transform="scale(.97)"}
+            onTouchEnd={e => e.currentTarget.style.transform="scale(1)"}>
+            <div style={{ marginBottom:8 }}>{ic}</div>
+            <div style={{ fontSize:12, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>{label}</div>
+            <div style={{ fontSize:10, color:C.light, marginTop:2 }}>{sub}</div>
           </div>
         ))}
       </div>
 
-      {/* PSICÓLOGOS */}
-      <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:10 }}>🧠 Psicólogos</div>
+      {/* ── PSICÓLOGOS ── */}
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+        <div style={{ fontSize:9, fontWeight:700, color:C.light, letterSpacing:".14em", textTransform:"uppercase" }}>Psicólogos</div>
+        <div onClick={() => showScreen("admin-psicologo")} style={{ fontSize:11, fontWeight:700, color:C.plum, cursor:"pointer" }}>Ver todos ›</div>
+      </div>
       {todosUsuarios.filter(u=>u.rol==="psicologo").length === 0 ? (
-        <div style={{ textAlign:"center", padding:"16px 0", color:C.light, fontSize:12 }}>No hay psicólogos registrados aún</div>
-      ) : todosUsuarios.filter(u=>u.rol==="psicologo").map(p => {
-        const pacientesCount = todosUsuarios.filter(u=>u.rol==="paciente"&&u.psicologoId===p.id).length;
-        return (
-          <div key={p.id} style={{ background:"#FFFFFF", borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:7, border:"1px solid rgba(0,0,0,.11)" }}>
-            <div style={{ fontSize:26, width:42, height:42, background:C.warm, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center" }}>🧠</div>
-            <div style={{ flex:1 }}>
-              <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{p.nombre}</div>
-              <div style={{ fontSize:10, color:C.light }}>{pacientesCount} paciente{pacientesCount!==1?"s":""}</div>
+        <div style={{ background:"white", borderRadius:16, padding:"24px 16px", textAlign:"center", border:"1px solid rgba(0,0,0,.07)", marginBottom:16 }}>
+          <div style={{ fontSize:28, marginBottom:8 }}>🧠</div>
+          <div style={{ fontSize:12, color:C.light, fontWeight:600 }}>No hay psicólogos registrados aún</div>
+        </div>
+      ) : (
+        <div style={{ marginBottom:20 }}>
+          {todosUsuarios.filter(u=>u.rol==="psicologo").slice(0,3).map(p => {
+            const cnt = todosUsuarios.filter(u=>u.rol==="paciente"&&u.psicologoId===p.id).length;
+            const maxPac = Math.max(1, ...todosUsuarios.filter(u=>u.rol==="psicologo").map(x => todosUsuarios.filter(u=>u.rol==="paciente"&&u.psicologoId===x.id).length));
+            return (
+              <div key={p.id} onClick={() => showScreen("admin-psicologo")} style={{ background:"white", borderRadius:16, padding:"13px 14px", marginBottom:8, border:"1px solid rgba(0,0,0,.07)", cursor:"pointer", boxShadow:"0 1px 4px rgba(0,0,0,.05)", display:"flex", alignItems:"center", gap:12 }}>
+                <div style={{ width:40, height:40, borderRadius:12, background:"linear-gradient(135deg,#3D7A52,#1E4D2B)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:4 }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:C.text, letterSpacing:"-0.01em", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.nombre}</div>
+                    {p.verificado && <div style={{ width:14, height:14, borderRadius:"50%", background:"#3B82F6", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>}
+                  </div>
+                  <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                    <div style={{ flex:1, height:3, background:"rgba(0,0,0,.07)", borderRadius:99, overflow:"hidden" }}>
+                      <div style={{ width:`${(cnt/maxPac)*100}%`, height:"100%", background:"linear-gradient(90deg,#3D7A52,#6EEDDF)", borderRadius:99, transition:"width 0.5s ease" }}/>
+                    </div>
+                    <div style={{ fontSize:10, fontWeight:700, color:C.light, flexShrink:0 }}>{cnt} pac.</div>
+                  </div>
+                </div>
+                <div style={{ background:p.inactivo?"rgba(255,107,107,.12)":"rgba(30,77,43,.10)", color:p.inactivo?C.red:"#1E4D2B", fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20, flexShrink:0 }}>
+                  {p.inactivo?"Inactivo":"Activo"}
+                </div>
+              </div>
+            );
+          })}
+          {todosUsuarios.filter(u=>u.rol==="psicologo").length > 3 && (
+            <div onClick={() => showScreen("admin-psicologo")} style={{ textAlign:"center", padding:"8px 0", color:C.plum, fontSize:11, fontWeight:700, cursor:"pointer" }}>
+              +{todosUsuarios.filter(u=>u.rol==="psicologo").length - 3} más — ver todos ›
             </div>
-            <div style={{ background:p.inactivo?"#FFE0E0":"#A8C5B5", color:p.inactivo?C.red:C.sageDark, fontSize:9, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>
-              {p.inactivo?"Inactivo":"Activo"}
-            </div>
-          </div>
-        );
-      })}
+          )}
+        </div>
+      )}
 
-      {/* ── TEST PUSH — estados en scope del componente, no en IIFE ── */}
-      <div style={{ background:"#FFFFFF", borderRadius:14, padding:"14px 16px", marginBottom:14, border:"1px solid rgba(0,0,0,.08)" }}>
-        <div style={{ fontSize:11, fontWeight:800, color:"#1A2E1D", marginBottom:6 }}>Probar notificaciones push</div>
-        <div style={{ fontSize:11, color:"#5C7A65", marginBottom:10, lineHeight:1.55 }}>
-          Envía una push de prueba a este dispositivo. Si la recibes con el celular bloqueado, el sistema funciona.
+      {/* ── TEST PUSH ── */}
+      <div style={{ fontSize:9, fontWeight:700, color:C.light, letterSpacing:".14em", textTransform:"uppercase", marginBottom:10 }}>Sistema</div>
+      <div style={{ background:"white", borderRadius:16, padding:"14px 16px", marginBottom:12, border:"1px solid rgba(0,0,0,.07)", boxShadow:"0 1px 3px rgba(0,0,0,.05)" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+          <div style={{ width:34, height:34, borderRadius:10, background:"rgba(30,77,43,.10)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div>
+            <div style={{ fontSize:12, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>Push de prueba</div>
+            <div style={{ fontSize:10, color:C.light, marginTop:1 }}>Verifica que las notificaciones llegan</div>
+          </div>
         </div>
         <div onClick={async () => {
           if (testPushLoading) return;
@@ -9998,137 +10212,178 @@ const styles = `
             else setTestPushResult({ ok:false, msg:`❌ ${data.error || data.reason}` });
           } catch(e) { setTestPushResult({ ok:false, msg:`❌ Error: ${e.message}` }); }
           setTestPushLoading(false);
-        }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:7, height:40, background: testPushLoading ? "rgba(0,0,0,.07)" : "linear-gradient(135deg,#3D7A52,#1E4D2B)", borderRadius:11, cursor: testPushLoading ? "default" : "pointer", touchAction:"manipulation" }}>
+        }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:7, height:42, background: testPushLoading ? "rgba(0,0,0,.05)" : "linear-gradient(135deg,#3D7A52,#1E4D2B)", borderRadius:12, cursor: testPushLoading ? "default" : "pointer", touchAction:"manipulation", transition:"opacity 150ms ease", boxShadow: testPushLoading ? "none" : "0 2px 12px rgba(30,77,43,.30)" }}>
           {testPushLoading
-            ? <span style={{fontSize:11,fontWeight:700,color:"#5C7A65"}}>Enviando...</span>
-            : <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span style={{fontSize:12,fontWeight:800,color:"white"}}>Enviar push de prueba</span></>
+            ? <span style={{fontSize:12,fontWeight:700,color:C.light}}>Enviando...</span>
+            : <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span style={{fontSize:13,fontWeight:800,color:"white",letterSpacing:"-0.01em"}}>Enviar push de prueba</span></>
           }
         </div>
         {testPushResult && (
-          <div style={{ marginTop:9, padding:"8px 12px", borderRadius:9, background: testPushResult.ok ? "rgba(30,77,43,.08)" : "rgba(255,107,107,.08)", fontSize:11, color: testPushResult.ok ? "#1E4D2B" : "#C04040", fontWeight:600, lineHeight:1.5 }}>
+          <div style={{ marginTop:10, padding:"9px 12px", borderRadius:10, background: testPushResult.ok ? "rgba(30,77,43,.07)" : "rgba(255,107,107,.07)", fontSize:11, color: testPushResult.ok ? "#1E4D2B" : "#C04040", fontWeight:600, lineHeight:1.5, border:`1px solid ${testPushResult.ok?"rgba(30,77,43,.12)":"rgba(255,107,107,.12)"}` }}>
             {testPushResult.msg}
           </div>
         )}
       </div>
 
-      <div style={{ fontSize:13, fontWeight:700, color:C.text, margin:"16px 0 10px" }}>⚡ Acciones</div>
-      {mitem("➕", "Agregar usuario", () => { cargarTodosUsuarios(); setModal("registro-admin"); })}
-{mitem("👥", "Ver y gestionar usuarios", () => { cargarTodosUsuarios(); setModal("gestionar-usuarios"); })}
-{mitem("💰", "Gestión de pagos", () => showNotif("Pagos", "Función disponible pronto", "💰"))}
-{mitem("📊", "Ver reportes", () => showNotif("Reportes", "Función disponible pronto", "📊"))}
-<div style={{ margin:"8px 0 4px", height:"0.5px", background:"rgba(255,123,90,0.15)" }}/>
-<div onClick={cerrarSesion}
-style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 14px", background:"rgba(255,107,107,.10)", borderRadius:14, marginBottom:8, cursor:"pointer", border:"0.5px solid rgba(192,80,80,0.15)" }}>
-  <div style={{ width:38, height:38, borderRadius:11, background:"rgba(192,80,80,0.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>🚪</div>
-  <div style={{ flex:1 }}>
-    <div style={{ fontSize:13, fontWeight:700, color:"#C05050" }}>Cerrar sesión</div>
-    <div style={{ fontSize:11, color:"rgba(192,80,80,0.6)", marginTop:1 }}>Salir del panel de administrador</div>
-  </div>
-  <div style={{ fontSize:16, color:"rgba(192,80,80,0.4)" }}>›</div>
-</div>
+      {/* ── CERRAR SESIÓN ── */}
+      <div onClick={cerrarSesion} style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", background:"rgba(255,107,107,.07)", borderRadius:16, marginTop:4, cursor:"pointer", border:"1px solid rgba(192,80,80,.12)", touchAction:"manipulation" }}>
+        <div style={{ width:38, height:38, borderRadius:11, background:"rgba(192,80,80,.10)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C05050" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:13, fontWeight:700, color:"#C05050", letterSpacing:"-0.01em" }}>Cerrar sesión</div>
+          <div style={{ fontSize:10, color:"rgba(192,80,80,.55)", marginTop:1 }}>Salir del panel administrador</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(192,80,80,.4)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
 
 {mdl("gestionar-usuarios", (
   <div>
-    <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>👥 Gestionar usuarios</div>
-    <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:14 }}>Selecciona usuarios para eliminar o desactivar</div>
+    {/* Header */}
+    <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
+      <div style={{ width:44, height:44, borderRadius:13, background:"rgba(30,77,43,.10)", border:"1px solid rgba(30,77,43,.16)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="1.75" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div>
+        <div style={{ fontSize:17, fontWeight:900, color:C.text, letterSpacing:"-0.02em" }}>Gestionar usuarios</div>
+        <div style={{ fontSize:11, color:C.light, marginTop:1 }}>{todosUsuarios.length} usuarios registrados</div>
+      </div>
+    </div>
 
+    {/* Barra de acciones cuando hay selección */}
     {usuariosSeleccionados.length > 0 && (
-      <div style={{ display:"flex", gap:8, marginBottom:12 }}>
-        {btn(() => handleEliminarUsuarios(), `🗑️ Eliminar (${usuariosSeleccionados.length})`, { flex:1, padding:10, background:C.red, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
-        {btn(() => setUsuariosSeleccionados([]), "✕ Quitar selección", { flex:1, padding:10, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:14, background:"rgba(255,107,107,.06)", border:"1px solid rgba(255,107,107,.14)", borderRadius:13, padding:"10px 10px" }}>
+        <div style={{ fontSize:12, color:C.red, fontWeight:700, gridColumn:"1/-1", marginBottom:4 }}>
+          {usuariosSeleccionados.length} usuario{usuariosSeleccionados.length!==1?"s":""} seleccionado{usuariosSeleccionados.length!==1?"s":""}
+        </div>
+        {btn(() => handleEliminarUsuarios(), `Eliminar (${usuariosSeleccionados.length})`, { flex:1, padding:"9px 0", background:"linear-gradient(135deg,#FF6B6B,#D04428)", color:"white", borderRadius:10, fontSize:12, fontWeight:800, boxShadow:"0 2px 10px rgba(255,107,107,.30)" })}
+        {btn(() => setUsuariosSeleccionados([]), "Quitar selección", { flex:1, padding:"9px 0", background:"rgba(0,0,0,.07)", color:C.text, borderRadius:10, fontSize:12, fontWeight:700 })}
       </div>
     )}
 
     {loadingUsuarios ? (
-      <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>Cargando usuarios...</div>
+      <div style={{ display:"flex", flexDirection:"column", gap:10, padding:"4px 0" }}>
+        {[1,2,3].map(i => (
+          <div key={i} style={{ height:70, borderRadius:14, background:"linear-gradient(90deg,rgba(0,0,0,.04) 25%,rgba(0,0,0,.08) 50%,rgba(0,0,0,.04) 75%)", backgroundSize:"200% 100%", animation:"shimmer 1.5s infinite" }}/>
+        ))}
+      </div>
     ) : todosUsuarios.length === 0 ? (
-      <div style={{ textAlign:"center", padding:20, color:C.light, fontSize:13 }}>No hay usuarios registrados</div>
+      <div style={{ textAlign:"center", padding:"28px 0", color:C.light, fontSize:12 }}>No hay usuarios registrados</div>
     ) : (
-      todosUsuarios.map(u => (
-        <div key={u.id} style={{ background:usuariosSeleccionados.includes(u.id)?"#F0EDF5":"white", borderRadius:13, padding:"11px 13px", marginBottom:8, border:"1px solid rgba(0,0,0,.11)", border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:"transparent"}` }}>
-          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <div onClick={() => toggleSeleccion(u.id)} style={{ width:22, height:22, borderRadius:6, border:`2px solid ${usuariosSeleccionados.includes(u.id)?C.plum:C.light}`, background:usuariosSeleccionados.includes(u.id)?C.plum:"transparent", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, color:"white", cursor:"pointer", flexShrink:0 }}>
-              {usuariosSeleccionados.includes(u.id) ? "✓" : ""}
-            </div>
-            <div style={{ flex:1 }}>
-              <div style={{ fontSize:13, fontWeight:800, color:C.text }}>{u.nombre}</div>
-              <div style={{ fontSize:10, color:C.light }}>{u.email}</div>
-              <div style={{ display:"flex", gap:6, marginTop:4 }}>
-                <span style={{ fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20, background:u.rol==="psicologo"?"#EDE8F5":"#E8F5E9", color:u.rol==="psicologo"?C.plum:C.sageDark }}>
-                  {u.rol==="psicologo"?"🧠 Psicólogo":"👤 Paciente"}
-                </span>
-                <span style={{ fontSize:9, fontWeight:800, padding:"2px 7px", borderRadius:20, background:u.inactivo?"#FFE5E5":"#E8F5E9", color:u.inactivo?C.red:C.sageDark }}>
-                  {u.inactivo?"🔒 Inactivo":"✅ Activo"}
-                </span>
+      todosUsuarios.map(u => {
+        const sel = usuariosSeleccionados.includes(u.id);
+        return (
+          <div key={u.id} style={{ background: sel ? "rgba(255,123,90,.06)" : "rgba(0,0,0,.025)", borderRadius:14, padding:"11px 12px", marginBottom:8, border:`1.5px solid ${sel ? C.plum : "rgba(0,0,0,.09)"}`, transition:"all 150ms ease" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+              <div onClick={() => toggleSeleccion(u.id)} style={{ width:24, height:24, borderRadius:7, border:`2px solid ${sel ? C.plum : "rgba(0,0,0,.18)"}`, background: sel ? C.plum : "white", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0, transition:"all 150ms cubic-bezier(.34,1.56,.64,1)", boxShadow: sel ? `0 2px 8px ${C.plum}40` : "none" }}>
+                {sel && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
               </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:13, fontWeight:800, color:C.text, letterSpacing:"-0.01em", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{u.nombre}</div>
+                <div style={{ fontSize:10, color:C.light, marginBottom:4, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{u.email}</div>
+                <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
+                  <span style={{ fontSize:9, fontWeight:800, padding:"2px 8px", borderRadius:20, background: u.rol==="psicologo" ? "rgba(30,77,43,.10)" : "rgba(255,123,90,.10)", color: u.rol==="psicologo" ? "#1E4D2B" : C.plum }}>
+                    {u.rol==="psicologo" ? "Psicólogo" : u.rol==="administrador" ? "Admin" : "Paciente"}
+                  </span>
+                  <span style={{ fontSize:9, fontWeight:800, padding:"2px 8px", borderRadius:20, background: u.inactivo ? "rgba(255,107,107,.10)" : "rgba(30,77,43,.10)", color: u.inactivo ? C.red : "#1E4D2B" }}>
+                    {u.inactivo ? "Inactivo" : "Activo"}
+                  </span>
+                </div>
+              </div>
+              {u.rol !== "administrador" && btn(() => handleToggleInactivo(u.id, u.inactivo), u.inactivo ? "Activar" : "Pausar", { padding:"6px 11px", background: u.inactivo ? "rgba(30,77,43,.10)" : "rgba(255,107,107,.10)", color: u.inactivo ? "#1E4D2B" : C.red, borderRadius:9, fontSize:10, fontWeight:800, border:`1px solid ${u.inactivo?"rgba(30,77,43,.18)":"rgba(255,107,107,.18)"}` })}
             </div>
-            {btn(() => handleToggleInactivo(u.id, u.inactivo), u.inactivo?"Activar":"Desactivar", { padding:"6px 10px", background:u.inactivo?"#E8F5E9":"#FFE5E5", color:u.inactivo?C.sageDark:C.red, borderRadius:9, fontSize:10, fontWeight:800 })}
           </div>
-        </div>
-      ))
+        );
+      })
     )}
 
-    {btn(() => setModal(null), "Cerrar", { width:"100%", padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:13, fontWeight:800, marginTop:8 })}
+    {btn(() => { setModal(null); setUsuariosSeleccionados([]); }, "Cerrar", { width:"100%", padding:12, background:"rgba(0,0,0,.07)", color:C.text, borderRadius:12, fontSize:13, fontWeight:700, marginTop:10 })}
   </div>
 ))}
 {mdl("registro-admin", (
   <div>
-    <div style={{ fontSize:20, fontWeight:900, color:C.text, marginBottom:4, textAlign:"center" }}>➕ Crear usuario</div>
-    <div style={{ fontSize:12, color:C.light, textAlign:"center", marginBottom:16 }}>El usuario recibirá acceso inmediato</div>
-
-    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Nombre completo</div>
-    <input placeholder="Ej: Sofía Martínez" value={formNombre} onChange={e => setFormNombre(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
-
-    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Correo electrónico</div>
-    <input type="email" placeholder="correo@ejemplo.com" value={formEmail} onChange={e => setFormEmail(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
-
-    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Teléfono</div>
-    <input type="tel" placeholder="Ej: 3001234567" value={formTel} onChange={e => setFormTel(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
-
-    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5 }}>Fecha de nacimiento</div>
-    <input type="date" value={formFecha} onChange={e => setFormFecha(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"#FFFFFF", color:C.text }}/>
-
-    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>PIN de acceso (4 dígitos)</div>
-    <div style={{ display:"flex", justifyContent:"center", gap:14, marginBottom:8 }}>
-      {[0,1,2,3].map(i => (
-        <div key={i} style={{ width:16, height:16, borderRadius:"50%", background:formPin.length > i ? C.plum : "transparent", border:`2.5px solid ${formPin.length > i ? C.plum : C.light}`, transition:"all 0.2s" }}/>
-      ))}
+    {/* Header del modal */}
+    <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
+      <div style={{ width:44, height:44, borderRadius:13, background:"linear-gradient(135deg,rgba(255,123,90,.15),rgba(255,90,54,.10))", border:"1px solid rgba(255,123,90,.20)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </div>
+      <div>
+        <div style={{ fontSize:17, fontWeight:900, color:C.text, letterSpacing:"-0.02em" }}>Crear usuario</div>
+        <div style={{ fontSize:11, color:C.light, marginTop:1 }}>El usuario tendrá acceso inmediato</div>
+      </div>
     </div>
-    <input type="password" placeholder="PIN" inputMode="numeric" maxLength={4} value={formPin} onChange={e => setFormPin(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:10, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4, background:"#FFFFFF", color:C.text }}/>
 
-    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8 }}>Rol</div>
-    <div style={{ display:"flex", gap:8, marginBottom:16 }}>
-      {[["paciente","👤","Paciente"],["psicologo","🧠","Psicólogo"]].map(([val,ic,lb]) => (
-        <div key={val} onClick={() => setFormRol(val)}
-          style={{ flex:1, padding:"10px 0", borderRadius:12, textAlign:"center", cursor:"pointer", border:`2px solid ${formRol===val?C.plum:"rgba(0,0,0,.12)"}`, background:formRol===val?`${C.plum}15`:"rgba(0,0,0,.07)" }}>
-          <div style={{ fontSize:22 }}>{ic}</div>
-          <div style={{ fontSize:11, fontWeight:800, color:formRol===val?C.plum:C.light }}>{lb}</div>
-        </div>
-      ))}
+    {/* Campos */}
+    {[
+      { lb:"Nombre completo", ph:"Ej: Sofía Martínez", val:formNombre, set:setFormNombre, type:"text" },
+      { lb:"Correo electrónico", ph:"correo@ejemplo.com", val:formEmail, set:setFormEmail, type:"email" },
+      { lb:"Teléfono", ph:"Ej: 3001234567", val:formTel, set:setFormTel, type:"tel" },
+    ].map(({ lb, ph, val, set, type }) => (
+      <div key={lb} style={{ marginBottom:12 }}>
+        <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".12em", marginBottom:5 }}>{lb}</div>
+        <input type={type} placeholder={ph} value={val} onChange={e => set(e.target.value)}
+          style={{ width:"100%", padding:"11px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:12, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"rgba(0,0,0,.025)", color:C.text, transition:"border-color 150ms ease" }}
+          onFocus={e => e.target.style.borderColor="rgba(255,123,90,.45)"}
+          onBlur={e => e.target.style.borderColor="rgba(0,0,0,.12)"}/>
+      </div>
+    ))}
+
+    <div style={{ marginBottom:12 }}>
+      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".12em", marginBottom:5 }}>Fecha de nacimiento</div>
+      <input type="date" value={formFecha} onChange={e => setFormFecha(e.target.value)}
+        style={{ width:"100%", padding:"11px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:12, fontSize:13, outline:"none", fontFamily:"inherit", boxSizing:"border-box", background:"rgba(0,0,0,.025)", color:C.text }}/>
     </div>
-{formRol === "paciente" && (
-      <>
-        <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:8, marginTop:4 }}>Psicólogo asignado</div>
+
+    {/* PIN */}
+    <div style={{ marginBottom:16 }}>
+      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".12em", marginBottom:10 }}>PIN de acceso (4 dígitos)</div>
+      <div style={{ display:"flex", justifyContent:"center", gap:12, marginBottom:10 }}>
+        {[0,1,2,3].map(i => (
+          <div key={i} style={{ width:14, height:14, borderRadius:"50%", background:formPin.length > i ? C.plum : "transparent", border:`2.5px solid ${formPin.length > i ? C.plum : "rgba(0,0,0,.18)"}`, transition:"all 180ms cubic-bezier(.34,1.56,.64,1)", transform: formPin.length > i ? "scale(1.1)" : "scale(1)" }}/>
+        ))}
+      </div>
+      <input type="password" placeholder="••••" inputMode="numeric" maxLength={4} value={formPin} onChange={e => setFormPin(e.target.value.replace(/\D/g,""))}
+        style={{ width:"100%", padding:"12px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:12, fontSize:18, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:"0.25em", background:"rgba(0,0,0,.025)", color:C.text }}
+        onFocus={e => e.target.style.borderColor="rgba(255,123,90,.45)"}
+        onBlur={e => e.target.style.borderColor="rgba(0,0,0,.12)"}/>
+    </div>
+
+    {/* Rol */}
+    <div style={{ marginBottom:16 }}>
+      <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".12em", marginBottom:10 }}>Rol</div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9 }}>
+        {[["paciente","Paciente",<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>],["psicologo","Psicólogo",<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24A2.5 2.5 0 0 1 6.5 3.16z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24A2.5 2.5 0 0 0 17.5 3.16z"/></svg>]].map(([val,lb,icon]) => (
+          <div key={val} onClick={() => setFormRol(val)} style={{ padding:"14px 8px", borderRadius:13, textAlign:"center", cursor:"pointer", border:`2px solid ${formRol===val ? C.plum : "rgba(0,0,0,.10)"}`, background:formRol===val ? `${C.plum}12` : "rgba(0,0,0,.025)", transition:"all 180ms ease", color:formRol===val ? C.plum : C.light }}>
+            <div style={{ display:"flex", justifyContent:"center", marginBottom:5 }}>{icon}</div>
+            <div style={{ fontSize:12, fontWeight:800, letterSpacing:"-0.01em" }}>{lb}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {formRol === "paciente" && (
+      <div style={{ marginBottom:16 }}>
+        <div style={{ fontSize:10, fontWeight:700, color:C.light, textTransform:"uppercase", letterSpacing:".12em", marginBottom:8 }}>Psicólogo asignado</div>
         <select value={formPsicologoId} onChange={e => setFormPsicologoId(e.target.value)}
-          style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:16, outline:"none", fontFamily:"inherit", background:"#FFFFFF", boxSizing:"border-box" }}>
+          style={{ width:"100%", padding:"11px 13px", border:"1px solid rgba(0,0,0,.12)", borderRadius:12, fontSize:13, outline:"none", fontFamily:"inherit", background:"rgba(0,0,0,.025)", boxSizing:"border-box", color: formPsicologoId ? C.text : C.light }}>
           <option value="">— Seleccionar psicólogo —</option>
           {todosUsuarios.filter(u => u.rol === "psicologo").map(p => (
             <option key={p.id} value={p.id}>{p.nombre}</option>
           ))}
         </select>
-      </>
+      </div>
     )}
-    <div style={{ fontSize:11, fontWeight:800, color:C.text, marginBottom:5, marginTop:4 }}>Tu PIN de administrador (para confirmar)</div>
-    <input type="password" placeholder="Tu PIN" inputMode="numeric" maxLength={4} value={formPinAdmin} onChange={e => setFormPinAdmin(e.target.value)}
-      style={{ width:"100%", padding:"11px 13px", border:"2px solid rgba(0,0,0,.12)", borderRadius:11, fontSize:13, marginBottom:14, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:4, background:"#FFFFFF", color:C.text }}/>
-    <div style={{ display:"flex", gap:8 }}>
-      {btn(() => { setModal(null); setFormPinAdmin(""); }, "Cancelar", { flex:1, padding:11, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:800 })}
-      {btn(() => handleCrearUsuarioAdmin(), formLoading ? "Creando..." : "Crear usuario ✓", { flex:2, padding:11, background:formLoading||formPinAdmin.length<4?C.light:C.plum, color:"white", borderRadius:11, fontSize:12, fontWeight:800 })}
+
+    {/* PIN admin */}
+    <div style={{ background:"rgba(255,123,90,.05)", border:"1px solid rgba(255,123,90,.14)", borderRadius:13, padding:"13px 14px", marginBottom:18 }}>
+      <div style={{ fontSize:10, fontWeight:700, color:C.plum, textTransform:"uppercase", letterSpacing:".12em", marginBottom:8 }}>Confirmar con tu PIN de admin</div>
+      <input type="password" placeholder="Tu PIN de 4 dígitos" inputMode="numeric" maxLength={4} value={formPinAdmin} onChange={e => setFormPinAdmin(e.target.value.replace(/\D/g,""))}
+        style={{ width:"100%", padding:"12px 13px", border:`1px solid ${formPinAdmin.length===4?"rgba(255,123,90,.40)":"rgba(0,0,0,.12)"}`, borderRadius:11, fontSize:18, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:"0.25em", background:"white", color:C.text, transition:"border-color 150ms ease" }}/>
+    </div>
+
+    <div style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:9 }}>
+      {btn(() => { setModal(null); setFormPinAdmin(""); setFormNombre(""); setFormEmail(""); setFormPin(""); setFormTel(""); setFormFecha(""); setFormRol("paciente"); setFormPsicologoId(""); }, "Cancelar", { padding:"13px 0", background:"rgba(0,0,0,.06)", color:C.text, borderRadius:12, fontSize:13, fontWeight:700 })}
+      {btn(() => handleCrearUsuarioAdmin(), formLoading ? "Creando..." : "Crear usuario", { padding:"13px 0", background: formLoading || formPinAdmin.length<4 ? "rgba(0,0,0,.12)" : `linear-gradient(135deg,#FF8B6A,#FF5A36)`, color:"white", borderRadius:12, fontSize:13, fontWeight:800, boxShadow: formPinAdmin.length===4 && !formLoading ? "0 4px 14px rgba(255,90,54,.30)" : "none", letterSpacing:"-0.01em", transition:"all 200ms ease" })}
     </div>
   </div>
 ))}
