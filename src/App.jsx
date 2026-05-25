@@ -2,7 +2,7 @@
 import { messaging, getToken, onMessage, deleteToken } from "./firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword } from "firebase/auth";
 import { auth } from "./firebase";
-import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc, query, where, onSnapshot } from "firebase/firestore";
+import { getDoc, doc, setDoc, collection, getDocs, deleteDoc, updateDoc, query, where, onSnapshot, addDoc, orderBy } from "firebase/firestore";
 import { db } from "./firebase";
 // ─────────────────────────────────────────
 // BANCO DE 100 FRASES MOTIVADORAS
@@ -864,6 +864,13 @@ const [usuarioActual, setUsuarioActual] = useState(null);
 const [regEmail, setRegEmail] = useState("");
 const [regPin, setRegPin] = useState("");
 const [regRol, setRegRol] = useState("paciente");
+const [regTel, setRegTel] = useState("");
+const [regFecha, setRegFecha] = useState("");
+const [regContactoNombre, setRegContactoNombre] = useState("");
+const [regContactoTel, setRegContactoTel] = useState("");
+const [regLoading, setRegLoading] = useState(false);
+const [solicitudesRegistro, setSolicitudesRegistro] = useState([]);
+const [solicitudActual, setSolicitudActual] = useState(null);
   const [noteTab, setNoteTab] = useState("insights");
   const [avatar, setAvatar] = useState("🦋");
   const [modal, setModal] = useState(null);
@@ -1184,6 +1191,7 @@ const confettiItems = Array.from({length:20}, (_,i) => ({
       } else if (rol === "administrador") {
         clearNavHistory();
         cargarTodosUsuarios();
+        cargarSolicitudesRegistro();
         showScreen("admin-home");
       } else {
         showToast("Rol no reconocido ❌");
@@ -1214,6 +1222,88 @@ const handleRegister = async () => {
   } catch (error) {
     showToast("Error al registrarse ❌");
   }
+};
+
+const handleSolicitarRegistro = async () => {
+  if (regLoading) return;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!regNombre.trim() || !regEmail.trim() || !regTel.trim() || !regFecha || regPin.length < 4) {
+    showToast("Completa todos los campos obligatorios ❌");
+    return;
+  }
+  if (!emailRegex.test(regEmail.trim())) {
+    showToast("El correo no es válido ❌");
+    return;
+  }
+  setRegLoading(true);
+  try {
+    await addDoc(collection(db, "solicitudesRegistro"), {
+      nombre: regNombre.trim(),
+      email: regEmail.trim().toLowerCase(),
+      telefono: regTel.trim(),
+      fechaNacimiento: regFecha,
+      pin: regPin,
+      contactoEmergenciaNombre: regContactoNombre.trim(),
+      contactoEmergenciaTel: regContactoTel.trim(),
+      estado: "pendiente",
+      fechaCreacion: new Date().toISOString(),
+    });
+    setRegNombre(""); setRegEmail(""); setRegPin(""); setRegTel("");
+    setRegFecha(""); setRegContactoNombre(""); setRegContactoTel("");
+    showScreen("registro-enviado");
+  } catch(e) {
+    showToast("Error al enviar solicitud ❌");
+  }
+  setRegLoading(false);
+};
+
+const cargarSolicitudesRegistro = async () => {
+  try {
+    const snap = await getDocs(query(collection(db, "solicitudesRegistro"), where("estado","==","pendiente")));
+    setSolicitudesRegistro(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  } catch(e) { console.log("Error cargando solicitudes:", e); }
+};
+
+const handleAprobarSolicitud = async (sol) => {
+  try {
+    const { user: nuevoUser } = await createUserWithEmailAndPassword(auth, sol.email, sol.pin + "**");
+    const uid = nuevoUser.uid;
+    await setDoc(doc(db, "usuarios", uid), {
+      nombre: sol.nombre,
+      email: sol.email,
+      telefono: sol.telefono || "",
+      fechaNacimiento: sol.fechaNacimiento || "",
+      rol: "paciente",
+      contactoEmergenciaNombre: sol.contactoEmergenciaNombre || "",
+      contactoEmergenciaTel: sol.contactoEmergenciaTel || "",
+      creadoPor: "auto-registro",
+      fechaCreacion: new Date().toISOString(),
+      psicologoId: "",
+      psicologoNombre: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      xp: 0,
+    });
+    await updateDoc(doc(db, "solicitudesRegistro", sol.id), { estado: "aprobado" });
+    // Reiniciar sesión del admin
+    const adminEmail = usuarioActual.email;
+    await signOut(auth);
+    await signInWithEmailAndPassword(auth, adminEmail, formPinAdmin + "**");
+    showToast(`✅ ${sol.nombre} aprobado y cuenta creada`);
+    cargarSolicitudesRegistro();
+    cargarTodosUsuarios();
+    setModal(null);
+  } catch(e) {
+    console.log(e);
+    showToast("Error al aprobar: " + (e.message || "❌"));
+  }
+};
+
+const handleRechazarSolicitud = async (solId, nombre) => {
+  try {
+    await updateDoc(doc(db, "solicitudesRegistro", solId), { estado: "rechazado" });
+    showToast(`${nombre} rechazado`);
+    cargarSolicitudesRegistro();
+  } catch(e) { showToast("Error ❌"); }
 };
 const cargarCitas = async (uid, rol) => {
   setLoadingCitas(true);
@@ -1819,7 +1909,7 @@ const subirFotoPerfil = async (archivo) => {
     formData.append("file", archivo);
     formData.append("upload_preset", "mipsicologo");
     formData.append("cloud_name", "dh0wutypb");
-    const res = await fetch("https://api.cloudinary.com/v1_1/dh0wutypb/raw/upload", {
+    const res = await fetch("https://api.cloudinary.com/v1_1/dh0wutypb/image/upload", {
       method: "POST",
       body: formData,
     });
@@ -2545,6 +2635,7 @@ useEffect(() => {
         showScreen("admin-perfil");
         } else if (data.rol === "administrador") {
           cargarTodosUsuarios();
+          cargarSolicitudesRegistro();
           showScreen("admin-home");
         }
       }
@@ -3966,6 +4057,19 @@ const styles = `
       <span style={{ fontSize:11, color:"#FF9B7A", fontWeight:700, cursor:"pointer" }}>Contacta a tu psicólogo</span>
     </div>
 
+    {/* BOTÓN REGISTRO PACIENTE */}
+    <div style={{ marginTop:16, width:"100%" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+        <div style={{ flex:1, height:"1px", background:"rgba(255,255,255,.07)" }}/>
+        <span style={{ fontSize:10, color:"rgba(255,255,255,.22)", fontWeight:700, letterSpacing:".10em", whiteSpace:"nowrap" }}>PACIENTE NUEVO</span>
+        <div style={{ flex:1, height:"1px", background:"rgba(255,255,255,.07)" }}/>
+      </div>
+      <button onClick={() => showScreen("registro")} style={{ width:"100%", height:46, background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.10)", borderRadius:14, color:"rgba(255,255,255,.65)", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit", letterSpacing:"-0.005em", touchAction:"manipulation", WebkitTapHighlightColor:"transparent", display:"flex", alignItems:"center", justifyContent:"center", gap:7 }}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Solicitar acceso como paciente
+      </button>
+    </div>
+
     {(showInstall || showIOSHint) && (
       <div style={{ width:"100%", marginTop:20 }}>
 
@@ -4065,99 +4169,121 @@ const styles = `
 )}
 {/* REGISTRO */}
 {!notifPanel && screen === "registro" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 24px", background:"radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%)", overflowY:"auto" }}>
+  <div style={{ minHeight:"100%", display:"flex", flexDirection:"column", background:"radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%)", overflowY:"auto", paddingBottom:"env(safe-area-inset-bottom, 24px)" }}>
 
-    {/* LOGO */}
-    <div style={{ marginBottom:16 }}>
-      <svg width="56" height="56" viewBox="0 0 200 200">
-        <g fill="rgba(255,255,255,.82)">
-          <polygon points="60,50 78,60 78,80 60,90 42,80 42,60"/>
-          <polygon points="60,94 78,104 78,124 60,134 42,124 42,104"/>
-          <polygon points="80,72 98,82 98,102 80,112 62,102 62,82"/>
-          <polygon points="80,116 98,126 98,146 80,156 62,146 62,126"/>
-        </g>
-        <polygon points="120,50 138,60 138,80 120,90 102,80 102,60"   fill="#FF7B5A"/>
-        <polygon points="140,72 158,82 158,102 140,112 122,102 122,82" fill="#FFB347"/>
-        <polygon points="120,94 138,104 138,124 120,134 102,124 102,104" fill="#4ECDC4"/>
-        <polygon points="140,116 158,126 158,146 140,156 122,146 122,126" fill="#6EEDDF"/>
-        <polygon points="120,138 138,148 138,168 120,178 102,168 102,148" fill="#FF9B7A"/>
-      </svg>
+    {/* HEADER */}
+    <div style={{ padding:"20px 24px 0", paddingTop:"max(20px, env(safe-area-inset-top, 20px))", display:"flex", alignItems:"center", gap:12 }}>
+      <div onClick={() => showScreen("login")} style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div>
+        <div style={{ fontSize:18, fontWeight:900, color:"white", letterSpacing:"-0.02em" }}>Solicitar acceso</div>
+        <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", marginTop:1 }}>Solo para pacientes · Requiere aprobación</div>
+      </div>
     </div>
-    <div style={{ fontSize:22, fontWeight:700, letterSpacing:"-0.02em", marginBottom:4, background:"linear-gradient(135deg,#FF9B7A,#FFD080,#6EEDDF)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>Crear cuenta</div>
-    <div style={{ fontSize:13, color:C.light, marginBottom:28 }}>Únete a Mi Psicólogo</div>
 
-    {/* FORMULARIO */}
-    <div style={{ width:"100%", background:"#FFFFFF", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,.065)", borderRadius:22, padding:24, boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 8px 32px rgba(0,0,0,.11), inset 0 1px 0 rgba(0,0,0,.12)" }}>
+    <div style={{ padding:"20px 24px 32px", flex:1 }}>
 
-      {/* NOMBRE */}
-      <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6, letterSpacing:"0.08em", textTransform:"uppercase" }}>Nombre completo</div>
-      <input
-        type="text"
-        placeholder="Tu nombre"
-        value={regNombre}
-        onChange={e => setRegNombre(e.target.value)}
-        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.10)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
-      />
+      {/* AVISO aprobación */}
+      <div style={{ background:"rgba(255,179,71,.10)", border:"1px solid rgba(255,179,71,.22)", borderRadius:14, padding:"11px 14px", marginBottom:20, display:"flex", alignItems:"flex-start", gap:9 }}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFB347" strokeWidth="2" strokeLinecap="round" style={{ flexShrink:0, marginTop:1 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div style={{ fontSize:11, color:"rgba(255,179,71,.85)", lineHeight:1.55 }}>
+          Tu solicitud será revisada por el administrador. Recibirás tus credenciales de acceso una vez aprobada.
+        </div>
+      </div>
 
-      {/* CORREO */}
-      <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:6, letterSpacing:"0.08em", textTransform:"uppercase" }}>Correo electrónico</div>
-      <input
-        type="email"
-        placeholder="tu@correo.com"
-        value={regEmail}
-        onChange={e => setRegEmail(e.target.value)}
-        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.10)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
-      />
+      {/* CAMPOS */}
+      {[
+        { lb:"Nombre completo *", ph:"Tu nombre completo", val:regNombre, set:setRegNombre, type:"text" },
+        { lb:"Correo electrónico *", ph:"tu@correo.com", val:regEmail, set:setRegEmail, type:"email" },
+        { lb:"Teléfono *", ph:"Ej: 3001234567", val:regTel, set:setRegTel, type:"tel" },
+      ].map(({ lb, ph, val, set, type }) => (
+        <div key={lb} style={{ marginBottom:14 }}>
+          <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.40)", letterSpacing:".12em", textTransform:"uppercase", marginBottom:6 }}>{lb}</div>
+          <input type={type} placeholder={ph} value={val} onChange={e => set(e.target.value)}
+            style={{ width:"100%", padding:"13px 15px", background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.09)", borderRadius:13, fontSize:14, outline:"none", color:"#F5EEE8", fontFamily:"inherit", boxSizing:"border-box", transition:"border-color 150ms ease" }}
+            onFocus={e => e.target.style.borderColor="rgba(255,123,90,.50)"}
+            onBlur={e => e.target.style.borderColor="rgba(255,255,255,.09)"}/>
+        </div>
+      ))}
+
+      <div style={{ marginBottom:14 }}>
+        <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.40)", letterSpacing:".12em", textTransform:"uppercase", marginBottom:6 }}>Fecha de nacimiento *</div>
+        <input type="date" value={regFecha} onChange={e => setRegFecha(e.target.value)}
+          style={{ width:"100%", padding:"13px 15px", background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.09)", borderRadius:13, fontSize:14, outline:"none", color:"#F5EEE8", fontFamily:"inherit", boxSizing:"border-box", colorScheme:"dark" }}/>
+      </div>
 
       {/* PIN */}
-      <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:10, letterSpacing:"0.08em", textTransform:"uppercase" }}>PIN de acceso</div>
-      <div style={{ display:"flex", justifyContent:"center", gap:16, marginBottom:8 }}>
-        {[0,1,2,3].map(i => (
-          <div key={i} style={{ width:16, height:16, borderRadius:"50%", background: regPin && regPin.length > i ? C.plum : "transparent", border:`2px solid ${regPin && regPin.length > i ? C.plum : "rgba(0,0,0,.14)"}`, transition:"all 0.2s ease" }}/>
-        ))}
+      <div style={{ marginBottom:20 }}>
+        <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.40)", letterSpacing:".12em", textTransform:"uppercase", marginBottom:10 }}>PIN de acceso (4 dígitos) *</div>
+        <div style={{ display:"flex", justifyContent:"center", gap:14, marginBottom:10 }}>
+          {[0,1,2,3].map(i => (
+            <div key={i} style={{ width:13, height:13, borderRadius:"50%", background: regPin.length > i ? "#FF7B5A" : "transparent", border:`2px solid ${regPin.length > i ? "#FF7B5A" : "rgba(255,255,255,.22)"}`, transition:"all 200ms cubic-bezier(.34,1.56,.64,1)", transform: regPin.length > i ? "scale(1.15)" : "scale(1)" }}/>
+          ))}
+        </div>
+        <input type="password" placeholder="••••" inputMode="numeric" maxLength={4} value={regPin} onChange={e => setRegPin(e.target.value.replace(/\D/g,""))}
+          style={{ width:"100%", padding:"13px 15px", background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.09)", borderRadius:13, fontSize:20, outline:"none", color:"#F5EEE8", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:"0.28em" }}
+          onFocus={e => e.target.style.borderColor="rgba(255,123,90,.50)"}
+          onBlur={e => e.target.style.borderColor="rgba(255,255,255,.09)"}/>
+        <div style={{ fontSize:10, color:"rgba(255,255,255,.25)", textAlign:"center", marginTop:6 }}>Este será tu PIN para ingresar a la app</div>
       </div>
-      <input
-        type="password"
-        placeholder="4 dígitos"
-        inputMode="numeric"
-        maxLength={4}
-        value={regPin}
-        onChange={e => setRegPin(e.target.value)}
-        style={{ width:"100%", padding:"12px 14px", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.10)", borderRadius:12, fontSize:14, marginBottom:16, outline:"none", color:C.text, fontFamily:"inherit", boxSizing:"border-box" }}
-      />
 
-      {/* ROL */}
-      <div style={{ fontSize:11, fontWeight:700, color:C.light, marginBottom:10, letterSpacing:"0.08em", textTransform:"uppercase" }}>Soy...</div>
-      <div style={{ display:"flex", gap:10, marginBottom:24 }}>
-        {[["paciente","Paciente","user"],["psicologo","Psicólogo","brain"]].map(([val,lb,ic]) => (
-          <div key={val} onClick={() => setRegRol(val)} style={{ flex:1, padding:"14px 0", borderRadius:14, textAlign:"center", cursor:"pointer", border:`1px solid ${regRol===val ? C.plum : "rgba(0,0,0,.12)"}`, background:regRol===val ? "rgba(255,123,90,.18)" : "rgba(255,255,255,.02)", transition:"all 0.2s ease" }}>
-            <div style={{ display:"flex", justifyContent:"center", marginBottom:6 }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={regRol===val ? C.plum : C.light} strokeWidth="1.75" strokeLinecap="round">
-                {ic === "user" ? <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></> : <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>}
-              </svg>
-            </div>
-            <div style={{ fontSize:12, fontWeight:700, color:regRol===val ? C.plum : C.light }}>{lb}</div>
+      {/* CONTACTO EMERGENCIA */}
+      <div style={{ background:"rgba(255,123,90,.07)", border:"1px solid rgba(255,123,90,.18)", borderRadius:16, padding:"14px 15px", marginBottom:24 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:13 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF9B7A" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.9 2 2 0 0 1 3.62 1.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <div style={{ fontSize:12, fontWeight:800, color:"#FF9B7A", letterSpacing:"-0.01em" }}>Contacto de emergencia</div>
+          <span style={{ fontSize:10, color:"rgba(255,155,122,.45)", marginLeft:"auto" }}>Opcional</span>
+        </div>
+        {[
+          { lb:"Nombre del contacto", ph:"Ej: María García (mamá)", val:regContactoNombre, set:setRegContactoNombre, type:"text" },
+          { lb:"Teléfono del contacto", ph:"Ej: 3109876543", val:regContactoTel, set:setRegContactoTel, type:"tel" },
+        ].map(({ lb, ph, val, set, type }) => (
+          <div key={lb} style={{ marginBottom:10 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,155,122,.55)", letterSpacing:".10em", textTransform:"uppercase", marginBottom:5 }}>{lb}</div>
+            <input type={type} placeholder={ph} value={val} onChange={e => set(e.target.value)}
+              style={{ width:"100%", padding:"11px 13px", background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,123,90,.15)", borderRadius:11, fontSize:13, outline:"none", color:"#F5EEE8", fontFamily:"inherit", boxSizing:"border-box" }}
+              onFocus={e => e.target.style.borderColor="rgba(255,123,90,.45)"}
+              onBlur={e => e.target.style.borderColor="rgba(255,123,90,.15)"}/>
           </div>
         ))}
       </div>
 
-      {/* BOTÓN */}
-      <button
-        onClick={handleRegister}
-        style={{ width:"100%", height:50, background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", color:"white", borderRadius:14, fontSize:15, fontWeight:700, border:"none", cursor:"pointer", fontFamily:"inherit", letterSpacing:"-0.01em", boxShadow:"0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(255,90,54,.35)", touchAction:"manipulation" }}
-      >
-        Crear cuenta
+      {/* BOTÓN ENVIAR */}
+      <button onClick={handleSolicitarRegistro} disabled={regLoading}
+        style={{ width:"100%", height:54, background: regLoading ? "rgba(255,255,255,.10)" : "linear-gradient(135deg,#FF8B6A,#FF5A36)", color:"white", borderRadius:16, fontSize:15, fontWeight:800, border:"none", cursor: regLoading ? "default" : "pointer", fontFamily:"inherit", letterSpacing:"-0.01em", boxShadow: regLoading ? "none" : "0 4px 20px rgba(255,90,54,.35), inset 0 1px 0 rgba(255,255,255,.20)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent", transition:"all 200ms ease" }}>
+        {regLoading ? "Enviando solicitud..." : "Enviar solicitud de registro"}
       </button>
-    </div>
 
-    {/* LINK LOGIN */}
-    <div style={{ marginTop:24, fontSize:12, color:C.light, textAlign:"center" }}>
-      ¿Ya tienes cuenta?{" "}
-      <span onClick={() => showScreen("login")} style={{ color:C.plum, fontWeight:700, cursor:"pointer" }}>
-        Inicia sesión
-      </span>
+      <div style={{ marginTop:20, fontSize:12, color:"rgba(255,255,255,.25)", textAlign:"center" }}>
+        ¿Ya tienes acceso?{" "}
+        <span onClick={() => showScreen("login")} style={{ color:"#FF9B7A", fontWeight:700, cursor:"pointer" }}>Inicia sesión</span>
+      </div>
     </div>
+  </div>
+)}
 
+{!notifPanel && screen === "registro-enviado" && (
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 28px", background:"radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%)", textAlign:"center" }}>
+    <div style={{ width:80, height:80, borderRadius:24, background:"linear-gradient(135deg,rgba(78,205,196,.20),rgba(110,237,223,.12))", border:"1px solid rgba(78,205,196,.30)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:24, boxShadow:"0 0 40px rgba(78,205,196,.15)" }}>
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#6EEDDF" strokeWidth="1.75" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style={{ fontSize:24, fontWeight:900, color:"white", letterSpacing:"-0.025em", marginBottom:10 }}>¡Solicitud enviada!</div>
+    <div style={{ fontSize:14, color:"rgba(255,255,255,.50)", lineHeight:1.65, marginBottom:32, maxWidth:280 }}>
+      El administrador revisará tu solicitud y te dará acceso. Cuando esté aprobada, podrás iniciar sesión con tu correo y PIN.
+    </div>
+    <div style={{ background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.08)", borderRadius:16, padding:"16px 20px", marginBottom:28, width:"100%" }}>
+      <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.35)", letterSpacing:".14em", textTransform:"uppercase", marginBottom:6 }}>¿Qué sigue?</div>
+      {["El administrador revisa tu solicitud","Te activan el acceso","Ingresas con tu correo y PIN"].map((paso, i) => (
+        <div key={i} style={{ display:"flex", alignItems:"center", gap:10, marginBottom:i<2?8:0 }}>
+          <div style={{ width:22, height:22, borderRadius:"50%", background:"rgba(110,237,223,.15)", border:"1px solid rgba(110,237,223,.25)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:11, fontWeight:800, color:"#6EEDDF" }}>{i+1}</div>
+          <div style={{ fontSize:12, color:"rgba(255,255,255,.55)" }}>{paso}</div>
+        </div>
+      ))}
+    </div>
+    <button onClick={() => showScreen("login")} style={{ width:"100%", height:50, background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", color:"white", borderRadius:14, fontSize:14, fontWeight:800, border:"none", cursor:"pointer", fontFamily:"inherit", boxShadow:"0 4px 16px rgba(255,90,54,.30)", letterSpacing:"-0.01em" }}>
+      Ir al inicio de sesión
+    </button>
   </div>
 )}
 
@@ -10119,6 +10245,45 @@ const styles = `
 
     <div style={{ padding:"16px 16px", paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
 
+      {/* ── SOLICITUDES PENDIENTES ── */}
+      {solicitudesRegistro.length > 0 && (
+        <div style={{ marginBottom:20 }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+              <div style={{ fontSize:9, fontWeight:700, color:C.light, letterSpacing:".14em", textTransform:"uppercase" }}>Solicitudes pendientes</div>
+              <div style={{ width:20, height:20, borderRadius:"50%", background:"linear-gradient(135deg,#FF8B6A,#FF5A36)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                <span style={{ fontSize:10, fontWeight:900, color:"white" }}>{solicitudesRegistro.length}</span>
+              </div>
+            </div>
+            <div onClick={() => { setModal("solicitudes-registro"); }} style={{ fontSize:11, fontWeight:700, color:C.plum, cursor:"pointer" }}>Ver todas ›</div>
+          </div>
+          {solicitudesRegistro.slice(0,2).map(sol => (
+            <div key={sol.id} style={{ background:"white", borderRadius:16, padding:"13px 14px", marginBottom:8, border:"1px solid rgba(255,123,90,.15)", boxShadow:"0 2px 8px rgba(255,90,54,.07)" }}>
+              <div style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:10 }}>
+                <div style={{ width:38, height:38, borderRadius:11, background:"rgba(255,123,90,.10)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:13, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>{sol.nombre}</div>
+                  <div style={{ fontSize:10, color:C.light, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{sol.email}</div>
+                  <div style={{ fontSize:9, color:C.light, marginTop:2 }}>{new Date(sol.fechaCreacion).toLocaleDateString("es-CO",{day:"numeric",month:"short",year:"numeric"})}</div>
+                </div>
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:7 }}>
+                <div onClick={() => handleRechazarSolicitud(sol.id, sol.nombre)} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"8px 0", background:"rgba(255,107,107,.08)", border:"1px solid rgba(255,107,107,.18)", borderRadius:10, cursor:"pointer", touchAction:"manipulation" }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <span style={{ fontSize:11, fontWeight:700, color:C.red }}>Rechazar</span>
+                </div>
+                <div onClick={() => { setSolicitudActual(sol); setFormPinAdmin(""); setModal("confirmar-aprobar-solicitud"); }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"8px 0", background:"linear-gradient(135deg,rgba(61,122,82,.15),rgba(30,77,43,.10))", border:"1px solid rgba(30,77,43,.22)", borderRadius:10, cursor:"pointer", touchAction:"manipulation" }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span style={{ fontSize:11, fontWeight:700, color:"#1E4D2B" }}>Aprobar</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ── ACCIONES RÁPIDAS ── */}
       <div style={{ fontSize:9, fontWeight:700, color:C.light, letterSpacing:".14em", textTransform:"uppercase", marginBottom:10 }}>Acciones</div>
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
@@ -10389,6 +10554,73 @@ const styles = `
 ))}
 
     </div>
+
+    {/* ── MODAL: lista completa de solicitudes ── */}
+    {mdl("solicitudes-registro", (
+      <div>
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:18 }}>
+          <div style={{ width:44, height:44, borderRadius:13, background:"rgba(255,123,90,.10)", border:"1px solid rgba(255,123,90,.18)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.plum} strokeWidth="1.75" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          </div>
+          <div>
+            <div style={{ fontSize:17, fontWeight:900, color:C.text, letterSpacing:"-0.02em" }}>Solicitudes pendientes</div>
+            <div style={{ fontSize:11, color:C.light, marginTop:1 }}>{solicitudesRegistro.length} en espera de aprobación</div>
+          </div>
+        </div>
+        {solicitudesRegistro.length === 0 ? (
+          <div style={{ textAlign:"center", padding:"24px 0", color:C.light, fontSize:12 }}>No hay solicitudes pendientes</div>
+        ) : solicitudesRegistro.map(sol => (
+          <div key={sol.id} style={{ background:"rgba(0,0,0,.025)", borderRadius:14, padding:"13px 14px", marginBottom:10, border:"1px solid rgba(0,0,0,.08)" }}>
+            <div style={{ marginBottom:10 }}>
+              <div style={{ fontSize:14, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>{sol.nombre}</div>
+              <div style={{ fontSize:11, color:C.light, marginTop:2 }}>{sol.email}</div>
+              {sol.telefono && <div style={{ fontSize:11, color:C.light }}>📱 {sol.telefono}</div>}
+              {sol.fechaNacimiento && <div style={{ fontSize:10, color:C.light, marginTop:1 }}>🎂 {new Date(sol.fechaNacimiento + "T00:00:00").toLocaleDateString("es-CO",{day:"numeric",month:"long",year:"numeric"})}</div>}
+              {sol.contactoEmergenciaNombre && (
+                <div style={{ fontSize:10, color:"#FF7B5A", marginTop:3 }}>🚨 {sol.contactoEmergenciaNombre} — {sol.contactoEmergenciaTel}</div>
+              )}
+              <div style={{ fontSize:9, color:C.light, marginTop:3 }}>Solicitado el {new Date(sol.fechaCreacion).toLocaleDateString("es-CO",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</div>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:7 }}>
+              <div onClick={() => { handleRechazarSolicitud(sol.id, sol.nombre); }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"9px 0", background:"rgba(255,107,107,.08)", border:"1px solid rgba(255,107,107,.18)", borderRadius:10, cursor:"pointer" }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <span style={{ fontSize:11, fontWeight:700, color:C.red }}>Rechazar</span>
+              </div>
+              <div onClick={() => { setSolicitudActual(sol); setFormPinAdmin(""); setModal("confirmar-aprobar-solicitud"); }} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"9px 0", background:"rgba(30,77,43,.10)", border:"1px solid rgba(30,77,43,.20)", borderRadius:10, cursor:"pointer" }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <span style={{ fontSize:11, fontWeight:700, color:"#1E4D2B" }}>Aprobar</span>
+              </div>
+            </div>
+          </div>
+        ))}
+        {btn(() => setModal(null), "Cerrar", { width:"100%", padding:12, background:"rgba(0,0,0,.07)", color:C.text, borderRadius:12, fontSize:13, fontWeight:700, marginTop:8 })}
+      </div>
+    ))}
+
+    {/* ── MODAL: confirmar aprobación con PIN admin ── */}
+    {mdl("confirmar-aprobar-solicitud", (
+      <div style={{ textAlign:"center" }}>
+        <div style={{ width:56, height:56, borderRadius:16, background:"rgba(30,77,43,.12)", border:"1px solid rgba(30,77,43,.20)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1E4D2B" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        </div>
+        <div style={{ fontSize:17, fontWeight:900, color:C.text, marginBottom:4, letterSpacing:"-0.015em" }}>Aprobar registro</div>
+        <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:4 }}>{solicitudActual?.nombre}</div>
+        <div style={{ fontSize:11, color:C.light, marginBottom:6 }}>{solicitudActual?.email}</div>
+        <div style={{ fontSize:11, color:C.light, lineHeight:1.6, marginBottom:20 }}>
+          Se creará la cuenta del paciente con los datos registrados. Esta acción no se puede deshacer.
+        </div>
+        <div style={{ background:"rgba(255,123,90,.05)", border:"1px solid rgba(255,123,90,.14)", borderRadius:13, padding:"13px 14px", marginBottom:18, textAlign:"left" }}>
+          <div style={{ fontSize:10, fontWeight:700, color:C.plum, textTransform:"uppercase", letterSpacing:".12em", marginBottom:8 }}>Tu PIN de administrador</div>
+          <input type="password" placeholder="PIN de 4 dígitos" inputMode="numeric" maxLength={4} value={formPinAdmin} onChange={e => setFormPinAdmin(e.target.value.replace(/\D/g,""))}
+            style={{ width:"100%", padding:"12px 13px", border:`1px solid ${formPinAdmin.length===4?"rgba(255,123,90,.40)":"rgba(0,0,0,.12)"}`, borderRadius:11, fontSize:18, outline:"none", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:"0.28em", background:"white", color:C.text }}/>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9 }}>
+          {btn(() => { setModal(null); setSolicitudActual(null); setFormPinAdmin(""); }, "Cancelar", { padding:"12px 0", background:"rgba(0,0,0,.07)", color:C.text, borderRadius:12, fontSize:13, fontWeight:700 })}
+          {btn(() => { if (formPinAdmin.length < 4) { showToast("Ingresa tu PIN ❌"); return; } handleAprobarSolicitud(solicitudActual); }, "Sí, aprobar", { padding:"12px 0", background: formPinAdmin.length<4 ? "rgba(0,0,0,.12)" : "linear-gradient(135deg,#3D7A52,#1E4D2B)", color:"white", borderRadius:12, fontSize:13, fontWeight:800, boxShadow: formPinAdmin.length===4 ? "0 4px 14px rgba(30,77,43,.30)" : "none" })}
+        </div>
+      </div>
+    ))}
+
     {anav("admin-home")}
   </div>
 )}
