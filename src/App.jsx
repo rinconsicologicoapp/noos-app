@@ -2598,6 +2598,12 @@ useEffect(() => {
       const docSnap = await getDoc(doc(db, "usuarios", user.uid));
       if (docSnap.exists()) {
         const data = docSnap.data();
+        if (data.inactivo && data.rol !== "administrador") {
+          await signOut(auth);
+          showToast("Por lo visto has completado satisfactoriamente la terapia 🙂 Si crees que es un error, contacta a tu psicólogo encargado");
+          setCheckingAuth(false);
+          return;
+        }
         setUsuarioActual({ uid: user.uid, ...data });
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         await updateDoc(doc(db, "usuarios", user.uid), { timezone });
