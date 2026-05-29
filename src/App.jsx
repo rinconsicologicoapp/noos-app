@@ -5863,6 +5863,29 @@ const styles = `
                               <span style={{ fontSize:10, fontWeight:700, color:C.amber }}>Me demoraré</span>
                             </div>
                           )}
+                          {/* Recordatorio de cita — solo psicólogo, citas confirmadas */}
+                          {c.status==="confirmada" && usuarioActual?.rol==="psicologo" && (() => {
+                            const yaEnvio = window[`_recordCita_${c.id}`];
+                            return (
+                              <div onClick={async () => {
+                                if (yaEnvio) return;
+                                window[`_recordCita_${c.id}`] = true;
+                                const fechaTexto = mostrarFechaLocal(c, "completa") || c.fecha;
+                                const horaTexto  = mostrarFechaLocal(c, "hora")    || c.hora;
+                                await enviarPushDirecto(
+                                  c.pacienteId,
+                                  "🗓 Recordatorio de cita",
+                                  `Hoy tienes cita con tu psicólogo a las ${horaTexto}. ¡No lo olvides! 🙂`,
+                                  "recordatorio_cita",
+                                  { citaId: c.id }
+                                );
+                                showToast("Recordatorio enviado al paciente 🔔");
+                              }} style={{ display:"flex", alignItems:"center", gap:5, padding:"4px 11px", borderRadius:20, background: yaEnvio ? "rgba(0,0,0,.05)" : "rgba(78,163,130,.10)", border:`1px solid ${yaEnvio ? "rgba(0,0,0,.10)" : "rgba(78,163,130,.22)"}`, cursor: yaEnvio ? "default" : "pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent", transition:"all 160ms ease" }}>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={yaEnvio ? "#999" : "#3D8A68"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                                <span style={{ fontSize:10, fontWeight:700, color: yaEnvio ? "#999" : "#3D8A68" }}>{yaEnvio ? "Enviado ✓" : "Recordar cita"}</span>
+                              </div>
+                            );
+                          })()}
                         </div>
 
                         {/* Notas */}
@@ -5990,6 +6013,25 @@ const styles = `
                         <div style={{ display:"flex", gap:8 }}>
                           {btn(()=>{ setCitaSeleccionada(citaDetalle); setModal("confirmar-cita"); setCitaDetalle(null); }, "✓ Confirmar asistencia", { flex:1, padding:10, borderRadius:11, background:C.green, color:"white", fontWeight:800, fontSize:12 })}
                           {btn(()=>{ setCitaSeleccionada(citaDetalle); setModal("cancelar-cita"); setCitaDetalle(null); }, "Cancelar", { padding:10, borderRadius:11, background:"rgba(255,107,107,.15)", color:C.red, fontWeight:800, fontSize:12 })}
+                        </div>
+                      )}
+                      {citaDetalle.status==="confirmada" && usuarioActual?.rol==="psicologo" && (
+                        <div style={{ marginBottom:8 }}>
+                          {btn(async () => {
+                            const key = `_recordCita_${citaDetalle.id}`;
+                            if (window[key]) return;
+                            window[key] = true;
+                            const horaTexto = mostrarFechaLocal(citaDetalle, "hora") || citaDetalle.hora;
+                            await enviarPushDirecto(
+                              citaDetalle.pacienteId,
+                              "🗓 Recordatorio de cita",
+                              `Hoy tienes cita con tu psicólogo a las ${horaTexto}. ¡No lo olvides! 🙂`,
+                              "recordatorio_cita",
+                              { citaId: citaDetalle.id }
+                            );
+                            showToast("Recordatorio enviado al paciente 🔔");
+                          }, window[`_recordCita_${citaDetalle?.id}`] ? "✓ Recordatorio enviado" : "🔔 Recordar cita al paciente",
+                          { width:"100%", padding:10, borderRadius:11, background: window[`_recordCita_${citaDetalle?.id}`] ? "rgba(0,0,0,.06)" : "rgba(78,163,130,.12)", color: window[`_recordCita_${citaDetalle?.id}`] ? "#999" : "#3D8A68", fontWeight:800, fontSize:12, border:`1px solid ${window[`_recordCita_${citaDetalle?.id}`] ? "transparent" : "rgba(78,163,130,.22)"}` })}
                         </div>
                       )}
                       {btn(()=>setCitaDetalle(null), "Cerrar", { width:"100%", padding:10, background:C.warm, color:C.text, borderRadius:11, fontSize:12, fontWeight:700, marginTop:8 })}
