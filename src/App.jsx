@@ -1264,11 +1264,13 @@ const handleSolicitarRegistro = async () => {
   setRegLoading(false);
 };
 
-const cargarSolicitudesRegistro = async () => {
-  try {
-    const snap = await getDocs(query(collection(db, "solicitudesRegistro"), where("estado","==","pendiente")));
-    setSolicitudesRegistro(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-  } catch(e) { console.log("Error cargando solicitudes:", e); }
+const cargarSolicitudesRegistro = () => {
+  if (window._unsubSolicitudes) { window._unsubSolicitudes(); window._unsubSolicitudes = null; }
+  const q = query(collection(db, "solicitudesRegistro"), where("estado","==","pendiente"));
+  window._unsubSolicitudes = onSnapshot(q,
+    (snap) => setSolicitudesRegistro(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+    (e) => console.log("Error escuchando solicitudes:", e)
+  );
 };
 
 const handleAprobarSolicitud = async (sol) => {
@@ -1298,7 +1300,6 @@ const handleAprobarSolicitud = async (sol) => {
     await signInWithEmailAndPassword(auth, adminEmail, formPinAdmin + "**");
     window._adminCreatingUser = false;
     showToast(`✅ ${sol.nombre} aprobado y cuenta creada`);
-    cargarSolicitudesRegistro();
     cargarTodosUsuarios();
     setModal(null);
   } catch(e) {
@@ -1312,7 +1313,6 @@ const handleRechazarSolicitud = async (solId, nombre) => {
   try {
     await updateDoc(doc(db, "solicitudesRegistro", solId), { estado: "rechazado" });
     showToast(`${nombre} rechazado`);
-    cargarSolicitudesRegistro();
   } catch(e) { showToast("Error ❌"); }
 };
 const cargarCitas = async (uid, rol) => {
