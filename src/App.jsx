@@ -1227,10 +1227,10 @@ const handleRegister = async () => {
 const handleSolicitarRegistro = async () => {
   if (regLoading) return;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!regNombre.trim() || !regEmail.trim() || !regTel.trim() || !regFecha || regPin.length < 4) {
-    showToast("Completa todos los campos obligatorios ❌");
-    return;
-  }
+  if (!regNombre.trim()) { showToast("Escribe tu nombre completo ❌"); return; }
+  if (!regEmail.trim()) { showToast("Escribe tu correo electrónico ❌"); return; }
+  if (!regTel.trim()) { showToast("Escribe tu teléfono ❌"); return; }
+  if (regPin.length < 4) { showToast("El PIN debe tener 4 dígitos ❌"); return; }
   if (!emailRegex.test(regEmail.trim())) {
     showToast("El correo no es válido ❌");
     return;
@@ -4205,13 +4205,13 @@ const styles = `
 
       {/* CAMPOS */}
       {[
-        { lb:"Nombre completo *", ph:"Tu nombre completo", val:regNombre, set:setRegNombre, type:"text" },
-        { lb:"Correo electrónico *", ph:"tu@correo.com", val:regEmail, set:setRegEmail, type:"email" },
-        { lb:"Teléfono *", ph:"Ej: 3001234567", val:regTel, set:setRegTel, type:"tel" },
-      ].map(({ lb, ph, val, set, type }) => (
+        { lb:"Nombre completo *", ph:"Tu nombre completo", val:regNombre, set:setRegNombre, type:"text", ac:"name" },
+        { lb:"Correo electrónico *", ph:"tu@correo.com", val:regEmail, set:setRegEmail, type:"email", ac:"email" },
+        { lb:"Teléfono *", ph:"Ej: 3001234567", val:regTel, set:setRegTel, type:"tel", ac:"tel" },
+      ].map(({ lb, ph, val, set, type, ac }) => (
         <div key={lb} style={{ marginBottom:14 }}>
           <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.40)", letterSpacing:".12em", textTransform:"uppercase", marginBottom:6 }}>{lb}</div>
-          <input type={type} placeholder={ph} value={val} onChange={e => set(e.target.value)}
+          <input type={type} placeholder={ph} value={val} onChange={e => set(e.target.value)} autoComplete={ac}
             style={{ width:"100%", padding:"13px 15px", background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.09)", borderRadius:13, fontSize:14, outline:"none", color:"#F5EEE8", fontFamily:"inherit", boxSizing:"border-box", transition:"border-color 150ms ease" }}
             onFocus={e => e.target.style.borderColor="rgba(255,123,90,.50)"}
             onBlur={e => e.target.style.borderColor="rgba(255,255,255,.09)"}/>
@@ -4219,9 +4219,13 @@ const styles = `
       ))}
 
       <div style={{ marginBottom:14 }}>
-        <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.40)", letterSpacing:".12em", textTransform:"uppercase", marginBottom:6 }}>Fecha de nacimiento *</div>
+        <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.40)", letterSpacing:".12em", textTransform:"uppercase", marginBottom:6 }}>Fecha de nacimiento <span style={{ opacity:.45 }}>(opcional)</span></div>
         <input type="date" value={regFecha} onChange={e => setRegFecha(e.target.value)}
-          style={{ width:"100%", padding:"13px 15px", background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.09)", borderRadius:13, fontSize:14, outline:"none", color:"#F5EEE8", fontFamily:"inherit", boxSizing:"border-box", colorScheme:"dark" }}/>
+          max={new Date().toISOString().split("T")[0]}
+          autoComplete="bday"
+          style={{ width:"100%", padding:"13px 15px", background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.09)", borderRadius:13, fontSize:14, outline:"none", color: regFecha ? "#F5EEE8" : "rgba(255,255,255,.30)", fontFamily:"inherit", boxSizing:"border-box", colorScheme:"dark" }}
+          onFocus={e => e.target.style.borderColor="rgba(255,123,90,.50)"}
+          onBlur={e => e.target.style.borderColor="rgba(255,255,255,.09)"}/>
       </div>
 
       {/* PIN */}
@@ -4232,8 +4236,10 @@ const styles = `
             <div key={i} style={{ width:13, height:13, borderRadius:"50%", background: regPin.length > i ? "#FF7B5A" : "transparent", border:`2px solid ${regPin.length > i ? "#FF7B5A" : "rgba(255,255,255,.22)"}`, transition:"all 200ms cubic-bezier(.34,1.56,.64,1)", transform: regPin.length > i ? "scale(1.15)" : "scale(1)" }}/>
           ))}
         </div>
-        <input type="password" placeholder="••••" inputMode="numeric" maxLength={4} value={regPin} onChange={e => setRegPin(e.target.value.replace(/\D/g,""))}
-          style={{ width:"100%", padding:"13px 15px", background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.09)", borderRadius:13, fontSize:20, outline:"none", color:"#F5EEE8", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center", letterSpacing:"0.28em" }}
+        <input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={regPin}
+          onChange={e => setRegPin(e.target.value.replace(/\D/g,""))}
+          autoComplete="off" aria-label="PIN de 4 dígitos"
+          style={{ width:"100%", padding:"13px 15px", background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.09)", borderRadius:13, fontSize:20, outline:"none", color:"transparent", caretColor:"transparent", fontFamily:"inherit", boxSizing:"border-box", textAlign:"center" }}
           onFocus={e => e.target.style.borderColor="rgba(255,123,90,.50)"}
           onBlur={e => e.target.style.borderColor="rgba(255,255,255,.09)"}/>
         <div style={{ fontSize:10, color:"rgba(255,255,255,.25)", textAlign:"center", marginTop:6 }}>Este será tu PIN para ingresar a la app</div>
