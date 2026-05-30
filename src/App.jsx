@@ -3964,10 +3964,13 @@ const styles = `
 
           {/* LOGIN */}
 {!notifPanel && screen === "login" && (
-  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"32px 24px", background:"radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%)", position:"relative", overflow:"hidden" }}>
+  <div style={{ height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-start", overflowY:"auto", WebkitOverflowScrolling:"touch", padding:"32px 24px", paddingTop:"max(32px, env(safe-area-inset-top, 32px))", paddingBottom:"max(32px, env(safe-area-inset-bottom, 32px))", background:"radial-gradient(ellipse 80% 60% at 50% -10%, #1A0D28 0%, #07060F 60%)", position:"relative" }}>
 
     {/* AURA de fondo */}
-    <div style={{ position:"absolute", width:320, height:320, borderRadius:"50%", background:"radial-gradient(ellipse, rgba(255,123,90,.18) 0%, rgba(78,205,196,.05) 50%, transparent 70%)", top:"15%", left:"50%", transform:"translateX(-50%)", pointerEvents:"none" }}/>
+    <div style={{ position:"fixed", width:320, height:320, borderRadius:"50%", background:"radial-gradient(ellipse, rgba(255,123,90,.18) 0%, rgba(78,205,196,.05) 50%, transparent 70%)", top:"15%", left:"50%", transform:"translateX(-50%)", pointerEvents:"none" }}/>
+
+    {/* Espaciador flex para centrar verticalmente cuando hay espacio */}
+    <div style={{ flex:1, minHeight:0 }}/>
 
     {/* PILL TOP */}
     <div style={{ width:40, height:3, borderRadius:2, background:"rgba(255,123,90,0.25)", marginBottom:32 }}/>
@@ -4181,6 +4184,9 @@ const styles = `
         )}
       </div>
     )}
+
+    {/* Espaciador inferior para centrado vertical cuando hay espacio */}
+    <div style={{ flex:1, minHeight:0 }}/>
 
   </div>
 )}
