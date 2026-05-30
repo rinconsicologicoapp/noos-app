@@ -7241,9 +7241,9 @@ const styles = `
             <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F3F0", animation:"screenFade 0.18s ease both" }}>
 
               {/* ── HERO HEADER ── */}
-              <div style={{ position:"relative", background:"linear-gradient(170deg,#1A0D28 0%,#0F1A10 55%,#162A1C 100%)", padding:"0 0 56px", overflow:"hidden" }}>
+              <div style={{ position:"relative", background:"linear-gradient(170deg,#162A1C 0%,#0F2015 55%,#0A1A10 100%)", padding:"0 0 56px", overflow:"hidden" }}>
                 {/* Aura decorativa */}
-                <div style={{ position:"absolute", top:-60, left:"50%", transform:"translateX(-50%)", width:320, height:320, borderRadius:"50%", background:"radial-gradient(ellipse,rgba(255,123,90,.18) 0%,rgba(78,205,196,.06) 50%,transparent 70%)", pointerEvents:"none" }}/>
+                <div style={{ position:"absolute", top:-60, left:"50%", transform:"translateX(-50%)", width:320, height:320, borderRadius:"50%", background:"radial-gradient(ellipse,rgba(61,122,82,.30) 0%,rgba(255,123,90,.08) 55%,transparent 70%)", pointerEvents:"none" }}/>
                 {/* Safe area top */}
                 <div style={{ height:"max(20px,env(safe-area-inset-top,20px))" }}/>
                 {/* Acciones top */}
@@ -7257,10 +7257,10 @@ const styles = `
                 <div style={{ display:"flex", flexDirection:"column", alignItems:"center", padding:"18px 24px 0" }}>
                   <div style={{ position:"relative", marginBottom:14 }}>
                     {/* Glow ring */}
-                    <div style={{ position:"absolute", inset:-4, borderRadius:"50%", background:"linear-gradient(135deg,rgba(255,123,90,.5),rgba(78,205,196,.3))", filter:"blur(6px)", opacity:.7 }}/>
+                    <div style={{ position:"absolute", inset:-4, borderRadius:"50%", background:"linear-gradient(135deg,rgba(255,123,90,.45),rgba(61,122,82,.40))", filter:"blur(6px)", opacity:.65 }}/>
                     <div
                       onClick={() => usuarioActual?.foto ? setFotoAmpliada(usuarioActual.foto) : null}
-                      style={{ position:"relative", width:88, height:88, borderRadius:"50%", overflow:"hidden", border:"2.5px solid rgba(255,155,122,.5)", background:"rgba(255,123,90,.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, cursor: usuarioActual?.foto ? "pointer" : "default", flexShrink:0 }}>
+                      style={{ position:"relative", width:88, height:88, borderRadius:"50%", overflow:"hidden", border:"2.5px solid rgba(255,155,122,.45)", background:"rgba(30,77,43,.25)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, cursor: usuarioActual?.foto ? "pointer" : "default", flexShrink:0 }}>
                       {usuarioActual?.foto
                         ? <img src={usuarioActual.foto} alt="foto" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
                         : (avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar)
@@ -7290,19 +7290,19 @@ const styles = `
 
                 {/* MI PSICÓLOGO — card destacada */}
                 <div onClick={() => showScreen("perfil-psicologo")}
-                  style={{ background:"linear-gradient(135deg,#1E1030 0%,#2A1840 100%)", borderRadius:20, padding:"14px 16px", display:"flex", alignItems:"center", gap:14, marginBottom:12, cursor:"pointer", boxShadow:"0 4px 24px rgba(0,0,0,.22), 0 1px 0 rgba(255,255,255,.06) inset", border:"1px solid rgba(255,123,90,.18)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
-                  <div style={{ width:46, height:46, borderRadius:14, background:"linear-gradient(135deg,rgba(255,123,90,.25),rgba(255,179,71,.15))", border:"1px solid rgba(255,123,90,.25)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF9B7A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  style={{ background:"linear-gradient(135deg,#0F2015 0%,#162A1C 100%)", borderRadius:20, padding:"14px 16px", display:"flex", alignItems:"center", gap:14, marginBottom:12, cursor:"pointer", boxShadow:"0 4px 24px rgba(0,0,0,.22), 0 1px 0 rgba(255,255,255,.05) inset", border:"1px solid rgba(61,122,82,.30)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                  <div style={{ width:46, height:46, borderRadius:14, background:"rgba(61,122,82,.20)", border:"1px solid rgba(61,122,82,.30)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6EB482" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,155,122,.45)", textTransform:"uppercase", letterSpacing:".10em", marginBottom:2 }}>Mi psicólogo</div>
+                    <div style={{ fontSize:10, fontWeight:700, color:"rgba(110,180,130,.55)", textTransform:"uppercase", letterSpacing:".10em", marginBottom:2 }}>Mi psicólogo</div>
                     <div style={{ fontSize:14, fontWeight:700, color:"white", letterSpacing:"-0.01em", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{usuarioActual?.psicologoNombre || "Ver perfil"}</div>
                   </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,155,122,.4)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(110,180,130,.35)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
 
                 {/* ── MI CUENTA ── */}
-                <div style={{ fontSize:10, fontWeight:700, color:"rgba(0,0,0,.35)", marginBottom:8, letterSpacing:".12em", textTransform:"uppercase", paddingLeft:4 }}>Mi cuenta</div>
+                <div style={{ fontSize:10, fontWeight:700, color:"#5C7A65", marginBottom:8, letterSpacing:".12em", textTransform:"uppercase", paddingLeft:4 }}>Mi cuenta</div>
                 <div style={{ background:"white", borderRadius:18, overflow:"hidden", marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.06)", border:"1px solid rgba(0,0,0,.06)" }}>
 
                   {/* Cambiar avatar */}
@@ -7327,7 +7327,7 @@ const styles = `
                 </div>
 
                 {/* ── CONFIGURACIÓN ── */}
-                <div style={{ fontSize:10, fontWeight:700, color:"rgba(0,0,0,.35)", marginBottom:8, letterSpacing:".12em", textTransform:"uppercase", paddingLeft:4 }}>Configuración</div>
+                <div style={{ fontSize:10, fontWeight:700, color:"#5C7A65", marginBottom:8, letterSpacing:".12em", textTransform:"uppercase", paddingLeft:4 }}>Configuración</div>
                 <div style={{ background:"white", borderRadius:18, overflow:"hidden", marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.06)", border:"1px solid rgba(0,0,0,.06)" }}>
 
                   {/* Privacidad */}
