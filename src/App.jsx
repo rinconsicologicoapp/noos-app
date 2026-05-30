@@ -959,6 +959,7 @@ const [regContactoTel, setRegContactoTel] = useState("");
 const [regLoading, setRegLoading] = useState(false);
 const [solicitudesRegistro, setSolicitudesRegistro] = useState([]);
 const [solicitudActual, setSolicitudActual] = useState(null);
+const [fotoAmpliada, setFotoAmpliada] = useState(null);
   const [noteTab, setNoteTab] = useState("insights");
   const [avatar, setAvatar] = useState("🦋");
   const [modal, setModal] = useState(null);
@@ -10802,10 +10803,23 @@ const styles = `
                 <div onClick={() => goBack()} style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", borderRadius:10, background:"rgba(255,255,255,0.1)", flexShrink:0 }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </div>
-                <div style={{ width:50, height:50, background:"rgba(0,0,0,.12)", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26 }}>👤</div>
-                <div>
-                  <div style={{ fontSize:18, fontWeight:900, color:"white" }}>{pacienteSeleccionado?.nombre || "Paciente"}</div>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)" }}>{pacienteSeleccionado?.email || ""}</div>
+                <div
+                  onClick={() => pacienteSeleccionado?.foto && setFotoAmpliada(pacienteSeleccionado.foto)}
+                  style={{ width:52, height:52, borderRadius:"50%", overflow:"hidden", flexShrink:0, background:"rgba(0,0,0,.18)", border:"2px solid rgba(255,255,255,.25)", display:"flex", alignItems:"center", justifyContent:"center", cursor: pacienteSeleccionado?.foto ? "pointer" : "default", position:"relative" }}>
+                  {pacienteSeleccionado?.foto
+                    ? <img src={pacienteSeleccionado.foto} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
+                    : <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="rgba(255,255,255,.55)"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="rgba(255,255,255,.55)"/></svg>
+                  }
+                  {pacienteSeleccionado?.foto && (
+                    <div style={{ position:"absolute", inset:0, background:"rgba(0,0,0,.0)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="2" strokeLinecap="round" style={{ opacity:0 }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </div>
+                  )}
+                </div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:18, fontWeight:900, color:"white", letterSpacing:"-0.01em" }}>{pacienteSeleccionado?.nombre || "Paciente"}</div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,0.6)", marginTop:2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{pacienteSeleccionado?.email || ""}</div>
+                  {pacienteSeleccionado?.foto && <div style={{ fontSize:9, color:"rgba(255,255,255,.35)", marginTop:3, fontWeight:600, letterSpacing:".06em" }}>TAP PARA VER FOTO</div>}
                 </div>
               </div>
               <div style={{ padding:14, paddingBottom:"calc(100px + env(safe-area-inset-bottom, 24px))" }}>
@@ -11706,6 +11720,17 @@ const styles = `
                 </div>
               ))}
               {anav("admin-paciente")}
+
+              {/* Lightbox foto paciente */}
+              {fotoAmpliada && (
+                <div onClick={() => setFotoAmpliada(null)}
+                  style={{ position:"fixed", inset:0, zIndex:9999, background:"rgba(0,0,0,.92)", display:"flex", alignItems:"center", justifyContent:"center", animation:"fadeIn .18s ease both", touchAction:"manipulation" }}>
+                  <img src={fotoAmpliada} alt="" style={{ maxWidth:"92vw", maxHeight:"88vh", borderRadius:16, objectFit:"contain", boxShadow:"0 8px 48px rgba(0,0,0,.7)" }}/>
+                  <div style={{ position:"absolute", top:"max(20px,env(safe-area-inset-top,20px))", right:20, width:38, height:38, borderRadius:"50%", background:"rgba(255,255,255,.12)", border:"1px solid rgba(255,255,255,.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
