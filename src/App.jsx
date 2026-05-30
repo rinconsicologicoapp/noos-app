@@ -7242,14 +7242,18 @@ const styles = `
 
               {/* HEADER */}
               <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"28px 20px 40px", textAlign:"center" }}>
-                <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); }} style={{ position:"relative", display:"inline-block", marginBottom:10, cursor:"pointer" }}>
-                  <div style={{ width:64, height:64, background:"rgba(255,123,90,0.2)", borderRadius:"50%", border:"2px solid rgba(255,155,122,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, overflow:"hidden" }}>
+                <div style={{ position:"relative", display:"inline-block", marginBottom:10 }}>
+                  <div
+                    onClick={() => usuarioActual?.foto ? setFotoAmpliada(usuarioActual.foto) : null}
+                    style={{ width:64, height:64, background:"rgba(255,123,90,0.2)", borderRadius:"50%", border:"2px solid rgba(255,155,122,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, overflow:"hidden", cursor: usuarioActual?.foto ? "pointer" : "default" }}>
                     {usuarioActual?.foto
                       ? <img src={usuarioActual.foto} alt="foto" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
                       : (avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar)
                     }
                   </div>
-                  <div style={{ position:"absolute", bottom:0, right:0, width:22, height:22, background:"#FF7B5A", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid #0D0B1E" }}>
+                  <div
+                    onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); }}
+                    style={{ position:"absolute", bottom:0, right:0, width:22, height:22, background:"#FF7B5A", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid #0D0B1E", cursor:"pointer", touchAction:"manipulation" }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                   </div>
                 </div>
@@ -7669,6 +7673,17 @@ const styles = `
                 </div>
               ))}
               {bnav("perfil")}
+
+              {/* Lightbox foto propia */}
+              {fotoAmpliada && (
+                <div onClick={() => setFotoAmpliada(null)}
+                  style={{ position:"fixed", inset:0, zIndex:9999, background:"rgba(0,0,0,.92)", display:"flex", alignItems:"center", justifyContent:"center", animation:"fadeIn .18s ease both", touchAction:"manipulation" }}>
+                  <img src={fotoAmpliada} alt="" style={{ maxWidth:"92vw", maxHeight:"88vh", borderRadius:16, objectFit:"contain", boxShadow:"0 8px 48px rgba(0,0,0,.7)" }}/>
+                  <div style={{ position:"absolute", top:"max(20px,env(safe-area-inset-top,20px))", right:20, width:38, height:38, borderRadius:"50%", background:"rgba(255,255,255,.12)", border:"1px solid rgba(255,255,255,.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
