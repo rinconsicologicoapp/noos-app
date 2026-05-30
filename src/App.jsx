@@ -7238,104 +7238,138 @@ const styles = `
 
           {/* PERFIL */}
           {!notifPanel && screen === "perfil" && (
-            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F0F2F0", animation:"screenFade 0.18s ease both" }}>
+            <div style={{ height:"100%", overflowY:"auto", paddingBottom:NAV_PB, background:"#F5F3F0", animation:"screenFade 0.18s ease both" }}>
 
-              {/* HEADER */}
-              <div style={{ background:"linear-gradient(160deg,#162A1C,#0F2015)", padding:"28px 20px 40px", textAlign:"center" }}>
-                <div style={{ position:"relative", display:"inline-block", marginBottom:10 }}>
-                  <div
-                    onClick={() => usuarioActual?.foto ? setFotoAmpliada(usuarioActual.foto) : null}
-                    style={{ width:64, height:64, background:"rgba(255,123,90,0.2)", borderRadius:"50%", border:"2px solid rgba(255,155,122,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, overflow:"hidden", cursor: usuarioActual?.foto ? "pointer" : "default" }}>
-                    {usuarioActual?.foto
-                      ? <img src={usuarioActual.foto} alt="foto" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
-                      : (avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar)
-                    }
-                  </div>
-                  <div
-                    onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); }}
-                    style={{ position:"absolute", bottom:0, right:0, width:22, height:22, background:"#FF7B5A", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid #0D0B1E", cursor:"pointer", touchAction:"manipulation" }}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+              {/* ── HERO HEADER ── */}
+              <div style={{ position:"relative", background:"linear-gradient(170deg,#1A0D28 0%,#0F1A10 55%,#162A1C 100%)", padding:"0 0 56px", overflow:"hidden" }}>
+                {/* Aura decorativa */}
+                <div style={{ position:"absolute", top:-60, left:"50%", transform:"translateX(-50%)", width:320, height:320, borderRadius:"50%", background:"radial-gradient(ellipse,rgba(255,123,90,.18) 0%,rgba(78,205,196,.06) 50%,transparent 70%)", pointerEvents:"none" }}/>
+                {/* Safe area top */}
+                <div style={{ height:"max(20px,env(safe-area-inset-top,20px))" }}/>
+                {/* Acciones top */}
+                <div style={{ display:"flex", justifyContent:"flex-end", padding:"8px 18px 0" }}>
+                  <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); }}
+                    style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.10)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", touchAction:"manipulation" }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" strokeWidth="2" strokeLinecap="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                   </div>
                 </div>
-                <div style={{ fontSize:17, fontWeight:700, color:"white", marginBottom:3 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
-                <div style={{ fontSize:11, color:"rgba(245,238,232,0.35)", marginBottom:10 }}>{usuarioActual?.email || ""}</div>
-                <div style={{ display:"inline-flex", background:"rgba(255,155,122,0.1)", border:"0.5px solid rgba(255,155,122,0.2)", borderRadius:20, padding:"4px 12px", gap:5, alignItems:"center" }}>
-                  <span style={{ fontSize:12 }}>{getRango(xp).icono}</span>
-                  <span style={{ fontSize:11, fontWeight:600, color:"#FFB347" }}>{getRango(xp).nombre} · {xp} XP</span>
+                {/* Avatar + nombre */}
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", padding:"18px 24px 0" }}>
+                  <div style={{ position:"relative", marginBottom:14 }}>
+                    {/* Glow ring */}
+                    <div style={{ position:"absolute", inset:-4, borderRadius:"50%", background:"linear-gradient(135deg,rgba(255,123,90,.5),rgba(78,205,196,.3))", filter:"blur(6px)", opacity:.7 }}/>
+                    <div
+                      onClick={() => usuarioActual?.foto ? setFotoAmpliada(usuarioActual.foto) : null}
+                      style={{ position:"relative", width:88, height:88, borderRadius:"50%", overflow:"hidden", border:"2.5px solid rgba(255,155,122,.5)", background:"rgba(255,123,90,.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, cursor: usuarioActual?.foto ? "pointer" : "default", flexShrink:0 }}>
+                      {usuarioActual?.foto
+                        ? <img src={usuarioActual.foto} alt="foto" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
+                        : (avatars.find(a=>a.id===avatar) ? avatars.find(a=>a.id===avatar).svg : avatar)
+                      }
+                    </div>
+                    {usuarioActual?.foto && (
+                      <div style={{ position:"absolute", bottom:2, right:2, width:20, height:20, borderRadius:"50%", background:"rgba(0,0,0,.55)", border:"1.5px solid rgba(255,255,255,.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ fontSize:22, fontWeight:800, color:"white", letterSpacing:"-0.02em", textAlign:"center", lineHeight:1.15, marginBottom:4 }}>{usuarioActual?.nombre || "Mi perfil"}</div>
+                  <div style={{ fontSize:12, color:"rgba(245,238,232,.38)", marginBottom:14, letterSpacing:"0.01em" }}>{usuarioActual?.email || ""}</div>
+                  {/* XP badge */}
+                  <div style={{ display:"inline-flex", alignItems:"center", gap:7, background:"rgba(255,179,71,.12)", border:"1px solid rgba(255,179,71,.22)", borderRadius:24, padding:"6px 16px" }}>
+                    <span style={{ fontSize:15 }}>{getRango(xp).icono}</span>
+                    <div>
+                      <span style={{ fontSize:12, fontWeight:800, color:"#FFD080", letterSpacing:"-0.01em" }}>{getRango(xp).nombre}</span>
+                      <span style={{ fontSize:11, color:"rgba(255,208,128,.5)", fontWeight:500, marginLeft:6 }}>{xp} XP</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div style={{ padding:"0 14px", marginTop:-18, position:"relative", zIndex:10 }}>
+              {/* ── CARDS FLOTANTES ── */}
+              <div style={{ padding:"0 16px", marginTop:-28, position:"relative", zIndex:10 }}>
 
-                {/* MI PSICÓLOGO */}
-                <div onClick={async () => { showScreen("perfil-psicologo"); }}
-                  style={{ background:"#FFFFFF", border:"0.5px solid rgba(255,155,122,0.15)", borderRadius:16, padding:"12px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:12, cursor:"pointer" }}>
-                  <div style={{ width:44, height:44, background:"rgba(255,123,90,0.15)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>👨‍⚕️</div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:10, color:"rgba(255,155,122,0.5)", fontWeight:600, textTransform:"uppercase", letterSpacing:0.5, marginBottom:2 }}>Mi psicólogo</div>
-                    <div style={{ fontSize:13, fontWeight:600, color:C.text }}>{usuarioActual?.psicologoNombre || "Mi psicólogo"}</div>
+                {/* MI PSICÓLOGO — card destacada */}
+                <div onClick={() => showScreen("perfil-psicologo")}
+                  style={{ background:"linear-gradient(135deg,#1E1030 0%,#2A1840 100%)", borderRadius:20, padding:"14px 16px", display:"flex", alignItems:"center", gap:14, marginBottom:12, cursor:"pointer", boxShadow:"0 4px 24px rgba(0,0,0,.22), 0 1px 0 rgba(255,255,255,.06) inset", border:"1px solid rgba(255,123,90,.18)", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                  <div style={{ width:46, height:46, borderRadius:14, background:"linear-gradient(135deg,rgba(255,123,90,.25),rgba(255,179,71,.15))", border:"1px solid rgba(255,123,90,.25)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF9B7A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                   </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(245,238,232,0.25)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,155,122,.45)", textTransform:"uppercase", letterSpacing:".10em", marginBottom:2 }}>Mi psicólogo</div>
+                    <div style={{ fontSize:14, fontWeight:700, color:"white", letterSpacing:"-0.01em", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{usuarioActual?.psicologoNombre || "Ver perfil"}</div>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,155,122,.4)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
 
-                {/* MI CUENTA */}
-                <div style={{ fontSize:11, fontWeight:600, color:"rgba(0,0,0,.45)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Mi cuenta</div>
-                <div style={{ background:"#FFFFFF", border:"0.5px solid rgba(255,155,122,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
-                  {[
-                    { ic:"user", lb:"Cambiar avatar", fn:() => setModal("avatar") },
-                    { ic:"edit", lb:"Editar perfil", fn:() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); } },
-                  ].map(({ ic, lb, fn }, i, arr) => (
-                    <div key={lb} onClick={fn}
-                      style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:i<arr.length-1?"0.5px solid rgba(255,155,122,0.06)":"none", cursor:"pointer" }}>
-                      <div style={{ width:30, height:30, background:"rgba(255,123,90,0.20)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                        {ic==="user" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
-                        {ic==="edit" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>}
-                        {ic==="bell" && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>}
-                      </div>
-                      <div style={{ flex:1, fontSize:13, fontWeight:500, color:C.text }}>{lb}</div>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.11)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                {/* ── MI CUENTA ── */}
+                <div style={{ fontSize:10, fontWeight:700, color:"rgba(0,0,0,.35)", marginBottom:8, letterSpacing:".12em", textTransform:"uppercase", paddingLeft:4 }}>Mi cuenta</div>
+                <div style={{ background:"white", borderRadius:18, overflow:"hidden", marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.06)", border:"1px solid rgba(0,0,0,.06)" }}>
+
+                  {/* Cambiar avatar */}
+                  <div onClick={() => setModal("avatar")}
+                    style={{ display:"flex", alignItems:"center", gap:13, padding:"13px 16px", borderBottom:"1px solid rgba(0,0,0,.05)", cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:"rgba(110,237,223,.13)", border:"1px solid rgba(110,237,223,.18)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ECDC4" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </div>
-                  ))}
+                    <div style={{ flex:1, fontSize:14, fontWeight:500, color:"#1A1A2E" }}>Cambiar avatar</div>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+
+                  {/* Editar perfil */}
+                  <div onClick={() => { setEditNombre(usuarioActual?.nombre||""); setEditTel(usuarioActual?.telefono||""); setEditContactoNombre(usuarioActual?.contactoEmergenciaNombre||""); setEditContactoTel(usuarioActual?.contactoEmergenciaTel||""); setModal("edit-perfil"); }}
+                    style={{ display:"flex", alignItems:"center", gap:13, padding:"13px 16px", cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:"rgba(255,123,90,.12)", border:"1px solid rgba(255,123,90,.18)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+                    </div>
+                    <div style={{ flex:1, fontSize:14, fontWeight:500, color:"#1A1A2E" }}>Editar perfil</div>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
                 </div>
 
-                {/* CONFIGURACIÓN */}
-                <div style={{ fontSize:11, fontWeight:600, color:"rgba(0,0,0,.45)", marginBottom:6, letterSpacing:0.8, textTransform:"uppercase" }}>Configuración</div>
-                <div style={{ background:"#FFFFFF", border:"0.5px solid rgba(255,155,122,0.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>
+                {/* ── CONFIGURACIÓN ── */}
+                <div style={{ fontSize:10, fontWeight:700, color:"rgba(0,0,0,.35)", marginBottom:8, letterSpacing:".12em", textTransform:"uppercase", paddingLeft:4 }}>Configuración</div>
+                <div style={{ background:"white", borderRadius:18, overflow:"hidden", marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.06)", border:"1px solid rgba(0,0,0,.06)" }}>
+
+                  {/* Privacidad */}
                   <div onClick={() => setModal("privacidad")}
-                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(255,155,122,0.06)", cursor:"pointer" }}>
-                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.20)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    style={{ display:"flex", alignItems:"center", gap:13, padding:"13px 16px", borderBottom:"1px solid rgba(0,0,0,.05)", cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:"rgba(78,163,130,.12)", border:"1px solid rgba(78,163,130,.18)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3D8A68" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
-                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:C.text }}>Privacidad y seguridad</div>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.11)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    <div style={{ flex:1, fontSize:14, fontWeight:500, color:"#1A1A2E" }}>Privacidad y seguridad</div>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
+
+                  {/* Modo oscuro */}
                   <div onClick={() => { const nuevo = !darkMode; setDarkMode(nuevo); localStorage.setItem('darkMode', nuevo); }}
-                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:"0.5px solid rgba(255,155,122,0.06)", cursor:"pointer" }}>
-                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.20)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+                    style={{ display:"flex", alignItems:"center", gap:13, padding:"13px 16px", borderBottom:"1px solid rgba(0,0,0,.05)", cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:"rgba(90,90,140,.10)", border:"1px solid rgba(90,90,140,.15)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6666AA" strokeWidth="2" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                     </div>
-                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:C.text }}>{darkMode?"Modo claro":"Modo oscuro"}</div>
-                    <div style={{ width:38, height:20, borderRadius:10, background:darkMode?"#FF7B5A":"rgba(245,230,208,0.15)", position:"relative", transition:"background 0.3s", flexShrink:0 }}>
-                      <div style={{ width:14, height:14, borderRadius:"50%", background:"white", position:"absolute", top:3, left:darkMode?21:3, transition:"left 0.3s" }}/>
+                    <div style={{ flex:1, fontSize:14, fontWeight:500, color:"#1A1A2E" }}>{darkMode ? "Modo claro" : "Modo oscuro"}</div>
+                    <div style={{ width:42, height:24, borderRadius:12, background:darkMode?"#FF7B5A":"rgba(0,0,0,.13)", position:"relative", transition:"background 0.25s", flexShrink:0 }}>
+                      <div style={{ width:18, height:18, borderRadius:"50%", background:"white", position:"absolute", top:3, left:darkMode?21:3, transition:"left 0.25s", boxShadow:"0 1px 4px rgba(0,0,0,.25)" }}/>
                     </div>
                   </div>
+
+                  {/* Valorar psicólogo */}
                   <div onClick={() => { cargarResenas(usuarioActual?.psicologoId); setModal("nueva-resena"); }}
-                    style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", cursor:"pointer" }}>
-                    <div style={{ width:30, height:30, background:"rgba(255,123,90,0.20)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B5A" strokeWidth="1.75" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    style={{ display:"flex", alignItems:"center", gap:13, padding:"13px 16px", cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:"rgba(255,179,71,.13)", border:"1px solid rgba(255,179,71,.20)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFB347" strokeWidth="2" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     </div>
-                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:C.text }}>Valorar a mi psicólogo</div>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.11)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    <div style={{ flex:1, fontSize:14, fontWeight:500, color:"#1A1A2E" }}>Valorar a mi psicólogo</div>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
-                {/* CERRAR SESIÓN */}
+                {/* ── CERRAR SESIÓN ── */}
                 <div onClick={cerrarSesion}
-                  style={{ background:"rgba(239,154,154,0.08)", border:"0.5px solid rgba(239,154,154,0.15)", borderRadius:14, padding:"11px 14px", display:"flex", alignItems:"center", gap:12, marginBottom:8, cursor:"pointer" }}>
-                  <div style={{ width:30, height:30, background:"rgba(239,154,154,0.12)", borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#EF9A9A" strokeWidth="1.75" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  style={{ background:"rgba(239,83,80,.06)", border:"1px solid rgba(239,83,80,.14)", borderRadius:16, padding:"13px 16px", display:"flex", alignItems:"center", gap:13, marginBottom:8, cursor:"pointer", touchAction:"manipulation", WebkitTapHighlightColor:"transparent" }}>
+                  <div style={{ width:34, height:34, borderRadius:10, background:"rgba(239,83,80,.10)", border:"1px solid rgba(239,83,80,.16)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#EF5350" strokeWidth="2" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                   </div>
-                  <div style={{ flex:1, fontSize:13, fontWeight:500, color:"#EF9A9A" }}>Cerrar sesión</div>
+                  <div style={{ flex:1, fontSize:14, fontWeight:600, color:"#EF5350" }}>Cerrar sesión</div>
                 </div>
 
               </div>
